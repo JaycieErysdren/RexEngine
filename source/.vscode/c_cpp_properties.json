@@ -1,0 +1,28 @@
+// ========================================================
+//
+// FILE:			/source/.vscode/c_cpp_properties.json
+//
+// AUTHORS:			Jaycie Ewald
+//
+// PROJECT:			Rex Engine
+//
+// LICENSE:			ACSL 1.4
+//
+// DESCRIPTION:		VSCode C / C++ settings.
+//
+// LAST EDITED:		October 10th, 2022
+//
+// ========================================================
+
+{
+	"configurations": [
+		{
+			"name": "Default",
+			"includePath": [
+				"${workspaceFolder}/**",
+				"${workspaceFolder}/core/inc/**"
+			]
+		}
+	],
+	"version": 4
+}
