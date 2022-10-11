@@ -1,6 +1,6 @@
 ## ========================================================
 ##
-## FILE:			   /source/CMakeLists.txt
+## FILE:			/source/CMakeLists.txt
 ##
 ## AUTHORS:			Jaycie Ewald
 ##
@@ -8,7 +8,7 @@
 ##
 ## LICENSE:			ACSL 1.4
 ##
-## DESCRIPTION:		CMake project definition.
+## DESCRIPTION:		Main CMake project definition.
 ##
 ## LAST EDITED:		October 10th, 2022
 ##
