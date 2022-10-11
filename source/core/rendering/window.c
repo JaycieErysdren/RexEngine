@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Windowing systems.
 //
-// LAST EDITED:		October 10th, 2022
+// LAST EDITED:		October 11th, 2022
 //
 // ========================================================
 
@@ -21,17 +21,10 @@
 // External windows
 //
 
-int _rex_num_windows_external;
-
 // Add an external window
 rex_window_external *Rex_WindowExternal_Add(rex_byte_c *title, rex_int x, rex_int y, rex_int width, rex_int height, rex_uint flags)
 {
-	SDL_Window *win = SDL_CreateWindow(title, x, y, width, height, flags);
-
-	if (win == NULL)
-		Rex_Failure("SDL Window failed to initialize! (%s)", SDL_GetError());
-
-	rex_window_external *rex_win = calloc(1, sizeof(rex_window_external));
+	rex_window_external *rex_win = (rex_window_external *)calloc(1, sizeof(rex_window_external));
 
 	if (rex_win == NULL)
 		Rex_Failure("Rex Window failed to initialize! (%s)", SDL_GetError());
@@ -41,10 +34,11 @@ rex_window_external *Rex_WindowExternal_Add(rex_byte_c *title, rex_int x, rex_in
 	rex_win->height = height;
 	rex_win->pos.x = x;
 	rex_win->pos.y = y;
-	rex_win->pos.z = 0;
+	rex_win->window = SDL_CreateWindow(title, x, y, width, height, flags);
 
-	_rex_num_windows_external += 1;
-	
+	if (rex_win->window  == NULL)
+		Rex_Failure("SDL Window failed to initialize! (%s)", SDL_GetError());
+
 	return rex_win;
 }
 
@@ -52,11 +46,5 @@ rex_window_external *Rex_WindowExternal_Add(rex_byte_c *title, rex_int x, rex_in
 void Rex_WindowExternal_Remove(rex_window_external *window)
 {
 	SDL_DestroyWindow(window->window);
-
-	free(window);
-
-	_rex_num_windows_external -= 1;
-
-	if (_rex_num_windows_external <= 0)
-		Rex_Failure("No windows to display!");
+	//free(window);
 }

@@ -10,62 +10,59 @@
 //
 // DESCRIPTION:		Rex Engine types.
 //
-// LAST EDITED:		October 10th, 2022
+// LAST EDITED:		October 11th, 2022
 //
 // ========================================================
 
-typedef int rex_int;
-typedef unsigned int rex_uint;
+typedef int rex_int;							// Integer
+typedef unsigned int rex_uint;					// Unsigned integer
 
-typedef short rex_short;
-typedef unsigned short rex_ushort;
+typedef short rex_short;						// Short
+typedef unsigned short rex_ushort;				// Unsigned short
 
-typedef long rex_long;
-typedef unsigned long rex_ulong;
+typedef long rex_long;							// Long
+typedef unsigned long rex_ulong;				// Unsigned long
 
-typedef long long rex_double;
-typedef unsigned long long rex_udouble;
+typedef long long rex_double;					// Double
+typedef unsigned long long rex_udouble;			// Unsigned double
 
-typedef char rex_byte;
-typedef unsigned char rex_ubyte;
+typedef char rex_byte;							// Byte
+typedef unsigned char rex_ubyte;				// Unsigned byte
 
-typedef const char rex_byte_c;
-typedef const unsigned char rex_ubyte_c;
+typedef const char rex_byte_c;					// Const byte
+typedef const unsigned char rex_ubyte_c;		// Unsigned const byte
 
-// True
-#define REX_TRUE 1
+#define REX_TRUE 1								// True
+#define REX_FALSE 0								// False
 
-// False
-#define REX_FALSE 0
-
-// Normal 3D coordinate
+// 2D screen coordinate
 typedef struct
 {
-	rex_int x, y, z;
-} rex_coord;
+	rex_int x, y;
+} rex_coord_screen;
 
-// Large 3D coordinate
+// 2D screen axis-aligned bounding box
+typedef struct
+{
+	rex_coord_screen min, max;
+} rex_aabb_screen;
+
+// 3D coordinate
 typedef struct
 {
 	rex_long x, y, z;
-} rex_coord_l;
+} rex_coord;
 
-// Normal Axis-aligned bounding box
+// 3D axis-aligned bounding box
 typedef struct
 {
 	rex_coord min, max;
 } rex_aabb;
 
-// Large Axis-aligned bounding box
-typedef struct
-{
-	rex_coord_l min, max;
-} rex_aabb_l;
-
 // External window
 typedef struct
 {
-	rex_coord pos;
+	rex_coord_screen pos;
 	SDL_Window *window;
 	rex_byte_c *title;
 	rex_int width;
