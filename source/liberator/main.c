@@ -17,3 +17,18 @@
 // Include engine header
 #include "rex.h"
 
+SDL_Window *liberator_window_main;
+
+void main(int argc, char *argv[])
+{
+	Rex_Startup();
+
+	liberator_window_main = Rex_WindowExternal_Add("Liberator", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, 0);
+
+	while (SDL_TRUE)
+	{
+		Rex_IO_ReadDevices();
+	}
+
+	Rex_Shutdown();
+}

@@ -1,6 +1,6 @@
 ## ========================================================
 ##
-## FILE:			/source/liberator/CMakeLists.txt
+## FILE:			/source/core/CMakeLists.txt
 ##
 ## AUTHORS:			Jaycie Ewald
 ##
@@ -8,21 +8,23 @@
 ##
 ## LICENSE:			ACSL 1.4
 ##
-## DESCRIPTION:		Liberator CMake project definition.
+## DESCRIPTION:		Core CMake project definition.
 ##
 ## LAST EDITED:		October 10th, 2022
 ##
 ## ========================================================
 
-set(LIBERATOR_SRC
-	main.c
+set(REX_SRC
+	io/devices.c
+	logic/startup.c
+	logic/shutdown.c
+	rendering/window.c
+	utilities/failure.c
 )
 
-add_executable(liberator ${LIBERATOR_SRC})
+add_library(rex ${REX_SRC})
 
-target_link_libraries(liberator rex)
-
-set_target_properties(liberator
+set_target_properties(rex
 	PROPERTIES
 	ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/../build"
 	LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/../build"
