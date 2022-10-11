@@ -17,7 +17,7 @@
 // Include engine header
 #include "rex.h"
 
-SDL_Window *liberator_window_main;
+rex_window_external *liberator_window_main;
 
 void main(int argc, char *argv[])
 {
@@ -25,9 +25,14 @@ void main(int argc, char *argv[])
 
 	liberator_window_main = Rex_WindowExternal_Add("Liberator", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, 0);
 
-	while (SDL_TRUE)
+	while (REX_TRUE)
 	{
 		Rex_IO_ReadDevices();
+
+		if (KEY_DOWN(SDL_SCANCODE_Q))
+			Rex_WindowExternal_Remove(liberator_window_main);
+
+		//SDL_Log("mouse x: %d, mouse y: %d\n", _rex_mouse.x, _rex_mouse.y);
 	}
 
 	Rex_Shutdown();

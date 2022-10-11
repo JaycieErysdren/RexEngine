@@ -18,10 +18,12 @@
 // Startup handling (startup.c)
 //
 
+// Startup everything
 void Rex_Startup(void);
 
 //
 // Shutdown handling (shutdown.c)
 //
 
+// Shutdown everything
 void Rex_Shutdown(void);

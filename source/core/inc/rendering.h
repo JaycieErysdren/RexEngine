@@ -18,8 +18,8 @@
 // Windowing systems (window.c)
 //
 
-// External windows
-SDL_Window *Rex_WindowExternal_Add(const char *title, int x, int y, int width, int height, unsigned int flags);
-void Rex_WindowExternal_Remove(SDL_Window *window);
+// Add an external window
+rex_window_external *Rex_WindowExternal_Add(rex_byte_c *title, rex_int x, rex_int y, rex_int width, rex_int height, rex_uint flags);
 
-// Internal windows
+// Remove an external window
+void Rex_WindowExternal_Remove(rex_window_external *window);

@@ -19,15 +19,5 @@
 		{
 			"path": "."
 		}
-	],
-	"settings": {
-		"files.associations": {
-			"cstdlib": "c",
-			"rex.h": "c",
-			"stdio.h": "c",
-			"stdlib.h": "c",
-			"rendering.h": "c",
-			"logic.h": "c"
-		}
-	}
+	]
 }

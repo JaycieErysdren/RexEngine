@@ -31,6 +31,11 @@
 // Rex Engine headers
 //
 
+#ifndef __TYPES_H__
+#define __TYPES_H__
+#include "types.h"
+#endif
+
 #ifndef __LOGIC_H__
 #define __LOGIC_H__
 #include "logic.h"
