@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Windowing systems.
 //
-// LAST EDITED:		October 12th, 2022
+// LAST EDITED:		October 13th, 2022
 //
 // ========================================================
 
@@ -73,7 +73,7 @@ void Rex_ExternalWindow_SwapBuffer(rex_window_external *window)
 }
 
 // Clear the screen for an OpenGL window.
-void Rex_ExternalWindow_ClearGL(rex_rgba rgba, rex_ubyte depth)
+void Rex_ExternalWindow_ClearGL(rex_rgba rgba, rex_byte depth)
 {
 	glClearColor(rgba.r / 255, rgba.g / 255, rgba.b / 255, rgba.a / 255);
 	glClearDepth(depth / 255);

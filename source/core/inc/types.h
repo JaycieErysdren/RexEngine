@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex Engine types.
 //
-// LAST EDITED:		October 12th, 2022
+// LAST EDITED:		October 13th, 2022
 //
 // ========================================================
 
@@ -80,13 +80,13 @@ typedef struct
 // RGBA structure
 typedef struct
 {
-	rex_ubyte r, g, b, a;
+	rex_byte r, g, b, a;
 } rex_rgba;
 
 // RGB structure
 typedef struct
 {
-	rex_ubyte r, g, b;
+	rex_byte r, g, b;
 } rex_rgb;
 
 // External window
