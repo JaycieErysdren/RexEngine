@@ -10,7 +10,7 @@
 ##
 ## DESCRIPTION:		Core CMake project definition.
 ##
-## LAST EDITED:		October 10th, 2022
+## LAST EDITED:		October 12th, 2022
 ##
 ## ========================================================
 
@@ -23,10 +23,3 @@ set(REX_SRC
 )
 
 add_library(rex ${REX_SRC})
-
-set_target_properties(rex
-	PROPERTIES
-	ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/../build"
-	LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/../build"
-	RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/../build"
-)

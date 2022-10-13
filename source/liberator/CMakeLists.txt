@@ -10,7 +10,7 @@
 ##
 ## DESCRIPTION:		Liberator CMake project definition.
 ##
-## LAST EDITED:		October 10th, 2022
+## LAST EDITED:		October 12th, 2022
 ##
 ## ========================================================
 
@@ -22,9 +22,3 @@ add_executable(liberator ${LIBERATOR_SRC})
 
 target_link_libraries(liberator rex)
 
-set_target_properties(liberator
-	PROPERTIES
-	ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/../build"
-	LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/../build"
-	RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/../build"
-)

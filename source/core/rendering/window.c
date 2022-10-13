@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Windowing systems.
 //
-// LAST EDITED:		October 11th, 2022
+// LAST EDITED:		October 12th, 2022
 //
 // ========================================================
 
@@ -36,8 +36,10 @@ rex_window_external *Rex_WindowExternal_Add(rex_byte_c *title, rex_int x, rex_in
 	rex_win->pos.y = y;
 	rex_win->window = SDL_CreateWindow(title, x, y, width, height, flags);
 
-	if (rex_win->window  == NULL)
+	if (rex_win->window == NULL)
 		Rex_Failure("SDL Window failed to initialize! (%s)", SDL_GetError());
+
+	rex_win->context = SDL_GL_CreateContext(rex_win->window);
 
 	return rex_win;
 }
@@ -47,4 +49,33 @@ void Rex_WindowExternal_Remove(rex_window_external *window)
 {
 	SDL_DestroyWindow(window->window);
 	//free(window);
+}
+
+// External window resize callback function
+void Rex_WindowExternal_CBFN_Resize(rex_int width, rex_int height)
+{
+	if (height <= 0) height = 1;
+	if (width <= 0) width = 1;
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+
+	glViewport(0, 0, width, height);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+}
+
+// Swap the buffers for an OpenGL window.
+void Rex_ExternalWindow_SwapBuffer(rex_window_external *window)
+{
+	SDL_GL_SwapWindow(window->window);
+}
+
+// Clear the screen for an OpenGL window.
+void Rex_ExternalWindow_ClearGL(rex_rgba rgba, rex_ubyte depth)
+{
+	glClearColor(rgba.r / 255, rgba.g / 255, rgba.b / 255, rgba.a / 255);
+	glClearDepth(depth / 255);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }

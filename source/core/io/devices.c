@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Device I/O functions.
 //
-// LAST EDITED:		October 11th, 2022
+// LAST EDITED:		October 12th, 2022
 //
 // ========================================================
 
@@ -39,6 +39,17 @@ void Rex_IO_ReadDevices(void)
 			case SDL_QUIT:
 				Rex_Shutdown();
 				break;
+			
+			case SDL_WINDOWEVENT:
+				switch (event.window.event)
+				{
+					case SDL_WINDOWEVENT_RESIZED:
+						Rex_WindowExternal_CBFN_Resize(event.window.data1, event.window.data2);
+						break;
+
+					default:
+						break;
+				}
 
 			case SDL_KEYDOWN:
 				rex_keys[event.key.keysym.scancode] = REX_TRUE;
