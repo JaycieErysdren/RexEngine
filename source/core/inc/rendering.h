@@ -15,6 +15,16 @@
 // ========================================================
 
 //
+// Embedded system palettes (palettes.c)
+//
+
+// BRender standard palette (STD.PAL)
+extern const rex_palette palette_brender;
+
+// Quake palette (PALETTE.LMP)
+extern const rex_palette palette_quake;
+
+//
 // Windowing systems (window.c)
 //
 

@@ -89,6 +89,9 @@ typedef struct
 	rex_byte r, g, b;
 } rex_rgb;
 
+// 256 color palette structure (RGB)
+typedef rex_rgb rex_palette[256];
+
 // External window
 typedef struct
 {
