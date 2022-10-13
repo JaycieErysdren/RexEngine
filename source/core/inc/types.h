@@ -89,6 +89,12 @@ typedef struct
 	rex_byte r, g, b;
 } rex_rgb;
 
+// rex_rgb shortcut
+#define REX_RGB(R, G, B) (rex_rgb){R, G, B}
+
+// rex_rgba shortcut
+#define REX_RGBA(R, G, B, A) (rex_rgba){R, G, B, A}
+
 // 256 color palette structure (RGB)
 typedef rex_rgb rex_palette[256];
 
