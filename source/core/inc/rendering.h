@@ -41,4 +41,4 @@ void Rex_WindowExternal_CBFN_Resize(rex_int width, rex_int height);
 void Rex_ExternalWindow_SwapBuffer(rex_window_external *window);
 
 // Clear the screen for an OpenGL window.
-void Rex_ExternalWindow_ClearGL(rex_rgba rgba, rex_byte depth);
+void Rex_ExternalWindow_ClearGL(rex_rgba rgba, rex_ubyte depth);

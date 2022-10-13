@@ -18,7 +18,6 @@
 #include "rex.h"
 
 rex_window_external *window1;
-rex_rgba red = {255, 0, 0, 255};
 
 void main(int argc, char *argv[])
 {
@@ -39,8 +38,6 @@ void main(int argc, char *argv[])
 
 	glDepthFunc(GL_LESS);
 
-	glMatrixMode(GL_MODELVIEW);
-
 	while (REX_TRUE)
 	{
 		Rex_IO_ReadDevices();
@@ -50,43 +47,55 @@ void main(int argc, char *argv[])
 
 		Rex_ExternalWindow_ClearGL(REX_RGBA_GRY, 255);
 
+		glViewport(0, 0, window1->width, window1->height);
+
 		glMatrixMode(GL_MODELVIEW);
-
 		glLoadIdentity();
-		glTranslatef(-1.5f, 0.0f, -6.0f);
+		gluPerspective(60.0, (GLdouble)window1->width / (GLdouble)window1->height, 0.1, 100.0);
 
-		glBegin(GL_TRIANGLES);
-			// Front
-			glColor3f(1.0f, 0.0f, 0.0f);
-			glVertex3f( 0.0f, 1.0f, 0.0f);
-			glColor3f(0.0f, 1.0f, 0.0f);
-			glVertex3f(-1.0f, -1.0f, 1.0f);
-			glColor3f(0.0f, 0.0f, 1.0f);
-			glVertex3f(1.0f, -1.0f, 1.0f);
-		
-			// Right
-			glColor3f(1.0f, 0.0f, 0.0f);
-			glVertex3f(0.0f, 1.0f, 0.0f);
-			glColor3f(0.0f, 0.0f, 1.0f);
-			glVertex3f(1.0f, -1.0f, 1.0f);
-			glColor3f(0.0f, 1.0f, 0.0f);
-			glVertex3f(1.0f, -1.0f, -1.0f);
-		
-			// Back
-			glColor3f(1.0f, 0.0f, 0.0f);
-			glVertex3f(0.0f, 1.0f, 0.0f);
-			glColor3f(0.0f, 1.0f, 0.0f);
-			glVertex3f(1.0f, -1.0f, -1.0f);
-			glColor3f(0.0f, 0.0f, 1.0f);
-			glVertex3f(-1.0f, -1.0f, -1.0f);
-		
-			// Left
-			glColor3f(1.0f,0.0f,0.0f);
-			glVertex3f( 0.0f, 1.0f, 0.0f);
-			glColor3f(0.0f,0.0f,1.0f);
-			glVertex3f(-1.0f,-1.0f,-1.0f);
-			glColor3f(0.0f,1.0f,0.0f);
-			glVertex3f(-1.0f,-1.0f, 1.0f);
+		// Render a cube
+		glBegin(GL_QUADS);
+			// Top face
+			glColor3f(   0.0f, 1.0f,  0.0f );  // Green
+			glVertex3f(  1.0f, 1.0f, -1.0f );  // Top-right of top face
+			glVertex3f( -1.0f, 1.0f, -1.0f );  // Top-left of top face
+			glVertex3f( -1.0f, 1.0f,  1.0f );  // Bottom-left of top face
+			glVertex3f(  1.0f, 1.0f,  1.0f );  // Bottom-right of top face
+
+			// Bottom face
+			glColor3f(   1.0f,  0.5f,  0.0f ); // Orange
+			glVertex3f(  1.0f, -1.0f, -1.0f ); // Top-right of bottom face
+			glVertex3f( -1.0f, -1.0f, -1.0f ); // Top-left of bottom face
+			glVertex3f( -1.0f, -1.0f,  1.0f ); // Bottom-left of bottom face
+			glVertex3f(  1.0f, -1.0f,  1.0f ); // Bottom-right of bottom face
+
+			// Front face
+			glColor3f(   1.0f,  0.0f, 0.0f );  // Red
+			glVertex3f(  1.0f,  1.0f, 1.0f );  // Top-Right of front face
+			glVertex3f( -1.0f,  1.0f, 1.0f );  // Top-left of front face
+			glVertex3f( -1.0f, -1.0f, 1.0f );  // Bottom-left of front face
+			glVertex3f(  1.0f, -1.0f, 1.0f );  // Bottom-right of front face
+
+			// Back face
+			glColor3f(   1.0f,  1.0f,  0.0f ); // Yellow
+			glVertex3f(  1.0f, -1.0f, -1.0f ); // Bottom-Left of back face
+			glVertex3f( -1.0f, -1.0f, -1.0f ); // Bottom-Right of back face
+			glVertex3f( -1.0f,  1.0f, -1.0f ); // Top-Right of back face
+			glVertex3f(  1.0f,  1.0f, -1.0f ); // Top-Left of back face
+
+			// Left face
+			glColor3f(   0.0f,  0.0f,  1.0f);  // Blue
+			glVertex3f( -1.0f,  1.0f,  1.0f);  // Top-Right of left face
+			glVertex3f( -1.0f,  1.0f, -1.0f);  // Top-Left of left face
+			glVertex3f( -1.0f, -1.0f, -1.0f);  // Bottom-Left of left face
+			glVertex3f( -1.0f, -1.0f,  1.0f);  // Bottom-Right of left face
+
+			// Right face
+			glColor3f(   1.0f,  0.0f,  1.0f);  // Violet
+			glVertex3f(  1.0f,  1.0f,  1.0f);  // Top-Right of left face
+			glVertex3f(  1.0f,  1.0f, -1.0f);  // Top-Left of left face
+			glVertex3f(  1.0f, -1.0f, -1.0f);  // Bottom-Left of left face
+			glVertex3f(  1.0f, -1.0f,  1.0f);  // Bottom-Right of left face
 		glEnd();
 
 		Rex_ExternalWindow_SwapBuffer(window1);

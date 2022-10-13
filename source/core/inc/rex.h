@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Main Rex Engine header.
 //
-// LAST EDITED:		October 12th, 2022
+// LAST EDITED:		October 13th, 2022
 //
 // ========================================================
 
@@ -27,6 +27,7 @@
 
 #include <SDL2/SDL.h>
 #include <GL/gl.h>
+#include <GL/glut.h>
 
 //
 // Rex Engine headers

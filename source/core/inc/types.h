@@ -37,22 +37,6 @@ typedef float rex_float;							// Float
 #define REX_TRUE 1									// True
 #define REX_FALSE 0									// False
 
-#define REX_RGBA_RED (rex_rgba){255, 0, 0, 255}		// RGBA Red
-#define REX_RGBA_YLW (rex_rgba){128, 128, 0, 255}	// RGBA Yellow
-#define REX_RGBA_GRN (rex_rgba){0, 255, 0, 255}		// RGBA Green
-#define REX_RGBA_CYN (rex_rgba){0, 128, 128, 255}	// RGBA Cyan
-#define REX_RGBA_BLU (rex_rgba){0, 0, 255, 255}		// RGBA Blue
-#define REX_RGBA_MGN (rex_rgba){128, 0, 128, 255}	// RGBA Magenta
-#define REX_RGBA_GRY (rex_rgba){128, 128, 128, 255}	// RGBA Grey
-
-#define REX_RGB_RED (rex_rgb){255, 0, 0}			// RGBA Red
-#define REX_RGB_YLW (rex_rgb){128, 128, 0}			// RGB Yellow
-#define REX_RGB_GRN (rex_rgb){0, 255, 0}			// RGBA Green
-#define REX_RGB_CYN (rex_rgb){0, 128, 128}			// RGB Cyan
-#define REX_RGB_BLU (rex_rgb){0, 0, 255}			// RGBA Blue
-#define REX_RGB_MGN (rex_rgb){128, 0, 128}			// RGB Magenta
-#define REX_RGB_GRY (rex_rgb){128, 128, 128}		// RGB Grey
-
 // 2D screen coordinate
 typedef struct
 {
@@ -80,13 +64,13 @@ typedef struct
 // RGBA structure
 typedef struct
 {
-	rex_byte r, g, b, a;
+	rex_ubyte r, g, b, a;
 } rex_rgba;
 
 // RGB structure
 typedef struct
 {
-	rex_byte r, g, b;
+	rex_ubyte r, g, b;
 } rex_rgb;
 
 // rex_rgb shortcut
@@ -94,6 +78,22 @@ typedef struct
 
 // rex_rgba shortcut
 #define REX_RGBA(R, G, B, A) (rex_rgba){R, G, B, A}
+
+#define REX_RGBA_RED REX_RGBA(255, 0, 0, 255)		// RGBA Red
+#define REX_RGBA_YLW REX_RGBA(128, 128, 0, 255)		// RGBA Yellow
+#define REX_RGBA_GRN REX_RGBA(0, 255, 0, 255)		// RGBA Green
+#define REX_RGBA_CYN REX_RGBA(0, 128, 128, 255)		// RGBA Cyan
+#define REX_RGBA_BLU REX_RGBA(0, 0, 255, 255)		// RGBA Blue
+#define REX_RGBA_MGN REX_RGBA(128, 0, 128, 255)		// RGBA Magenta
+#define REX_RGBA_GRY REX_RGBA(128, 128, 128, 255)	// RGBA Grey
+
+#define REX_RGB_RED REX_RGB(255, 0, 0)				// RGBA Red
+#define REX_RGB_YLW REX_RGB(128, 128, 0)			// RGB Yellow
+#define REX_RGB_GRN REX_RGB(0, 255, 0)				// RGBA Green
+#define REX_RGB_CYN REX_RGB(0, 128, 128)			// RGB Cyan
+#define REX_RGB_BLU REX_RGB(0, 0, 255)				// RGBA Blue
+#define REX_RGB_MGN REX_RGB(128, 0, 128)			// RGB Magenta
+#define REX_RGB_GRY REX_RGB(128, 128, 128)			// RGB Grey
 
 // 256 color palette structure (RGB)
 typedef rex_rgb rex_palette[256];
