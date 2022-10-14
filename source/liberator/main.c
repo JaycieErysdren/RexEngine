@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Liberator program entry point.
 //
-// LAST EDITED:		October 12th, 2022
+// LAST EDITED:		October 14th, 2022
 //
 // ========================================================
 
@@ -35,23 +35,28 @@ void main(int argc, char *argv[])
 	SDL_GL_SetSwapInterval(1);
 
 	glEnable(GL_DEPTH_TEST);
-
-	glDepthFunc(GL_LESS);
+	glDepthFunc(GL_LEFT);
 
 	while (REX_TRUE)
 	{
-		Rex_IO_ReadDevices();
+		SDL_GetWindowSize(window1->window, &window1->width, &window1->height);
 
-		if (KEY_DOWN(SDL_SCANCODE_Q))
-			Rex_WindowExternal_Remove(window1);
-
-		Rex_ExternalWindow_ClearGL(REX_RGBA_GRY, 255);
-
-		glViewport(0, 0, window1->width, window1->height);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		gluPerspective(90.0, (GLdouble)window1->width / (GLdouble)window1->height, 0.01f, 1000);
 
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
-		gluPerspective(60.0, (GLdouble)window1->width / (GLdouble)window1->height, 0.1, 100.0);
+		glTranslatef(0, 0, -3);
+		glRotatef(50, 1, 0, 0);
+		glRotatef(70, 0, 1, 0);
+
+		Rex_IO_ReadDevices();
+
+		if (KEY_DOWN(SDL_SCANCODE_Q))
+			Rex_Shutdown();
+
+		Rex_ExternalWindow_ClearGL(REX_RGBA_GRY, 255);
 
 		// Render a cube
 		glBegin(GL_QUADS);
