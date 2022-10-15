@@ -14,6 +14,10 @@
 //
 // ========================================================
 
+//
+// Base types
+//
+
 typedef int rex_int;								// Integer
 typedef unsigned int rex_uint;						// Unsigned integer
 
@@ -34,8 +38,14 @@ typedef const unsigned char rex_ubyte_c;			// Unsigned const byte
 
 typedef float rex_float;							// Float
 
+typedef void rex_buffer;							// Buffer
+
 #define REX_TRUE 1									// True
 #define REX_FALSE 0									// False
+
+//
+// Coordinates
+//
 
 // 2D screen coordinate
 typedef struct
@@ -43,23 +53,31 @@ typedef struct
 	rex_int x, y;
 } rex_coord_screen;
 
-// 2D screen axis-aligned bounding box
-typedef struct
-{
-	rex_coord_screen min, max;
-} rex_aabb_screen;
-
 // 3D coordinate
 typedef struct
 {
 	rex_long x, y, z;
 } rex_coord;
 
+//
+// AABB
+//
+
+// 2D screen axis-aligned bounding box
+typedef struct
+{
+	rex_coord_screen min, max;
+} rex_aabb_screen;
+
 // 3D axis-aligned bounding box
 typedef struct
 {
 	rex_coord min, max;
 } rex_aabb;
+
+//
+// Colors and palettes
+//
 
 // RGBA structure
 typedef struct
@@ -98,6 +116,10 @@ typedef struct
 // 256 color palette structure (RGB)
 typedef rex_rgb rex_palette[256];
 
+//
+// Windows
+//
+
 // External window
 typedef struct
 {
@@ -108,3 +130,21 @@ typedef struct
 	rex_int width;
 	rex_int height;
 } rex_window_external;
+
+//
+// Resources
+//
+
+// Resource container
+typedef struct
+{
+	rex_byte identiifer[32];
+	rex_int type;
+	rex_buffer *data;
+} rex_resource;
+
+// Resource file header
+typedef struct
+{
+	rex_byte identifier[16];
+} rex_resfile_header;
