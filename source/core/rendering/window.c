@@ -18,6 +18,12 @@
 #include "rex.h"
 
 //
+// Video modes
+//
+
+rex_int rex_videomode;
+
+//
 // External windows
 //
 
@@ -40,6 +46,8 @@ rex_window_external *Rex_WindowExternal_Add(rex_byte_c *title, rex_int x, rex_in
 		Rex_Failure("SDL Window failed to initialize! (%s)", SDL_GetError());
 
 	rex_win->context = SDL_GL_CreateContext(rex_win->window);
+
+	rex_videomode = REX_VIDEOMODE_WINDOWED;
 
 	return rex_win;
 }

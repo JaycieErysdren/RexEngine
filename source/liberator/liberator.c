@@ -107,14 +107,64 @@ void Liberator_Mouse_OrbitControls(void)
 	if (rex_mouse_scroll_delta[1] < 16) camera_position[2] += rex_mouse_scroll_delta[1] * 16;
 }
 
+// Print help text
+void Liberator_PrintHelpText(void)
+{
+	printf("Liberator v0.0.1\n");
+	printf("By Erysdren Media\n");
+	printf("===============================");
+	printf("\n");
+	printf("Usage:\n");
+	printf("Liberator -op0 pak0.pak\n");
+	printf("\n");
+	printf("Arguments:\n");
+	printf("-opXXX - Select file operation\n");
+	printf("\n");
+	printf("File operations:\n");
+	printf("0 - List file contents\n");
+	printf("1 - Extract file contents\n");
+	printf("2 - Convert file contents\n");
+	printf("3 - View file contents\n");
+
+	Rex_Shutdown();
+}
+
 // Main function
 void main(int argc, char *argv[])
 {
-	rex_int error;
+	rex_int error = REX_ERROR_NONE;
+	rex_int operation = REX_FORMATOP_GETINFO;
+	rex_byte filename[512];
+
+	// If no arguments, print help text
+	if (argc == 1) Liberator_PrintHelpText();
+
+	// Process commandline arguments
+	while (*++argv)
+	{
+		if (!strcmp(*argv, "-?"))
+		{
+			Liberator_PrintHelpText();
+		}
+		else if (sscanf(*argv, "-op%d", &operation) == 1)
+		{
+			Rex_Message("Input operation: %d - %s", operation, Rex_Formats_OptHelper(operation));
+		}
+		else if (**argv == '-')
+		{
+			Rex_Warning("Invalid commandline switch %s", *argv);
+		}
+		else
+		{
+			sprintf(filename, *argv);
+			Rex_Message("Input filename: %s", filename);
+		}
+	}
+
+	// Startup engine
 	Rex_Startup();
 
-	error = Rex_Formats_Load_idPakV1("pak0.pak");
-
+	error = Rex_Formats_idTech_Pak(REX_FORMATOP_GETINFO, filename);
 	if (error) Rex_Failure("%s", Rex_GetError(error));
 
 	Rex_Shutdown();

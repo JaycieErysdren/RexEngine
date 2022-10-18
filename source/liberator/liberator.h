@@ -17,6 +17,9 @@
 // Include engine header
 #include "rex.h"
 
+// Getopt
+#include <getopt.h>
+
 // Camera angle
 extern rex_vector3d camera_angle;
 
@@ -31,3 +34,6 @@ void Liberator_Camera_SetAngle(rex_double x, rex_double y, rex_double z);
 
 // Handle mouse inputs
 void Liberator_Mouse_OrbitControls(void);
+
+// Print help text
+void Liberator_PrintHelpText(void);

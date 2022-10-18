@@ -50,6 +50,15 @@ extern const rex_palette palette_quake;
 // Windowing systems (window.c)
 //
 
+extern rex_int rex_videomode;
+
+enum rex_videomodes
+{
+	REX_VIDEOMODE_TERMINAL,				// Terminal mode
+	REX_VIDEOMODE_WINDOWED,				// Windowed mode
+	REX_VIDEOMODE_FULLSCREEN			// Fullscreen mode
+};
+
 // Add an external window
 rex_window_external *Rex_WindowExternal_Add(rex_byte_c *title, rex_int x, rex_int y, rex_int width, rex_int height, rex_uint flags);
 

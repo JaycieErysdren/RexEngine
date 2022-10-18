@@ -17,6 +17,9 @@
 // Include engine header
 #include "rex.h"
 
+// id pack magic
+rex_byte_c magic_idpak[4] = "PACK";
+
 // id pack header
 typedef struct
 {
@@ -33,7 +36,8 @@ typedef struct
 	rex_int len_file;
 } idpak_file_t;
 
-rex_int Rex_Formats_Load_idPakV1(rex_byte *filename)
+// Load and process an id Packfile. Returns an error code.
+rex_int Rex_Formats_idTech_Pak(rex_int operation, rex_byte *filename)
 {
 	rex_int num_files, i;
 	idpak_header_t pak_header;
@@ -42,20 +46,21 @@ rex_int Rex_Formats_Load_idPakV1(rex_byte *filename)
 	FILE *file = fopen(filename, "rb");
 
 	if (file == NULL)
-		return REX_ERROR_NOFILE;
+		return REX_ERROR_FILE_NONE;
 
-	if (!fread(&pak_header, sizeof(pak_header), 1, file)) return REX_ERROR_NOREAD;
-	if (memcmp(pak_header.magic, "PACK", 4)) return REX_ERROR_BADFMT;
+	if (!fread(&pak_header, sizeof(pak_header), 1, file)) return REX_ERROR_FILE_READ;
+	if (memcmp(pak_header.magic, magic_idpak, 4)) return REX_ERROR_FMT_BAD;
 
 	num_files = pak_header.len_filetable / sizeof(idpak_file_t);
 
-	if (fseek(file, pak_header.ofs_filetable, SEEK_SET)) return REX_ERROR_MALFORMED;
+	if (fseek(file, pak_header.ofs_filetable, SEEK_SET)) return REX_ERROR_FMT_MALFORMED;
 
 	for (i = 0; i < num_files; i++)
 	{
-		if (!fread(&pak_file, sizeof(pak_file), 1, file)) return REX_ERROR_NOREAD;
+		if (!fread(&pak_file, sizeof(pak_file), 1, file)) return REX_ERROR_FILE_READ;
 
-		SDL_Log("File %d: %s", i, pak_file.filename);
+		if (operation == REX_FORMATOP_GETINFO)
+			Rex_Log("%s file %d: %s", filename, i, pak_file.filename);
 	}
 
 	fclose(file);
