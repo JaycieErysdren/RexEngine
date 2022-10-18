@@ -17,8 +17,10 @@
 // Include engine header
 #include "rex.h"
 
+// Lobotomy LEV file sky texture data
 typedef rex_byte lev_skydata_t[131104];
 
+// Lobotomy LEV file header
 typedef struct
 {
 	rex_uint unknown_01;
@@ -52,7 +54,7 @@ rex_int Rex_Formats_Lobotomy_Lev(rex_int operation, rex_byte *filename)
 
 	if (!fread(&lev_header, sizeof(lev_header_t), 1, file)) return REX_ERROR_FILE_READ;
 
-	if (!REX_BIG_ENDIAN)
+	if (REX_LITTLE_ENDIAN)
 	{
 		lev_header.unknown_01 = Rex_EndianSwap_UInt(lev_header.unknown_01);
 		lev_header.unknown_02 = Rex_EndianSwap_UInt(lev_header.unknown_02);
