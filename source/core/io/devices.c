@@ -29,6 +29,12 @@ rex_coord_screen rex_mouse;
 // Mouse x and y delta since last read
 rex_vector2d rex_mouse_delta;
 
+// Mouse scroll wheel x and y since last read
+rex_vector2d rex_mouse_scroll;
+
+// Mouse scroll wheel x and y delta since last read
+rex_vector2d rex_mouse_scroll_delta;
+
 // The current desktop resolution
 rex_vector2 rex_desktop_size;
 
@@ -37,10 +43,14 @@ void Rex_IO_ReadDevices(void)
 {
 	SDL_Event event;
 	rex_coord_screen rex_mouse_previous = rex_mouse;
+	rex_vector2d rex_mouse_scroll_previous;
 	SDL_DisplayMode dm;
 
 	if (SDL_GetDesktopDisplayMode(0, &dm) != 0)
 		Rex_Failure("SDL_GetDesktopDisplayMode failed: %s", SDL_GetError());
+
+	rex_mouse_scroll_previous[0] = rex_mouse_scroll[0];
+	rex_mouse_scroll_previous[1] = rex_mouse_scroll[1];
 
 	rex_desktop_size[0] = dm.w;
 	rex_desktop_size[1] = dm.h;
@@ -80,6 +90,11 @@ void Rex_IO_ReadDevices(void)
 						break;
 				}
 
+			case SDL_MOUSEWHEEL:
+				rex_mouse_scroll[0] += event.wheel.x;
+				rex_mouse_scroll[1] += event.wheel.y;
+				break;
+
 			case SDL_MOUSEBUTTONDOWN:
 				rex_mouse_buttons[event.button.button] = REX_TRUE;
 				break;
@@ -100,4 +115,17 @@ void Rex_IO_ReadDevices(void)
 				break;
 		}
 	}
+
+	// If the mousewheel has moved, calculate the delta
+	if (rex_mouse_scroll_previous[0] != rex_mouse_scroll[0])
+		rex_mouse_scroll_delta[0] = rex_mouse_scroll[0] - rex_mouse_scroll_previous[0];
+	else
+		rex_mouse_scroll_delta[0] = 0;
+
+	if (rex_mouse_scroll_previous[1] != rex_mouse_scroll[1])
+		rex_mouse_scroll_delta[1] = rex_mouse_scroll[1] - rex_mouse_scroll_previous[1];
+	else
+		rex_mouse_scroll_delta[1] = 0;
+
+	SDL_Log("X: %d Y %d", rex_mouse_scroll_delta[0], rex_mouse_scroll_delta[1]);
 }

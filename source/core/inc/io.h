@@ -30,6 +30,12 @@ extern rex_coord_screen rex_mouse;
 // Mouse x and y delta since last read
 extern rex_vector2d rex_mouse_delta;
 
+// Mouse scroll wheel x and y since last read
+extern rex_vector2d rex_mouse_scroll;
+
+// Mouse scroll wheel x and y delta since last read
+extern rex_vector2d rex_mouse_scroll_delta;
+
 // The current desktop resolution
 extern rex_vector2 rex_desktop_size;
 

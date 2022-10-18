@@ -102,6 +102,9 @@ void Liberator_Mouse_OrbitControls(void)
 		if (rex_mouse_delta[0]) camera_position[0] += rex_mouse_delta[0];
 		if (rex_mouse_delta[1]) camera_position[1] -= rex_mouse_delta[1];
 	}
+
+	// cap this because of weirdness with reading it upon startup
+	if (rex_mouse_scroll_delta[1] < 16) camera_position[2] += rex_mouse_scroll_delta[1] * 16;
 }
 
 // Main function
