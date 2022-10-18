@@ -164,10 +164,13 @@ void main(int argc, char *argv[])
 	// Startup engine
 	Rex_Startup();
 
-	error = Rex_Formats_idTech_Pak(REX_FORMATOP_GETINFO, filename);
-	if (error) Rex_Failure("%s", Rex_GetError(error));
+	if (operation == REX_FORMATOP_GETINFO)
+	{
+		error = Rex_Formats_idTech_Pak(REX_FORMATOP_GETINFO, filename);
+		if (error) Rex_Failure("%s", Rex_GetError(error));
 
-	Rex_Shutdown();
+		Rex_Shutdown();
+	}
 
 	window_main = Rex_WindowExternal_Add(
 		"Liberator",
