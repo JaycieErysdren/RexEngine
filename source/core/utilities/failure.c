@@ -106,6 +106,9 @@ rex_byte *Rex_GetError(rex_int errorcode)
 		case REX_ERROR_FILE_READ:
 			return "Couldn't read the file specified.";
 
+		case REX_ERROR_MEMALLOC:
+			return "Couldn't allocate the specified memory";
+
 		case REX_ERROR_FMT_MALFORMED:
 			return "The file specified appears malformed.";
 

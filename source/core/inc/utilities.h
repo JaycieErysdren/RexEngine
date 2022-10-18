@@ -55,6 +55,7 @@ enum rex_error_codes
 	REX_ERROR_NONE,					// No error
 	REX_ERROR_FILE_NONE,			// Couldn't find the file specified
 	REX_ERROR_FILE_READ,			// Couldn't read the file specified
+	REX_ERROR_MEMALLOC,				// Couldn't allocate the specified memory
 	REX_ERROR_FMT_MALFORMED,		// The file specified appears malformed
 	REX_ERROR_FMT_BAD,				// The specified format was incorrect
 	REX_ERROR_FMT_DETERMINE,		// Couldn't determine the format of the specified file
