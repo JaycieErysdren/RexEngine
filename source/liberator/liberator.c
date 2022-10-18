@@ -53,6 +53,39 @@ rex_int cube_vertices[] = {
 	64, -64, 64
 };
 
+rex_ubyte cube_colors[] = {
+	// Top face
+	0, 255, 0,
+	0, 255, 0,
+	0, 255, 0,
+	0, 255, 0,
+	// Bottom face
+	255, 128, 0,
+	255, 128, 0,
+	255, 128, 0,
+	255, 128, 0,
+	// Front face
+	255, 0, 0,
+	255, 0, 0,
+	255, 0, 0,
+	255, 0, 0,
+	// Back face
+	255, 255, 0,
+	255, 255, 0,
+	255, 255, 0,
+	255, 255, 0,
+	// Left face
+	0, 0, 255,
+	0, 0, 255,
+	0, 0, 255,
+	0, 0, 255,
+	// Right face
+	255, 0, 255,
+	255, 0, 255,
+	255, 0, 255,
+	255, 0, 255
+};
+
 // Camera angle
 rex_vector3d camera_angle;
 
@@ -190,6 +223,8 @@ void main(int argc, char *argv[])
 	SDL_GL_SetSwapInterval(1);
 
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_VERTEX_ARRAY);
+	glEnable(GL_COLOR_ARRAY);
 	glDepthFunc(GL_LEFT);
 
 	Liberator_Camera_SetPosition(0, 0, -256);
@@ -198,6 +233,9 @@ void main(int argc, char *argv[])
 	rex_udouble frame_start;
 	rex_udouble frame_end;
 	rex_float frame_elapsed;
+
+	glVertexPointer(3, GL_INT, 0, cube_vertices);
+	glColorPointer(3, GL_UNSIGNED_BYTE, 0, cube_colors);
 
 	while (REX_TRUE)
 	{
@@ -229,50 +267,8 @@ void main(int argc, char *argv[])
 		// Clear the screen
 		Rex_ExternalWindow_ClearGL(REX_RGBA_GRY, 255);
 
-		// Render a cube
-		glBegin(GL_QUADS);
-			// Top face
-			glColor3ub(0, 255, 0); // Green
-			glVertex3i(64, 64, -64); // Top-right of top face
-			glVertex3i(-64, 64, -64); // Top-left of top face
-			glVertex3i(-64, 64, 64); // Bottom-left of top face
-			glVertex3i(64, 64, 64); // Bottom-right of top face
-
-			// Bottom face
-			glColor3ub(255, 128, 0); // Orange
-			glVertex3i(64, -64, -64); // Top-right of bottom face
-			glVertex3i(-64, -64, -64); // Top-left of bottom face
-			glVertex3i(-64, -64, 64); // Bottom-left of bottom face
-			glVertex3i(64, -64, 64); // Bottom-right of bottom face
-
-			// Front face
-			glColor3ub(255, 0, 0); // Red
-			glVertex3i(64, 64, 64); // Top-Right of front face
-			glVertex3i(-64, 64, 64); // Top-left of front face
-			glVertex3i(-64, -64, 64); // Bottom-left of front face
-			glVertex3i(64, -64, 64); // Bottom-right of front face
-
-			// Back face
-			glColor3ub(255, 255, 0); // Yellow
-			glVertex3i(64, -64, -64); // Bottom-Left of back face
-			glVertex3i(-64, -64, -64); // Bottom-Right of back face
-			glVertex3i(-64, 64, -64); // Top-Right of back face
-			glVertex3i(64, 64, -64); // Top-Left of back face
-
-			// Left face
-			glColor3ub(0, 0, 255); // Blue
-			glVertex3i(-64, 64, 64); // Top-Right of left face
-			glVertex3i(-64, 64, -64); // Top-Left of left face
-			glVertex3i(-64, -64, -64); // Bottom-Left of left face
-			glVertex3i(-64, -64, 64); // Bottom-Right of left face
-
-			// Right face
-			glColor3ub(255, 0, 255); // Violet
-			glVertex3i(64, 64, 64); // Top-Right of left face
-			glVertex3i(64, 64, -64); // Top-Left of left face
-			glVertex3i(64, -64, -64); // Bottom-Left of left face
-			glVertex3i(64, -64, 64); // Bottom-Right of left face
-		glEnd();
+		// Draw vertex arrays
+		glDrawArrays(GL_QUADS, 0, 24);
 
 		// Regenerate text surface
 		Rex_Fonts_GenerateTextSurface(&window_main_text1,
