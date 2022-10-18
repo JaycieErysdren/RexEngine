@@ -16,6 +16,7 @@
 
 set(REX_SRC
 	formats/formats.c
+	formats/lev.c
 	formats/pak.c
 	io/devices.c
 	logic/startup.c
@@ -23,6 +24,7 @@ set(REX_SRC
 	rendering/fonts.c
 	rendering/palettes.c
 	rendering/window.c
+	utilities/endian.c
 	utilities/failure.c
 )
 

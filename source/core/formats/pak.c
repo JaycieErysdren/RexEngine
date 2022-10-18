@@ -8,7 +8,7 @@
 //
 // LICENSE:			ACSL 1.4
 //
-// DESCRIPTION:		Loading id Software pak files.
+// DESCRIPTION:		id Software pak files.
 //
 // LAST EDITED:		October 18th, 2022
 //

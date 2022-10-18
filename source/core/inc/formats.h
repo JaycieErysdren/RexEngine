@@ -59,11 +59,15 @@ enum rex_format_operations
 rex_byte *Rex_Formats_OptHelper(rex_int optcode);
 
 //
+// Lobotomy Software LEV files (lev.c)
+//
+
+// Load and process a Lobotomy LEV file. Returns an error code. (Formats/Lobotomy Software/lev_quake.ksy)
+rex_int Rex_Formats_Lobotomy_Lev(rex_int operation, rex_byte *filename);
+
+//
 // idTech pak files (pak.c)
 //
 
-// idTech pak file signature
-extern rex_byte_c magic_idpak[4];
-
-// Load and process an idTech pak file
+// Load and process an idTech PAK file. Returns an error code. (Formats/id Software/pak.ksy)
 rex_int Rex_Formats_idTech_Pak(rex_int operation, rex_byte *filename);
