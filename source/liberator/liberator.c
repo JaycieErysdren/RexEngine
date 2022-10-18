@@ -131,8 +131,14 @@ void main(int argc, char *argv[])
 	Liberator_Camera_SetPosition(0, 0, -256);
 	Liberator_Camera_SetAngle(45, 45, 0);
 
+	rex_udouble frame_start;
+	rex_udouble frame_end;
+	rex_float frame_elapsed;
+
 	while (REX_TRUE)
 	{
+		frame_start = SDL_GetTicks();
+
 		SDL_GetWindowSize(window_main->window, &window_main->width, &window_main->height);
 
 		glMatrixMode(GL_PROJECTION);
@@ -206,7 +212,8 @@ void main(int argc, char *argv[])
 		Rex_Fonts_GenerateTextSurface(&window_main_text1,
 			font_dos_8x16,
 			REX_RGBA_WHT,
-			"Camera PosX: %d\nCamera PosY: %d\nCamera PosZ: %d\n\nCamera AngX: %d\nCamera AngY: %d\nCamera AngZ: %d",
+			"FPS: %.2f\n\nCamera PosX: %d\nCamera PosY: %d\nCamera PosZ: %d\n\nCamera AngX: %d\nCamera AngY: %d\nCamera AngZ: %d",
+			frame_elapsed,
 			camera_position[0], camera_position[1], camera_position[2],
 			camera_angle[0], camera_angle[1], camera_angle[2]
 		);
@@ -215,6 +222,9 @@ void main(int argc, char *argv[])
 
 		// Swap GL buffer
 		Rex_ExternalWindow_SwapBuffer(window_main);
+
+		frame_end = SDL_GetTicks();
+		frame_elapsed = 1.0f / ((frame_end - frame_start) / 1000.0f);
 	}
 
 	Rex_Shutdown();
