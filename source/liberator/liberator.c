@@ -104,6 +104,7 @@ void Liberator_Mouse_OrbitControls(void)
 	}
 }
 
+// Main function
 void main(int argc, char *argv[])
 {
 	Rex_Startup();
@@ -137,6 +138,7 @@ void main(int argc, char *argv[])
 
 	while (REX_TRUE)
 	{
+		// Get start-of-frame time
 		frame_start = SDL_GetTicks();
 
 		SDL_GetWindowSize(window_main->window, &window_main->width, &window_main->height);
@@ -209,6 +211,7 @@ void main(int argc, char *argv[])
 			glVertex3i(64, -64, 64); // Bottom-Right of left face
 		glEnd();
 
+		// Regenerate text surface
 		Rex_Fonts_GenerateTextSurface(&window_main_text1,
 			font_dos_8x16,
 			REX_RGBA_WHT,
@@ -218,11 +221,13 @@ void main(int argc, char *argv[])
 			camera_angle[0], camera_angle[1], camera_angle[2]
 		);
 
+		// Render text surface on screen
 		Rex_ExternalWindow_RenderSurfaceGL(window_main, window_main_text1, 16, 16);
 
 		// Swap GL buffer
 		Rex_ExternalWindow_SwapBuffer(window_main);
 
+		// Get end-of-frame time and calculate time elapsed
 		frame_end = SDL_GetTicks();
 		frame_elapsed = 1.0f / ((frame_end - frame_start) / 1000.0f);
 	}

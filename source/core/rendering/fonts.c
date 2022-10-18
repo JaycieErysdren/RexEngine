@@ -17,6 +17,13 @@
 // Include engine header
 #include "rex.h"
 
+// Include embedded fonts
+#include "embedded/ModernDOS8x8.h"
+#include "embedded/ModernDOS8x14.h"
+#include "embedded/ModernDOS8x16.h"
+#include "embedded/ModernDOS9x14.h"
+#include "embedded/ModernDOS9x16.h"
+
 TTF_Font *font_dos_8x8;			// DOS standard font, 8x8
 TTF_Font *font_dos_8x14;		// DOS standard font, 8x14
 TTF_Font *font_dos_8x16;		// DOS standard font, 8x16
@@ -29,17 +36,29 @@ void Rex_Fonts_Startup(void)
 	if (TTF_Init() != 0)
 		Rex_Failure("TTF_Init() failed: %s", SDL_GetError());
 
-	font_dos_8x8 = TTF_OpenFont("../fonts/ModernDOS8x8.ttf", 8);
-	font_dos_8x14 = TTF_OpenFont("../fonts/ModernDOS8x14.ttf", 14);
-	font_dos_8x16 = TTF_OpenFont("../fonts/ModernDOS8x16.ttf", 16);
-	font_dos_9x14 = TTF_OpenFont("../fonts/ModernDOS9x14.ttf", 14);
-	font_dos_9x16 = TTF_OpenFont("../fonts/ModernDOS9x16.ttf", 16);
+	SDL_RWops *_font_dos_8x8 = SDL_RWFromConstMem(ModernDOS8x8_ttf, ModernDOS8x8_ttf_len);
+	SDL_RWops *_font_dos_8x14 = SDL_RWFromConstMem(ModernDOS8x14_ttf, ModernDOS8x14_ttf_len);
+	SDL_RWops *_font_dos_8x16 = SDL_RWFromConstMem(ModernDOS8x16_ttf, ModernDOS8x16_ttf_len);
+	SDL_RWops *_font_dos_9x14 = SDL_RWFromConstMem(ModernDOS9x14_ttf, ModernDOS9x14_ttf_len);
+	SDL_RWops *_font_dos_9x16 = SDL_RWFromConstMem(ModernDOS9x16_ttf, ModernDOS9x16_ttf_len);
 
-	if (font_dos_8x8 == NULL) Rex_Failure("Failed to load /fonts/ModernDOS8x8.ttf");
-	if (font_dos_8x14 == NULL) Rex_Failure("Failed to load /fonts/ModernDOS8x14.ttf");
-	if (font_dos_8x16 == NULL) Rex_Failure("Failed to load /fonts/ModernDOS8x16.ttf");
-	if (font_dos_9x14 == NULL) Rex_Failure("Failed to load /fonts/ModernDOS9x14.ttf");
-	if (font_dos_9x16 == NULL) Rex_Failure("Failed to load /fonts/ModernDOS9x16.ttf");
+	//font_dos_8x8 = TTF_OpenFont("../fonts/ModernDOS8x8.ttf", 8);
+	//font_dos_8x14 = TTF_OpenFont("../fonts/ModernDOS8x14.ttf", 28);
+	//font_dos_8x16 = TTF_OpenFont("../fonts/ModernDOS8x16.ttf", 32);
+	//font_dos_9x14 = TTF_OpenFont("../fonts/ModernDOS9x14.ttf", 28);
+	//font_dos_9x16 = TTF_OpenFont("../fonts/ModernDOS9x16.ttf", 32);
+
+	font_dos_8x8 = TTF_OpenFontRW(_font_dos_8x8, REX_TRUE, 16);
+	font_dos_8x14 = TTF_OpenFontRW(_font_dos_8x14, REX_TRUE, 14);
+	font_dos_8x16 = TTF_OpenFontRW(_font_dos_8x16, REX_TRUE, 16);
+	font_dos_9x14 = TTF_OpenFontRW(_font_dos_9x14, REX_TRUE, 14);
+	font_dos_9x16 = TTF_OpenFontRW(_font_dos_9x16, REX_TRUE, 16);
+
+	//if (font_dos_8x8 == NULL) Rex_Failure("Failed to load /fonts/ModernDOS8x8.ttf");
+	//if (font_dos_8x14 == NULL) Rex_Failure("Failed to load /fonts/ModernDOS8x14.ttf");
+	//if (font_dos_8x16 == NULL) Rex_Failure("Failed to load /fonts/ModernDOS8x16.ttf");
+	//if (font_dos_9x14 == NULL) Rex_Failure("Failed to load /fonts/ModernDOS9x14.ttf");
+	//if (font_dos_9x16 == NULL) Rex_Failure("Failed to load /fonts/ModernDOS9x16.ttf");
 }
 
 // Shut down system fonts

@@ -20,7 +20,8 @@
 			"name": "Default",
 			"includePath": [
 				"${workspaceFolder}/**",
-				"${workspaceFolder}/core/inc/**"
+				"${workspaceFolder}/core/inc/**",
+				"${workspaceFolder}/core/inc/embedded/**"
 			]
 		}
 	],
