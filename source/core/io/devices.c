@@ -127,5 +127,5 @@ void Rex_IO_ReadDevices(void)
 	else
 		rex_mouse_scroll_delta[1] = 0;
 
-	SDL_Log("X: %d Y %d", rex_mouse_scroll_delta[0], rex_mouse_scroll_delta[1]);
+	//SDL_Log("X: %d Y %d", rex_mouse_scroll_delta[0], rex_mouse_scroll_delta[1]);
 }
