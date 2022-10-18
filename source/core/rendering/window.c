@@ -79,3 +79,48 @@ void Rex_ExternalWindow_ClearGL(rex_rgba rgba, rex_ubyte depth)
 	glClearDepth((GLclampf)depth / 255);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
+
+// Render an SDL surface onto an OpenGL external window.
+void Rex_ExternalWindow_RenderSurfaceGL(rex_window_external *window, SDL_Surface *surface, rex_int x, rex_int y)
+{
+	if (surface == NULL) Rex_Failure("Surface is null!");
+	GLuint texture;
+
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+
+	gluOrtho2D(0, window->width, window->height, 0);
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, surface->w, surface->h, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, surface->pixels);
+
+	glBegin(GL_QUADS);
+		glTexCoord2i(0, 0); glVertex2i(x, y);
+		glTexCoord2i(1, 0); glVertex2i(x + surface->w, y);
+		glTexCoord2i(1, 1); glVertex2i(x + surface->w, y + surface->h);
+		glTexCoord2i(0, 1); glVertex2i(x, y + surface->h);
+	glEnd();
+
+	glDisable(GL_BLEND);
+	glDisable(GL_TEXTURE_2D);
+	glEnable(GL_DEPTH_TEST);
+
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+}

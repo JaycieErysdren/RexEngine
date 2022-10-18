@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Main Rex Engine header.
 //
-// LAST EDITED:		October 13th, 2022
+// LAST EDITED:		October 18th, 2022
 //
 // ========================================================
 
@@ -22,10 +22,16 @@
 #include <stdlib.h>
 
 //
-// Module headers
+// SDL2 module headers
 //
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
+
+//
+// OpenGL module headers
+//
+
 #include <GL/gl.h>
 #include <GL/glut.h>
 

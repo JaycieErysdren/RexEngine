@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Shutdown functions.
 //
-// LAST EDITED:		October 10th, 2022
+// LAST EDITED:		October 18th, 2022
 //
 // ========================================================
 
@@ -20,6 +20,7 @@
 // Shutdown everything
 void Rex_Shutdown(void)
 {
+	Rex_Fonts_Shutdown();
 	SDL_Quit();
 	exit(EXIT_SUCCESS);
 }

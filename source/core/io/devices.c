@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Device I/O functions.
 //
-// LAST EDITED:		October 12th, 2022
+// LAST EDITED:		October 18th, 2022
 //
 // ========================================================
 
@@ -20,17 +20,46 @@
 // Keyboard scancode array
 rex_byte rex_keys[512];
 
+// Mouse button scancode array
+rex_byte rex_mouse_buttons[32];
+
 // Mouse x and y coordinates (relative to screen resolution)
 rex_coord_screen rex_mouse;
+
+// Mouse x and y delta since last read
+rex_vector2d rex_mouse_delta;
+
+// The current desktop resolution
+rex_vector2 rex_desktop_size;
 
 // Reads all currently active devices (keyboard, mouse, etc)
 void Rex_IO_ReadDevices(void)
 {
 	SDL_Event event;
+	rex_coord_screen rex_mouse_previous = rex_mouse;
+	SDL_DisplayMode dm;
+
+	if (SDL_GetDesktopDisplayMode(0, &dm) != 0)
+		Rex_Failure("SDL_GetDesktopDisplayMode failed: %s", SDL_GetError());
+
+	rex_desktop_size[0] = dm.w;
+	rex_desktop_size[1] = dm.h;
 
 	SDL_PumpEvents();
 
+	// Get mouse state into the global mouse position coordinates
 	SDL_GetMouseState(&rex_mouse.x, &rex_mouse.y);
+
+	// If the mouse has moved, calculate the delta
+	if (rex_mouse_previous.x != rex_mouse.x)
+		rex_mouse_delta[0] = rex_mouse.x - rex_mouse_previous.x;
+	else
+		rex_mouse_delta[0] = 0;
+
+	if (rex_mouse_previous.y != rex_mouse.y)
+		rex_mouse_delta[1] = rex_mouse.y - rex_mouse_previous.y;
+	else
+		rex_mouse_delta[1] = 0;
 
 	while (SDL_PollEvent(&event))
 	{
@@ -50,6 +79,14 @@ void Rex_IO_ReadDevices(void)
 					default:
 						break;
 				}
+
+			case SDL_MOUSEBUTTONDOWN:
+				rex_mouse_buttons[event.button.button] = REX_TRUE;
+				break;
+
+			case SDL_MOUSEBUTTONUP:
+				rex_mouse_buttons[event.button.button] = REX_FALSE;
+				break;
 
 			case SDL_KEYDOWN:
 				rex_keys[event.key.keysym.scancode] = REX_TRUE;

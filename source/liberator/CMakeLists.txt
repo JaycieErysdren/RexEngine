@@ -10,12 +10,12 @@
 ##
 ## DESCRIPTION:		Liberator CMake project definition.
 ##
-## LAST EDITED:		October 12th, 2022
+## LAST EDITED:		October 18th, 2022
 ##
 ## ========================================================
 
 set(LIBERATOR_SRC
-	main.c
+	liberator.c
 )
 
 add_executable(liberator ${LIBERATOR_SRC})

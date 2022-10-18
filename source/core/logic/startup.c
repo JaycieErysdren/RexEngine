@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Startup functions.
 //
-// LAST EDITED:		October 10th, 2022
+// LAST EDITED:		October 18th, 2022
 //
 // ========================================================
 
@@ -20,6 +20,16 @@
 // Startup everything
 void Rex_Startup(void)
 {
+	SDL_DisplayMode dm;
+
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
-		Rex_Failure("SDL failed to initialize! (%s)", SDL_GetError());
+		Rex_Failure("SDL failed to initialize: %s", SDL_GetError());
+
+	if (SDL_GetDesktopDisplayMode(0, &dm) != 0)
+		Rex_Failure("SDL_GetDesktopDisplayMode failed: %s", SDL_GetError());
+
+	Rex_Fonts_Startup();
+
+	rex_desktop_size[0] = dm.w;
+	rex_desktop_size[1] = dm.h;
 }
