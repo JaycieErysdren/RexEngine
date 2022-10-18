@@ -44,6 +44,11 @@
 #include "types.h"
 #endif
 
+#ifndef __FORMATS_H__
+#define __FORMATS_H__
+#include "formats.h"
+#endif
+
 #ifndef __LOGIC_H__
 #define __LOGIC_H__
 #include "logic.h"

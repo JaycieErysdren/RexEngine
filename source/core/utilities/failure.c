@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Failure handling.
 //
-// LAST EDITED:		October 10th, 2022
+// LAST EDITED:		October 18th, 2022
 //
 // ========================================================
 
@@ -39,4 +39,29 @@ void Rex_Failure(char *s, ...)
 	SDL_Quit();
 	printf("%s\n", failure_message);
 	exit(EXIT_FAILURE);
+}
+
+// Return a helper string for a given error code.
+rex_byte *Rex_GetError(rex_int errorcode)
+{
+	switch (errorcode)
+	{
+		case REX_ERROR_NONE:
+			return "No error.";
+
+		case REX_ERROR_NOFILE:
+			return "Couldn't find the file specified.";
+
+		case REX_ERROR_NOREAD:
+			return "Couldn't read the file specified.";
+
+		case REX_ERROR_MALFORMED:
+			return "The file specified appears malformed.";
+
+		case REX_ERROR_BADFMT:
+			return "The specified format was incorrect";
+
+		default:
+			return "Invalid error code";
+	}
 }

@@ -18,22 +18,22 @@
 // Base types
 //
 
-typedef int rex_int;								// Integer
+typedef signed int rex_int;							// Signed integer
 typedef unsigned int rex_uint;						// Unsigned integer
 
-typedef short rex_short;							// Short
-typedef unsigned short rex_ushort;					// Unsigned short
+typedef signed short int rex_short;					// Signed short
+typedef unsigned short int rex_ushort;				// Unsigned short
 
-typedef long rex_long;								// Long
-typedef unsigned long rex_ulong;					// Unsigned long
+typedef signed long int rex_long;					// Signed long
+typedef unsigned long int rex_ulong;				// Unsigned long
 
-typedef long long rex_double;						// Double
-typedef unsigned long long rex_udouble;				// Unsigned double
+typedef signed long long int rex_double;			// Signed double
+typedef unsigned long long int rex_udouble;			// Unsigned double
 
-typedef char rex_byte;								// Byte
+typedef signed char rex_byte;						// Signed byte
 typedef unsigned char rex_ubyte;					// Unsigned byte
 
-typedef const char rex_byte_c;						// Const byte
+typedef const signed char rex_byte_c;				// Signed const byte
 typedef const unsigned char rex_ubyte_c;			// Unsigned const byte
 
 typedef float rex_float;							// Float

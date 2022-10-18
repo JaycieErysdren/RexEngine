@@ -15,6 +15,7 @@
 ## ========================================================
 
 set(REX_SRC
+	formats/pak.c
 	io/devices.c
 	logic/startup.c
 	logic/shutdown.c

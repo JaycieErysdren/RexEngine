@@ -14,7 +14,7 @@
 //
 // ========================================================
 
-// Include engine header
+// Include liberator header
 #include "liberator.h"
 
 rex_window_external *window_main;
@@ -110,7 +110,14 @@ void Liberator_Mouse_OrbitControls(void)
 // Main function
 void main(int argc, char *argv[])
 {
+	rex_int error;
 	Rex_Startup();
+
+	error = Rex_Formats_Load_idPakV1("pak0.pak");
+
+	if (error) Rex_Failure("%s", Rex_GetError(error));
+
+	Rex_Shutdown();
 
 	window_main = Rex_WindowExternal_Add(
 		"Liberator",
