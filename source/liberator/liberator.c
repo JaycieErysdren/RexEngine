@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Liberator program entry point.
 //
-// LAST EDITED:		October 18th, 2022
+// LAST EDITED:		October 19th, 2022
 //
 // ========================================================
 
@@ -197,6 +197,7 @@ void main(int argc, char *argv[])
 	// Startup engine
 	Rex_Startup();
 
+	// Determine operation to do
 	if (operation == REX_FORMATOP_GETINFO)
 	{
 		error = Rex_Formats_idTech_MDL(REX_FORMATOP_GETINFO, filename);
@@ -204,7 +205,13 @@ void main(int argc, char *argv[])
 
 		Rex_Shutdown();
 	}
+	else if (operation == REX_FORMATOP_VIEW)
+	{
+		error = Rex_Formats_idTech_MDL(REX_FORMATOP_VIEW, filename);
+		if (error) Rex_Failure("%s", Rex_GetError(error));
+	}
 
+	// Add main window
 	window_main = Rex_WindowExternal_Add(
 		"Liberator",
 		SDL_WINDOWPOS_CENTERED,
@@ -213,6 +220,7 @@ void main(int argc, char *argv[])
 		SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
 	);
 
+	// Setup GL context
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -220,23 +228,29 @@ void main(int argc, char *argv[])
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 
+	// Set doublebuffer swap interval
 	SDL_GL_SetSwapInterval(1);
 
+	// Enable GL attributes
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_VERTEX_ARRAY);
 	glEnable(GL_COLOR_ARRAY);
 	glDepthFunc(GL_LEFT);
 
+	// Reset camera position
 	Liberator_Camera_SetPosition(0, 0, -256);
 	Liberator_Camera_SetAngle(45, 45, 0);
 
-	glVertexPointer(3, GL_INT, 0, cube_vertices);
+	// Set vertex and color pointers
+	glVertexPointer(3, GL_FLOAT, 0, gl_vertices_f);
 	glColorPointer(3, GL_UNSIGNED_BYTE, 0, cube_colors);
 
+	// Start counting time
 	rex_udouble frame_start;
 	rex_udouble frame_end;
 	rex_float frame_elapsed;
 
+	// Main loop
 	while (REX_TRUE)
 	{
 		// Get start-of-frame time
@@ -268,7 +282,7 @@ void main(int argc, char *argv[])
 		Rex_ExternalWindow_ClearGL(REX_RGBA_GRY, 255);
 
 		// Draw vertex arrays
-		glDrawArrays(GL_QUADS, 0, 24);
+		glDrawArrays(GL_TRIANGLES, 0, num_gl_vertices_f);
 
 		// Regenerate text surface
 		Rex_Fonts_GenerateTextSurface(&window_main_text1,
@@ -291,5 +305,6 @@ void main(int argc, char *argv[])
 		frame_elapsed = 1.0f / ((frame_end - frame_start) / 1000.0f);
 	}
 
+	// Shutdown engine
 	Rex_Shutdown();
 }

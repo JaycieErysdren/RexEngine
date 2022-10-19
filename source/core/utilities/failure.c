@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Failure handling.
 //
-// LAST EDITED:		October 18th, 2022
+// LAST EDITED:		October 19th, 2022
 //
 // ========================================================
 
@@ -61,7 +61,7 @@ void Rex_Warning(char *s, ...)
 void Rex_Message(char *s, ...)
 {
 	va_list args;
-	char info_header[] = "Info: ";
+	char info_header[] = "Message: ";
 	char info_message[512];
 
 	strcpy(info_message, info_header);
@@ -71,7 +71,7 @@ void Rex_Message(char *s, ...)
 	va_end(args);
 
 	if (rex_videomode != REX_VIDEOMODE_TERMINAL)
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Info", info_message, NULL);
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Message", info_message, NULL);
 
 	printf("%s\n", info_message);
 }

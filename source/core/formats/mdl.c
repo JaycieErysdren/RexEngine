@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		id Software MDL files.
 //
-// LAST EDITED:		October 18th, 2022
+// LAST EDITED:		October 19th, 2022
 //
 // ========================================================
 
@@ -91,13 +91,13 @@ rex_int Rex_Formats_idTech_MDL(rex_int operation, rex_byte *filename)
 	mdl_header_t *mdl_header;
 	mdl_version_t *mdl_version;
 	mdl_frame_t *mdl_frame;
-	mdl_vertex_t *mdl_vertex;
+	mdl_vertex_t *mdl_vertices;
+	mdl_face_t *mdl_faces;
 
 	rex_uint mdl_skin_type;
 	rex_buffer *mdl_skin_pixels;
 
-
-	rex_int i;
+	rex_int i, stride;
 	rex_int num_pixels;
 
 	// Open file pointer
@@ -146,37 +146,53 @@ rex_int Rex_Formats_idTech_MDL(rex_int operation, rex_byte *filename)
 		if (fseek(file, sizeof(mdl_texcoord_t), SEEK_CUR)) return REX_ERROR_FILE_READ;
 	}
 
-	// Skip mdl faces
-	for (i = 0; i < mdl_header->num_faces; i++)
-	{
-		if (fseek(file, sizeof(mdl_face_t), SEEK_CUR)) return REX_ERROR_FILE_READ;
-	}
+	// Allocate local faces buffer
+	mdl_faces = calloc(mdl_header->num_faces, sizeof(mdl_face_t));
+
+	// Read in MDL faces
+	if (!fread(mdl_faces, sizeof(mdl_face_t), mdl_header->num_faces, file)) return REX_ERROR_FILE_READ;
 
 	// Read first MDL frame
 	if (!fread(mdl_frame, sizeof(mdl_frame_t), 1, file)) return REX_ERROR_FILE_READ;
 
-	gl_vertices_f = calloc(mdl_header->num_vertices, sizeof(rex_coord3f));
+	// Allocate local vertices buffer
+	mdl_vertices = calloc(mdl_header->num_vertices, sizeof(mdl_vertex_t));
 
-	mdl_vertex = calloc(1, sizeof(mdl_vertex_t));
+	// Read in MDL vertices
+	if (!fread(mdl_vertices, sizeof(mdl_vertex_t), mdl_header->num_vertices, file)) return REX_ERROR_FILE_READ;
 
-	for (i = 0; i < mdl_header->num_vertices; i++)
+	// Allocate global vertex buffer
+	gl_vertices_f = calloc(mdl_header->num_faces * 3, sizeof(rex_coord3f));
+	num_gl_vertices_f = mdl_header->num_faces * 3;
+
+	// Assign MDL vertices to global vertex buffer
+	for (i = 0, stride = 0; i < mdl_header->num_faces; i++)
 	{
-		if (!fread(mdl_vertex, sizeof(mdl_vertex_t), 1, file)) return REX_ERROR_FILE_READ;
-
-		gl_vertices_f[i].x = mdl_vertex->coordinates[0] * mdl_header->scale[0];
-		gl_vertices_f[i].y = mdl_vertex->coordinates[1] * mdl_header->scale[1];
-		gl_vertices_f[i].z = mdl_vertex->coordinates[2] * mdl_header->scale[2];
+		// Face vertex 0
+		gl_vertices_f[stride].x = mdl_vertices[mdl_faces[i].vertex_indicies[0]].coordinates[0] * mdl_header->scale[0];
+		gl_vertices_f[stride].y = mdl_vertices[mdl_faces[i].vertex_indicies[0]].coordinates[1] * mdl_header->scale[1];
+		gl_vertices_f[stride].z = mdl_vertices[mdl_faces[i].vertex_indicies[0]].coordinates[2] * mdl_header->scale[2];
+		// Face vertex 1
+		gl_vertices_f[stride + 1].x = mdl_vertices[mdl_faces[i].vertex_indicies[1]].coordinates[0] * mdl_header->scale[0];
+		gl_vertices_f[stride + 1].y = mdl_vertices[mdl_faces[i].vertex_indicies[1]].coordinates[1] * mdl_header->scale[1];
+		gl_vertices_f[stride + 1].z = mdl_vertices[mdl_faces[i].vertex_indicies[1]].coordinates[2] * mdl_header->scale[2];
+		// Face vertex 2
+		gl_vertices_f[stride + 2].x = mdl_vertices[mdl_faces[i].vertex_indicies[2]].coordinates[0] * mdl_header->scale[0];
+		gl_vertices_f[stride + 2].y = mdl_vertices[mdl_faces[i].vertex_indicies[2]].coordinates[1] * mdl_header->scale[1];
+		gl_vertices_f[stride + 2].z = mdl_vertices[mdl_faces[i].vertex_indicies[2]].coordinates[2] * mdl_header->scale[2];
+		// Iterate stride
+		stride += 3;
 	}
-
-	num_gl_vertices_f = mdl_header->num_vertices;
 
 	// Close file pointer
 	fclose(file);
 
+	// Free MDL data memory
 	free(mdl_header);
 	free(mdl_version);
 	free(mdl_frame);
-	free(mdl_vertex);
+	free(mdl_vertices);
+	free(mdl_faces);
 
 	// Return no error
 	return REX_ERROR_NONE;
