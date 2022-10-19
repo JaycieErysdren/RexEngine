@@ -59,6 +59,7 @@ enum rex_error_codes
 	REX_ERROR_FMT_MALFORMED,		// The file specified appears malformed
 	REX_ERROR_FMT_BAD,				// The specified format was incorrect
 	REX_ERROR_FMT_DETERMINE,		// Couldn't determine the format of the specified file
+	REX_ERROR_FMT_UNSUPPORTED,		// This format is currently unsupported
 };
 
 // Trigger a failure and hard exit the engine.

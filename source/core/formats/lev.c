@@ -55,7 +55,7 @@ typedef struct
 } lev_sector_t;
 
 // Load and process a Lobotomy LEV file. Returns an error code. (Formats/Lobotomy Software/lev_quake.ksy)
-rex_int Rex_Formats_Lobotomy_Lev(rex_int operation, rex_byte *filename)
+rex_int Rex_Formats_Lobotomy_LEV(rex_int operation, rex_byte *filename)
 {
 	lev_header_t lev_header;
 	lev_sector_t lev_sectors[LEV_MAX_SECTORS];

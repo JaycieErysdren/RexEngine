@@ -199,7 +199,7 @@ void main(int argc, char *argv[])
 
 	if (operation == REX_FORMATOP_GETINFO)
 	{
-		error = Rex_Formats_Lobotomy_Lev(REX_FORMATOP_GETINFO, filename);
+		error = Rex_Formats_idTech_MDL(REX_FORMATOP_GETINFO, filename);
 		if (error) Rex_Failure("%s", Rex_GetError(error));
 
 		Rex_Shutdown();

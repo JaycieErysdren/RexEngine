@@ -17,6 +17,7 @@
 set(REX_SRC
 	formats/formats.c
 	formats/lev.c
+	formats/mdl.c
 	formats/pak.c
 	io/devices.c
 	logic/startup.c

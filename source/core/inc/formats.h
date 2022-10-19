@@ -63,11 +63,18 @@ rex_byte *Rex_Formats_OptHelper(rex_int optcode);
 //
 
 // Load and process a Lobotomy LEV file. Returns an error code. (Formats/Lobotomy Software/lev_quake.ksy)
-rex_int Rex_Formats_Lobotomy_Lev(rex_int operation, rex_byte *filename);
+rex_int Rex_Formats_Lobotomy_LEV(rex_int operation, rex_byte *filename);
 
 //
-// idTech pak files (pak.c)
+// id Software MDL files (mdl.c)
+//
+
+// Load and process a Lobotomy LEV file. Returns an error code. (Formats/id Software/mdl.ksy)
+rex_int Rex_Formats_idTech_MDL(rex_int operation, rex_byte *filename);
+
+//
+// id Software PAK files (pak.c)
 //
 
 // Load and process an idTech PAK file. Returns an error code. (Formats/id Software/pak.ksy)
-rex_int Rex_Formats_idTech_Pak(rex_int operation, rex_byte *filename);
+rex_int Rex_Formats_idTech_PAK(rex_int operation, rex_byte *filename);

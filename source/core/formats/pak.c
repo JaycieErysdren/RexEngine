@@ -8,7 +8,7 @@
 //
 // LICENSE:			ACSL 1.4
 //
-// DESCRIPTION:		id Software pak files.
+// DESCRIPTION:		id Software PAK files.
 //
 // LAST EDITED:		October 18th, 2022
 //
@@ -36,8 +36,8 @@ typedef struct
 	rex_int len_file;
 } idpak_file_t;
 
-// Load and process an id Packfile. Returns an error code.
-rex_int Rex_Formats_idTech_Pak(rex_int operation, rex_byte *filename)
+// Load and process an id Software PAK file. Returns an error code. (Formats/id Software/pak.ksy)
+rex_int Rex_Formats_idTech_PAK(rex_int operation, rex_byte *filename)
 {
 	rex_int num_files, i;
 	idpak_header_t pak_header;
@@ -45,8 +45,7 @@ rex_int Rex_Formats_idTech_Pak(rex_int operation, rex_byte *filename)
 
 	FILE *file = fopen(filename, "rb");
 
-	if (file == NULL)
-		return REX_ERROR_FILE_NONE;
+	if (file == NULL) return REX_ERROR_FILE_NONE;
 
 	if (!fread(&pak_header, sizeof(pak_header), 1, file)) return REX_ERROR_FILE_READ;
 	if (memcmp(pak_header.magic, magic_idpak, 4)) return REX_ERROR_FMT_BAD;

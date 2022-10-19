@@ -118,6 +118,9 @@ rex_byte *Rex_GetError(rex_int errorcode)
 		case REX_ERROR_FMT_DETERMINE:
 			return "Couldn't determine the format of the specified file.";
 
+		case REX_ERROR_FMT_UNSUPPORTED:
+			return "This format is currently unsupported.";
+
 		default:
 			return "Invalid error code";
 	}
