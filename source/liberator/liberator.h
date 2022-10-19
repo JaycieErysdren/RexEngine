@@ -21,16 +21,16 @@
 #include <getopt.h>
 
 // Camera angle
-extern rex_vector3d camera_angle;
+extern rex_vector3i camera_angle;
 
 // Camera position
-extern rex_vector3d camera_position;
+extern rex_vector3i camera_position;
 
 // Set camera position
-void Liberator_Camera_SetPosition(rex_double x, rex_double y, rex_double z);
+void Liberator_Camera_SetPosition(rex_int x, rex_int y, rex_int z);
 
 // Set camera angle
-void Liberator_Camera_SetAngle(rex_double x, rex_double y, rex_double z);
+void Liberator_Camera_SetAngle(rex_int x, rex_int y, rex_int z);
 
 // Handle mouse inputs
 void Liberator_Mouse_OrbitControls(void);

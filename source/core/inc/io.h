@@ -25,19 +25,19 @@ extern rex_byte rex_keys[512];
 extern rex_byte rex_mouse_buttons[32];
 
 // Mouse x and y coordinates (relative to screen resolution)
-extern rex_coord_screen rex_mouse;
+extern rex_coord2i rex_mouse;
 
 // Mouse x and y delta since last read
-extern rex_vector2d rex_mouse_delta;
+extern rex_vector2i rex_mouse_delta;
 
 // Mouse scroll wheel x and y since last read
-extern rex_vector2d rex_mouse_scroll;
+extern rex_vector2i rex_mouse_scroll;
 
 // Mouse scroll wheel x and y delta since last read
-extern rex_vector2d rex_mouse_scroll_delta;
+extern rex_vector2i rex_mouse_scroll_delta;
 
 // The current desktop resolution
-extern rex_vector2 rex_desktop_size;
+extern rex_vector2i rex_desktop_size;
 
 // Returns true if the specified key is currently pressed
 #define KEY_DOWN(A) rex_keys[A]

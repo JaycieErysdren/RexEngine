@@ -24,26 +24,26 @@ rex_byte rex_keys[512];
 rex_byte rex_mouse_buttons[32];
 
 // Mouse x and y coordinates (relative to screen resolution)
-rex_coord_screen rex_mouse;
+rex_coord2i rex_mouse;
 
 // Mouse x and y delta since last read
-rex_vector2d rex_mouse_delta;
+rex_vector2i rex_mouse_delta;
 
 // Mouse scroll wheel x and y since last read
-rex_vector2d rex_mouse_scroll;
+rex_vector2i rex_mouse_scroll;
 
 // Mouse scroll wheel x and y delta since last read
-rex_vector2d rex_mouse_scroll_delta;
+rex_vector2i rex_mouse_scroll_delta;
 
 // The current desktop resolution
-rex_vector2 rex_desktop_size;
+rex_vector2i rex_desktop_size;
 
 // Reads all currently active devices (keyboard, mouse, etc)
 void Rex_IO_ReadDevices(void)
 {
 	SDL_Event event;
-	rex_coord_screen rex_mouse_previous = rex_mouse;
-	rex_vector2d rex_mouse_scroll_previous;
+	rex_coord2i rex_mouse_previous = rex_mouse;
+	rex_vector2i rex_mouse_scroll_previous;
 	SDL_DisplayMode dm;
 
 	if (SDL_GetDesktopDisplayMode(0, &dm) != 0)

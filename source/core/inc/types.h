@@ -47,45 +47,57 @@ typedef void rex_buffer;							// Buffer
 // Simple vectors
 //
 
-typedef rex_int rex_vector2[2];						// Simple 2D vector
-typedef rex_int rex_vector3[3];						// Simple 3D vector
-typedef rex_int rex_vector4[4];						// Simple 4D vector
+typedef rex_int rex_vector2i[2];					// Simple 2D vector, int
+typedef rex_int rex_vector3i[3];					// Simple 3D vector, int
+typedef rex_int rex_vector4i[4];					// Simple 4D vector, int
 
-typedef rex_double rex_vector2d[2];					// Simple 2D vector, double precision
-typedef rex_double rex_vector3d[3];					// Simple 3D vector, double precision
-typedef rex_double rex_vector4d[4];					// Simple 4D vector, double precision
+typedef rex_long rex_vector2l[2];					// Simple 2D vector, long
+typedef rex_long rex_vector3l[3];					// Simple 3D vector, long
+typedef rex_long rex_vector4l[4];					// Simple 4D vector, long
 
 //
 // Coordinates
 //
 
-// 2D screen coordinate
+// 2D coordinate, int
 typedef struct
 {
 	rex_int x, y;
-} rex_coord_screen;
+} rex_coord2i;
 
-// 3D coordinate
+// 3D coordinate, int
+typedef struct
+{
+	rex_int x, y, z;
+} rex_coord3i;
+
+// 2D coordinate, long
+typedef struct
+{
+	rex_long x, y;
+} rex_coord2l;
+
+// 3D coordinate, long
 typedef struct
 {
 	rex_long x, y, z;
-} rex_coord;
+} rex_coord3l;
 
 //
 // AABB
 //
 
-// 2D screen axis-aligned bounding box
+// 2D axis-aligned bounding box
 typedef struct
 {
-	rex_coord_screen min, max;
-} rex_aabb_screen;
+	rex_coord2i min, max;
+} rex_aabb2i;
 
 // 3D axis-aligned bounding box
 typedef struct
 {
-	rex_coord min, max;
-} rex_aabb;
+	rex_coord3i min, max;
+} rex_aabb3i;
 
 //
 // Colors and palettes
@@ -139,7 +151,7 @@ typedef rex_rgb rex_palette[256];
 // External window
 typedef struct
 {
-	rex_coord_screen pos;
+	rex_coord2i pos;
 	SDL_Window *window;
 	SDL_GLContext context;
 	rex_byte_c *title;

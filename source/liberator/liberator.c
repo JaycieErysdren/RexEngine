@@ -20,80 +20,80 @@
 rex_window_external *window_main;
 SDL_Surface *window_main_text1;
 
-rex_int cube_vertices[] = {
+rex_coord3i cube_vertices[] = {
 	// Top face
-	64, 64, -64,
-	-64, 64, -64,
-	-64, 64, 64,
-	64, 64, 64,
+	{64, 64, -64},
+	{-64, 64, -64},
+	{-64, 64, 64},
+	{64, 64, 64},
 	// Bottom face
-	64, -64, -64,
-	-64, -64, -64,
-	-64, -64, 64,
-	64, -64, 64,
+	{64, -64, -64},
+	{-64, -64, -64},
+	{-64, -64, 64},
+	{64, -64, 64},
 	// Front face
-	64, 64, 64,
-	-64, 64, 64,
-	-64, -64, 64,
-	64, -64, 64,
+	{64, 64, 64},
+	{-64, 64, 64},
+	{-64, -64, 64},
+	{64, -64, 64},
 	// Back face
-	64, -64, -64,
-	-64, -64, -64,
-	-64, 64, -64,
-	64, 64, -64,
+	{64, -64, -64},
+	{-64, -64, -64},
+	{-64, 64, -64},
+	{64, 64, -64},
 	// Left face
-	-64, 64, 64,
-	-64, 64, -64,
-	-64, -64, -64,
-	-64, -64, 64,
+	{-64, 64, 64},
+	{-64, 64, -64},
+	{-64, -64, -64},
+	{-64, -64, 64},
 	// Right face
-	64, 64, 64,
-	64, 64, -64,
-	64, -64, -64,
-	64, -64, 64
+	{64, 64, 64},
+	{64, 64, -64},
+	{64, -64, -64},
+	{64, -64, 64}
 };
 
-rex_ubyte cube_colors[] = {
+rex_rgb cube_colors[] = {
 	// Top face
-	0, 255, 0,
-	0, 255, 0,
-	0, 255, 0,
-	0, 255, 0,
+	REX_RGB(0, 255, 0),
+	REX_RGB(0, 255, 0),
+	REX_RGB(0, 255, 0),
+	REX_RGB(0, 255, 0),
 	// Bottom face
-	255, 128, 0,
-	255, 128, 0,
-	255, 128, 0,
-	255, 128, 0,
+	REX_RGB(255, 128, 0),
+	REX_RGB(255, 128, 0),
+	REX_RGB(255, 128, 0),
+	REX_RGB(255, 128, 0),
 	// Front face
-	255, 0, 0,
-	255, 0, 0,
-	255, 0, 0,
-	255, 0, 0,
+	REX_RGB(255, 0, 0),
+	REX_RGB(255, 0, 0),
+	REX_RGB(255, 0, 0),
+	REX_RGB(255, 0, 0),
 	// Back face
-	255, 255, 0,
-	255, 255, 0,
-	255, 255, 0,
-	255, 255, 0,
+	REX_RGB(255, 255, 0),
+	REX_RGB(255, 255, 0),
+	REX_RGB(255, 255, 0),
+	REX_RGB(255, 255, 0),
 	// Left face
-	0, 0, 255,
-	0, 0, 255,
-	0, 0, 255,
-	0, 0, 255,
+	REX_RGB(0, 0, 255),
+	REX_RGB(0, 0, 255),
+	REX_RGB(0, 0, 255),
+	REX_RGB(0, 0, 255),
 	// Right face
-	255, 0, 255,
-	255, 0, 255,
-	255, 0, 255,
-	255, 0, 255
+	REX_RGB(255, 0, 255),
+	REX_RGB(255, 0, 255),
+	REX_RGB(255, 0, 255),
+	REX_RGB(255, 0, 255)
 };
 
 // Camera angle
-rex_vector3d camera_angle;
+rex_vector3i camera_angle;
 
 // Camera position
-rex_vector3d camera_position;
+rex_vector3i camera_position;
 
 // Set camera position
-void Liberator_Camera_SetPosition(rex_double x, rex_double y, rex_double z)
+void Liberator_Camera_SetPosition(rex_int x, rex_int y, rex_int z)
 {
 	camera_position[0] = x;
 	camera_position[1] = y;
@@ -101,7 +101,7 @@ void Liberator_Camera_SetPosition(rex_double x, rex_double y, rex_double z)
 }
 
 // Set camera angle
-void Liberator_Camera_SetAngle(rex_double x, rex_double y, rex_double z)
+void Liberator_Camera_SetAngle(rex_int x, rex_int y, rex_int z)
 {
 	camera_angle[0] = x;
 	camera_angle[1] = y;
@@ -185,7 +185,7 @@ void main(int argc, char *argv[])
 		}
 		else if (**argv == '-')
 		{
-			Rex_Warning("Invalid commandline switch %s", *argv);
+			Rex_Warning("Invalid switch %s", *argv);
 		}
 		else
 		{
@@ -230,12 +230,12 @@ void main(int argc, char *argv[])
 	Liberator_Camera_SetPosition(0, 0, -256);
 	Liberator_Camera_SetAngle(45, 45, 0);
 
+	glVertexPointer(3, GL_INT, 0, cube_vertices);
+	glColorPointer(3, GL_UNSIGNED_BYTE, 0, cube_colors);
+
 	rex_udouble frame_start;
 	rex_udouble frame_end;
 	rex_float frame_elapsed;
-
-	glVertexPointer(3, GL_INT, 0, cube_vertices);
-	glColorPointer(3, GL_UNSIGNED_BYTE, 0, cube_colors);
 
 	while (REX_TRUE)
 	{
