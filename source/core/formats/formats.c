@@ -17,6 +17,9 @@
 // Include engine header
 #include "rex.h"
 
+rex_coord3f *gl_vertices_f;
+rex_int num_gl_vertices_f;
+
 // Return a string detailing what format operation the user has chosen
 rex_byte *Rex_Formats_OptHelper(rex_int optcode)
 {

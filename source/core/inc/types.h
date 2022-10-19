@@ -83,6 +83,18 @@ typedef struct
 	rex_long x, y, z;
 } rex_coord3l;
 
+// 2D coordinate, float
+typedef struct
+{
+	rex_float x, y;
+} rex_coord2f;
+
+// 3D coordinate, float
+typedef struct
+{
+	rex_float x, y, z;
+} rex_coord3f;
+
 //
 // AABB
 //

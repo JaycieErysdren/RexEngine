@@ -61,15 +61,41 @@ typedef struct
 	rex_int t;
 } mdl_texcoord_t;
 
+// MDL face type
+typedef struct
+{
+	rex_uint face_type;
+	rex_uint vertex_indicies[3];
+} mdl_face_t;
+
+// MDL vertex type
+typedef struct
+{
+	rex_ubyte coordinates[3];
+	rex_ubyte normal_index;
+} mdl_vertex_t;
+
+// MDL frame type
+typedef struct
+{
+	rex_uint frame_type;
+	mdl_vertex_t min;
+	mdl_vertex_t max;
+	rex_byte name[16];
+} mdl_frame_t;
+
 // Load and process an id MDL file. Returns an error code. (Formats/id Software/mdl.ksy)
 rex_int Rex_Formats_idTech_MDL(rex_int operation, rex_byte *filename)
 {
 	// Allocate version header and mdl header structs
 	mdl_header_t *mdl_header;
 	mdl_version_t *mdl_version;
-	
+	mdl_frame_t *mdl_frame;
+	mdl_vertex_t *mdl_vertex;
+
 	rex_uint mdl_skin_type;
 	rex_buffer *mdl_skin_pixels;
+
 
 	rex_int i;
 	rex_int num_pixels;
@@ -83,6 +109,7 @@ rex_int Rex_Formats_idTech_MDL(rex_int operation, rex_byte *filename)
 	// Allocate header memory
 	mdl_version = calloc(1, sizeof(mdl_version_t));
 	mdl_header = calloc(1, sizeof(mdl_header_t));
+	mdl_frame = calloc(1, sizeof(mdl_frame_t));
 
 	// Read in version header
 	if (!fread(mdl_version, sizeof(mdl_version_t), 1, file)) return REX_ERROR_FILE_READ;
@@ -101,23 +128,55 @@ rex_int Rex_Formats_idTech_MDL(rex_int operation, rex_byte *filename)
 	num_pixels = mdl_header->skin_width * mdl_header->skin_height;
 
 	// Allocate skin memory
-	mdl_skin_pixels = malloc(sizeof(rex_ubyte) * num_pixels);
+	mdl_skin_pixels = calloc(num_pixels, sizeof(rex_ubyte));
 
 	// Read in mdl skins
 	for (i = 0; i < mdl_header->num_skins; i++)
 	{
 		if (!fread(&mdl_skin_type, sizeof(rex_uint), 1, file)) return REX_ERROR_FILE_READ;
+
+		if (mdl_skin_type != 0) return REX_ERROR_FMT_UNSUPPORTED;
+
 		if (!fread(mdl_skin_pixels, sizeof(rex_ubyte), num_pixels, file)) return REX_ERROR_FILE_READ;
 	}
 
-	// Read in mdl texcoords
+	// Skip mdl texcoords
 	for (i = 0; i < mdl_header->num_vertices; i++)
 	{
-
+		if (fseek(file, sizeof(mdl_texcoord_t), SEEK_CUR)) return REX_ERROR_FILE_READ;
 	}
+
+	// Skip mdl faces
+	for (i = 0; i < mdl_header->num_faces; i++)
+	{
+		if (fseek(file, sizeof(mdl_face_t), SEEK_CUR)) return REX_ERROR_FILE_READ;
+	}
+
+	// Read first MDL frame
+	if (!fread(mdl_frame, sizeof(mdl_frame_t), 1, file)) return REX_ERROR_FILE_READ;
+
+	gl_vertices_f = calloc(mdl_header->num_vertices, sizeof(rex_coord3f));
+
+	mdl_vertex = calloc(1, sizeof(mdl_vertex_t));
+
+	for (i = 0; i < mdl_header->num_vertices; i++)
+	{
+		if (!fread(mdl_vertex, sizeof(mdl_vertex_t), 1, file)) return REX_ERROR_FILE_READ;
+
+		gl_vertices_f[i].x = mdl_vertex->coordinates[0] * mdl_header->scale[0];
+		gl_vertices_f[i].y = mdl_vertex->coordinates[1] * mdl_header->scale[1];
+		gl_vertices_f[i].z = mdl_vertex->coordinates[2] * mdl_header->scale[2];
+	}
+
+	num_gl_vertices_f = mdl_header->num_vertices;
 
 	// Close file pointer
 	fclose(file);
+
+	free(mdl_header);
+	free(mdl_version);
+	free(mdl_frame);
+	free(mdl_vertex);
 
 	// Return no error
 	return REX_ERROR_NONE;

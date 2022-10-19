@@ -14,6 +14,10 @@
 //
 // ========================================================
 
+// agsdhsdg
+extern rex_coord3f *gl_vertices_f;
+extern rex_int num_gl_vertices_f;
+
 //
 // Generic format functions (formats.c)
 //
