@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex Engine types.
 //
-// LAST EDITED:		October 18th, 2022
+// LAST EDITED:		October 20th, 2022
 //
 // ========================================================
 
@@ -54,6 +54,10 @@ typedef rex_int rex_vector4i[4];					// Simple 4D vector, int
 typedef rex_long rex_vector2l[2];					// Simple 2D vector, long
 typedef rex_long rex_vector3l[3];					// Simple 3D vector, long
 typedef rex_long rex_vector4l[4];					// Simple 4D vector, long
+
+typedef rex_float rex_vector2f[2];					// Simple 2D vector, float
+typedef rex_float rex_vector3f[3];					// Simple 3D vector, float
+typedef rex_float rex_vector4f[4];					// Simple 4D vector, float
 
 //
 // Coordinates

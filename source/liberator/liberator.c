@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/liberator/main.c
+// FILE:			/source/liberator/liberator.c
 //
 // AUTHORS:			Jaycie Ewald
 //

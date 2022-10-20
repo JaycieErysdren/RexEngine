@@ -10,9 +10,16 @@
 //
 // DESCRIPTION:		Prototypes for the logic module.
 //
-// LAST EDITED:		October 10th, 2022
+// LAST EDITED:		October 20th, 2022
 //
 // ========================================================
+
+//
+// Math helpers (math.c)
+//
+
+// Returns a random integer between high and low.
+rex_int Rex_Random(rex_int low, rex_int high);
 
 //
 // Startup handling (startup.c)

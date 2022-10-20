@@ -10,15 +10,12 @@
 //
 // DESCRIPTION:		Liberator header.
 //
-// LAST EDITED:		October 18th, 2022
+// LAST EDITED:		October 20th, 2022
 //
 // ========================================================
 
 // Include engine header
 #include "rex.h"
-
-// Getopt
-#include <getopt.h>
 
 // Camera angle
 extern rex_vector3i camera_angle;

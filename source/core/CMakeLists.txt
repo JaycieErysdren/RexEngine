@@ -10,7 +10,7 @@
 ##
 ## DESCRIPTION:		Core CMake project definition.
 ##
-## LAST EDITED:		October 18th, 2022
+## LAST EDITED:		October 20th, 2022
 ##
 ## ========================================================
 
@@ -20,6 +20,7 @@ set(REX_SRC
 	formats/mdl.c
 	formats/pak.c
 	io/devices.c
+	logic/math.c
 	logic/startup.c
 	logic/shutdown.c
 	rendering/fonts.c

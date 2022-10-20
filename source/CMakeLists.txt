@@ -10,7 +10,7 @@
 ##
 ## DESCRIPTION:		Main CMake project definition.
 ##
-## LAST EDITED:		October 18th, 2022
+## LAST EDITED:		October 20th, 2022
 ##
 ## ========================================================
 
@@ -37,3 +37,4 @@ include_directories(core/inc)
 
 add_subdirectory(core)
 add_subdirectory(liberator)
+add_subdirectory(testgame)
