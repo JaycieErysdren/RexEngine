@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Main Rex Engine header.
 //
-// LAST EDITED:		October 18th, 2022
+// LAST EDITED:		October 20th, 2022
 //
 // ========================================================
 
@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 //
 // SDL2 module headers

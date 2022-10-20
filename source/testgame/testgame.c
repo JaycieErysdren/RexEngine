@@ -35,6 +35,14 @@ rex_rgb walls[NUM_WALLS][WALL_X][WALL_Y];
 // Board
 rex_ubyte board[BOARD_X][BOARD_Y];
 
+// Set pixel on buffer
+void SetPixel(rex_rgb *buffer, rex_rgb color, rex_int width, rex_int height, rex_int x, rex_int y)
+{
+	rex_int pos = ((y - 1) * width) + x;
+	Rex_Message("%d", pos);
+	buffer[pos] = color;
+}
+
 // Main function
 void main(int argc, char *argv[])
 {
@@ -113,6 +121,8 @@ void main(int argc, char *argv[])
 
 	ang = 0;
 
+	rex_rgb *pixels = (rex_rgb *)calloc(window_main->width * window_main->height, sizeof(rex_rgb));
+
 	// Main loop
 	while (REX_TRUE)
 	{
@@ -140,11 +150,11 @@ void main(int argc, char *argv[])
 		{
 			//Raytrace in 2D to see what block is hit, and where it gets hit
 			rex_int xscan = (rex_int)pos[0];
-			rex_int xdir = sgn(vx);
+			rex_float xdir = copysignf(1.0, vx);
 			rex_float incx = fabsf(vx);
 
 			rex_int yscan = (rex_int)pos[1];
-			rex_int ydir = sgn(vy);
+			rex_float ydir = copysignf(1.0, vy);
 			rex_float incy = fabsf(vy);
 
 			rex_float xtemp = pos[0] - xscan;
@@ -194,8 +204,8 @@ void main(int argc, char *argv[])
 			//Find ceiling & floor borders, and texture mapping equation
 			if (dist > 1 / 64)
 			{
-				sy1 = max(window_main->height / 2 + (-pos[2] - .5)*hval / dist, 0);
-				sy2 = min(window_main->height / 2 + (-pos[2] + .5)*hval / dist, window_main->height);
+				sy1 = (rex_int)fmaxf(window_main->height / 2 + (-pos[2] - .5) * hval / dist, 0);
+				sy2 = (rex_int)fminf(window_main->height / 2 + (-pos[2] + .5) * hval / dist, window_main->height);
 				byi = (rex_int)(dist * 65536 * 64 / hval);
 				by = (sy1 + 1 - window_main->height / 2) * byi + (pos[2] + .5) * 65536 * 64 - 1;
 				by += ((board[yscan][xscan] - 1) * 4096 + bx * 64) * 65536;
@@ -204,6 +214,29 @@ void main(int argc, char *argv[])
 			{
 				sy1 = window_main->height / 2;
 				sy2 = sy1;
+			}
+
+			// Draw vertical line at column sx:
+
+			// Ceiling
+			for(sy = 0; sy < sy1; sy++)
+			{
+				SetPixel(pixels, REX_RGB(40, 60, 80), window_main->width, window_main->height, sx, sy);
+			}
+
+			// Wall
+			for(; sy < sy2; sy++)
+			{
+				//setcol(walls[by / 2 ^ 16]);
+				//setpix(sx, sy);
+				SetPixel(pixels, REX_RGB(128, 128, 128), window_main->width, window_main->height, sx, sy);
+				by += byi;
+			}
+
+			// Floor
+			for(; sy < window_main->height; sy++)
+			{
+				SetPixel(pixels, REX_RGB(60, 40, 20), window_main->width, window_main->height, sx, sy);
 			}
 	
 			vx += vxinc;
@@ -216,6 +249,9 @@ void main(int argc, char *argv[])
 
 		// Clear the screen
 		Rex_ExternalWindow_ClearGL(REX_RGBA_BLK, 255);
+
+		// Render pixel surface on screen
+		//Rex_ExternalWindow_RenderSurfaceGL(window_main, game_surface, 0, 0);
 
 		// Swap GL buffer
 		Rex_ExternalWindow_SwapBuffer(window_main);
@@ -230,7 +266,6 @@ void main(int argc, char *argv[])
 		// Handle keyboard input
 		if (KEY_DOWN(KEY_Q))
 			Rex_Shutdown();
-
 	}
 
 	// free windows

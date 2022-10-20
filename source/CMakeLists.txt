@@ -33,6 +33,8 @@ include_directories(${SDL2TTF_INCLUDE_DIR})
 link_libraries(${OPENGL_LIBRARIES})
 include_directories(${OPENGL_INCLUDE_DIRS})
 
+link_libraries(m)
+
 include_directories(core/inc)
 
 add_subdirectory(core)

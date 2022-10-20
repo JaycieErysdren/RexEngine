@@ -17,3 +17,5 @@
 // Include engine header
 #include "rex.h"
 
+// Set pixel on buffer
+void SetPixel(rex_rgb *buffer, rex_rgb color, rex_int width, rex_int height, rex_int x, rex_int y);
