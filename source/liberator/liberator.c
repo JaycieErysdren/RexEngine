@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Liberator program entry point.
 //
-// LAST EDITED:		October 19th, 2022
+// LAST EDITED:		October 20th, 2022
 //
 // ========================================================
 
@@ -250,6 +250,25 @@ void main(int argc, char *argv[])
 	rex_udouble frame_end;
 	rex_float frame_elapsed;
 
+	// test surface from image data
+	FILE *testfile;
+	rex_buffer *testpixels;
+	SDL_Surface *testsurface;
+
+	rex_int testheight = 128;
+	rex_int testwidth = 128;
+
+	testpixels = calloc(testheight * testwidth, sizeof(rex_rgba));
+
+	testfile = fopen("testimg.dat", "rb");
+	if (testfile == NULL) Rex_Failure("Couldn't find file");
+	fread(testpixels, sizeof(rex_rgba), testheight * testwidth, testfile);
+	fclose(testfile);
+
+	testsurface = SDL_CreateRGBSurfaceFrom(
+		testpixels, testwidth, testheight, 32, 4 * testwidth,
+		0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
+
 	// Main loop
 	while (REX_TRUE)
 	{
@@ -297,6 +316,9 @@ void main(int argc, char *argv[])
 		// Render text surface on screen
 		Rex_ExternalWindow_RenderSurfaceGL(window_main, window_main_text1, 16, 16);
 
+		// Render test surface on screen
+		Rex_ExternalWindow_RenderSurfaceGL(window_main, testsurface, 0, 0);
+
 		// Swap GL buffer
 		Rex_ExternalWindow_SwapBuffer(window_main);
 
@@ -304,6 +326,14 @@ void main(int argc, char *argv[])
 		frame_end = SDL_GetTicks();
 		frame_elapsed = 1.0f / ((frame_end - frame_start) / 1000.0f);
 	}
+
+	// free test surface
+	free(testpixels);
+	free(testsurface);
+
+	// free windows
+	free(window_main_text1);
+	free(window_main);
 
 	// Shutdown engine
 	Rex_Shutdown();
