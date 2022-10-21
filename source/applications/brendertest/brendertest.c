@@ -47,13 +47,13 @@ void BrenderTest_CreateScene(br_actor **_world, br_actor **_camera, br_actor **_
 
 	BrMatrix34Translate(&camera->t.t.mat, BR_SCALAR(0), BR_SCALAR(0), BR_SCALAR(6));
 
-	//cube = BrActorAdd(world, BrActorAllocate(BR_ACTOR_MODEL, NULL));
-	//cube->model = global_model_test;
-	//cube->material = BrMaterialFind("checkerboard.mat");
+	cube = BrActorAdd(world, BrActorAllocate(BR_ACTOR_MODEL, NULL));
+	cube->model = global_model_test;
+	cube->material = BrMaterialFind("checkerboard.mat");
 
 	*_world = world;
 	*_camera = camera;
-	//*_cube = cube;
+	*_cube = cube;
 }
 
 // Main function
@@ -128,27 +128,27 @@ void main(int argc, char *argv[])
 
 		// Move forwards
 		if (KEY_PRESSED(KEY_W))
-			BrMatrix34PostTranslate(&camera->t.t.mat, BR_SCALAR(0), BR_SCALAR(0), BR_SCALAR(-1));
+			BrMatrix34PreTranslate(&camera->t.t.mat, BR_SCALAR(0), BR_SCALAR(0), BR_SCALAR(-1));
 
 		// Move backwards
 		if (KEY_PRESSED(KEY_S))
-			BrMatrix34PostTranslate(&camera->t.t.mat, BR_SCALAR(0), BR_SCALAR(0), BR_SCALAR(1));
+			BrMatrix34PreTranslate(&camera->t.t.mat, BR_SCALAR(0), BR_SCALAR(0), BR_SCALAR(1));
 
 		// Move leftwards
 		if (KEY_PRESSED(KEY_A))
-			BrMatrix34PostTranslate(&camera->t.t.mat, BR_SCALAR(-1), BR_SCALAR(0), BR_SCALAR(0));
+			BrMatrix34PreTranslate(&camera->t.t.mat, BR_SCALAR(-1), BR_SCALAR(0), BR_SCALAR(0));
 
 		// Move rightwards
 		if (KEY_PRESSED(KEY_D))
-			BrMatrix34PostTranslate(&camera->t.t.mat, BR_SCALAR(1), BR_SCALAR(0), BR_SCALAR(0));
+			BrMatrix34PreTranslate(&camera->t.t.mat, BR_SCALAR(1), BR_SCALAR(0), BR_SCALAR(0));
 
 		// Move upwards
 		if (KEY_PRESSED(KEY_SPACE))
-			BrMatrix34PostTranslate(&camera->t.t.mat, BR_SCALAR(0), BR_SCALAR(1), BR_SCALAR(0));
+			BrMatrix34PreTranslate(&camera->t.t.mat, BR_SCALAR(0), BR_SCALAR(1), BR_SCALAR(0));
 
 		// Move downwards
 		if (KEY_PRESSED(KEY_LCTRL))
-			BrMatrix34PostTranslate(&camera->t.t.mat, BR_SCALAR(0), BR_SCALAR(-1), BR_SCALAR(0));
+			BrMatrix34PreTranslate(&camera->t.t.mat, BR_SCALAR(0), BR_SCALAR(-1), BR_SCALAR(0));
 
 		// Look leftwards
 		if (KEY_PRESSED(KEY_LEFT))
