@@ -47,6 +47,7 @@ typedef uintptr_t rex_uint_ptr;						// Unsigned void * pointer
 
 #define REX_TRUE 1									// True
 #define REX_FALSE 0									// False
+#define REX_NULL NULL								// Null
 
 //
 // Simple vectors

@@ -27,6 +27,9 @@ rex_int rex_videomode;
 // External windows
 //
 
+// Number of active external windows
+rex_uint rex_num_external_windows;
+
 // Add an external window
 rex_window_external *Rex_WindowExternal_Add(rex_byte_c *title, rex_int x, rex_int y, rex_int width, rex_int height, rex_uint flags)
 {
@@ -99,6 +102,8 @@ rex_window_external *Rex_WindowExternal_Add(rex_byte_c *title, rex_int x, rex_in
 	// Set global videomode
 	rex_videomode = REX_VIDEOMODE_WINDOWED;
 
+	rex_num_external_windows += 1;
+
 	// Return pointer to window
 	return window;
 }
@@ -110,6 +115,10 @@ void Rex_WindowExternal_Remove(rex_window_external *window)
 	if (window->buffer_color) BrPixelmapFree(window->buffer_color);
 	if (window->buffer_screen) BrPixelmapFree(window->buffer_screen);
 	if (window->sdl_window) SDL_DestroyWindow(window->sdl_window);
+
+	free(window);
+
+	rex_num_external_windows -= 1;
 }
 
 // Update the various values on an external window. Returns 1 if size changed.

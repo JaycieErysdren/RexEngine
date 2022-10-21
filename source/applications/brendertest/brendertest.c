@@ -37,17 +37,18 @@ void BrenderTest_CreateScene(br_actor **_world, br_actor **_camera, br_actor **_
 
 	camera = BrActorAdd(world, BrActorAllocate(BR_ACTOR_CAMERA, NULL));
 	((br_camera *)camera->type_data)->type = BR_CAMERA_PERSPECTIVE_FOV;
-	((br_camera *)camera->type_data)->field_of_view = BR_ANGLE_DEG(75);
+	((br_camera *)camera->type_data)->field_of_view = BR_ANGLE_DEG(90);
 	((br_camera *)camera->type_data)->hither_z = BR_SCALAR(0.1);
+	((br_camera *)camera->type_data)->yon_z = BR_SCALAR(4096);
 	((br_camera *)camera->type_data)->aspect = BR_SCALAR(rex_window->buffer_screen->width) / BR_SCALAR(rex_window->buffer_screen->height);
 
 	order_table->min_z = ((br_camera *)camera->type_data)->hither_z;
 	order_table->max_z = ((br_camera *)camera->type_data)->yon_z;
 
-	BrMatrix34Translate(&camera->t.t.mat, BR_SCALAR(0), BR_SCALAR(0), BR_SCALAR(2));
+	BrMatrix34Translate(&camera->t.t.mat, BR_SCALAR(0), BR_SCALAR(0), BR_SCALAR(6));
 
 	cube = BrActorAdd(world, BrActorAllocate(BR_ACTOR_MODEL, NULL));
-	cube->model = BrModelFind("cube.dat");
+	cube->model = global_model_test;
 	cube->material = BrMaterialFind("checkerboard.mat");
 
 	*_world = world;
@@ -62,6 +63,9 @@ void main(int argc, char *argv[])
 	rex_ulong frame_start_ticks, frame_end_ticks;
 	rex_float frame_elapsed_ticks, frame_elapsed_seconds;
 
+	// Error checker
+	rex_int error;
+
 	// Whether the program should be running or not
 	rex_bool running = REX_TRUE;
 
@@ -71,23 +75,37 @@ void main(int argc, char *argv[])
 	// Startup Rex Engine
 	Rex_Startup();
 
+	error = Rex_Formats_idTech_MDL(REX_FORMATOP_VIEW, "player.mdl");
+	if (error) Rex_Failure("Loading player.mdl failed. Error: %s", Rex_GetError(error));
+
 	// Add main window
 	rex_window = Rex_WindowExternal_Add(
 		"BRenderTest",
-		SDL_WINDOWPOS_CENTERED,
-		SDL_WINDOWPOS_CENTERED,
+		REX_WINDOW_EXTERNAL_CENTERED,
+		REX_WINDOW_EXTERNAL_CENTERED,
 		rex_desktop_size[0] / 2, rex_desktop_size[1] / 2,
-		SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI
+		REX_WINDOW_EXTERNAL_DEFAULT_FLAGS
 	);
 
 	// Create basic BRender scene
 	BrenderTest_CreateScene(&world, &camera, &cube);
 
+	// Fix z-up
+	BrMatrix34PostRotateZ(&cube->t.t.mat, BR_ANGLE_DEG(90));
+
 	// Main loop
 	while (running)
 	{
+		//
+		// Time counting
+		//
+
 		// Get start-of-frame time
 		frame_start_ticks = SDL_GetTicks64();
+
+		//
+		// Updates
+		//
 
 		// Update window values
 		if (Rex_WindowExternal_Update(rex_window))
@@ -95,21 +113,61 @@ void main(int argc, char *argv[])
 			((br_camera *)camera->type_data)->aspect = BR_SCALAR(rex_window->buffer_screen->width) / BR_SCALAR(rex_window->buffer_screen->height);
 		}
 
+		//
+		// Device I/O
+		//
+
 		// Read device states
 		Rex_IO_ReadDevices();
 
-		// Handle keyboard input
+		// Quit
 		if (KEY_DOWN(KEY_Q))
 			running = REX_FALSE;
 
+		// Move forwards
+		if (KEY_DOWN(KEY_W))
+			BrMatrix34PostTranslate(&camera->t.t.mat, BR_SCALAR(0), BR_SCALAR(0), BR_SCALAR(-1));
+
+		// Move backwards
+		if (KEY_DOWN(KEY_S))
+			BrMatrix34PostTranslate(&camera->t.t.mat, BR_SCALAR(0), BR_SCALAR(0), BR_SCALAR(1));
+
+		// Move leftwards
+		if (KEY_DOWN(KEY_A))
+			BrMatrix34PostTranslate(&camera->t.t.mat, BR_SCALAR(-1), BR_SCALAR(0), BR_SCALAR(0));
+
+		// Move rightwards
+		if (KEY_DOWN(KEY_D))
+			BrMatrix34PostTranslate(&camera->t.t.mat, BR_SCALAR(1), BR_SCALAR(0), BR_SCALAR(0));
+
+		// Move upwards
+		if (KEY_DOWN(KEY_SPACE))
+			BrMatrix34PostTranslate(&camera->t.t.mat, BR_SCALAR(0), BR_SCALAR(1), BR_SCALAR(0));
+
+		// Move downwards
+		if (KEY_DOWN(KEY_LCTRL))
+			BrMatrix34PostTranslate(&camera->t.t.mat, BR_SCALAR(0), BR_SCALAR(-1), BR_SCALAR(0));
+
+		//
+		// Program logic
+		//
+
 		// Rotate cube based on time elapsed
 		BrMatrix34PostRotateY(&cube->t.t.mat, BR_ANGLE_DEG(BR_SCALAR(50) * BR_SCALAR(frame_elapsed_ticks)));
+
+		//
+		// Rendering
+		//
 
 		// Render a frame
 		Rex_ExternalWindow_RenderZb(rex_window, world, camera, REX_RGB_GRY, REX_DEPTH_BUFFER_CLEAR);
 
 		// Flip buffer
 		Rex_ExternalWindow_DoubleBuffer(rex_window);
+
+		//
+		// Time counting
+		//
 
 		// Get end-of-frame time
 		frame_end_ticks = SDL_GetTicks64();
@@ -119,7 +177,7 @@ void main(int argc, char *argv[])
 		frame_elapsed_seconds = 1.0f / frame_elapsed_ticks;
 	}
 
-	// Destroy Rex Engine windows
+	// Free the main window
 	Rex_WindowExternal_Remove(rex_window);
 
 	// Shutdown Rex Engine

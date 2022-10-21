@@ -61,6 +61,11 @@ extern const rex_palette palette_quake;
 
 // Definitions
 #define REX_DEPTH_BUFFER_CLEAR 0xFFFFFFFF
+#define REX_WINDOW_EXTERNAL_CENTERED SDL_WINDOWPOS_CENTERED
+#define REX_WINDOW_EXTERNAL_DEFAULT_FLAGS (SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI)
+
+// Number of active external windows
+extern rex_uint rex_num_external_windows;
 
 // Global videomode
 extern rex_int rex_videomode;

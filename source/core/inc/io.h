@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Prototypes for program I/O functions.
 //
-// LAST EDITED:		October 18th, 2022
+// LAST EDITED:		October 21st, 2022
 //
 // ========================================================
 
@@ -105,6 +105,11 @@ extern rex_vector2i rex_desktop_size;
 #define KEY_X				SDL_SCANCODE_X
 #define KEY_Y				SDL_SCANCODE_X
 #define KEY_Z				SDL_SCANCODE_Z
+
+// Keyboard scancodes (misc)
+#define KEY_LCTRL           SDL_SCANCODE_LCTRL
+#define KEY_RCTRL           SDL_SCANCODE_RCTRL
+#define KEY_SPACE            SDL_SCANCODE_SPACE
 
 // Reads all currently active devices (keyboard, mouse, etc)
 void Rex_IO_ReadDevices(void);

@@ -18,6 +18,9 @@
 extern rex_coord3f *gl_vertices_f;
 extern rex_int num_gl_vertices_f;
 
+extern br_model *global_model_test;
+extern br_pixelmap *global_model_test_texture;
+
 //
 // Generic format functions (formats.c)
 //

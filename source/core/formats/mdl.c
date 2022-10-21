@@ -93,11 +93,12 @@ rex_int Rex_Formats_idTech_MDL(rex_int operation, rex_byte *filename)
 	mdl_frame_t *mdl_frame;
 	mdl_vertex_t *mdl_vertices;
 	mdl_face_t *mdl_faces;
+	mdl_texcoord_t *mdl_texcoords;
 
 	rex_uint mdl_skin_type;
-	rex_buffer *mdl_skin_pixels;
+	rex_ubyte *mdl_skin_pixels;
 
-	rex_int i, stride;
+	rex_int i, x, y, stride;
 	rex_int num_pixels;
 
 	// Open file pointer
@@ -140,11 +141,32 @@ rex_int Rex_Formats_idTech_MDL(rex_int operation, rex_byte *filename)
 		if (!fread(mdl_skin_pixels, sizeof(rex_ubyte), num_pixels, file)) return REX_ERROR_FILE_READ;
 	}
 
-	// Skip mdl texcoords
-	for (i = 0; i < mdl_header->num_vertices; i++)
+	// Allocate the global pixelmap
+	global_model_test_texture = BrPixelmapAllocate(BR_PMT_RGB_888, mdl_header->skin_width, mdl_header->skin_height, NULL, 0);
+
+	// This is a shit method.
+	for (y = 0; y < mdl_header->skin_height; y++)
 	{
-		if (fseek(file, sizeof(mdl_texcoord_t), SEEK_CUR)) return REX_ERROR_FILE_READ;
+		for (x = 0; x < mdl_header->skin_width; x++)
+		{
+			rex_int pos = (y * mdl_header->skin_width) + x;
+			rex_rgb color = palette_quake[mdl_skin_pixels[pos]];
+
+			BrPixelmapPixelSet(global_model_test_texture, x, y, BR_COLOUR_RGB(color.b, color.g, color.r));
+		}
 	}
+
+	global_model_test_texture->identifier = "quake_model_texture";
+
+	BrMapAdd(global_model_test_texture);
+
+	BrPixelmapSave("checkerboard.pix", global_model_test_texture);
+
+	// Allocate local texcoords buffer
+	mdl_texcoords = calloc(mdl_header->num_vertices, sizeof(mdl_texcoord_t));
+
+	// Read in MDL texcoords
+	if (!fread(mdl_texcoords, sizeof(mdl_texcoord_t), mdl_header->num_vertices, file)) return REX_ERROR_FILE_READ;
 
 	// Allocate local faces buffer
 	mdl_faces = calloc(mdl_header->num_faces, sizeof(mdl_face_t));
@@ -161,28 +183,50 @@ rex_int Rex_Formats_idTech_MDL(rex_int operation, rex_byte *filename)
 	// Read in MDL vertices
 	if (!fread(mdl_vertices, sizeof(mdl_vertex_t), mdl_header->num_vertices, file)) return REX_ERROR_FILE_READ;
 
-	// Allocate global vertex buffer
-	gl_vertices_f = calloc(mdl_header->num_faces * 3, sizeof(rex_coord3f));
-	num_gl_vertices_f = mdl_header->num_faces * 3;
+	//
+	// MAKE ROOM EVERYONE, I'M GOING TO TRY AND MAKE A BRENDER MODEL
+	//
 
-	// Assign MDL vertices to global vertex buffer
-	for (i = 0, stride = 0; i < mdl_header->num_faces; i++)
+	// Allocate the global model (this will be removed shortly)
+	global_model_test = BrModelAllocate("quake_model", 0, 0);
+	global_model_test->flags |= BR_MODF_KEEP_ORIGINAL;
+	global_model_test->flags |= BR_MODF_UPDATEABLE;
+
+	// Allocate vertices
+	global_model_test->vertices = calloc(mdl_header->num_vertices, sizeof(br_vertex));
+	global_model_test->nvertices = mdl_header->num_vertices;
+
+	// Allocate faces
+	global_model_test->faces = calloc(mdl_header->num_faces, sizeof(br_face));
+	global_model_test->nfaces = mdl_header->num_faces;
+
+	// Shove in the vertices
+	for (i = 0; i < mdl_header->num_vertices; i++)
 	{
-		// Face vertex 0
-		gl_vertices_f[stride].x = mdl_vertices[mdl_faces[i].vertex_indicies[0]].coordinates[0] * mdl_header->scale[0];
-		gl_vertices_f[stride].y = mdl_vertices[mdl_faces[i].vertex_indicies[0]].coordinates[1] * mdl_header->scale[1];
-		gl_vertices_f[stride].z = mdl_vertices[mdl_faces[i].vertex_indicies[0]].coordinates[2] * mdl_header->scale[2];
-		// Face vertex 1
-		gl_vertices_f[stride + 1].x = mdl_vertices[mdl_faces[i].vertex_indicies[1]].coordinates[0] * mdl_header->scale[0];
-		gl_vertices_f[stride + 1].y = mdl_vertices[mdl_faces[i].vertex_indicies[1]].coordinates[1] * mdl_header->scale[1];
-		gl_vertices_f[stride + 1].z = mdl_vertices[mdl_faces[i].vertex_indicies[1]].coordinates[2] * mdl_header->scale[2];
-		// Face vertex 2
-		gl_vertices_f[stride + 2].x = mdl_vertices[mdl_faces[i].vertex_indicies[2]].coordinates[0] * mdl_header->scale[0];
-		gl_vertices_f[stride + 2].y = mdl_vertices[mdl_faces[i].vertex_indicies[2]].coordinates[1] * mdl_header->scale[1];
-		gl_vertices_f[stride + 2].z = mdl_vertices[mdl_faces[i].vertex_indicies[2]].coordinates[2] * mdl_header->scale[2];
-		// Iterate stride
-		stride += 3;
+		// Reverse the vertex winding
+		global_model_test->vertices[i].p.v[2] = BR_SCALAR(mdl_vertices[i].coordinates[0] * mdl_header->scale[0] + mdl_header->translation[0]);
+		global_model_test->vertices[i].p.v[1] = BR_SCALAR(mdl_vertices[i].coordinates[1] * mdl_header->scale[1] + mdl_header->translation[1]);
+		global_model_test->vertices[i].p.v[0] = BR_SCALAR(mdl_vertices[i].coordinates[2] * mdl_header->scale[2] + mdl_header->translation[2]);
+
+		// Add UV coords
+		global_model_test->vertices[i].map.v[0] = BR_SCALAR((mdl_texcoords[i].s + 0.5) / mdl_header->skin_width);
+		global_model_test->vertices[i].map.v[1] = BR_SCALAR((mdl_texcoords[i].t + 0.5) / mdl_header->skin_height);
 	}
+
+	// Shove in the faces
+	for (i = 0; i < mdl_header->num_faces; i++)
+	{
+		// Just put the vertex indices in it
+		global_model_test->faces[i].vertices[0] = (br_uint_16)mdl_faces[i].vertex_indicies[0];
+		global_model_test->faces[i].vertices[1] = (br_uint_16)mdl_faces[i].vertex_indicies[1];
+		global_model_test->faces[i].vertices[2] = (br_uint_16)mdl_faces[i].vertex_indicies[2];
+
+		// Max smoothing, no flags
+		global_model_test->faces[i].smoothing = 0xFFFF;
+		global_model_test->faces[i].flags = 0;
+	}
+
+	BrModelAdd(global_model_test);
 
 	// Close file pointer
 	fclose(file);
