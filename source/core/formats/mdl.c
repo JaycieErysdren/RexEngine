@@ -277,6 +277,7 @@ rex_int Rex_Formats_idTech_MDL(rex_int operation, rex_byte *filename)
 	free(mdl_frame);
 	free(mdl_vertices);
 	free(mdl_faces);
+	free(mdl_texcoords);
 
 	// Return no error
 	return REX_ERROR_NONE;
