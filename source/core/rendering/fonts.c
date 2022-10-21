@@ -130,3 +130,19 @@ void Rex_Fonts_RenderText(rex_window_external *window, rex_int x, rex_int y, rex
 
 	SDL_FreeSurface(surface);
 }
+
+// Generate a BRender Pixelmap which contains a formatted message's pixel data.
+br_pixelmap *Rex_Fonts_GenerateTextPixelmap(TTF_Font *font, rex_rgba color, rex_byte *s, ...)
+{
+	va_list args;
+	rex_byte text[512];
+
+	va_start(args, s);
+	vsprintf(text, s, args);
+	va_end(args);
+
+	SDL_Surface *surface = TTF_RenderText_Blended_Wrapped(font, text, (SDL_Color){color.r, color.g, color.b, color.a}, rex_desktop_size[0]);
+	br_pixelmap *pixelmap = BrPixelmapAllocate(BR_PMT_ARGB_8888, surface->w, surface->h, surface->pixels, REX_FALSE);
+
+	return pixelmap;
+}

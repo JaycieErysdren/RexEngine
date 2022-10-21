@@ -31,6 +31,7 @@ void BrenderTest_CreateScene(br_actor **_world, br_actor **_camera, br_actor **_
 	BrMaterialFindHook(BrMaterialFindFailedLoad);
 
 	world = BrActorAllocate(BR_ACTOR_NONE, NULL);
+
 	order_table = BrZsOrderTableAllocate(1024, BR_ORDER_TABLE_LEAVE_BOUNDS | BR_ORDER_TABLE_BUCKET_SORT, BR_SORT_AVERAGE);
 	BrZsActorOrderTableSet(world, order_table);
 
@@ -38,7 +39,7 @@ void BrenderTest_CreateScene(br_actor **_world, br_actor **_camera, br_actor **_
 	((br_camera *)camera->type_data)->type = BR_CAMERA_PERSPECTIVE_FOV;
 	((br_camera *)camera->type_data)->field_of_view = BR_ANGLE_DEG(75);
 	((br_camera *)camera->type_data)->hither_z = BR_SCALAR(0.1);
-	((br_camera *)camera->type_data)->aspect = BR_SCALAR(rex_window->width) / BR_SCALAR(rex_window->height);
+	((br_camera *)camera->type_data)->aspect = BR_SCALAR(rex_window->buffer_screen->width) / BR_SCALAR(rex_window->buffer_screen->height);
 
 	order_table->min_z = ((br_camera *)camera->type_data)->hither_z;
 	order_table->max_z = ((br_camera *)camera->type_data)->yon_z;
@@ -76,7 +77,7 @@ void main(int argc, char *argv[])
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
 		rex_desktop_size[0] / 2, rex_desktop_size[1] / 2,
-		SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
+		SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI
 	);
 
 	// Create basic BRender scene
@@ -91,7 +92,7 @@ void main(int argc, char *argv[])
 		// Update window values
 		if (Rex_WindowExternal_Update(rex_window))
 		{
-			((br_camera *)camera->type_data)->aspect = BR_SCALAR(rex_window->width) / BR_SCALAR(rex_window->height);
+			((br_camera *)camera->type_data)->aspect = BR_SCALAR(rex_window->buffer_screen->width) / BR_SCALAR(rex_window->buffer_screen->height);
 		}
 
 		// Read device states

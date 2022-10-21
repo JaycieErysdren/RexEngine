@@ -30,17 +30,20 @@ extern TTF_Font *font_dos_8x16;		// DOS standard font, 8x16
 extern TTF_Font *font_dos_9x14;		// DOS standard font, 9x14
 extern TTF_Font *font_dos_9x16;		// DOS standard font, 9x16
 
-// Start up system fonts
+// Start up system fonts.
 void Rex_Fonts_Startup(void);
 
-// Shut down system fonts
+// Shut down system fonts.
 void Rex_Fonts_Shutdown(void);
 
-// Generate an SDL Surface which contains a message's pixel data
+// Generate an SDL Surface which contains a message's pixel data.
 void Rex_Fonts_GenerateTextSurface(SDL_Surface **surface, TTF_Font *font, rex_rgba color, rex_byte *s, ...);
 
-// Render text to the given external window
+// Render text to the given external window.
 void Rex_Fonts_RenderText(rex_window_external *window, rex_int x, rex_int y, rex_rgba color, TTF_Font *font, rex_byte *s, ...);
+
+// Generate a BRender Pixelmap which contains a formatted message's pixel data.
+br_pixelmap *Rex_Fonts_GenerateTextPixelmap(TTF_Font *font, rex_rgba color, rex_byte *s, ...);
 
 //
 // Embedded system palettes (palettes.c)
@@ -82,7 +85,7 @@ rex_int Rex_WindowExternal_Update(rex_window_external *window);
 // Flip the buffers for a BRender window.
 void Rex_ExternalWindow_DoubleBuffer(rex_window_external *window);
 
-// Render a frame from a BRender window to a pixelmap (Using the Z-buffer).
+// Render a frame from the specified scene to the specified window's screen buffer (Using the Z-buffer).
 void Rex_ExternalWindow_RenderZb(rex_window_external *window, br_actor *world, br_actor *camera, rex_rgb color, rex_uint depth);
 
 //

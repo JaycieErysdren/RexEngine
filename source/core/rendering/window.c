@@ -90,8 +90,8 @@ rex_window_external *Rex_WindowExternal_Add(rex_byte_c *title, rex_int x, rex_in
 	window->buffer_depth = BrPixelmapMatch(window->buffer_color, BR_PMMATCH_DEPTH_16);
 
 	// Fix buffer origins
-    window->buffer_screen->origin_x = window->buffer_color->origin_x = window->buffer_depth->origin_x = (br_int_16)(drawable_width / 2);
-    window->buffer_screen->origin_y = window->buffer_color->origin_y = window->buffer_depth->origin_y = (br_int_16)(drawable_height / 2);
+	window->buffer_screen->origin_x = window->buffer_color->origin_x = window->buffer_depth->origin_x = (br_int_16)(drawable_width / 2);
+	window->buffer_screen->origin_y = window->buffer_color->origin_y = window->buffer_depth->origin_y = (br_int_16)(drawable_height / 2);
 
 	// Begin BRender rendering
     BrRendererBegin(window->buffer_color, NULL, NULL, brender_primitive_heap, sizeof(brender_primitive_heap));
@@ -127,9 +127,14 @@ rex_int Rex_WindowExternal_Update(rex_window_external *window)
 		window->width = w;
 		window->width = h;
 
+		// Resize pixel buffers
 		BrPixelmapResize(window->buffer_depth, dw, dh);
 		BrPixelmapResize(window->buffer_color, dw, dh);
 		BrPixelmapResize(window->buffer_screen, dw, dh);
+
+		// Fix pixel buffer origins
+		window->buffer_screen->origin_x = window->buffer_color->origin_x = window->buffer_depth->origin_x = (br_int_16)(dw / 2);
+		window->buffer_screen->origin_y = window->buffer_color->origin_y = window->buffer_depth->origin_y = (br_int_16)(dh / 2);
 
 		return REX_TRUE;
 	}
@@ -146,7 +151,7 @@ void Rex_ExternalWindow_DoubleBuffer(rex_window_external *window)
 	//SDL_GL_SwapWindow(window->sdl_window);
 }
 
-// Render a frame from a BRender window to a pixelmap (Using the Z-buffer).
+// Render a frame from the specified scene to the specified window's screen buffer (Using the Z-buffer).
 void Rex_ExternalWindow_RenderZb(rex_window_external *window, br_actor *world, br_actor *camera, rex_rgb color, rex_uint depth)
 {
 	BrRendererFrameBegin();
