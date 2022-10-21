@@ -38,5 +38,6 @@ link_libraries(m)
 include_directories(core/inc)
 
 add_subdirectory(core)
+add_subdirectory(core/brender)
 add_subdirectory(liberator)
 add_subdirectory(testgame)
