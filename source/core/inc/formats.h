@@ -85,3 +85,10 @@ rex_int Rex_Formats_idTech_MDL(rex_int operation, rex_byte *filename);
 
 // Load and process an idTech PAK file. Returns an error code. (Formats/id Software/pak.ksy)
 rex_int Rex_Formats_idTech_PAK(rex_int operation, rex_byte *filename);
+
+//
+// Tank Engine TMF files (tmf.c)
+//
+
+// Load and process a Tank Engine TMF file. Returns an error code. (Formats/ReyeMe/tankengine_tmf.ksy)
+br_actor *Rex_Formats_ReyeMe_TMF(rex_int operation, rex_byte *filename, br_actor *parent);

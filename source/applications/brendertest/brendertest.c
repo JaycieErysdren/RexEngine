@@ -47,13 +47,13 @@ void BrenderTest_CreateScene(br_actor **_world, br_actor **_camera, br_actor **_
 
 	BrMatrix34Translate(&camera->t.t.mat, BR_SCALAR(0), BR_SCALAR(0), BR_SCALAR(6));
 
-	cube = BrActorAdd(world, BrActorAllocate(BR_ACTOR_MODEL, NULL));
-	cube->model = global_model_test;
-	cube->material = BrMaterialFind("checkerboard.mat");
+	//cube = BrActorAdd(world, BrActorAllocate(BR_ACTOR_MODEL, NULL));
+	//cube->model = global_model_test;
+	//cube->material = BrMaterialFind("checkerboard.mat");
 
 	*_world = world;
 	*_camera = camera;
-	*_cube = cube;
+	//*_cube = cube;
 }
 
 // Main function
@@ -89,6 +89,8 @@ void main(int argc, char *argv[])
 
 	// Create basic BRender scene
 	BrenderTest_CreateScene(&world, &camera, &cube);
+
+	br_actor *tank = Rex_Formats_ReyeMe_TMF(REX_FORMATOP_VIEW, "TANK.TMF", world);
 
 	// Fix z-up for Quake models
 	//BrMatrix34PostRotateZ(&cube->t.t.mat, BR_ANGLE_DEG(90));
@@ -161,7 +163,8 @@ void main(int argc, char *argv[])
 		//
 
 		// Rotate cube based on time elapsed
-		BrMatrix34PostRotateY(&cube->t.t.mat, BR_ANGLE_DEG(BR_SCALAR(50) * BR_SCALAR(frame_elapsed_ticks)));
+		//BrMatrix34PostRotateY(&cube->t.t.mat, BR_ANGLE_DEG(BR_SCALAR(50) * BR_SCALAR(frame_elapsed_ticks)));
+		BrMatrix34PostRotateY(&tank->t.t.mat, BR_ANGLE_DEG(BR_SCALAR(50) * BR_SCALAR(frame_elapsed_ticks)));
 
 		//
 		// Rendering

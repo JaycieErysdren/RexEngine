@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		id Software MDL files.
 //
-// LAST EDITED:		October 19th, 2022
+// LAST EDITED:		October 21st, 2022
 //
 // ========================================================
 
@@ -250,10 +250,10 @@ rex_int Rex_Formats_idTech_MDL(rex_int operation, rex_byte *filename)
 		uv2.v[0] = (uv2.v[0] + 0.5f) / mdl_header->skin_width;
 		uv2.v[1] = (uv2.v[1] + 0.5f) / mdl_header->skin_height;
 
-		Rex_Log("%f %f", uv0.v[0], uv0.v[1]);
-		Rex_Log("%f %f", uv1.v[0], uv1.v[1]);
-		Rex_Log("%f %f", uv2.v[0], uv2.v[1]);
-		Rex_Log("====================");
+		//Rex_Log("%f %f", uv0.v[0], uv0.v[1]);
+		//Rex_Log("%f %f", uv1.v[0], uv1.v[1]);
+		//Rex_Log("%f %f", uv2.v[0], uv2.v[1]);
+		//Rex_Log("====================");
 
 		v0.map = uv0;
 		v1.map = uv1;
