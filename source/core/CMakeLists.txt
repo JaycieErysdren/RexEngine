@@ -10,11 +10,11 @@
 ##
 ## DESCRIPTION:		Core CMake project definition.
 ##
-## LAST EDITED:		October 20th, 2022
+## LAST EDITED:		October 21st, 2022
 ##
 ## ========================================================
 
-set(REX_SRC
+set(REX_ENGINE_SRC
 	formats/formats.c
 	formats/lev.c
 	formats/mdl.c
@@ -30,4 +30,4 @@ set(REX_SRC
 	utilities/failure.c
 )
 
-add_library(rex ${REX_SRC})
+add_library(RexEngine ${REX_ENGINE_SRC})

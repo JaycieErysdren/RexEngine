@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/liberator/liberator.c
+// FILE:			/source/applications/brendertest/brendertest.c
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -8,14 +8,14 @@
 //
 // LICENSE:			ACSL 1.4
 //
-// DESCRIPTION:		Liberator program entry point.
+// DESCRIPTION:		BRenderTest program entry point.
 //
-// LAST EDITED:		October 20th, 2022
+// LAST EDITED:		October 21st, 2022
 //
 // ========================================================
 
-// Include liberator header
-#include "liberator.h"
+// Include brendertest header
+#include "brendertest.h"
 
 rex_window_external *window_main;
 SDL_Surface *window_main_text1;

@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/liberator/liberator.h
+// FILE:			/source/applications/liberator/liberator.h
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Liberator header.
 //
-// LAST EDITED:		October 20th, 2022
+// LAST EDITED:		October 21st, 2022
 //
 // ========================================================
 

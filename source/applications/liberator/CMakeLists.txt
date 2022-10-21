@@ -1,6 +1,6 @@
 ## ========================================================
 ##
-## FILE:			/source/liberator/CMakeLists.txt
+## FILE:			/source/applications/liberator/CMakeLists.txt
 ##
 ## AUTHORS:			Jaycie Ewald
 ##
@@ -10,15 +10,14 @@
 ##
 ## DESCRIPTION:		Liberator CMake project definition.
 ##
-## LAST EDITED:		October 18th, 2022
+## LAST EDITED:		October 21st, 2022
 ##
 ## ========================================================
+
+project(Liberator)
 
 set(LIBERATOR_SRC
 	liberator.c
 )
 
 add_executable(liberator ${LIBERATOR_SRC})
-
-target_link_libraries(liberator rex)
-

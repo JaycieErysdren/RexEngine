@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/testgame/testgame.c
+// FILE:			/source/applications/testgame/testgame.c
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		TestGame program entry point.
 //
-// LAST EDITED:		October 20th, 2022
+// LAST EDITED:		October 21st, 2022
 //
 // ========================================================
 

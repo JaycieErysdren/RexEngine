@@ -1,6 +1,6 @@
 ## ========================================================
 ##
-## FILE:			/source/testgame/CMakeLists.txt
+## FILE:			/source/applications/testgame/CMakeLists.txt
 ##
 ## AUTHORS:			Jaycie Ewald
 ##
@@ -10,15 +10,14 @@
 ##
 ## DESCRIPTION:		TestGame CMake project definition.
 ##
-## LAST EDITED:		October 20th, 2022
+## LAST EDITED:		October 21st, 2022
 ##
 ## ========================================================
+
+project(TestGame)
 
 set(TESTGAME_SRC
 	testgame.c
 )
 
 add_executable(testgame ${TESTGAME_SRC})
-
-target_link_libraries(testgame rex)
-
