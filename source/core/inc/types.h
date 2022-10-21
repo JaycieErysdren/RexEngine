@@ -27,9 +27,6 @@ typedef unsigned short int rex_ushort;				// Unsigned short
 typedef signed long int rex_long;					// Signed long
 typedef unsigned long int rex_ulong;				// Unsigned long
 
-typedef signed long long int rex_double;			// Signed double
-typedef unsigned long long int rex_udouble;			// Unsigned double
-
 typedef signed char rex_byte;						// Signed byte
 typedef unsigned char rex_ubyte;					// Unsigned byte
 
@@ -37,6 +34,7 @@ typedef const signed char rex_byte_c;				// Signed const byte
 typedef const unsigned char rex_ubyte_c;			// Unsigned const byte
 
 typedef float rex_float;							// Float
+typedef double rex_double;							// Double
 
 typedef rex_int rex_bool;							// Boolean
 
