@@ -11,3 +11,7 @@ Multi-purple multi-target multi-use game engine.
 [Open Watcom v2](https://open-watcom.github.io/)
 
 [Kaitai Struct](http://kaitai.io/)
+
+## License
+
+This repository is licensed with ACSL v1.4 - see [LICENSE](https://github.com/JaycieErysdren/RexEngine/blob/main/LICENSE) for details.
