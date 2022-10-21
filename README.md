@@ -1,6 +1,6 @@
 # Rex Engine
 
-Multi-purple multi-target multi-use game engine.
+Multi-purple multi-target multi-use game engine, written in C.
 
 ## Links
 
