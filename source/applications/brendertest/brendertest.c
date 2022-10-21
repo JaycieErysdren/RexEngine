@@ -72,9 +72,6 @@ void main(int argc, char *argv[])
 	// Some BRender actors
 	br_actor *world, *camera, *cube;
 
-	// Text pixelmap
-	br_pixelmap *buffer_overlay;
-
 	// Startup Rex Engine
 	Rex_Startup();
 
@@ -93,10 +90,8 @@ void main(int argc, char *argv[])
 	// Create basic BRender scene
 	BrenderTest_CreateScene(&world, &camera, &cube);
 
-	buffer_overlay = BrPixelmapAllocateSub(rex_window->buffer_color, 0, 0, rex_window->buffer_color->width, rex_window->buffer_color->height);
-
 	// Fix z-up for Quake models
-	BrMatrix34PostRotateZ(&cube->t.t.mat, BR_ANGLE_DEG(90));
+	//BrMatrix34PostRotateZ(&cube->t.t.mat, BR_ANGLE_DEG(90));
 
 	// Main loop
 	while (running)

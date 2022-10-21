@@ -98,7 +98,7 @@ rex_int Rex_Formats_idTech_MDL(rex_int operation, rex_byte *filename)
 	rex_uint mdl_skin_type;
 	rex_ubyte *mdl_skin_pixels;
 
-	rex_int i, x, y, stride;
+	rex_int i, v, x, y, stride;
 	rex_int num_pixels;
 
 	// Open file pointer
@@ -203,27 +203,67 @@ rex_int Rex_Formats_idTech_MDL(rex_int operation, rex_byte *filename)
 	// Shove in the vertices
 	for (i = 0; i < mdl_header->num_vertices; i++)
 	{
-		// Reverse the vertex winding
-		global_model_test->vertices[i].p.v[2] = BR_SCALAR(mdl_vertices[i].coordinates[0] * mdl_header->scale[0] + mdl_header->translation[0]);
+		// Assign scaled and translated vertex positions to the vectors
+		global_model_test->vertices[i].p.v[0] = BR_SCALAR(mdl_vertices[i].coordinates[0] * mdl_header->scale[0] + mdl_header->translation[0]);
 		global_model_test->vertices[i].p.v[1] = BR_SCALAR(mdl_vertices[i].coordinates[1] * mdl_header->scale[1] + mdl_header->translation[1]);
-		global_model_test->vertices[i].p.v[0] = BR_SCALAR(mdl_vertices[i].coordinates[2] * mdl_header->scale[2] + mdl_header->translation[2]);
-
-		// Add UV coords
-		global_model_test->vertices[i].map.v[0] = BR_SCALAR((mdl_texcoords[i].s + 0.5) / mdl_header->skin_width);
-		global_model_test->vertices[i].map.v[1] = BR_SCALAR((mdl_texcoords[i].t + 0.5) / mdl_header->skin_height);
+		global_model_test->vertices[i].p.v[2] = BR_SCALAR(mdl_vertices[i].coordinates[2] * mdl_header->scale[2] + mdl_header->translation[2]);
 	}
 
 	// Shove in the faces
 	for (i = 0; i < mdl_header->num_faces; i++)
 	{
-		// Just put the vertex indices in it
-		global_model_test->faces[i].vertices[0] = (br_uint_16)mdl_faces[i].vertex_indicies[0];
-		global_model_test->faces[i].vertices[1] = (br_uint_16)mdl_faces[i].vertex_indicies[1];
-		global_model_test->faces[i].vertices[2] = (br_uint_16)mdl_faces[i].vertex_indicies[2];
+		rex_ushort vi0 = (rex_ushort)mdl_faces[i].vertex_indicies[0];
+		rex_ushort vi1 = (rex_ushort)mdl_faces[i].vertex_indicies[1];
+		rex_ushort vi2 = (rex_ushort)mdl_faces[i].vertex_indicies[2];
+
+		// Put the vertex indices in it
+		global_model_test->faces[i].vertices[0] = vi0;
+		global_model_test->faces[i].vertices[1] = vi1;
+		global_model_test->faces[i].vertices[2] = vi2;
 
 		// Max smoothing, no flags
 		global_model_test->faces[i].smoothing = 0xFFFF;
 		global_model_test->faces[i].flags = 0;
+
+		//
+		// AGKHSDHGSD'GSDG
+		//
+
+		br_vertex v0 = global_model_test->vertices[vi0];
+		br_vertex v1 = global_model_test->vertices[vi1];
+		br_vertex v2 = global_model_test->vertices[vi2];
+
+		br_vector2 uv0 = {mdl_texcoords[vi0].s, mdl_texcoords[vi0].t};
+		br_vector2 uv1 = {mdl_texcoords[vi1].s, mdl_texcoords[vi1].t};
+		br_vector2 uv2 = {mdl_texcoords[vi2].s, mdl_texcoords[vi2].t};
+
+		if (mdl_faces[i].face_type == 0 && mdl_texcoords[vi0].onseam != 0) uv0.v[0] += mdl_header->skin_width * 0.5f;
+		if (mdl_faces[i].face_type == 0 && mdl_texcoords[vi1].onseam != 0) uv1.v[0] += mdl_header->skin_width * 0.5f;
+		if (mdl_faces[i].face_type == 0 && mdl_texcoords[vi2].onseam != 0) uv2.v[0] += mdl_header->skin_width * 0.5f;
+
+		uv0.v[0] = (uv0.v[0] + 0.5f) / mdl_header->skin_width;
+		uv0.v[1] = (uv0.v[1] + 0.5f) / mdl_header->skin_height;
+
+		uv1.v[0] = (uv1.v[0] + 0.5f) / mdl_header->skin_width;
+		uv1.v[1] = (uv1.v[1] + 0.5f) / mdl_header->skin_height;
+
+		uv2.v[0] = (uv2.v[0] + 0.5f) / mdl_header->skin_width;
+		uv2.v[1] = (uv2.v[1] + 0.5f) / mdl_header->skin_height;
+
+		Rex_Log("%f %f", uv0.v[0], uv0.v[1]);
+		Rex_Log("%f %f", uv1.v[0], uv1.v[1]);
+		Rex_Log("%f %f", uv2.v[0], uv2.v[1]);
+		Rex_Log("====================");
+
+		v0.map = uv0;
+		v1.map = uv1;
+		v2.map = uv2;
+
+		global_model_test->vertices[vi0] = v0;
+		global_model_test->vertices[vi1] = v1;
+		global_model_test->vertices[vi2] = v2;
+
+		// this sucks
 	}
 
 	BrModelAdd(global_model_test);
