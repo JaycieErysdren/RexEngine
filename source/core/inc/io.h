@@ -40,10 +40,10 @@ extern rex_vector2i rex_mouse_scroll_delta;
 extern rex_vector2i rex_desktop_size;
 
 // Returns true if the specified key is currently pressed
-#define KEY_DOWN(A) rex_keys[A]
+#define KEY_PRESSED(A) rex_keys[A]
 
 // Returns true if the specified mouse button is currently pressed.
-#define MOUSE_DOWN(A) rex_mouse_buttons[A]
+#define MOUSE_PRESSED(A) rex_mouse_buttons[A]
 
 // Mouse button scancodes
 #define MOUSE_LEFT			SDL_BUTTON_LEFT
@@ -106,10 +106,16 @@ extern rex_vector2i rex_desktop_size;
 #define KEY_Y				SDL_SCANCODE_X
 #define KEY_Z				SDL_SCANCODE_Z
 
-// Keyboard scancodes (misc)
-#define KEY_LCTRL           SDL_SCANCODE_LCTRL
-#define KEY_RCTRL           SDL_SCANCODE_RCTRL
-#define KEY_SPACE            SDL_SCANCODE_SPACE
+// Keyboard scancodes (Other keys)
+#define KEY_LCTRL			SDL_SCANCODE_LCTRL
+#define KEY_RCTRL			SDL_SCANCODE_RCTRL
+#define KEY_SPACE			SDL_SCANCODE_SPACE
+
+// Keyboard scancodes (Arrow keys)
+#define KEY_UP				SDL_SCANCODE_UP
+#define KEY_DOWN			SDL_SCANCODE_DOWN
+#define KEY_LEFT			SDL_SCANCODE_LEFT
+#define KEY_RIGHT			SDL_SCANCODE_RIGHT
 
 // Reads all currently active devices (keyboard, mouse, etc)
 void Rex_IO_ReadDevices(void);

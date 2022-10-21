@@ -72,6 +72,9 @@ void main(int argc, char *argv[])
 	// Some BRender actors
 	br_actor *world, *camera, *cube;
 
+	// Text pixelmap
+	br_pixelmap *buffer_overlay;
+
 	// Startup Rex Engine
 	Rex_Startup();
 
@@ -90,7 +93,9 @@ void main(int argc, char *argv[])
 	// Create basic BRender scene
 	BrenderTest_CreateScene(&world, &camera, &cube);
 
-	// Fix z-up
+	buffer_overlay = BrPixelmapAllocateSub(rex_window->buffer_color, 0, 0, rex_window->buffer_color->width, rex_window->buffer_color->height);
+
+	// Fix z-up for Quake models
 	BrMatrix34PostRotateZ(&cube->t.t.mat, BR_ANGLE_DEG(90));
 
 	// Main loop
@@ -121,32 +126,40 @@ void main(int argc, char *argv[])
 		Rex_IO_ReadDevices();
 
 		// Quit
-		if (KEY_DOWN(KEY_Q))
+		if (KEY_PRESSED(KEY_Q))
 			running = REX_FALSE;
 
 		// Move forwards
-		if (KEY_DOWN(KEY_W))
+		if (KEY_PRESSED(KEY_W))
 			BrMatrix34PostTranslate(&camera->t.t.mat, BR_SCALAR(0), BR_SCALAR(0), BR_SCALAR(-1));
 
 		// Move backwards
-		if (KEY_DOWN(KEY_S))
+		if (KEY_PRESSED(KEY_S))
 			BrMatrix34PostTranslate(&camera->t.t.mat, BR_SCALAR(0), BR_SCALAR(0), BR_SCALAR(1));
 
 		// Move leftwards
-		if (KEY_DOWN(KEY_A))
+		if (KEY_PRESSED(KEY_A))
 			BrMatrix34PostTranslate(&camera->t.t.mat, BR_SCALAR(-1), BR_SCALAR(0), BR_SCALAR(0));
 
 		// Move rightwards
-		if (KEY_DOWN(KEY_D))
+		if (KEY_PRESSED(KEY_D))
 			BrMatrix34PostTranslate(&camera->t.t.mat, BR_SCALAR(1), BR_SCALAR(0), BR_SCALAR(0));
 
 		// Move upwards
-		if (KEY_DOWN(KEY_SPACE))
+		if (KEY_PRESSED(KEY_SPACE))
 			BrMatrix34PostTranslate(&camera->t.t.mat, BR_SCALAR(0), BR_SCALAR(1), BR_SCALAR(0));
 
 		// Move downwards
-		if (KEY_DOWN(KEY_LCTRL))
+		if (KEY_PRESSED(KEY_LCTRL))
 			BrMatrix34PostTranslate(&camera->t.t.mat, BR_SCALAR(0), BR_SCALAR(-1), BR_SCALAR(0));
+
+		// Look leftwards
+		if (KEY_PRESSED(KEY_LEFT))
+			BrMatrix34PreRotateY(&camera->t.t.mat, BR_ANGLE_DEG(1));
+
+		// Look rightwards
+		if (KEY_PRESSED(KEY_RIGHT))
+			BrMatrix34PreRotateY(&camera->t.t.mat, BR_ANGLE_DEG(-1));
 
 		//
 		// Program logic
