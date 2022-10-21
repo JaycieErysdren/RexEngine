@@ -14,327 +14,113 @@
 //
 // ========================================================
 
-// Include brendertest header
+// Include BRenderTest header
 #include "brendertest.h"
 
-rex_window_external *window_main;
-SDL_Surface *window_main_text1;
+// Main window
+rex_window_external *rex_window;
 
-rex_coord3i cube_vertices[] = {
-	// Top face
-	{64, 64, -64},
-	{-64, 64, -64},
-	{-64, 64, 64},
-	{64, 64, 64},
-	// Bottom face
-	{64, -64, -64},
-	{-64, -64, -64},
-	{-64, -64, 64},
-	{64, -64, 64},
-	// Front face
-	{64, 64, 64},
-	{-64, 64, 64},
-	{-64, -64, 64},
-	{64, -64, 64},
-	// Back face
-	{64, -64, -64},
-	{-64, -64, -64},
-	{-64, 64, -64},
-	{64, 64, -64},
-	// Left face
-	{-64, 64, 64},
-	{-64, 64, -64},
-	{-64, -64, -64},
-	{-64, -64, 64},
-	// Right face
-	{64, 64, 64},
-	{64, 64, -64},
-	{64, -64, -64},
-	{64, -64, 64}
-};
-
-rex_rgb cube_colors[] = {
-	// Top face
-	REX_RGB(0, 255, 0),
-	REX_RGB(0, 255, 0),
-	REX_RGB(0, 255, 0),
-	REX_RGB(0, 255, 0),
-	// Bottom face
-	REX_RGB(255, 128, 0),
-	REX_RGB(255, 128, 0),
-	REX_RGB(255, 128, 0),
-	REX_RGB(255, 128, 0),
-	// Front face
-	REX_RGB(255, 0, 0),
-	REX_RGB(255, 0, 0),
-	REX_RGB(255, 0, 0),
-	REX_RGB(255, 0, 0),
-	// Back face
-	REX_RGB(255, 255, 0),
-	REX_RGB(255, 255, 0),
-	REX_RGB(255, 255, 0),
-	REX_RGB(255, 255, 0),
-	// Left face
-	REX_RGB(0, 0, 255),
-	REX_RGB(0, 0, 255),
-	REX_RGB(0, 0, 255),
-	REX_RGB(0, 0, 255),
-	// Right face
-	REX_RGB(255, 0, 255),
-	REX_RGB(255, 0, 255),
-	REX_RGB(255, 0, 255),
-	REX_RGB(255, 0, 255)
-};
-
-// Camera angle
-rex_vector3i camera_angle;
-
-// Camera position
-rex_vector3i camera_position;
-
-// Set camera position
-void Liberator_Camera_SetPosition(rex_int x, rex_int y, rex_int z)
+// Create basic BRender scene
+void BrenderTest_CreateScene(br_actor **_world, br_actor **_camera, br_actor **_cube)
 {
-	camera_position[0] = x;
-	camera_position[1] = y;
-	camera_position[2] = z;
-}
+	br_actor *world, *camera, *cube;
+	br_order_table *order_table;
 
-// Set camera angle
-void Liberator_Camera_SetAngle(rex_int x, rex_int y, rex_int z)
-{
-	camera_angle[0] = x;
-	camera_angle[1] = y;
-	camera_angle[2] = z;
-}
+	BrModelFindHook(BrModelFindFailedLoad);
+	BrMapFindHook(BrMapFindFailedLoad);
+	BrMaterialFindHook(BrMaterialFindFailedLoad);
 
-// Handle mouse inputs
-void Liberator_Mouse_OrbitControls(void)
-{
-	if (KEY_DOWN(KEY_R))
-	{
-		Liberator_Camera_SetPosition(0, 0, -256);
-		Liberator_Camera_SetAngle(45, 45, 0);
-	}
-	else if (MOUSE_DOWN(MOUSE_LEFT)) // Orbit
-	{
-		if (rex_mouse_delta[0]) camera_angle[0] += rex_mouse_delta[0] / 2;
-		if (rex_mouse_delta[1]) camera_angle[1] += rex_mouse_delta[1] / 2;
+	world = BrActorAllocate(BR_ACTOR_NONE, NULL);
+	order_table = BrZsOrderTableAllocate(1024, BR_ORDER_TABLE_LEAVE_BOUNDS | BR_ORDER_TABLE_BUCKET_SORT, BR_SORT_AVERAGE);
+	BrZsActorOrderTableSet(world, order_table);
 
-		if (camera_angle[1] > 90) camera_angle[1] = 90;
-		if (camera_angle[1] < -90) camera_angle[1] = -90;
-	}
-	else if (MOUSE_DOWN(MOUSE_RIGHT)) // Zoom
-	{
-		if (rex_mouse_delta[1]) camera_position[2] -= rex_mouse_delta[1];
+	camera = BrActorAdd(world, BrActorAllocate(BR_ACTOR_CAMERA, NULL));
+	((br_camera *)camera->type_data)->type = BR_CAMERA_PERSPECTIVE_FOV;
+	((br_camera *)camera->type_data)->field_of_view = BR_ANGLE_DEG(75);
+	((br_camera *)camera->type_data)->hither_z = BR_SCALAR(0.1);
+	((br_camera *)camera->type_data)->aspect = BR_SCALAR(rex_window->width) / BR_SCALAR(rex_window->height);
 
-		if (camera_position[2] > 0) camera_position[2] = 0;
-	}
-	else if (MOUSE_DOWN(MOUSE_MIDDLE)) // Pan
-	{
-		if (rex_mouse_delta[0]) camera_position[0] += rex_mouse_delta[0];
-		if (rex_mouse_delta[1]) camera_position[1] -= rex_mouse_delta[1];
-	}
+	order_table->min_z = ((br_camera *)camera->type_data)->hither_z;
+	order_table->max_z = ((br_camera *)camera->type_data)->yon_z;
 
-	// cap this because of weirdness with reading it upon startup
-	if (rex_mouse_scroll_delta[1] < 16) camera_position[2] += rex_mouse_scroll_delta[1] * 16;
-}
+	BrMatrix34Translate(&camera->t.t.mat, BR_SCALAR(0), BR_SCALAR(0), BR_SCALAR(2));
 
-// Print help text
-void Liberator_PrintHelpText(void)
-{
-	printf("Liberator v0.0.1\n");
-	printf("By Erysdren Media\n");
-	printf("===============================");
-	printf("\n");
-	printf("Usage:\n");
-	printf("Liberator -op0 pak0.pak\n");
-	printf("\n");
-	printf("Arguments:\n");
-	printf("-opXXX - Select file operation\n");
-	printf("\n");
-	printf("File operations:\n");
-	printf("0 - List file contents\n");
-	printf("1 - Extract file contents\n");
-	printf("2 - Convert file contents\n");
-	printf("3 - View file contents\n");
+	cube = BrActorAdd(world, BrActorAllocate(BR_ACTOR_MODEL, NULL));
+	cube->model = BrModelFind("cube.dat");
+	cube->material = BrMaterialFind("checkerboard.mat");
 
-	Rex_Shutdown();
+	*_world = world;
+	*_camera = camera;
+	*_cube = cube;
 }
 
 // Main function
 void main(int argc, char *argv[])
 {
-	rex_int error = REX_ERROR_NONE;
-	rex_int operation = REX_FORMATOP_GETINFO;
-	rex_byte filename[512];
+	// Variables for counting time
+	rex_ulong frame_start_ticks, frame_end_ticks;
+	rex_float frame_elapsed_ticks, frame_elapsed_seconds;
 
-	// If no arguments, print help text
-	if (argc == 1) Liberator_PrintHelpText();
+	// Whether the program should be running or not
+	rex_bool running = REX_TRUE;
 
-	// Process commandline arguments
-	while (*++argv)
-	{
-		if (!strcmp(*argv, "-?"))
-		{
-			Liberator_PrintHelpText();
-		}
-		else if (sscanf(*argv, "-op%d", &operation) == 1)
-		{
-			Rex_Message("Input operation: %d - %s", operation, Rex_Formats_OptHelper(operation));
-		}
-		else if (**argv == '-')
-		{
-			Rex_Warning("Invalid switch %s", *argv);
-		}
-		else
-		{
-			sprintf(filename, *argv);
-			Rex_Message("Input filename: %s", filename);
-		}
-	}
+	// Some BRender actors
+	br_actor *world, *camera, *cube;
 
-	// Startup engine
+	// Startup Rex Engine
 	Rex_Startup();
 
-	// Determine operation to do
-	if (operation == REX_FORMATOP_GETINFO)
-	{
-		error = Rex_Formats_idTech_MDL(REX_FORMATOP_GETINFO, filename);
-		if (error) Rex_Failure("%s", Rex_GetError(error));
-
-		Rex_Shutdown();
-	}
-	else if (operation == REX_FORMATOP_VIEW)
-	{
-		error = Rex_Formats_idTech_MDL(REX_FORMATOP_VIEW, filename);
-		if (error) Rex_Failure("%s", Rex_GetError(error));
-	}
-
 	// Add main window
-	window_main = Rex_WindowExternal_Add(
-		"Liberator",
+	rex_window = Rex_WindowExternal_Add(
+		"BRenderTest",
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
 		rex_desktop_size[0] / 2, rex_desktop_size[1] / 2,
 		SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
 	);
 
-	// Setup GL context
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
-
-	// Set doublebuffer swap interval
-	SDL_GL_SetSwapInterval(1);
-
-	// Enable GL attributes
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_VERTEX_ARRAY);
-	glEnable(GL_COLOR_ARRAY);
-	glDepthFunc(GL_LEFT);
-
-	// Reset camera position
-	Liberator_Camera_SetPosition(0, 0, -256);
-	Liberator_Camera_SetAngle(45, 45, 0);
-
-	// Set vertex and color pointers
-	glVertexPointer(3, GL_FLOAT, 0, gl_vertices_f);
-	glColorPointer(3, GL_UNSIGNED_BYTE, 0, cube_colors);
-
-	// Start counting time
-	rex_udouble frame_start;
-	rex_udouble frame_end;
-	rex_float frame_elapsed;
-
-	// test surface from image data
-	FILE *testfile;
-	rex_buffer *testpixels;
-	SDL_Surface *testsurface;
-
-	rex_int testheight = 128;
-	rex_int testwidth = 128;
-
-	testpixels = calloc(testheight * testwidth, sizeof(rex_rgba));
-
-	testfile = fopen("testimg.dat", "rb");
-	if (testfile == NULL) Rex_Failure("Couldn't find file");
-	fread(testpixels, sizeof(rex_rgba), testheight * testwidth, testfile);
-	fclose(testfile);
-
-	testsurface = SDL_CreateRGBSurfaceFrom(
-		testpixels, testwidth, testheight, 32, 4 * testwidth,
-		0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
+	// Create basic BRender scene
+	BrenderTest_CreateScene(&world, &camera, &cube);
 
 	// Main loop
-	while (REX_TRUE)
+	while (running)
 	{
 		// Get start-of-frame time
-		frame_start = SDL_GetTicks();
+		frame_start_ticks = SDL_GetTicks64();
 
-		SDL_GetWindowSize(window_main->window, &window_main->width, &window_main->height);
-
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		gluPerspective(90, (GLdouble)window_main->width / (GLdouble)window_main->height, 0.01, 1000);
-
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		glTranslated(camera_position[0], camera_position[1], camera_position[2]);
-		glRotated(camera_angle[1], 1, 0, 0); // X
-		glRotated(camera_angle[0], 0, 1, 0); // Y
+		// Update window values
+		if (Rex_WindowExternal_Update(rex_window))
+		{
+			((br_camera *)camera->type_data)->aspect = BR_SCALAR(rex_window->width) / BR_SCALAR(rex_window->height);
+		}
 
 		// Read device states
 		Rex_IO_ReadDevices();
 
 		// Handle keyboard input
 		if (KEY_DOWN(KEY_Q))
-			Rex_Shutdown();
+			running = REX_FALSE;
 
-		// Handle mouse input
-		Liberator_Mouse_OrbitControls();
+		// Rotate cube based on time elapsed
+		BrMatrix34PostRotateY(&cube->t.t.mat, BR_ANGLE_DEG(BR_SCALAR(50) * BR_SCALAR(frame_elapsed_ticks)));
 
-		// Clear the screen
-		Rex_ExternalWindow_ClearGL(REX_RGBA_GRY, 255);
+		// Render a frame
+		Rex_ExternalWindow_RenderZb(rex_window, world, camera, REX_RGB_GRY, REX_DEPTH_BUFFER_CLEAR);
 
-		// Draw vertex arrays
-		glDrawArrays(GL_TRIANGLES, 0, num_gl_vertices_f);
+		// Flip buffer
+		Rex_ExternalWindow_DoubleBuffer(rex_window);
 
-		// Regenerate text surface
-		Rex_Fonts_GenerateTextSurface(&window_main_text1,
-			font_dos_8x16,
-			REX_RGBA_WHT,
-			"FPS: %.2f\n\nCamera PosX: %d\nCamera PosY: %d\nCamera PosZ: %d\n\nCamera AngX: %d\nCamera AngY: %d\nCamera AngZ: %d",
-			frame_elapsed,
-			camera_position[0], camera_position[1], camera_position[2],
-			camera_angle[0], camera_angle[1], camera_angle[2]
-		);
+		// Get end-of-frame time
+		frame_end_ticks = SDL_GetTicks64();
 
-		// Render text surface on screen
-		Rex_ExternalWindow_RenderSurfaceGL(window_main, window_main_text1, 16, 16);
-
-		// Render test surface on screen
-		Rex_ExternalWindow_RenderSurfaceGL(window_main, testsurface, 0, 0);
-
-		// Swap GL buffer
-		Rex_ExternalWindow_SwapBuffer(window_main);
-
-		// Get end-of-frame time and calculate time elapsed
-		frame_end = SDL_GetTicks();
-		frame_elapsed = 1.0f / ((frame_end - frame_start) / 1000.0f);
+		// Calculate elapsed frame time in ticks and seconds
+		frame_elapsed_ticks = (frame_end_ticks - frame_start_ticks) / 1000.0f;
+		frame_elapsed_seconds = 1.0f / frame_elapsed_ticks;
 	}
 
-	// free test surface
-	free(testpixels);
-	free(testsurface);
+	// Destroy Rex Engine windows
+	Rex_WindowExternal_Remove(rex_window);
 
-	// free windows
-	free(window_main_text1);
-	free(window_main);
-
-	// Shutdown engine
+	// Shutdown Rex Engine
 	Rex_Shutdown();
 }

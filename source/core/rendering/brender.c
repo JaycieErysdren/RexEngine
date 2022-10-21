@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/applications/liberator/liberator.h
+// FILE:			/source/core/rendering/brender.c
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -8,14 +8,14 @@
 //
 // LICENSE:			ACSL 1.4
 //
-// DESCRIPTION:		Liberator header.
+// DESCRIPTION:		BRender helpers.
 //
 // LAST EDITED:		October 21st, 2022
 //
 // ========================================================
 
-// Include Rex Engine header
+// Include engine header
 #include "rex.h"
 
-// Create basic BRender scene
-void BrenderTest_CreateScene(br_actor **_world, br_actor **_camera, br_actor **_cube);
+// Generic primitive heap for z-buffer renderer
+rex_ubyte brender_primitive_heap[1500 * 1024];

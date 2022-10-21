@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Main Rex Engine header.
 //
-// LAST EDITED:		October 20th, 2022
+// LAST EDITED:		October 21st, 2022
 //
 // ========================================================
 

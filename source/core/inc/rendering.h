@@ -10,9 +10,15 @@
 //
 // DESCRIPTION:		Prototypes for the rendering systems.
 //
-// LAST EDITED:		October 18th, 2022
+// LAST EDITED:		October 21st, 2022
 //
 // ========================================================
+
+//
+// BRender helpers
+//
+
+extern rex_ubyte brender_primitive_heap[1500 * 1024];
 
 //
 // Embedded system fonts (fonts.c)
@@ -50,8 +56,13 @@ extern const rex_palette palette_quake;
 // Windowing systems (window.c)
 //
 
+// Definitions
+#define REX_DEPTH_BUFFER_CLEAR 0xFFFFFFFF
+
+// Global videomode
 extern rex_int rex_videomode;
 
+// Available videomodes
 enum rex_videomodes
 {
 	REX_VIDEOMODE_TERMINAL,				// Terminal mode
@@ -65,11 +76,21 @@ rex_window_external *Rex_WindowExternal_Add(rex_byte_c *title, rex_int x, rex_in
 // Remove an external window
 void Rex_WindowExternal_Remove(rex_window_external *window);
 
+// Update the various values on an external window. Returns 1 if size changed.
+rex_int Rex_WindowExternal_Update(rex_window_external *window);
+
+// Flip the buffers for a BRender window.
+void Rex_ExternalWindow_DoubleBuffer(rex_window_external *window);
+
+// Render a frame from a BRender window to a pixelmap (Using the Z-buffer).
+void Rex_ExternalWindow_RenderZb(rex_window_external *window, br_actor *world, br_actor *camera, rex_rgb color, rex_uint depth);
+
+//
+// Antiquated functions, remove these
+//
+
 // External window resize callback function
 void Rex_WindowExternal_CBFN_Resize(rex_int width, rex_int height);
-
-// Swap the buffers for an OpenGL window.
-void Rex_ExternalWindow_SwapBuffer(rex_window_external *window);
 
 // Clear the screen for an OpenGL window.
 void Rex_ExternalWindow_ClearGL(rex_rgba rgba, rex_ubyte depth);

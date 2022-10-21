@@ -131,7 +131,7 @@ void main(int argc, char *argv[])
 		//
 
 		// Update window resolution
-		SDL_GetWindowSize(window_main->window, &window_main->width, &window_main->height);
+		SDL_GetWindowSize(window_main->sdl_window, &window_main->width, &window_main->height);
 
 		// Update display angles
 		rex_float ang_cos = SDL_cosf(ang);

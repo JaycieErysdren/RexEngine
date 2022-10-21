@@ -8,9 +8,9 @@
 //
 // LICENSE:			ACSL 1.4
 //
-// DESCRIPTION:		Startup functions.
+// DESCRIPTION:		Rex Engine startup functions.
 //
-// LAST EDITED:		October 18th, 2022
+// LAST EDITED:		October 21st, 2022
 //
 // ========================================================
 
@@ -20,16 +20,24 @@
 // Startup everything
 void Rex_Startup(void)
 {
+	// Add a desktop display mode for getting desktop size information
 	SDL_DisplayMode dm;
 
+	// Initialize SDL
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
 		Rex_Failure("SDL failed to initialize: %s", SDL_GetError());
 
+	// Initialize desktop display mode
 	if (SDL_GetDesktopDisplayMode(0, &dm) != 0)
 		Rex_Failure("SDL_GetDesktopDisplayMode failed: %s", SDL_GetError());
 
+	// Initialize BRender
+	BrBegin();
+
+	// Initialize Rex Engine fonts module
 	Rex_Fonts_Startup();
 
+	// Update global desktop size with displaymode size
 	rex_desktop_size[0] = dm.w;
 	rex_desktop_size[1] = dm.h;
 }

@@ -275,7 +275,7 @@ void main(int argc, char *argv[])
 		// Get start-of-frame time
 		frame_start = SDL_GetTicks();
 
-		SDL_GetWindowSize(window_main->window, &window_main->width, &window_main->height);
+		SDL_GetWindowSize(window_main->sdl_window, &window_main->width, &window_main->height);
 
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();

@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex Engine types.
 //
-// LAST EDITED:		October 20th, 2022
+// LAST EDITED:		October 21st, 2022
 //
 // ========================================================
 
@@ -38,7 +38,12 @@ typedef const unsigned char rex_ubyte_c;			// Unsigned const byte
 
 typedef float rex_float;							// Float
 
+typedef rex_int rex_bool;							// Boolean
+
 typedef void rex_buffer;							// Buffer
+
+typedef intptr_t rex_int_ptr;						// Void * pointer
+typedef uintptr_t rex_uint_ptr;						// Unsigned void * pointer
 
 #define REX_TRUE 1									// True
 #define REX_FALSE 0									// False
@@ -168,11 +173,13 @@ typedef rex_rgb rex_palette[256];
 typedef struct
 {
 	rex_coord2i pos;
-	SDL_Window *window;
-	SDL_GLContext context;
+	SDL_Window *sdl_window;
 	rex_byte_c *title;
 	rex_int width;
 	rex_int height;
+	br_pixelmap *buffer_screen;
+	br_pixelmap *buffer_color;
+	br_pixelmap *buffer_depth;
 } rex_window_external;
 
 //

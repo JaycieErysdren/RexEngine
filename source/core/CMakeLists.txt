@@ -23,6 +23,7 @@ set(REX_ENGINE_SRC
 	logic/math.c
 	logic/startup.c
 	logic/shutdown.c
+	rendering/brender.c
 	rendering/fonts.c
 	rendering/palettes.c
 	rendering/window.c

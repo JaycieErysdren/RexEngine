@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		VSCode C / C++ settings.
 //
-// LAST EDITED:		October 10th, 2022
+// LAST EDITED:		October 21st, 2022
 //
 // ========================================================
 
@@ -19,11 +19,12 @@
 		{
 			"name": "Default",
 			"includePath": [
-				"${workspaceFolder}/**",
-				"${workspaceFolder}/core/inc/**",
-				"${workspaceFolder}/core/inc/embedded/**",
-				"${workspaceFolder}/external/BRender/brender/inc",
-				"${workspaceFolder}/external/BRender/brender/glrend/include"
+				"${workspaceFolder}/**",										// Root source folder
+				"${workspaceFolder}/core/inc/**",								// Rex Engine headers
+				"${workspaceFolder}/core/inc/embedded/**",						// Rex Engine embedded file headers
+				"${workspaceFolder}/external/BRender/brender/inc",				// BRender headers
+				"${workspaceFolder}/external/BRender/brender/glrend/include",	// BRender OpenGL driver headers
+				"${workspaceFolder}/../_local/brender"							// ... hack for pretok.h
 			]
 		}
 	],

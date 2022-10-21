@@ -80,10 +80,13 @@ add_subdirectory(core)
 link_libraries(RexEngine)
 
 ## BRenderTest
+## BRender integration test
 add_subdirectory(applications/brendertest)
 
 ## Liberator
+## Format manager
 add_subdirectory(applications/liberator)
 
 ## TestGame
+## Raycasting test
 add_subdirectory(applications/testgame)
