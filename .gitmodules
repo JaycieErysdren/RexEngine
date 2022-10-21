@@ -1,0 +1,3 @@
+[submodule "source/external/CrocDE-BRender"]
+	path = source/external/CrocDE-BRender
+	url = https://github.com/crocguy0688/CrocDE-BRender
