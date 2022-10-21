@@ -174,6 +174,7 @@ void main(int argc, char *argv[])
 		Rex_ExternalWindow_RenderZb(rex_window, world, camera, REX_RGB_GRY, REX_DEPTH_BUFFER_CLEAR);
 
 		BrPixelmapTextF(rex_window->buffer_color, -(rex_window->buffer_color->width / 2) + 16, -(rex_window->buffer_color->height / 2) + 16, BR_COLOUR_RGB(255, 0, 0), BrFontFixed3x5, "FPS: %.2f", frame_elapsed_seconds);
+		BrPixelmapRectangleFill(rex_window->buffer_color, 16, 16, 128, 128, BR_COLOUR_RGBA(255, 255, 255, 2));
 
 		// Flip buffer
 		Rex_ExternalWindow_DoubleBuffer(rex_window);
