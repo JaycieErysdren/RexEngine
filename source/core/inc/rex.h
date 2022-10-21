@@ -37,6 +37,13 @@
 #include <GL/glut.h>
 
 //
+// BRender module headers
+//
+
+#include <brender.h>
+#include <brglrend.h>
+
+//
 // Rex Engine headers
 //
 

@@ -21,7 +21,9 @@
 			"includePath": [
 				"${workspaceFolder}/**",
 				"${workspaceFolder}/core/inc/**",
-				"${workspaceFolder}/core/inc/embedded/**"
+				"${workspaceFolder}/core/inc/embedded/**",
+				"${workspaceFolder}/external/BRender/brender/inc",
+				"${workspaceFolder}/external/BRender/brender/glrend/include"
 			]
 		}
 	],

@@ -26,7 +26,7 @@ cmake_minimum_required(VERSION 3.13)
 ##
 
 ## BRender
-add_subdirectory(external/CrocDE-BRender)
+add_subdirectory(external/BRender)
 
 ##
 ## Rex Engine
