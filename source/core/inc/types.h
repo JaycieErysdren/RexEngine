@@ -185,16 +185,21 @@ typedef struct
 // Resources
 //
 
+// Resource
+typedef struct
+{
+	rex_byte magic[8];
+	rex_byte identiifer[56];
+	rex_uint format;
+	rex_uint len_resource_data;
+	rex_buffer *resource_data;
+} rex_resource;
+
 // Resource container
 typedef struct
 {
-	rex_byte identiifer[32];
-	rex_int type;
-	rex_buffer *data;
-} rex_resource;
-
-// Resource file header
-typedef struct
-{
-	rex_byte identifier[16];
-} rex_resfile_header;
+	rex_byte magic[8];
+	rex_byte identifier[56];
+	rex_uint num_resources;
+	rex_resource *resources;
+} rex_resource_container;

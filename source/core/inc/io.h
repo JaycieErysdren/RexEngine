@@ -132,3 +132,19 @@ void Rex_IO_FRead(void *ptr, size_t size, rex_int n, FILE *file);
 
 // Wrapper for fclose() that does automatic error checking.
 void Rex_IO_FClose(FILE *file);
+
+// Wrapper for fseek() that does automatic error checking.
+void Rex_IO_FSeek(FILE *file, rex_long to, rex_int from);
+
+// Wrapper for fwrite() that does automatic error checking.
+void Rex_IO_FWrite(void *ptr, size_t size, rex_int n, FILE *file);
+
+//
+// Resource file I/O functions.
+//
+
+extern rex_byte_c rex_resource_container_magic[8];
+extern rex_byte_c rex_resource_magic[8];
+
+// Write a resource container and its resources to a file.
+void Rex_IO_WriteResourceContainer(rex_byte *filename, rex_resource_container *res);

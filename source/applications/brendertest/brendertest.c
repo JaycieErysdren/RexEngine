@@ -65,6 +65,7 @@ void main(int argc, char *argv[])
 
 	// Error checker
 	rex_int error;
+	rex_int i;
 
 	// Whether the program should be running or not
 	rex_bool running = REX_TRUE;
@@ -74,6 +75,12 @@ void main(int argc, char *argv[])
 
 	// Startup Rex Engine
 	Rex_Startup();
+
+	// Resource file testing
+	//rex_resource_container *res = Rex_Formats_idSoftware_PAK(REX_FORMATOP_GETINFO, "pak0.pak");
+	//Rex_IO_WriteResourceContainer("pak0.res", res);
+	//free(res);
+	//Rex_Shutdown();
 
 	error = Rex_Formats_idTech_MDL(REX_FORMATOP_VIEW, "player.mdl");
 	if (error) Rex_Failure("Loading player.mdl failed. Error: %s", Rex_GetError(error));

@@ -43,3 +43,17 @@ void Rex_IO_FClose(FILE *file)
 	if (fclose(file))
 		Rex_Failure("Rex_IO_FClose() failed.");
 }
+
+// Wrapper for fseek() that does automatic error checking.
+void Rex_IO_FSeek(FILE *file, rex_long to, rex_int from)
+{
+	if (fseek(file, to, from))
+		Rex_Failure("Rex_IO_FSeek() failed.");
+}
+
+// Wrapper for fwrite() that does automatic error checking.
+void Rex_IO_FWrite(void *ptr, size_t size, rex_int n, FILE *file)
+{
+	if (!fwrite(ptr, size, n, file))
+		Rex_Failure("Rex_IO_FWrite() failed.");
+}

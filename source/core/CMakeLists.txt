@@ -22,6 +22,7 @@ set(REX_ENGINE_SRC
 	formats/tmf.c
 	io/devices.c
 	io/files.c
+	io/resources.c
 	logic/math.c
 	logic/startup.c
 	logic/shutdown.c

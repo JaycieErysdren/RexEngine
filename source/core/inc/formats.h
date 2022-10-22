@@ -83,6 +83,9 @@ rex_int Rex_Formats_idTech_MDL(rex_int operation, rex_byte *filename);
 // id Software PAK files (pak.c)
 //
 
+// Load and process an id Software PAK file. Returns a resource container. (Formats/id Software/pak.ksy)
+rex_resource_container *Rex_Formats_idSoftware_PAK(rex_int operation, rex_byte *filename);
+
 // Load and process an idTech PAK file. Returns an error code. (Formats/id Software/pak.ksy)
 rex_int Rex_Formats_idTech_PAK(rex_int operation, rex_byte *filename);
 
