@@ -165,6 +165,15 @@ void main(int argc, char *argv[])
 		if (KEY_PRESSED(KEY_RIGHT))
 			BrMatrix34PreRotateY(&camera->t.t.mat, BR_ANGLE_DEG(-1));
 
+		//rex_vector3f makevector;
+		//makevector[0] = 33.0f;
+		//makevector[1] = 75.0f;
+		//makevector[2] = 0.0f;
+		//rex_vector3f v_up;
+		//rex_vector3f v_right;
+		//rex_vector3f v_forward;
+		//Rex_MakeVectors(makevector, &v_up, &v_right, &v_forward);
+
 		//
 		// Program logic
 		//

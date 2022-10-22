@@ -21,6 +21,9 @@
 // Returns a random integer between high and low.
 rex_int Rex_Random(rex_int low, rex_int high);
 
+// Write normalized vectors into v_up, v_right and v_forward
+void Rex_MakeVectors(rex_vector3f angles, rex_vector3f *v_up, rex_vector3f *v_right, rex_vector3f *v_forward);
+
 //
 // Startup handling (startup.c)
 //
