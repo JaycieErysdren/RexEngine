@@ -119,3 +119,16 @@ extern rex_vector2i rex_desktop_size;
 
 // Reads all currently active devices (keyboard, mouse, etc)
 void Rex_IO_ReadDevices(void);
+
+//
+// File handling (files.c)
+//
+
+// Wrapper for fopen() that does automatic error checking.
+FILE *Rex_IO_FOpen(rex_byte *filename, rex_byte *modes);
+
+// Wrapper for fread() that does automatic error checking.
+void Rex_IO_FRead(void *ptr, size_t size, rex_int n, FILE *file);
+
+// Wrapper for fclose() that does automatic error checking.
+void Rex_IO_FClose(FILE *file);

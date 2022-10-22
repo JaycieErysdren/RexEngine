@@ -59,7 +59,7 @@ typedef struct
 	tmf_quad_t *quads;
 } tmf_mesh_t;
 
-// Load and process a Tank Engine TMF file. Returns an error code. (Formats/ReyeMe/tankengine_tmf.ksy)
+// Load and process a Tank Engine TMF file. Returns a BRender actor. (Formats/ReyeMe/tankengine_tmf.ksy)
 br_actor *Rex_Formats_ReyeMe_TMF(rex_int operation, rex_byte *filename, br_actor *parent)
 {
 	// Define variables
@@ -70,31 +70,31 @@ br_actor *Rex_Formats_ReyeMe_TMF(rex_int operation, rex_byte *filename, br_actor
 	tmf_mesh_t *tmf_mesh;
 	tmf_texture_t *tmf_textures;
 
+	// Define file pointer
+	FILE *tmf_file;
+
 	// Define BRender structs
 	br_actor *actor;
 	br_model *model;
 
 	// Open file pointer
-	FILE *file = fopen(filename, "rb");
-
-	// Check if file exists
-	if (file == NULL) return NULL;
+	tmf_file = Rex_IO_FOpen(filename, "rb");
 
 	// Allocate header memory
 	tmf_header = calloc(1, sizeof(tmf_header_t));
 
 	// Read in version header
-	if (!fread(tmf_header, sizeof(tmf_header_t), 1, file)) return NULL;
+	Rex_IO_FRead(tmf_header, sizeof(tmf_header_t), 1, tmf_file);
 
 	// Allocate texture & mesh memory
 	tmf_textures = calloc(tmf_header->num_textures, sizeof(tmf_texture_t));
 	tmf_mesh = calloc(1, sizeof(tmf_mesh_t));
 
 	// Read in textures
-	if (!fread(tmf_textures, sizeof(tmf_texture_t), tmf_header->num_textures, file)) return NULL;
+	Rex_IO_FRead(tmf_textures, sizeof(tmf_texture_t), tmf_header->num_textures, tmf_file);
 
 	// Read in first mesh
-	if (!fread(tmf_mesh, offsetof(tmf_mesh_t, _reserved), 1, file)) return NULL;
+	Rex_IO_FRead(tmf_mesh, offsetof(tmf_mesh_t, _reserved), 1, tmf_file);
 
 	// Fix endianness
 	if (REX_LITTLE_ENDIAN)
@@ -108,8 +108,8 @@ br_actor *Rex_Formats_ReyeMe_TMF(rex_int operation, rex_byte *filename, br_actor
 	tmf_mesh->quads = calloc(tmf_mesh->num_quads, sizeof(tmf_quad_t));
 
 	// Read in first mesh data
-	if (!fread(tmf_mesh->vertices, sizeof(tmf_vertex_t), tmf_mesh->num_vertices, file)) return NULL;
-	if (!fread(tmf_mesh->quads, sizeof(tmf_quad_t), tmf_mesh->num_quads, file)) return NULL;
+	Rex_IO_FRead(tmf_mesh->vertices, sizeof(tmf_vertex_t), tmf_mesh->num_vertices, tmf_file);
+	Rex_IO_FRead(tmf_mesh->quads, sizeof(tmf_quad_t), tmf_mesh->num_quads, tmf_file);
 
 	// Fix endianness
 	if (REX_LITTLE_ENDIAN)
@@ -149,8 +149,6 @@ br_actor *Rex_Formats_ReyeMe_TMF(rex_int operation, rex_byte *filename, br_actor
 		model->vertices[i].p.v[0] = BR_SCALAR(tmf_mesh->vertices[i].coords[0] * 0.0001);
 		model->vertices[i].p.v[1] = BR_SCALAR(tmf_mesh->vertices[i].coords[1] * 0.0001);
 		model->vertices[i].p.v[2] = BR_SCALAR(tmf_mesh->vertices[i].coords[2] * 0.0001);
-
-		//Rex_Log("%f %f %f", model->vertices[i].p.v[0], model->vertices[i].p.v[1], model->vertices[i].p.v[2]);
 	}
 
 	// Allocate faces
@@ -184,7 +182,7 @@ br_actor *Rex_Formats_ReyeMe_TMF(rex_int operation, rex_byte *filename, br_actor
 	BrModelAdd(actor->model);
 
 	// Close file pointer
-	fclose(file);
+	Rex_IO_FClose(tmf_file);
 
 	// Free memory
 	free(tmf_header);
