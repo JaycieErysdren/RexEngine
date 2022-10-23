@@ -37,15 +37,15 @@ wal_t *WAL_Load(rex_byte *filename)
 
 	// Calculate mipmap widths
 	wal->widths[0] = wal->header->width;
-	wal->widths[1] = wal->widths[0] / 2;
-	wal->widths[2] = wal->widths[1] / 2;
-	wal->widths[3] = wal->widths[2] / 2;
+	wal->widths[1] = wal->header->width / 2;
+	wal->widths[2] = wal->header->width / 4;
+	wal->widths[3] = wal->header->width / 8;
 
 	// Calculate mipmap heights
 	wal->heights[0] = wal->header->height;
-	wal->heights[1] = wal->heights[0] / 2;
-	wal->heights[2] = wal->heights[1] / 2;
-	wal->heights[3] = wal->heights[2] / 2;
+	wal->heights[1] = wal->header->height / 2;
+	wal->heights[2] = wal->header->height / 4;
+	wal->heights[3] = wal->header->height / 8;
 
 	// Read in mipmap pixels
 	for (i = 0; i < 4; i++)
@@ -154,9 +154,6 @@ wal_t *WAL_Allocate(rex_byte *name, rex_byte *next_name, rex_uint width, rex_uin
 	mipmap_sizes[1] = wal->widths[1] * wal->heights[1];
 	mipmap_sizes[2] = wal->widths[2] * wal->heights[2];
 	mipmap_sizes[3] = wal->widths[3] * wal->heights[3];
-
-	Rex_Log("%d %d %d %d", wal->widths[0], wal->widths[1], wal->widths[2], wal->widths[3]);
-	Rex_Log("%d %d %d %d", wal->heights[0], wal->heights[1], wal->heights[2], wal->heights[3]);
 
 	// Allocate mipmap buffers
 	wal->mipmaps[0] = calloc(mipmap_sizes[0], sizeof(rex_ubyte));
