@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Lobotomy Software LEV files.
 //
-// LAST EDITED:		October 18th, 2022
+// LAST EDITED:		October 22nd, 2022
 //
 // ========================================================
 
@@ -19,40 +19,6 @@
 
 // Lobotomy LEV format max sectors
 #define LEV_MAX_SECTORS 1024
-
-// Lobotomy LEV format sky texture data type
-typedef rex_byte lev_skydata_t[131104];
-
-// Lobotomy LEV format header type
-typedef struct
-{
-	rex_uint unknown_01;
-	rex_uint unknown_02;
-	rex_uint num_sectors;
-	rex_uint num_planes;
-	rex_uint num_vertices;
-	rex_uint num_quads;
-	rex_uint len_tile_texture_data;
-	rex_uint num_tiles;
-	rex_uint len_tile_color_data;
-	rex_uint num_entities;
-	rex_uint len_entity_data;
-	rex_uint num_entity_polylinks;
-	rex_uint num_entity_polylink_data1_segments;
-	rex_uint num_entity_polylink_data2_segments;
-	rex_uint num_unknown;
-} lev_header_t;
-
-// Lobotomy LEV format sector type
-typedef struct
-{
-	rex_ushort reserved[2];
-	rex_ushort position[3];
-	rex_ushort distance;
-	rex_ushort plane_start_index;
-	rex_ushort plane_end_index;
-	rex_ushort unknown[6];
-} lev_sector_t;
 
 // Load and process a Lobotomy LEV file. Returns an error code. (Formats/Lobotomy Software/lev_quake.ksy)
 rex_int Rex_Formats_Lobotomy_LEV(rex_int operation, rex_byte *filename)

@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		id Software MDL files.
 //
-// LAST EDITED:		October 21st, 2022
+// LAST EDITED:		October 22nd, 2022
 //
 // ========================================================
 
@@ -18,71 +18,8 @@
 #include "rex.h"
 
 // MDL magics
-rex_byte_c mdl_magic_q1[4] = "IDPO";
-rex_byte_c mdl_magic_q2[4] = "IDP2";
-
-// MDL version header type
-typedef struct
-{
-	rex_byte magic[4];
-	rex_uint version;
-} mdl_version_t;
-
-// MDL model header type
-typedef struct
-{
-	rex_float scale[3];
-	rex_float translation[3];
-	rex_float bounding_radius;
-	rex_float eye_position[3];
-	rex_uint num_skins;
-	rex_uint skin_width;
-	rex_uint skin_height;
-	rex_uint num_vertices;
-	rex_uint num_faces;
-	rex_uint num_frames;
-	rex_uint sync_type;
-	rex_uint flags;
-	rex_float size;
-} mdl_header_t;
-
-// MDL skin type
-typedef struct
-{
-	rex_uint skin_type;
-	rex_buffer *skin_pixels;
-} mdl_skin_t;
-
-// MDL texcoord type
-typedef struct
-{
-	rex_int onseam;
-	rex_int s;
-	rex_int t;
-} mdl_texcoord_t;
-
-// MDL face type
-typedef struct
-{
-	rex_uint face_type;
-	rex_uint vertex_indicies[3];
-} mdl_face_t;
-
-// MDL vertex type
-typedef struct
-{
-	rex_ubyte coordinates[3];
-	rex_ubyte normal_index;
-} mdl_vertex_t;
-
-// MDL frame type
-typedef struct
-{
-	rex_uint frame_type;
-	mdl_vertex_t min;
-	mdl_vertex_t max;
-	rex_byte name[16];
-} mdl_frame_t;
+rex_byte_c mdl_magic_quake[4] = "IDPO";
+rex_byte_c mdl_magic_quake2[4] = "IDP2";
 
 // Load and process an id MDL file. Returns an error code. (Formats/id Software/mdl.ksy)
 rex_int Rex_Formats_idTech_MDL(rex_int operation, rex_byte *filename)
@@ -116,8 +53,8 @@ rex_int Rex_Formats_idTech_MDL(rex_int operation, rex_byte *filename)
 	if (!fread(mdl_version, sizeof(mdl_version_t), 1, file)) return REX_ERROR_FILE_READ;
 
 	// Check file signature
-	if (!memcmp(mdl_version->magic, mdl_magic_q2, 4)) return REX_ERROR_FMT_UNSUPPORTED;
-	if (memcmp(mdl_version->magic, mdl_magic_q1, 4)) return REX_ERROR_FMT_BAD;
+	if (!memcmp(mdl_version->magic, mdl_magic_quake2, 4)) return REX_ERROR_FMT_UNSUPPORTED;
+	if (memcmp(mdl_version->magic, mdl_magic_quake, 4)) return REX_ERROR_FMT_BAD;
 
 	// Check file version
 	if (mdl_version->version != 6) return REX_ERROR_FMT_UNSUPPORTED;

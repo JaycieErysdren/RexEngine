@@ -97,10 +97,19 @@ void main(int argc, char *argv[])
 	// Create basic BRender scene
 	BrenderTest_CreateScene(&world, &camera, &cube);
 
-	br_actor *tank = Rex_Formats_ReyeMe_TMF(REX_FORMATOP_VIEW, "TANK.TMF", world);
+	// Tank
+	tmf_t *tank = Rex_Formats_TankEngine_TMF(REX_FORMATOP_VIEW, "TANK.TMF");
 
-	// Fix z-up for Quake models
-	//BrMatrix34PostRotateZ(&cube->t.t.mat, BR_ANGLE_DEG(90));
+	Rex_Log("num_textures: %d num_meshes: %d", tank->header->num_textures, tank->header->num_meshes);
+	Rex_Log("num_vertices: %d num_quads: %d", tank->meshes[0].num_vertices, tank->meshes[0].num_quads);
+
+	for (i = 0; i < tank->header->num_textures; i++)
+	{
+		Rex_Log("%s", tank->textures[i].filename);
+	}
+	
+	free(tank);
+	Rex_Shutdown();
 
 	// Main loop
 	while (running)
@@ -179,8 +188,7 @@ void main(int argc, char *argv[])
 		//
 
 		// Rotate cube based on time elapsed
-		//BrMatrix34PostRotateY(&cube->t.t.mat, BR_ANGLE_DEG(BR_SCALAR(50) * BR_SCALAR(frame_elapsed_ticks)));
-		BrMatrix34PostRotateY(&tank->t.t.mat, BR_ANGLE_DEG(BR_SCALAR(50) * BR_SCALAR(frame_elapsed_ticks)));
+		BrMatrix34PostRotateY(&cube->t.t.mat, BR_ANGLE_DEG(BR_SCALAR(50) * BR_SCALAR(frame_elapsed_ticks)));
 
 		//
 		// Rendering

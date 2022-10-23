@@ -10,31 +10,15 @@
 //
 // DESCRIPTION:		id Software PAK files.
 //
-// LAST EDITED:		October 21st, 2022
+// LAST EDITED:		October 22nd, 2022
 //
 // ========================================================
 
 // Include engine header
 #include "rex.h"
 
-// id pack magic
+// PAK magic
 rex_byte_c pak_magic[4] = "PACK";
-
-// id pack header
-typedef struct
-{
-	rex_byte magic[4];
-	rex_int ofs_filetable;
-	rex_int len_filetable;
-} pak_header_t;
-
-// id pack file table entry
-typedef struct
-{
-	rex_byte filename[56];
-	rex_int ofs_file;
-	rex_int len_file;
-} pak_file_t;
 
 // Load and process an id Software PAK file. Returns a resource container. (Formats/id Software/pak.ksy)
 rex_resource_container *Rex_Formats_idSoftware_PAK(rex_int operation, rex_byte *filename)

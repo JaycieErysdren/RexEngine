@@ -15,11 +15,17 @@
 // ========================================================
 
 // agsdhsdg
-extern rex_coord3f *gl_vertices_f;
-extern rex_int num_gl_vertices_f;
-
 extern br_model *global_model_test;
 extern br_pixelmap *global_model_test_texture;
+
+//
+// Individual format specifications
+//
+
+#include "formats/lev.h"
+#include "formats/mdl.h"
+#include "formats/pak.h"
+#include "formats/tmf.h"
 
 //
 // Generic format functions (formats.c)
@@ -93,5 +99,5 @@ rex_int Rex_Formats_idTech_PAK(rex_int operation, rex_byte *filename);
 // Tank Engine TMF files (tmf.c)
 //
 
-// Load and process a Tank Engine TMF file. Returns a BRender actor. (Formats/ReyeMe/tankengine_tmf.ksy)
-br_actor *Rex_Formats_ReyeMe_TMF(rex_int operation, rex_byte *filename, br_actor *parent);
+// Load and process a Tank Engine TMF file. Returns a TMF container. (Formats/Tank Engine/tmf.ksy)
+tmf_t *Rex_Formats_TankEngine_TMF(rex_int operation, rex_byte *filename);
