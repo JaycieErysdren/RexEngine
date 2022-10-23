@@ -53,8 +53,8 @@ typedef struct
 // PAK functions
 //
 
-// Load an id Software PAK file into memory. Returns a pointer to a PAK container.
+// Load an id Software PAK file into memory. Returns a pointer to a PAK object.
 pak_t *PAK_Load(rex_byte *filename);
 
-// Free an id Software PAK file from memory.
+// Free an id Software PAK object from memory.
 void PAK_Free(pak_t *pak);

@@ -21,7 +21,7 @@
 rex_byte_c mdl_magic_quake[4] = "IDPO";
 rex_byte_c mdl_magic_quake2[4] = "IDP2";
 
-// Load an id Software MDL file into memory. Returns a pointer to a MDL container.
+// Load an id Software MDL file into memory. Returns a pointer to an MDL object.
 mdl_t *MDL_Load(rex_byte *filename)
 {
 	// Define variables
@@ -129,7 +129,7 @@ mdl_t *MDL_Load(rex_byte *filename)
 	return mdl;
 }
 
-// Free an id Software MDL file from memory.
+// Free an id Software MDL object from memory.
 void MDL_Free(mdl_t *mdl)
 {
 	rex_uint i, num_skins, num_frames;

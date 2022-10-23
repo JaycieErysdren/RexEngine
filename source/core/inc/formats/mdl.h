@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		id Software MDL types.
 //
-// LAST EDITED:		October 22nd, 2022
+// LAST EDITED:		October 23rd, 2022
 //
 // ========================================================
 
@@ -113,8 +113,8 @@ typedef struct
 // MDL functions
 //
 
-// Load an id Software MDL file into memory. Returns a pointer to a MDL container.
+// Load an id Software MDL file into memory. Returns a pointer to an MDL object.
 mdl_t *MDL_Load(rex_byte *filename);
 
-// Free an id Software MDL file from memory.
+// Free an id Software MDL object from memory.
 void MDL_Free(mdl_t *mdl);

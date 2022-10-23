@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		BRenderTest program entry point.
 //
-// LAST EDITED:		October 21st, 2022
+// LAST EDITED:		October 23rd, 2022
 //
 // ========================================================
 
@@ -84,6 +84,13 @@ void main(int argc, char *argv[])
 		rex_desktop_size[0] / 2, rex_desktop_size[1] / 2,
 		REX_WINDOW_EXTERNAL_DEFAULT_FLAGS
 	);
+
+	// WALL
+	wal_t *wal = WAL_Allocate("test texture 1", "test texture 2", 64, 64, 0, 0, 0);
+	WAL_Save("testtex1.wal", wal);
+
+	WAL_Free(wal);
+	Rex_Shutdown();
 
 	// Create basic BRender scene
 	BrenderTest_CreateScene(&world, &camera, &cube);

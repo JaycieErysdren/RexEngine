@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Lobotomy Software LEV types.
 //
-// LAST EDITED:		October 22nd, 2022
+// LAST EDITED:		October 23rd, 2022
 //
 // ========================================================
 
@@ -21,9 +21,6 @@
 //
 // LEV types
 //
-
-// LEV sky texture data
-typedef rex_byte lev_skydata_t[131104];
 
 // LEV header
 typedef struct
@@ -68,8 +65,8 @@ typedef struct
 // LEV functions
 //
 
-// Load an Lobotomy Software LEV file into memory. Returns a pointer to a LEV container.
+// Load a Lobotomy Software LEV file into memory. Returns a pointer to a LEV object.
 lev_t *LEV_Load(rex_byte *filename);
 
-// Free an Lobotomy Software LEV file from memory.
+// Free a Lobotomy Software LEV object from memory.
 void LEV_Free(lev_t *lev);

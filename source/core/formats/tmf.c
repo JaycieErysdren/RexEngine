@@ -17,7 +17,7 @@
 // Include engine header
 #include "rex.h"
 
-// Load a Tank Engine TMF file into memory. Returns a pointer to a TMF container.
+// Load a Tank Engine TMF file into memory. Returns a pointer to a TMF object.
 tmf_t *TMF_Load(rex_byte *filename)
 {
 	// Define variables
@@ -91,4 +91,30 @@ tmf_t *TMF_Load(rex_byte *filename)
 	Rex_IO_FClose(file);
 
 	return tmf;
+}
+
+// Free a Tank Engine TMF object from memory.
+void TMF_Free(tmf_t *tmf)
+{
+	// Variables
+	rex_int i;
+
+	// Free mesh data
+	for (i = 0; i < tmf->header->num_meshes; i++)
+	{
+		free(tmf->meshes[i].quads);
+		free(tmf->meshes[i].vertices);
+	}
+
+	// Free header
+	free(tmf->header);
+
+	// Free textures
+	free(tmf->textures);
+
+	// Free meshes
+	free(tmf->meshes);
+
+	// Free container
+	free(tmf);
 }

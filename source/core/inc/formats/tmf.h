@@ -76,8 +76,8 @@ typedef struct
 // TMF functions
 //
 
-// Load a Tank Engine TMF file into memory. Returns a pointer to a TMF container.
+// Load a Tank Engine TMF file into memory. Returns a pointer to a TMF object.
 tmf_t *TMF_Load(rex_byte *filename);
 
-// Free an Tank Engine TMF file from memory.
+// Free a Tank Engine TMF object from memory.
 void TMF_Free(tmf_t *tmf);

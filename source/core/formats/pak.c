@@ -20,7 +20,7 @@
 // PAK magic
 rex_byte_c pak_magic[4] = "PACK";
 
-// Load an id Software PAK file into memory. Returns a pointer to a PAK container.
+// Load an id Software PAK file into memory. Returns a pointer to a PAK object.
 pak_t *PAK_Load(rex_byte *filename)
 {
 	// Variables
@@ -61,7 +61,7 @@ pak_t *PAK_Load(rex_byte *filename)
 	return pak;
 }
 
-// Free an id Software PAK file from memory.
+// Free an id Software PAK object from memory.
 void PAK_Free(pak_t *pak)
 {
 	// Free header

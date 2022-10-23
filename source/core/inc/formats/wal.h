@@ -38,18 +38,27 @@ typedef struct
 // WAL container
 typedef struct
 {
-	wal_header_t *header;			// File header
-	rex_uint widths[4];				// Precalculated mipmap widths
-	rex_uint heights[4];			// Precalculated mipmap heights
-	rex_buffer *pixels[4];			// Mipmap pixel buffers
+	// Saved to file
+	wal_header_t *header;
+	rex_buffer *mipmaps[4];
+
+	// Not saved to file
+	rex_uint widths[4];
+	rex_uint heights[4];
 } wal_t;
 
 //
 // WAL functions
 //
 
-// Load an id Software WAL file into memory. Returns a pointer to a WAL container.
+// Load an id Software WAL file into memory. Returns a pointer to a WAL object.
 wal_t *WAL_Load(rex_byte *filename);
 
-// Free an id Software WAL file from memory.
+// Free an id Software WAL object from memory.
 void WAL_Free(wal_t *wal);
+
+// Save an id Software WAL object to a file.
+void WAL_Save(rex_byte *filename, wal_t *wal);
+
+// Allocate an id Software WAL object.
+wal_t *WAL_Allocate(rex_byte *name, rex_byte *next_name, rex_uint width, rex_uint height, rex_uint flags, rex_uint contents, rex_uint value);

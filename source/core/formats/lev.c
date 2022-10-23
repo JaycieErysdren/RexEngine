@@ -10,14 +10,14 @@
 //
 // DESCRIPTION:		Lobotomy Software LEV files.
 //
-// LAST EDITED:		October 22nd, 2022
+// LAST EDITED:		October 23rd, 2022
 //
 // ========================================================
 
 // Include engine header
 #include "rex.h"
 
-// Load an Lobotomy Software LEV file into memory. Returns a pointer to a LEV container.
+// Load a Lobotomy Software LEV file into memory. Returns a pointer to a LEV object.
 lev_t *LEV_Load(rex_byte *filename)
 {
 	// Define variables
@@ -85,7 +85,7 @@ lev_t *LEV_Load(rex_byte *filename)
 	return lev;
 }
 
-// Free an Lobotomy Software LEV file from memory.
+// Free a Lobotomy Software LEV object from memory.
 void LEV_Free(lev_t *lev)
 {
 	// Free header
