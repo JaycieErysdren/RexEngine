@@ -14,10 +14,6 @@
 //
 // ========================================================
 
-// agsdhsdg
-extern br_model *global_model_test;
-extern br_pixelmap *global_model_test_texture;
-
 //
 // Individual format specifications
 //
@@ -71,20 +67,3 @@ enum rex_format_operations
 
 // Return a string detailing what format operation the user has chosen
 rex_byte *Rex_Formats_OptHelper(rex_int optcode);
-
-//
-// Lobotomy Software LEV files (lev.c)
-//
-
-// Load and process a Lobotomy LEV file. Returns an error code. (Formats/Lobotomy Software/lev_quake.ksy)
-rex_int Rex_Formats_Lobotomy_LEV(rex_int operation, rex_byte *filename);
-
-//
-// id Software MDL files (mdl.c)
-//
-
-// Load and process an id Software id MDL file. Returns an MDL container. (Formats/id Software/mdl.ksy)
-mdl_t *Rex_Formats_idSoftware_MDL_Load(rex_int operation, rex_byte *filename);
-
-// Free an id Software MDL file. (Formats/id Software/mdl.ksy)
-void Rex_Formats_idSoftware_MDL_Free(mdl_t *mdl);

@@ -14,6 +14,14 @@
 //
 // ========================================================
 
+//
+// Format Reference: Formats/id Software/mdl.ksy
+//
+
+//
+// MDL types
+//
+
 // MDL magics
 extern rex_byte_c mdl_magic_quake[4];
 extern rex_byte_c mdl_magic_quake2[4];
@@ -100,3 +108,13 @@ typedef struct
 	mdl_face_t *faces;
 	mdl_frame_t *frames;
 } mdl_t;
+
+//
+// MDL functions
+//
+
+// Load an id Software MDL file into memory. Returns a pointer to a MDL container.
+mdl_t *MDL_Load(rex_byte *filename);
+
+// Free an id Software MDL file from memory.
+void MDL_Free(mdl_t *mdl);

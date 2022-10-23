@@ -17,65 +17,83 @@
 // Include engine header
 #include "rex.h"
 
-// Lobotomy LEV format max sectors
-#define LEV_MAX_SECTORS 1024
-
-// Load and process a Lobotomy LEV file. Returns an error code. (Formats/Lobotomy Software/lev_quake.ksy)
-rex_int Rex_Formats_Lobotomy_LEV(rex_int operation, rex_byte *filename)
+// Load an Lobotomy Software LEV file into memory. Returns a pointer to a LEV container.
+lev_t *LEV_Load(rex_byte *filename)
 {
-	lev_header_t lev_header;
-	lev_sector_t lev_sectors[LEV_MAX_SECTORS];
+	// Define variables
 	rex_int i;
+	lev_t *lev;
+	FILE *file;
 
-	FILE *file = fopen(filename, "rb");
+	// Open file pointer
+	file = Rex_IO_FOpen(filename, "rb");
 
-	if (file == NULL)
-		return REX_ERROR_FILE_NONE;
+	// Skip sky data, we can't parse it yet
+	Rex_IO_FSeek(file, 131104, SEEK_SET);
 
-	// Skip LEV sky texture data
-	if (fseek(file, sizeof(lev_skydata_t), SEEK_SET)) return REX_ERROR_FMT_MALFORMED;
+	// Allocate memory
+	lev = calloc(1, sizeof(lev_t));
+	lev->header = calloc(1, sizeof(lev_header_t));
 
-	// Read LEV header
-	if (!fread(&lev_header, sizeof(lev_header_t), 1, file)) return REX_ERROR_FILE_READ;
+	// Read in header
+	Rex_IO_FRead(lev->header, sizeof(lev_header_t), 1, file);
 
-	// Correct LEV header endianness
+	// Correct header endianness
 	if (REX_LITTLE_ENDIAN)
 	{
-		Rex_EndianSwap_UInt(&lev_header.unknown_01);
-		Rex_EndianSwap_UInt(&lev_header.unknown_02);
-		Rex_EndianSwap_UInt(&lev_header.num_sectors);
-		Rex_EndianSwap_UInt(&lev_header.num_planes);
-		Rex_EndianSwap_UInt(&lev_header.num_vertices);
-		Rex_EndianSwap_UInt(&lev_header.num_quads);
-		Rex_EndianSwap_UInt(&lev_header.len_tile_texture_data);
-		Rex_EndianSwap_UInt(&lev_header.num_tiles);
-		Rex_EndianSwap_UInt(&lev_header.len_tile_color_data);
-		Rex_EndianSwap_UInt(&lev_header.num_entities);
-		Rex_EndianSwap_UInt(&lev_header.len_entity_data);
-		Rex_EndianSwap_UInt(&lev_header.num_entity_polylinks);
-		Rex_EndianSwap_UInt(&lev_header.num_entity_polylink_data1_segments);
-		Rex_EndianSwap_UInt(&lev_header.num_entity_polylink_data2_segments);
-		Rex_EndianSwap_UInt(&lev_header.num_unknown);
+		Rex_EndianSwap_UInt(&lev->header->unknown_01);
+		Rex_EndianSwap_UInt(&lev->header->unknown_02);
+		Rex_EndianSwap_UInt(&lev->header->num_sectors);
+		Rex_EndianSwap_UInt(&lev->header->num_planes);
+		Rex_EndianSwap_UInt(&lev->header->num_vertices);
+		Rex_EndianSwap_UInt(&lev->header->num_quads);
+		Rex_EndianSwap_UInt(&lev->header->len_tile_texture_data);
+		Rex_EndianSwap_UInt(&lev->header->num_tiles);
+		Rex_EndianSwap_UInt(&lev->header->len_tile_color_data);
+		Rex_EndianSwap_UInt(&lev->header->num_entities);
+		Rex_EndianSwap_UInt(&lev->header->len_entity_data);
+		Rex_EndianSwap_UInt(&lev->header->num_entity_polylinks);
+		Rex_EndianSwap_UInt(&lev->header->num_entity_polylink_data1_segments);
+		Rex_EndianSwap_UInt(&lev->header->num_entity_polylink_data2_segments);
+		Rex_EndianSwap_UInt(&lev->header->num_unknown);
 	}
 
-	// Read LEV sectors
-	for (i = 0; i < lev_header.num_sectors; i++)
-	{
-		if (!fread(&lev_sectors[i], sizeof(lev_sector_t), 1, file)) return REX_ERROR_FILE_READ;
+	// Allocate memory
+	lev->sectors = calloc(lev->header->num_sectors, sizeof(lev_sector_t));
 
-		// Correct LEV sector endianness
-		if (REX_LITTLE_ENDIAN)
+	// Read in sectors
+	Rex_IO_FRead(lev->sectors, sizeof(lev_sector_t), lev->header->num_sectors, file);
+
+	// Correct sector endianness
+	if (REX_LITTLE_ENDIAN)
+	{
+		for (i = 0; i < lev->header->num_sectors; i++)
 		{
-			Rex_EndianSwap_UShort(&lev_sectors[i].position[0]);
-			Rex_EndianSwap_UShort(&lev_sectors[i].position[1]);
-			Rex_EndianSwap_UShort(&lev_sectors[i].position[2]);
-			Rex_EndianSwap_UShort(&lev_sectors[i].distance);
-			Rex_EndianSwap_UShort(&lev_sectors[i].plane_start_index);
-			Rex_EndianSwap_UShort(&lev_sectors[i].plane_end_index);
+			Rex_EndianSwap_UShort(&lev->sectors[i].position[0]);
+			Rex_EndianSwap_UShort(&lev->sectors[i].position[1]);
+			Rex_EndianSwap_UShort(&lev->sectors[i].position[2]);
+			Rex_EndianSwap_UShort(&lev->sectors[i].distance);
+			Rex_EndianSwap_UShort(&lev->sectors[i].plane_start_index);
+			Rex_EndianSwap_UShort(&lev->sectors[i].plane_end_index);
 		}
 	}
 
-	fclose(file);
+	// Close file pointer
+	Rex_IO_FClose(file);
 
-	return REX_ERROR_NONE;
+	// Return pointer
+	return lev;
+}
+
+// Free an Lobotomy Software LEV file from memory.
+void LEV_Free(lev_t *lev)
+{
+	// Free header
+	free(lev->header);
+
+	// Free sectors
+	free(lev->sectors);
+
+	// Free container
+	free(lev);
 }

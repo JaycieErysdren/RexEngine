@@ -14,6 +14,14 @@
 //
 // ========================================================
 
+//
+// Format Reference: Formats/Lobotomy Software/lev.ksy
+//
+
+//
+// LEV types
+//
+
 // LEV sky texture data
 typedef rex_byte lev_skydata_t[131104];
 
@@ -47,3 +55,21 @@ typedef struct
 	rex_ushort plane_end_index;
 	rex_ushort unknown[6];
 } lev_sector_t;
+
+// LEV container
+typedef struct
+{
+	rex_byte name[32];
+	lev_header_t *header;
+	lev_sector_t *sectors;
+} lev_t;
+
+//
+// LEV functions
+//
+
+// Load an Lobotomy Software LEV file into memory. Returns a pointer to a LEV container.
+lev_t *LEV_Load(rex_byte *filename);
+
+// Free an Lobotomy Software LEV file from memory.
+void LEV_Free(lev_t *lev);

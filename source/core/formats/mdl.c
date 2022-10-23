@@ -21,8 +21,8 @@
 rex_byte_c mdl_magic_quake[4] = "IDPO";
 rex_byte_c mdl_magic_quake2[4] = "IDP2";
 
-// Load and process an id Software MDL file. Returns an MDL container. (Formats/id Software/mdl.ksy)
-mdl_t *Rex_Formats_idSoftware_MDL_Load(rex_int operation, rex_byte *filename)
+// Load an id Software MDL file into memory. Returns a pointer to a MDL container.
+mdl_t *MDL_Load(rex_byte *filename)
 {
 	// Define variables
 	rex_int i, num_pixels;
@@ -129,8 +129,8 @@ mdl_t *Rex_Formats_idSoftware_MDL_Load(rex_int operation, rex_byte *filename)
 	return mdl;
 }
 
-// Free an id Software MDL file. (Formats/id Software/mdl.ksy)
-void Rex_Formats_idSoftware_MDL_Free(mdl_t *mdl)
+// Free an id Software MDL file from memory.
+void MDL_Free(mdl_t *mdl)
 {
 	rex_uint i, num_skins, num_frames;
 
