@@ -31,7 +31,7 @@ pak_t *PAK_Load(rex_byte *filename)
 	// Open file pointer
 	file = Rex_IO_FOpen(filename, "rb");
 
-	// Allocate header
+	// Allocate memory
 	pak = calloc(1, sizeof(pak_t));
 	pak->header = calloc(1, sizeof(pak_header_t));
 
@@ -64,7 +64,12 @@ pak_t *PAK_Load(rex_byte *filename)
 // Free an id Software PAK file from memory.
 void PAK_Free(pak_t *pak)
 {
+	// Free header
 	free(pak->header);
+
+	// Free file table
 	free(pak->files);
+
+	// Free container
 	free(pak);
 }

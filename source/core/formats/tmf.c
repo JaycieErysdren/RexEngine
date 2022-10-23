@@ -52,8 +52,8 @@ tmf_t *TMF_Load(rex_byte *filename)
 		// Fix endianness
 		if (REX_LITTLE_ENDIAN)
 		{
-			tmf->meshes[i].num_vertices = Rex_EndianSwap_UShort(tmf->meshes[i].num_vertices);
-			tmf->meshes[i].num_quads = Rex_EndianSwap_UShort(tmf->meshes[i].num_quads);
+			Rex_EndianSwap_UShort(&tmf->meshes[i].num_vertices);
+			Rex_EndianSwap_UShort(&tmf->meshes[i].num_quads);
 		}
 
 		// Allocate memory for vertices and quads
@@ -69,21 +69,21 @@ tmf_t *TMF_Load(rex_byte *filename)
 		{
 			for (v = 0; v < tmf->meshes[i].num_vertices; v++)
 			{
-				tmf->meshes[i].vertices[v].coords[0] = Rex_EndianSwap_Int(tmf->meshes[i].vertices[v].coords[0]);
-				tmf->meshes[i].vertices[v].coords[1] = Rex_EndianSwap_Int(tmf->meshes[i].vertices[v].coords[1]);
-				tmf->meshes[i].vertices[v].coords[2] = Rex_EndianSwap_Int(tmf->meshes[i].vertices[v].coords[2]);
+				Rex_EndianSwap_Int(&tmf->meshes[i].vertices[v].coords[0]);
+				Rex_EndianSwap_Int(&tmf->meshes[i].vertices[v].coords[1]);
+				Rex_EndianSwap_Int(&tmf->meshes[i].vertices[v].coords[2]);
 			}
 
 			for (q = 0; q < tmf->meshes[i].num_quads; q++)
 			{
-				tmf->meshes[i].quads[q].normal[0] = Rex_EndianSwap_Int(tmf->meshes[i].quads[q].normal[0]);
-				tmf->meshes[i].quads[q].normal[1] = Rex_EndianSwap_Int(tmf->meshes[i].quads[q].normal[1]);
-				tmf->meshes[i].quads[q].normal[2] = Rex_EndianSwap_Int(tmf->meshes[i].quads[q].normal[2]);
+				Rex_EndianSwap_Int(&tmf->meshes[i].quads[q].normal[0]);
+				Rex_EndianSwap_Int(&tmf->meshes[i].quads[q].normal[1]);
+				Rex_EndianSwap_Int(&tmf->meshes[i].quads[q].normal[2]);
 
-				tmf->meshes[i].quads[q].indices[0] = Rex_EndianSwap_UShort(tmf->meshes[i].quads[q].indices[0]);
-				tmf->meshes[i].quads[q].indices[1] = Rex_EndianSwap_UShort(tmf->meshes[i].quads[q].indices[1]);
-				tmf->meshes[i].quads[q].indices[2] = Rex_EndianSwap_UShort(tmf->meshes[i].quads[q].indices[2]);
-				tmf->meshes[i].quads[q].indices[3] = Rex_EndianSwap_UShort(tmf->meshes[i].quads[q].indices[3]);
+				Rex_EndianSwap_UShort(&tmf->meshes[i].quads[q].indices[0]);
+				Rex_EndianSwap_UShort(&tmf->meshes[i].quads[q].indices[1]);
+				Rex_EndianSwap_UShort(&tmf->meshes[i].quads[q].indices[2]);
+				Rex_EndianSwap_UShort(&tmf->meshes[i].quads[q].indices[3]);
 			}
 		}
 	}

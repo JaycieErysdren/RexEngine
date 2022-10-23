@@ -27,23 +27,23 @@ extern const rex_int _rex_endian_check;
 // Returns true if system is big endian
 #define REX_BIG_ENDIAN !REX_LITTLE_ENDIAN
 
-// Endian swap unsigned short
-rex_ushort Rex_EndianSwap_UShort(rex_ushort val);
-
 // Endian swap signed short
-rex_short Rex_EndianSwap_Short(rex_short val);
+void Rex_EndianSwap_Short(rex_short *val);
 
-// Endian swap unsigned int
-rex_uint Rex_EndianSwap_UInt(rex_uint val);
+// Endian swap unsigned short
+void Rex_EndianSwap_UShort(rex_ushort *val);
 
 // Endian swap signed int
-rex_int Rex_EndianSwap_Int(rex_int val);
+void Rex_EndianSwap_Int(rex_int *val);
 
-// Endian swap unsigned long
-rex_ulong Rex_EndianSwap_ULong(rex_ulong val);
+// Endian swap unsigned int
+void Rex_EndianSwap_UInt(rex_uint *val);
 
 // Endian swap signed long
-rex_long Rex_EndianSwap_Long(rex_long val);
+void Rex_EndianSwap_Long(rex_long *val);
+
+// Endian swap unsigned long
+void Rex_EndianSwap_ULong(rex_ulong *val);
 
 //
 // Failure handling (failure.c)
