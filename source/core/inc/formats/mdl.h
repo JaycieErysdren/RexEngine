@@ -87,6 +87,7 @@ typedef struct
 	mdl_vertex_t min;
 	mdl_vertex_t max;
 	rex_byte name[16];
+	mdl_vertex_t *vertices;
 } mdl_frame_t;
 
 // MDL container

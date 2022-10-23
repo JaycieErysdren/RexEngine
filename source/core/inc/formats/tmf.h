@@ -51,7 +51,6 @@ typedef struct
 {
 	rex_ushort num_vertices;
 	rex_ushort num_quads;
-	rex_int _reserved;
 	tmf_vertex_t *vertices;
 	tmf_quad_t *quads;
 } tmf_mesh_t;

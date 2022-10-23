@@ -50,7 +50,8 @@ tmf_t *Rex_Formats_TankEngine_TMF(rex_int operation, rex_byte *filename)
 	for (i = 0; i < tmf->header->num_meshes; i++)
 	{
 		// Read in mesh header
-		Rex_IO_FRead(&tmf->meshes[i], offsetof(tmf_mesh_t, _reserved), 1, file);
+		Rex_IO_FRead(&tmf->meshes[i].num_vertices, sizeof(rex_ushort), 1, file);
+		Rex_IO_FRead(&tmf->meshes[i].num_quads, sizeof(rex_ushort), 1, file);
 
 		// Fix endianness
 		if (REX_LITTLE_ENDIAN)

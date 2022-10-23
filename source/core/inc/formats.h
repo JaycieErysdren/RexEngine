@@ -82,8 +82,11 @@ rex_int Rex_Formats_Lobotomy_LEV(rex_int operation, rex_byte *filename);
 // id Software MDL files (mdl.c)
 //
 
-// Load and process a Lobotomy LEV file. Returns an error code. (Formats/id Software/mdl.ksy)
-rex_int Rex_Formats_idTech_MDL(rex_int operation, rex_byte *filename);
+// Load and process an id Software id MDL file. Returns an MDL container. (Formats/id Software/mdl.ksy)
+mdl_t *Rex_Formats_idSoftware_MDL_Load(rex_int operation, rex_byte *filename);
+
+// Free an id Software MDL file. (Formats/id Software/mdl.ksy)
+void Rex_Formats_idSoftware_MDL_Free(mdl_t *mdl);
 
 //
 // id Software PAK files (pak.c)

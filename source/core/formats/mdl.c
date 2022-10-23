@@ -21,201 +21,145 @@
 rex_byte_c mdl_magic_quake[4] = "IDPO";
 rex_byte_c mdl_magic_quake2[4] = "IDP2";
 
-// Load and process an id MDL file. Returns an error code. (Formats/id Software/mdl.ksy)
-rex_int Rex_Formats_idTech_MDL(rex_int operation, rex_byte *filename)
+// Load and process an id Software id MDL file. Returns an MDL container. (Formats/id Software/mdl.ksy)
+mdl_t *Rex_Formats_idSoftware_MDL_Load(rex_int operation, rex_byte *filename)
 {
-	// Allocate version header and mdl header structs
-	mdl_header_t *mdl_header;
-	mdl_version_t *mdl_version;
-	mdl_frame_t *mdl_frame;
-	mdl_vertex_t *mdl_vertices;
-	mdl_face_t *mdl_faces;
-	mdl_texcoord_t *mdl_texcoords;
-
-	rex_uint mdl_skin_type;
-	rex_ubyte *mdl_skin_pixels;
-
-	rex_int i, v, x, y, stride;
-	rex_int num_pixels;
+	// Define variables
+	rex_int i, num_pixels;
+	mdl_t *mdl;
+	FILE *file;
 
 	// Open file pointer
-	FILE *file = fopen(filename, "rb");
+	file = Rex_IO_FOpen(filename, "rb");
 
-	// Check if file exists
-	if (file == NULL) return REX_ERROR_FILE_NONE;
-
-	// Allocate header memory
-	mdl_version = calloc(1, sizeof(mdl_version_t));
-	mdl_header = calloc(1, sizeof(mdl_header_t));
-	mdl_frame = calloc(1, sizeof(mdl_frame_t));
+	// Allocate memory
+	mdl = calloc(1, sizeof(mdl_t));
+	mdl->version = calloc(1, sizeof(mdl_version_t));
+	mdl->header = calloc(1, sizeof(mdl_header_t));
 
 	// Read in version header
-	if (!fread(mdl_version, sizeof(mdl_version_t), 1, file)) return REX_ERROR_FILE_READ;
+	Rex_IO_FRead(mdl->version, sizeof(mdl_version_t), 1, file);
 
 	// Check file signature
-	if (!memcmp(mdl_version->magic, mdl_magic_quake2, 4)) return REX_ERROR_FMT_UNSUPPORTED;
-	if (memcmp(mdl_version->magic, mdl_magic_quake, 4)) return REX_ERROR_FMT_BAD;
+	if (!memcmp(mdl->version->magic, mdl_magic_quake2, 4))
+	{
+		Rex_IO_FClose(file);
+		Rex_Failure("%s is a Quake 2 model file, which is currently not supported.", filename);
+	}
+
+	// Check file signature
+	if (memcmp(mdl->version->magic, mdl_magic_quake, 4))
+	{
+		Rex_IO_FClose(file);
+		Rex_Failure("%s has an unrecognized file signature %s.", filename, mdl->version->magic);
+	}
 
 	// Check file version
-	if (mdl_version->version != 6) return REX_ERROR_FMT_UNSUPPORTED;
-
-	// Read in mdl header
-	if (!fread(mdl_header, sizeof(mdl_header_t), 1, file)) return REX_ERROR_FILE_READ;
-
-	// Number of pixels for pixel buffer
-	num_pixels = mdl_header->skin_width * mdl_header->skin_height;
-
-	// Allocate skin memory
-	mdl_skin_pixels = calloc(num_pixels, sizeof(rex_ubyte));
-
-	// Read in mdl skins
-	for (i = 0; i < mdl_header->num_skins; i++)
+	if (mdl->version->version == MDL_VERSION_QTEST)
 	{
-		if (!fread(&mdl_skin_type, sizeof(rex_uint), 1, file)) return REX_ERROR_FILE_READ;
-
-		if (mdl_skin_type != 0) return REX_ERROR_FMT_UNSUPPORTED;
-
-		if (!fread(mdl_skin_pixels, sizeof(rex_ubyte), num_pixels, file)) return REX_ERROR_FILE_READ;
+		Rex_IO_FClose(file);
+		Rex_Failure("%s is a QTest model file, which is currently not supported.", filename);
+	}
+	else if (mdl->version->version == MDL_VERSION_QUAKE2)
+	{
+		Rex_IO_FClose(file);
+		Rex_Failure("%s is a Quake 2 model file, which is currently not supported.", filename);
+	}
+	else if (mdl->version->version != MDL_VERSION_QUAKE)
+	{
+		Rex_IO_FClose(file);
+		Rex_Failure("%s has an unrecognized file version.", filename);
 	}
 
-	// Allocate the global pixelmap
-	global_model_test_texture = BrPixelmapAllocate(BR_PMT_RGB_888, mdl_header->skin_width, mdl_header->skin_height, NULL, 0);
+	// Read in header
+	Rex_IO_FRead(mdl->header, sizeof(mdl_header_t), 1, file);
 
-	// This is a shit method.
-	for (y = 0; y < mdl_header->skin_height; y++)
+	// Calculate number of pixels
+	num_pixels = mdl->header->skin_width * mdl->header->skin_height;
+
+	// Allocate more memory
+	mdl->skins = calloc(mdl->header->num_skins, sizeof(mdl_skin_t));
+	mdl->texcoords = calloc(mdl->header->num_vertices, sizeof(mdl_texcoord_t));
+	mdl->faces = calloc(mdl->header->num_faces, sizeof(mdl_face_t));
+	mdl->frames = calloc(mdl->header->num_frames, sizeof(mdl_frame_t));
+
+	// Read in skins
+	for (i = 0; i < mdl->header->num_skins; i++)
 	{
-		for (x = 0; x < mdl_header->skin_width; x++)
+		Rex_IO_FRead(&mdl->skins[i].skin_type, sizeof(rex_uint), 1, file);
+
+		if (mdl->skins[i].skin_type != 0)
 		{
-			rex_int pos = (y * mdl_header->skin_width) + x;
-			rex_rgb color = palette_quake[mdl_skin_pixels[pos]];
-
-			BrPixelmapPixelSet(global_model_test_texture, x, y, BR_COLOUR_RGB(color.b, color.g, color.r));
+			Rex_IO_FClose(file);
+			Rex_Failure("%s skin %d has an unsupported type.", i);
 		}
+
+		mdl->skins[i].skin_pixels = calloc(num_pixels, sizeof(rex_ubyte));
+		Rex_IO_FRead(mdl->skins[i].skin_pixels, sizeof(rex_ubyte), num_pixels, file);
 	}
 
-	global_model_test_texture->identifier = "quake_model_texture";
+	// Read in texcoords
+	Rex_IO_FRead(mdl->texcoords, sizeof(mdl_texcoord_t), mdl->header->num_vertices, file);
 
-	BrMapAdd(global_model_test_texture);
+	// Read in faces
+	Rex_IO_FRead(mdl->faces, sizeof(mdl_face_t), mdl->header->num_faces, file);
 
-	BrPixelmapSave("checkerboard.pix", global_model_test_texture);
-
-	// Allocate local texcoords buffer
-	mdl_texcoords = calloc(mdl_header->num_vertices, sizeof(mdl_texcoord_t));
-
-	// Read in MDL texcoords
-	if (!fread(mdl_texcoords, sizeof(mdl_texcoord_t), mdl_header->num_vertices, file)) return REX_ERROR_FILE_READ;
-
-	// Allocate local faces buffer
-	mdl_faces = calloc(mdl_header->num_faces, sizeof(mdl_face_t));
-
-	// Read in MDL faces
-	if (!fread(mdl_faces, sizeof(mdl_face_t), mdl_header->num_faces, file)) return REX_ERROR_FILE_READ;
-
-	// Read first MDL frame
-	if (!fread(mdl_frame, sizeof(mdl_frame_t), 1, file)) return REX_ERROR_FILE_READ;
-
-	// Allocate local vertices buffer
-	mdl_vertices = calloc(mdl_header->num_vertices, sizeof(mdl_vertex_t));
-
-	// Read in MDL vertices
-	if (!fread(mdl_vertices, sizeof(mdl_vertex_t), mdl_header->num_vertices, file)) return REX_ERROR_FILE_READ;
-
-	//
-	// MAKE ROOM EVERYONE, I'M GOING TO TRY AND MAKE A BRENDER MODEL
-	//
-
-	// Allocate the global model (this will be removed shortly)
-	global_model_test = BrModelAllocate("quake_model", 0, 0);
-	global_model_test->flags |= BR_MODF_KEEP_ORIGINAL;
-	global_model_test->flags |= BR_MODF_UPDATEABLE;
-
-	// Allocate vertices
-	global_model_test->vertices = calloc(mdl_header->num_vertices, sizeof(br_vertex));
-	global_model_test->nvertices = mdl_header->num_vertices;
-
-	// Allocate faces
-	global_model_test->faces = calloc(mdl_header->num_faces, sizeof(br_face));
-	global_model_test->nfaces = mdl_header->num_faces;
-
-	// Shove in the vertices
-	for (i = 0; i < mdl_header->num_vertices; i++)
+	// Read in frames
+	for (i = 0; i < mdl->header->num_frames; i++)
 	{
-		// Assign scaled and translated vertex positions to the vectors
-		global_model_test->vertices[i].p.v[0] = BR_SCALAR(mdl_vertices[i].coordinates[0] * mdl_header->scale[0] + mdl_header->translation[0]);
-		global_model_test->vertices[i].p.v[1] = BR_SCALAR(mdl_vertices[i].coordinates[1] * mdl_header->scale[1] + mdl_header->translation[1]);
-		global_model_test->vertices[i].p.v[2] = BR_SCALAR(mdl_vertices[i].coordinates[2] * mdl_header->scale[2] + mdl_header->translation[2]);
+		Rex_IO_FRead(&mdl->frames[i].frame_type, sizeof(rex_uint), 1, file);
+		Rex_IO_FRead(&mdl->frames[i].min, sizeof(mdl_vertex_t), 1, file);
+		Rex_IO_FRead(&mdl->frames[i].max, sizeof(mdl_vertex_t), 1, file);
+		Rex_IO_FRead(&mdl->frames[i].name, sizeof(rex_byte), 16, file);
+
+		if (mdl->frames[i].frame_type != 0)
+		{
+			Rex_IO_FClose(file);
+			Rex_Failure("%s frame %d has an unsupported type.", i);
+		}
+
+		mdl->frames[i].vertices = calloc(mdl->header->num_vertices, sizeof(mdl_vertex_t));
+		Rex_IO_FRead(mdl->frames[i].vertices, sizeof(mdl_vertex_t), mdl->header->num_vertices, file);
 	}
-
-	// Shove in the faces
-	for (i = 0; i < mdl_header->num_faces; i++)
-	{
-		rex_ushort vi0 = (rex_ushort)mdl_faces[i].vertex_indicies[0];
-		rex_ushort vi1 = (rex_ushort)mdl_faces[i].vertex_indicies[1];
-		rex_ushort vi2 = (rex_ushort)mdl_faces[i].vertex_indicies[2];
-
-		// Put the vertex indices in it
-		global_model_test->faces[i].vertices[0] = vi0;
-		global_model_test->faces[i].vertices[1] = vi1;
-		global_model_test->faces[i].vertices[2] = vi2;
-
-		// Max smoothing, no flags
-		global_model_test->faces[i].smoothing = 0xFFFF;
-		global_model_test->faces[i].flags = 0;
-
-		//
-		// AGKHSDHGSD'GSDG
-		//
-
-		br_vertex v0 = global_model_test->vertices[vi0];
-		br_vertex v1 = global_model_test->vertices[vi1];
-		br_vertex v2 = global_model_test->vertices[vi2];
-
-		br_vector2 uv0 = {mdl_texcoords[vi0].s, mdl_texcoords[vi0].t};
-		br_vector2 uv1 = {mdl_texcoords[vi1].s, mdl_texcoords[vi1].t};
-		br_vector2 uv2 = {mdl_texcoords[vi2].s, mdl_texcoords[vi2].t};
-
-		if (mdl_faces[i].face_type == 0 && mdl_texcoords[vi0].onseam != 0) uv0.v[0] += mdl_header->skin_width * 0.5f;
-		if (mdl_faces[i].face_type == 0 && mdl_texcoords[vi1].onseam != 0) uv1.v[0] += mdl_header->skin_width * 0.5f;
-		if (mdl_faces[i].face_type == 0 && mdl_texcoords[vi2].onseam != 0) uv2.v[0] += mdl_header->skin_width * 0.5f;
-
-		uv0.v[0] = (uv0.v[0] + 0.5f) / mdl_header->skin_width;
-		uv0.v[1] = (uv0.v[1] + 0.5f) / mdl_header->skin_height;
-
-		uv1.v[0] = (uv1.v[0] + 0.5f) / mdl_header->skin_width;
-		uv1.v[1] = (uv1.v[1] + 0.5f) / mdl_header->skin_height;
-
-		uv2.v[0] = (uv2.v[0] + 0.5f) / mdl_header->skin_width;
-		uv2.v[1] = (uv2.v[1] + 0.5f) / mdl_header->skin_height;
-
-		//Rex_Log("%f %f", uv0.v[0], uv0.v[1]);
-		//Rex_Log("%f %f", uv1.v[0], uv1.v[1]);
-		//Rex_Log("%f %f", uv2.v[0], uv2.v[1]);
-		//Rex_Log("====================");
-
-		v0.map = uv0;
-		v1.map = uv1;
-		v2.map = uv2;
-
-		global_model_test->vertices[vi0] = v0;
-		global_model_test->vertices[vi1] = v1;
-		global_model_test->vertices[vi2] = v2;
-
-		// this sucks
-	}
-
-	BrModelAdd(global_model_test);
 
 	// Close file pointer
-	fclose(file);
+	Rex_IO_FClose(file);
 
-	// Free MDL data memory
-	free(mdl_header);
-	free(mdl_version);
-	free(mdl_frame);
-	free(mdl_vertices);
-	free(mdl_faces);
-	free(mdl_texcoords);
+	// Return pointer to MDL container
+	return mdl;
+}
 
-	// Return no error
-	return REX_ERROR_NONE;
+// Free an id Software MDL file. (Formats/id Software/mdl.ksy)
+void Rex_Formats_idSoftware_MDL_Free(mdl_t *mdl)
+{
+	rex_uint i, num_skins, num_frames;
+
+	num_skins = mdl->header->num_skins;
+	num_frames = mdl->header->num_frames;
+
+	// Free version header
+	free(mdl->version);
+
+	// Free MDL header
+	free(mdl->header);
+
+	// Free skin pixels
+	for (i = 0; i < num_skins; i++) free(mdl->skins[i].skin_pixels);
+
+	// Free skins
+	free(mdl->skins);
+
+	// Free texcoords
+	free(mdl->texcoords);
+
+	// Free faces
+	free(mdl->faces);
+
+	// Free frame vertices
+	for (i = 0; i < num_frames; i++) free(mdl->frames[i].vertices);
+
+	// Free frames
+	free(mdl->frames);
+
+	free(mdl);
 }

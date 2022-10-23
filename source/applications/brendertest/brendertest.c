@@ -82,8 +82,8 @@ void main(int argc, char *argv[])
 	//free(res);
 	//Rex_Shutdown();
 
-	error = Rex_Formats_idTech_MDL(REX_FORMATOP_VIEW, "player.mdl");
-	if (error) Rex_Failure("Loading player.mdl failed. Error: %s", Rex_GetError(error));
+	//error = Rex_Formats_idTech_MDL(REX_FORMATOP_VIEW, "player.mdl");
+	//if (error) Rex_Failure("Loading player.mdl failed. Error: %s", Rex_GetError(error));
 
 	// Add main window
 	rex_window = Rex_WindowExternal_Add(
@@ -97,18 +97,18 @@ void main(int argc, char *argv[])
 	// Create basic BRender scene
 	BrenderTest_CreateScene(&world, &camera, &cube);
 
-	// Tank
-	tmf_t *tank = Rex_Formats_TankEngine_TMF(REX_FORMATOP_VIEW, "TANK.TMF");
+	// MDL
+	mdl_t *mdl = Rex_Formats_idSoftware_MDL_Load(REX_FORMATOP_VIEW, "player.mdl");
 
-	Rex_Log("num_textures: %d num_meshes: %d", tank->header->num_textures, tank->header->num_meshes);
-	Rex_Log("num_vertices: %d num_quads: %d", tank->meshes[0].num_vertices, tank->meshes[0].num_quads);
+	Rex_Log("magic: %s version: %d", mdl->version->magic, mdl->version->version);
+	Rex_Log("num_skins: %d skin_width: %d skin_height: %d", mdl->header->num_skins, mdl->header->skin_width, mdl->header->skin_height);
 
-	for (i = 0; i < tank->header->num_textures; i++)
+	for (i = 0; i < mdl->header->num_frames; i++)
 	{
-		Rex_Log("%s", tank->textures[i].filename);
+		Rex_Log("%s", mdl->frames[i].name);
 	}
-	
-	free(tank);
+
+	Rex_Formats_idSoftware_MDL_Free(mdl);
 	Rex_Shutdown();
 
 	// Main loop
