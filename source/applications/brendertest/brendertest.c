@@ -48,7 +48,7 @@ void BrenderTest_CreateScene(br_actor **_world, br_actor **_camera, br_actor **_
 	BrMatrix34Translate(&camera->t.t.mat, BR_SCALAR(0), BR_SCALAR(0), BR_SCALAR(6));
 
 	cube = BrActorAdd(world, BrActorAllocate(BR_ACTOR_MODEL, NULL));
-	cube->model = global_model_test;
+	cube->model = BrModelFind("cube.dat");
 	cube->material = BrMaterialFind("checkerboard.mat");
 
 	*_world = world;
@@ -76,15 +76,6 @@ void main(int argc, char *argv[])
 	// Startup Rex Engine
 	Rex_Startup();
 
-	// Resource file testing
-	//rex_resource_container *res = Rex_Formats_idSoftware_PAK(REX_FORMATOP_GETINFO, "pak0.pak");
-	//Rex_IO_WriteResourceContainer("pak0.res", res);
-	//free(res);
-	//Rex_Shutdown();
-
-	//error = Rex_Formats_idTech_MDL(REX_FORMATOP_VIEW, "player.mdl");
-	//if (error) Rex_Failure("Loading player.mdl failed. Error: %s", Rex_GetError(error));
-
 	// Add main window
 	rex_window = Rex_WindowExternal_Add(
 		"BRenderTest",
@@ -96,17 +87,6 @@ void main(int argc, char *argv[])
 
 	// Create basic BRender scene
 	BrenderTest_CreateScene(&world, &camera, &cube);
-
-	// PAK
-	pak_t *pak = PAK_Load("pak0.pak");
-
-	for (i = 0; i < pak->num_files; i++)
-	{
-		Rex_Log("File %d - %s", i, pak->files[i].filename);
-	}
-
-	PAK_Free(pak);
-	Rex_Shutdown();
 
 	// Main loop
 	while (running)
@@ -171,15 +151,6 @@ void main(int argc, char *argv[])
 		if (KEY_PRESSED(KEY_RIGHT))
 			BrMatrix34PreRotateY(&camera->t.t.mat, BR_ANGLE_DEG(-1));
 
-		//rex_vector3f makevector;
-		//makevector[0] = 33.0f;
-		//makevector[1] = 75.0f;
-		//makevector[2] = 0.0f;
-		//rex_vector3f v_up;
-		//rex_vector3f v_right;
-		//rex_vector3f v_forward;
-		//Rex_MakeVectors(makevector, &v_up, &v_right, &v_forward);
-
 		//
 		// Program logic
 		//
@@ -194,8 +165,8 @@ void main(int argc, char *argv[])
 		// Render a frame
 		Rex_ExternalWindow_RenderZb(rex_window, world, camera, REX_RGB_GRY, REX_DEPTH_BUFFER_CLEAR);
 
+		// FPS counter
 		BrPixelmapTextF(rex_window->buffer_color, -(rex_window->buffer_color->width / 2) + 16, -(rex_window->buffer_color->height / 2) + 16, BR_COLOUR_RGB(255, 0, 0), BrFontFixed3x5, "FPS: %.2f", frame_elapsed_seconds);
-		BrPixelmapRectangleFill(rex_window->buffer_color, 16, 16, 128, 128, BR_COLOUR_RGBA(255, 255, 255, 2));
 
 		// Flip buffer
 		Rex_ExternalWindow_DoubleBuffer(rex_window);
