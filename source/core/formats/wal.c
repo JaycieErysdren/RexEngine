@@ -139,15 +139,15 @@ wal_t *WAL_Allocate(rex_byte *name, rex_byte *next_name, rex_uint width, rex_uin
 
 	// Calculate mipmap widths
 	wal->widths[0] = width;
-	wal->widths[1] = wal->widths[0] / 2;
-	wal->widths[2] = wal->widths[1] / 2;
-	wal->widths[3] = wal->widths[2] / 2;
+	wal->widths[1] = width / 2;
+	wal->widths[2] = width / 4;
+	wal->widths[3] = width / 8;
 
 	// Calculate mipmap heights
 	wal->heights[0] = height;
-	wal->heights[1] = wal->heights[0] / 2;
-	wal->heights[2] = wal->heights[1] / 2;
-	wal->heights[3] = wal->heights[2] / 2;
+	wal->heights[1] = height / 2;
+	wal->heights[2] = height / 4;
+	wal->heights[3] = height / 8;
 
 	// Calculate mipmap sizes
 	mipmap_sizes[0] = wal->widths[0] * wal->heights[0];
