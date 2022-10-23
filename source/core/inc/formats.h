@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Prototypes for the format systems.
 //
-// LAST EDITED:		October 21st, 2022
+// LAST EDITED:		October 23rd, 2022
 //
 // ========================================================
 
@@ -26,6 +26,7 @@ extern br_pixelmap *global_model_test_texture;
 #include "formats/mdl.h"
 #include "formats/pak.h"
 #include "formats/tmf.h"
+#include "formats/wal.h"
 
 //
 // Generic format functions (formats.c)
@@ -87,20 +88,3 @@ mdl_t *Rex_Formats_idSoftware_MDL_Load(rex_int operation, rex_byte *filename);
 
 // Free an id Software MDL file. (Formats/id Software/mdl.ksy)
 void Rex_Formats_idSoftware_MDL_Free(mdl_t *mdl);
-
-//
-// id Software PAK files (pak.c)
-//
-
-// Load and process an id Software PAK file. Returns a resource container. (Formats/id Software/pak.ksy)
-rex_resource_container *Rex_Formats_idSoftware_PAK(rex_int operation, rex_byte *filename);
-
-// Load and process an idTech PAK file. Returns an error code. (Formats/id Software/pak.ksy)
-rex_int Rex_Formats_idTech_PAK(rex_int operation, rex_byte *filename);
-
-//
-// Tank Engine TMF files (tmf.c)
-//
-
-// Load and process a Tank Engine TMF file. Returns a TMF container. (Formats/Tank Engine/tmf.ksy)
-tmf_t *Rex_Formats_TankEngine_TMF(rex_int operation, rex_byte *filename);

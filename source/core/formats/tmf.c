@@ -10,23 +10,19 @@
 //
 // DESCRIPTION:		Tank Engine TMF files.
 //
-// LAST EDITED:		October 22nd, 2022
+// LAST EDITED:		October 23rd, 2022
 //
 // ========================================================
 
 // Include engine header
 #include "rex.h"
 
-// Load and process a Tank Engine TMF file. Returns a TMF container. (Formats/Tank Engine/tmf.ksy)
-tmf_t *Rex_Formats_TankEngine_TMF(rex_int operation, rex_byte *filename)
+// Load a Tank Engine TMF file into memory. Returns a pointer to a TMF container.
+tmf_t *TMF_Load(rex_byte *filename)
 {
 	// Define variables
 	rex_int i, v, q;
-
-	// Define TMF struct
 	tmf_t *tmf;
-
-	// Define file pointer
 	FILE *file;
 
 	// Open file pointer

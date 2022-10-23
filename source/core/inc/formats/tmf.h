@@ -10,9 +10,17 @@
 //
 // DESCRIPTION:		Tank Engine TMF types.
 //
-// LAST EDITED:		October 22nd, 2022
+// LAST EDITED:		October 23rd, 2022
 //
 // ========================================================
+
+//
+// Format Reference: Formats/Tank Engine/tmf.ksy
+//
+
+//
+// TMF types
+//
 
 // TMF header
 typedef struct
@@ -37,7 +45,8 @@ typedef struct
 } tmf_vertex_t;
 
 // TMF quad
-typedef struct
+typedef
+ struct
 {
 	rex_int normal[3];
 	rex_ushort indices[4];
@@ -59,6 +68,16 @@ typedef struct
 typedef struct
 {
 	tmf_header_t *header;
-	tmf_texture_t *textures;
+	tmf_texture_t *textures;		
 	tmf_mesh_t *meshes;
 } tmf_t;
+
+//
+// TMF functions
+//
+
+// Load a Tank Engine TMF file into memory. Returns a pointer to a TMF container.
+tmf_t *TMF_Load(rex_byte *filename);
+
+// Free an Tank Engine TMF file from memory.
+void TMF_Free(tmf_t *tmf);

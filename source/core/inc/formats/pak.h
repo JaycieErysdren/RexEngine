@@ -10,9 +10,17 @@
 //
 // DESCRIPTION:		id Software PAK types.
 //
-// LAST EDITED:		October 22nd, 2022
+// LAST EDITED:		October 23rd, 2022
 //
 // ========================================================
+
+//
+// Format Reference: Formats/id Software/pak.ksy
+//
+
+//
+// PAK types
+//
 
 // PAK magic
 extern rex_byte_c pak_magic[4];
@@ -25,7 +33,7 @@ typedef struct
 	rex_int len_filetable;
 } pak_header_t;
 
-// PAK file table entry
+// PAK file
 typedef struct
 {
 	rex_byte filename[56];
@@ -40,3 +48,13 @@ typedef struct
 	rex_uint num_files;
 	pak_file_t *files;
 } pak_t;
+
+//
+// PAK functions
+//
+
+// Load an id Software PAK file into memory. Returns a pointer to a PAK container.
+pak_t *PAK_Load(rex_byte *filename);
+
+// Free an id Software PAK file from memory.
+void PAK_Free(pak_t *pak);

@@ -20,6 +20,7 @@ set(REX_ENGINE_SRC
 	formats/mdl.c
 	formats/pak.c
 	formats/tmf.c
+	formats/wal.c
 	io/devices.c
 	io/files.c
 	io/resources.c

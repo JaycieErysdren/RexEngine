@@ -21,7 +21,7 @@
 rex_byte_c mdl_magic_quake[4] = "IDPO";
 rex_byte_c mdl_magic_quake2[4] = "IDP2";
 
-// Load and process an id Software id MDL file. Returns an MDL container. (Formats/id Software/mdl.ksy)
+// Load and process an id Software MDL file. Returns an MDL container. (Formats/id Software/mdl.ksy)
 mdl_t *Rex_Formats_idSoftware_MDL_Load(rex_int operation, rex_byte *filename)
 {
 	// Define variables

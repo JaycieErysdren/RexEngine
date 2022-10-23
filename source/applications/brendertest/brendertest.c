@@ -97,18 +97,15 @@ void main(int argc, char *argv[])
 	// Create basic BRender scene
 	BrenderTest_CreateScene(&world, &camera, &cube);
 
-	// MDL
-	mdl_t *mdl = Rex_Formats_idSoftware_MDL_Load(REX_FORMATOP_VIEW, "player.mdl");
+	// PAK
+	pak_t *pak = PAK_Load("pak0.pak");
 
-	Rex_Log("magic: %s version: %d", mdl->version->magic, mdl->version->version);
-	Rex_Log("num_skins: %d skin_width: %d skin_height: %d", mdl->header->num_skins, mdl->header->skin_width, mdl->header->skin_height);
-
-	for (i = 0; i < mdl->header->num_frames; i++)
+	for (i = 0; i < pak->num_files; i++)
 	{
-		Rex_Log("%s", mdl->frames[i].name);
+		Rex_Log("File %d - %s", i, pak->files[i].filename);
 	}
 
-	Rex_Formats_idSoftware_MDL_Free(mdl);
+	PAK_Free(pak);
 	Rex_Shutdown();
 
 	// Main loop
