@@ -18,23 +18,23 @@
 // Base types
 //
 
-typedef signed int rex_int;							// Signed integer
-typedef unsigned int rex_uint;						// Unsigned integer
+typedef int32_t rex_int;							// Signed 32-bit integer
+typedef uint32_t rex_uint;							// Unsigned 32-bit integer
 
-typedef signed short int rex_short;					// Signed short
-typedef unsigned short int rex_ushort;				// Unsigned short
+typedef int16_t rex_short;							// Signed 16-bit integer
+typedef uint16_t rex_ushort;						// Unsigned 16-bit integer
 
-typedef signed long int rex_long;					// Signed long
-typedef unsigned long int rex_ulong;				// Unsigned long
+typedef int64_t rex_long;							// Signed 64-bit integer
+typedef uint64_t rex_ulong;							// Unsigned 64-bit integer
 
-typedef signed char rex_byte;						// Signed byte
-typedef unsigned char rex_ubyte;					// Unsigned byte
+typedef int8_t rex_byte;							// Signed 8-bit integer
+typedef uint8_t rex_ubyte;							// Unsigned 8-bit integer
 
-typedef const signed char rex_byte_c;				// Signed const byte
-typedef const unsigned char rex_ubyte_c;			// Unsigned const byte
+typedef const rex_byte rex_byte_c;					// Signed const byte
+typedef const rex_ubyte rex_ubyte_c;				// Unsigned const byte
 
-typedef float rex_float;							// Float
-typedef double rex_double;							// Double
+typedef _Float32 rex_float;							// 32-bit Float
+typedef _Float64 rex_double;						// 64-bit Float
 
 typedef rex_int rex_bool;							// Boolean
 
@@ -51,53 +51,57 @@ typedef uintptr_t rex_uint_ptr;						// Unsigned void * pointer
 // Simple vectors
 //
 
-typedef rex_int rex_vector2i[2];					// Simple 2D vector, int
-typedef rex_int rex_vector3i[3];					// Simple 3D vector, int
-typedef rex_int rex_vector4i[4];					// Simple 4D vector, int
+typedef rex_short rex_vector2s[2];					// Simple 2D vector, int16
+typedef rex_short rex_vector3s[3];					// Simple 3D vector, int16
+typedef rex_short rex_vector4s[4];					// Simple 4D vector, int16
 
-typedef rex_long rex_vector2l[2];					// Simple 2D vector, long
-typedef rex_long rex_vector3l[3];					// Simple 3D vector, long
-typedef rex_long rex_vector4l[4];					// Simple 4D vector, long
+typedef rex_int rex_vector2i[2];					// Simple 2D vector, int32
+typedef rex_int rex_vector3i[3];					// Simple 3D vector, int32
+typedef rex_int rex_vector4i[4];					// Simple 4D vector, int32
 
-typedef rex_float rex_vector2f[2];					// Simple 2D vector, float
-typedef rex_float rex_vector3f[3];					// Simple 3D vector, float
-typedef rex_float rex_vector4f[4];					// Simple 4D vector, float
+typedef rex_long rex_vector2l[2];					// Simple 2D vector, int64
+typedef rex_long rex_vector3l[3];					// Simple 3D vector, int64
+typedef rex_long rex_vector4l[4];					// Simple 4D vector, int64
+
+typedef rex_float rex_vector2f[2];					// Simple 2D vector, float32
+typedef rex_float rex_vector3f[3];					// Simple 3D vector, float32
+typedef rex_float rex_vector4f[4];					// Simple 4D vector, float32
 
 //
 // Coordinates
 //
 
-// 2D coordinate, int
+// 2D coordinate, int32
 typedef struct
 {
 	rex_int x, y;
 } rex_coord2i;
 
-// 3D coordinate, int
+// 3D coordinate, int32
 typedef struct
 {
 	rex_int x, y, z;
 } rex_coord3i;
 
-// 2D coordinate, long
+// 2D coordinate, int64
 typedef struct
 {
 	rex_long x, y;
 } rex_coord2l;
 
-// 3D coordinate, long
+// 3D coordinate, int64
 typedef struct
 {
 	rex_long x, y, z;
 } rex_coord3l;
 
-// 2D coordinate, float
+// 2D coordinate, float32
 typedef struct
 {
 	rex_float x, y;
 } rex_coord2f;
 
-// 3D coordinate, float
+// 3D coordinate, float32
 typedef struct
 {
 	rex_float x, y, z;
