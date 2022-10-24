@@ -89,4 +89,4 @@ add_subdirectory(applications/liberator)
 
 ## TestGame
 ## Raycasting test
-add_subdirectory(applications/testgame)
+## add_subdirectory(applications/testgame)
