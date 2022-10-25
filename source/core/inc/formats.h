@@ -20,6 +20,7 @@
 
 #include "formats/lev.h"
 #include "formats/mdl.h"
+#include "formats/ms3dmm.h"
 #include "formats/pak.h"
 #include "formats/tmf.h"
 #include "formats/wal.h"
