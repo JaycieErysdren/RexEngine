@@ -170,7 +170,7 @@ void main(int argc, char *argv[])
 		//
 
 		// Render a frame
-		Rex_Window_RenderZb(window, world, camera, REX_RGBA_GRY, REX_DEPTH_BUFFER_CLEAR);
+		Rex_Window_RenderZb(window, world, camera, REX_RGB_GRY, REX_DEPTH_BUFFER_CLEAR);
 
 		// FPS counter
 		BrPixelmapTextF(window->buffer_color, -(window->buffer_color->width / 2) + 16, -(window->buffer_color->height / 2) + 16, BR_COLOUR_RGB(255, 0, 0), BrFontFixed3x5, "FPS: %.2f", frame_elapsed_seconds);
