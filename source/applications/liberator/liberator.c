@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Liberator program entry point.
 //
-// LAST EDITED:		October 24th, 2022
+// LAST EDITED:		October 28th, 2022
 //
 // ========================================================
 
@@ -48,6 +48,7 @@ void main(int argc, char *argv[])
 	// Variables
 	//
 
+	rex_int width, height;
 	rex_ulong frame_start_ticks, frame_end_ticks;
 	rex_float frame_elapsed_ticks, frame_elapsed_seconds;
 	rex_int i;
@@ -56,6 +57,11 @@ void main(int argc, char *argv[])
 	rex_byte filename[512];
 	br_actor *world, *camera, *model;
 	br_order_table *order_table;
+
+	struct nk_color clear = {0,0,0,0};
+	struct nk_vec2 vec;
+	struct nk_rect bounds = {40,40,0,0};
+	rex_nuklear_context *context;
 
 	//
 	// Arguments
@@ -93,12 +99,15 @@ void main(int argc, char *argv[])
 	// Startup Rex Engine
 	Rex_Startup();
 
+	width = rex_desktop_size[0] / 2;
+	height = rex_desktop_size[1] / 2;
+
 	// Add main window
 	rex_window = Rex_WindowExternal_Add(
 		"Liberator",
 		REX_WINDOW_EXTERNAL_CENTERED,
 		REX_WINDOW_EXTERNAL_CENTERED,
-		rex_desktop_size[0] / 2, rex_desktop_size[1] / 2,
+		width, height,
 		REX_WINDOW_EXTERNAL_DEFAULT_FLAGS
 	);
 
@@ -133,6 +142,9 @@ void main(int argc, char *argv[])
 	model = BrActorAdd(world, BrActorAllocate(BR_ACTOR_MODEL, NULL));
 	model->model = BrModelFind("cube.dat");
 	model->material = BrMaterialFind("checkerboard.mat");
+
+	// Allocate nuklear stuff
+	context = Rex_Nuklear_Init(rex_window->buffer_color, 13.0f);
 
 	//
 	// Main loop
@@ -208,14 +220,45 @@ void main(int argc, char *argv[])
 		BrMatrix34PostRotateY(&model->t.t.mat, BR_ANGLE_DEG(BR_SCALAR(50) * BR_SCALAR(frame_elapsed_ticks)));
 
 		//
+		// Nuklear
+		//
+
+		bounds.w = 400;
+		bounds.h = 400;
+
+		if (nk_begin(&(context->ctx), "Test", bounds, NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE | NK_WINDOW_TITLE))
+		{
+			enum {EASY, HARD};
+			static rex_int op = EASY;
+			static rex_int property = 20;
+
+			nk_layout_row_static(&(context->ctx), 30, 80, 1);
+
+			if (nk_button_label(&(context->ctx), "button"))
+				printf("button pressed\n");
+
+			nk_layout_row_dynamic(&(context->ctx), 40, 2);
+
+			if (nk_option_label(&(context->ctx), "easy", op == EASY))
+				op = EASY;
+			if (nk_option_label(&(context->ctx), "hard", op == HARD))
+				op = HARD;
+
+			nk_layout_row_dynamic(&(context->ctx), 45, 1);
+			nk_property_int(&(context->ctx), "Compression:", 0, &property, 100, 10, 1);
+		}
+
+		nk_end(&(context->ctx));
+
+		//
 		// Rendering
 		//
 
 		// Render a frame
-		Rex_ExternalWindow_RenderZb(rex_window, world, camera, REX_RGB_GRY, REX_DEPTH_BUFFER_CLEAR);
+		Rex_ExternalWindow_RenderZb(rex_window, world, camera, REX_RGBA_GRY, REX_DEPTH_BUFFER_CLEAR);
 
 		// FPS counter
-		BrPixelmapTextF(rex_window->buffer_color, -(rex_window->buffer_color->width / 2) + 16, -(rex_window->buffer_color->height / 2) + 16, BR_COLOUR_RGB(255, 0, 0), BrFontFixed3x5, "FPS: %.2f", frame_elapsed_seconds);
+		Rex_Nuklear_Render(context, clear, 1);
 
 		// Flip buffer
 		Rex_ExternalWindow_DoubleBuffer(rex_window);
@@ -235,6 +278,8 @@ void main(int argc, char *argv[])
 	//
 	// Shutdown
 	//
+
+	Rex_Nuklear_Shutdown(context);
 
 	// Free the main window
 	Rex_WindowExternal_Remove(rex_window);

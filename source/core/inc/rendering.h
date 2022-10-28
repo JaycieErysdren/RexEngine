@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Prototypes for the rendering systems.
 //
-// LAST EDITED:		October 27th, 2022
+// LAST EDITED:		October 28th, 2022
 //
 // ========================================================
 
@@ -49,9 +49,19 @@ br_pixelmap *Rex_Fonts_GenerateTextPixelmap(TTF_Font *font, rex_rgba color, rex_
 // Nuklear helpers (nuklear.c)
 //
 
-struct rex_nuklear_context *Rex_Nuklear_Init(br_pixelmap *pm, rex_float fontSize);
-void Rex_Nuklear_Render(const struct rex_nuklear_context *context, const struct nk_color clear, const rex_ubyte enable_clear);
-void Rex_Nuklear_Shutdown(struct rex_nuklear_context *context);
+// Rex Nuklear Context
+typedef struct
+{
+	struct nk_context ctx;
+	struct nk_rect scissors;
+	struct br_pixelmap *pm;
+	struct br_pixelmap *font_tex;
+	struct nk_font_atlas atlas;
+} rex_nuklear_context;
+
+rex_nuklear_context *Rex_Nuklear_Init(br_pixelmap *pm, rex_float fontSize);
+void Rex_Nuklear_Render(const rex_nuklear_context *context, const struct nk_color clear, const rex_ubyte enable_clear);
+void Rex_Nuklear_Shutdown(rex_nuklear_context *context);
 
 //
 // Embedded system palettes (palettes.c)
@@ -99,7 +109,7 @@ rex_int Rex_WindowExternal_Update(rex_window_external *window);
 void Rex_ExternalWindow_DoubleBuffer(rex_window_external *window);
 
 // Render a frame from the specified scene to the specified window's screen buffer (Using the Z-buffer).
-void Rex_ExternalWindow_RenderZb(rex_window_external *window, br_actor *world, br_actor *camera, rex_rgb color, rex_uint depth);
+void Rex_ExternalWindow_RenderZb(rex_window_external *window, br_actor *world, br_actor *camera, rex_rgba color, rex_uint depth);
 
 //
 // Antiquated functions, remove these
