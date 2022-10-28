@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Main Rex Engine header.
 //
-// LAST EDITED:		October 21st, 2022
+// LAST EDITED:		October 27th, 2022
 //
 // ========================================================
 
@@ -42,6 +42,19 @@
 
 #include <brender.h>
 #include <brglrend.h>
+
+//
+// Nuklear module headers
+//
+
+#define NK_INCLUDE_FIXED_TYPES
+#define NK_INCLUDE_STANDARD_IO
+#define NK_INCLUDE_STANDARD_VARARGS
+#define NK_INCLUDE_DEFAULT_ALLOCATOR
+#define NK_INCLUDE_FONT_BAKING
+#define NK_INCLUDE_DEFAULT_FONT
+#define NK_INCLUDE_SOFTWARE_FONT
+#include <nuklear.h>
 
 //
 // Rex Engine headers

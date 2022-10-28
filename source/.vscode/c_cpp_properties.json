@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		VSCode C / C++ settings.
 //
-// LAST EDITED:		October 21st, 2022
+// LAST EDITED:		October 27th, 2022
 //
 // ========================================================
 
@@ -24,6 +24,7 @@
 				"${workspaceFolder}/core/inc/embedded/**",						// Rex Engine embedded file headers
 				"${workspaceFolder}/external/BRender/brender/inc",				// BRender headers
 				"${workspaceFolder}/external/BRender/brender/glrend/include",	// BRender OpenGL driver headers
+				"${workspaceFolder}/external/Nuklear",							// Nuklear headers
 				"${workspaceFolder}/../_local/brender"							// ... hack for pretok.h
 			]
 		}

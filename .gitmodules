@@ -1,3 +1,6 @@
 [submodule "source/external/BRender"]
 	path = source/external/BRender
 	url = https://github.com/crocguy0688/CrocDE-BRender/
+[submodule "source/external/Nuklear"]
+	path = source/external/Nuklear
+	url = https://github.com/Immediate-Mode-UI/Nuklear/

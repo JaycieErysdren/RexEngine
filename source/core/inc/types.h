@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex Engine types.
 //
-// LAST EDITED:		October 21st, 2022
+// LAST EDITED:		October 27th, 2022
 //
 // ========================================================
 
@@ -46,6 +46,9 @@ typedef uintptr_t rex_uint_ptr;						// Unsigned void * pointer
 #define REX_TRUE 1									// True
 #define REX_FALSE 0									// False
 #define REX_NULL NULL								// Null
+
+#define REX_MIN(a, b) ((a) < (b) ? (a) : (b))
+#define REX_MAX(a, b) ((a) < (b) ? (b) : (a))
 
 //
 // Simple vectors

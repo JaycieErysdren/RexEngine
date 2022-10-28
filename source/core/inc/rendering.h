@@ -10,12 +10,12 @@
 //
 // DESCRIPTION:		Prototypes for the rendering systems.
 //
-// LAST EDITED:		October 21st, 2022
+// LAST EDITED:		October 27th, 2022
 //
 // ========================================================
 
 //
-// BRender helpers
+// BRender helpers (brender.c)
 //
 
 extern rex_ubyte brender_primitive_heap[1500 * 1024];
@@ -44,6 +44,14 @@ void Rex_Fonts_RenderText(rex_window_external *window, rex_int x, rex_int y, rex
 
 // Generate a BRender Pixelmap which contains a formatted message's pixel data.
 br_pixelmap *Rex_Fonts_GenerateTextPixelmap(TTF_Font *font, rex_rgba color, rex_byte *s, ...);
+
+//
+// Nuklear helpers (nuklear.c)
+//
+
+struct rex_nuklear_context *Rex_Nuklear_Init(br_pixelmap *pm, rex_float fontSize);
+void Rex_Nuklear_Render(const struct rex_nuklear_context *context, const struct nk_color clear, const rex_ubyte enable_clear);
+void Rex_Nuklear_Shutdown(struct rex_nuklear_context *context);
 
 //
 // Embedded system palettes (palettes.c)
