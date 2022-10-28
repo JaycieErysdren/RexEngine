@@ -81,7 +81,7 @@ rex_window *Rex_Window_Add(rex_byte_c *title, rex_int x, rex_int y, rex_int widt
     brender_error = BrDevBeginVar(&window->buffer_screen, "opengl",
 		BRT_WIDTH_I32, (br_int_32)drawable_width,
 		BRT_HEIGHT_I32, (br_int_32)drawable_height,
-		BRT_PIXEL_BITS_I32, 32,
+		BRT_PIXEL_BITS_I32, 24,
 		BR_NULL_TOKEN
     );
 
@@ -89,7 +89,7 @@ rex_window *Rex_Window_Add(rex_byte_c *title, rex_int x, rex_int y, rex_int widt
     if (brender_error != BRE_OK) Rex_Failure("BrDevBeginVar() failed!");
 
 	// Allocate color and depth buffers
-	window->buffer_color = BrPixelmapMatchTypedSized(window->buffer_screen, BR_PMMATCH_OFFSCREEN, BR_PMT_RGBA_8888, drawable_width, drawable_height);
+	window->buffer_color = BrPixelmapMatchTypedSized(window->buffer_screen, BR_PMMATCH_OFFSCREEN, BR_PMT_RGB_888, drawable_width, drawable_height);
 	window->buffer_depth = BrPixelmapMatch(window->buffer_color, BR_PMMATCH_DEPTH_16);
 
 	// Fix buffer origins
@@ -160,10 +160,10 @@ void Rex_Window_DoubleBuffer(rex_window *window)
 }
 
 // Render a frame from the specified scene to the specified window's screen buffer (Using the Z-buffer).
-void Rex_Window_RenderZb(rex_window *window, br_actor *world, br_actor *camera, rex_rgba color, rex_uint depth)
+void Rex_Window_RenderZb(rex_window *window, br_actor *world, br_actor *camera, rex_rgb color, rex_uint depth)
 {
 	BrRendererFrameBegin();
-	BrPixelmapFill(window->buffer_color, BR_COLOUR_RGBA(color.r, color.g, color.b, color.a));
+	BrPixelmapFill(window->buffer_color, BR_COLOUR_RGB(color.r, color.g, color.b));
 	BrPixelmapFill(window->buffer_depth, depth);
 	BrZbSceneRender(world, camera, window->buffer_color, window->buffer_depth);
 	BrRendererFrameEnd();

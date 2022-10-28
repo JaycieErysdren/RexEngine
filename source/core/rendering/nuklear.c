@@ -35,19 +35,19 @@
 // Set pixel on the rendering pixelmap
 static void nk_brender_setpixel(const rex_nuklear_context *context, const rex_short x, const rex_short y, const struct nk_color col)
 {
-	BrPixelmapRectangleFill(context->pm, x - (context->pm->width / 2), y - (context->pm->height / 2), 1, 1, BR_COLOUR_RGBA(col.r, col.g, col.b, col.a));
+	BrPixelmapRectangleFill(context->pm, x - (context->pm->width / 2), y - (context->pm->height / 2), 1, 1, BR_COLOUR_RGB(col.r, col.g, col.b));
 }
 
 // Draw a horizontal line on a BRender pixelmap
 static void nk_brender_line_horizontal(const rex_nuklear_context *context, const rex_short x0, const rex_short y0, const rex_short x1, const struct nk_color col)
 {
-	BrPixelmapRectangleFill(context->pm, x0 - (context->pm->width / 2), y0 - (context->pm->height / 2), x1 - x0, 1, BR_COLOUR_RGBA(col.r, col.g, col.b, col.a));
+	BrPixelmapRectangleFill(context->pm, x0 - (context->pm->width / 2), y0 - (context->pm->height / 2), x1 - x0, 1, BR_COLOUR_RGB(col.r, col.g, col.b));
 }
 
 // Set pixel on an arbitrary pixelmap
 static void nk_pixelmap_setpixel(br_pixelmap *pm, const rex_int x, const rex_int y, const struct nk_color col)
 {
-	BrPixelmapRectangleFill(pm, x - (pm->width / 2), y - (pm->height / 2), 1, 1, BR_COLOUR_RGBA(col.r, col.g, col.b, col.a));
+	BrPixelmapRectangleFill(pm, x - (pm->width / 2), y - (pm->height / 2), 1, 1, BR_COLOUR_RGB(col.r, col.g, col.b));
 }
 
 // Set pixel from an arbitrary pixelmap
@@ -913,6 +913,8 @@ rex_nuklear_context *Rex_Nuklear_Init(br_pixelmap *pm, rex_float font_size)
 	rex_int texh, texw;
 	rex_nuklear_context *context;
 
+	//assert((pm->type == BR_PMT_ARGB_8888) || (pm->type == BR_PMT_RGBA_8888));
+
 	context = malloc(sizeof(rex_nuklear_context));
 
 	if (!context)
@@ -931,6 +933,7 @@ rex_nuklear_context *Rex_Nuklear_Init(br_pixelmap *pm, rex_float font_size)
 	nk_font_atlas_init_default(&context->atlas);
 	nk_font_atlas_begin(&context->atlas);
 
+	struct nk_font *font = nk_font_atlas_add_from_file(&context->atlas, "ModernDOS9x16.ttf", font_size, 0);
 	context->atlas.default_font = nk_font_atlas_add_default(&context->atlas, font_size, 0);
 	tex = nk_font_atlas_bake(&context->atlas, &texw, &texh, NK_FONT_ATLAS_RGBA32);
 
@@ -946,7 +949,9 @@ rex_nuklear_context *Rex_Nuklear_Init(br_pixelmap *pm, rex_float font_size)
 
 	nk_font_atlas_end(&context->atlas, nk_handle_ptr(NULL), NULL);
 
-	if (context->atlas.default_font)
+	if (font)
+		nk_style_set_font(&context->ctx, &font->handle);
+	else if (context->atlas.default_font)
 		nk_style_set_font(&context->ctx, &context->atlas.default_font->handle);
 
 	//nk_style_load_all_cursors(&context->ctx, context->atlas.cursors);

@@ -109,4 +109,4 @@ rex_int Rex_Window_Update(rex_window *window);
 void Rex_Window_DoubleBuffer(rex_window *window);
 
 // Render a frame from the specified scene to the specified window's screen buffer (Using the Z-buffer).
-void Rex_Window_RenderZb(rex_window *window, br_actor *world, br_actor *camera, rex_rgba color, rex_uint depth);
+void Rex_Window_RenderZb(rex_window *window, br_actor *world, br_actor *camera, rex_rgb color, rex_uint depth);

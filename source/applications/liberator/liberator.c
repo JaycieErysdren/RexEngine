@@ -143,7 +143,7 @@ void main(int argc, char *argv[])
 	model->material = BrMaterialFind("checkerboard.mat");
 
 	// Allocate nuklear stuff
-	nk_context = Rex_Nuklear_Init(window->buffer_color, 13.0f);
+	nk_context = Rex_Nuklear_Init(window->buffer_color, 16.0f);
 
 	//
 	// Main loop
@@ -267,7 +267,7 @@ void main(int argc, char *argv[])
 		//
 
 		// Render a frame
-		Rex_Window_RenderZb(window, world, camera, REX_RGBA_GRY, REX_DEPTH_BUFFER_CLEAR);
+		Rex_Window_RenderZb(window, world, camera, REX_RGB_GRY, REX_DEPTH_BUFFER_CLEAR);
 
 		// Nuklear
 		Rex_Nuklear_Render(nk_context, clear, 0);
