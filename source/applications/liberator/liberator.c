@@ -58,10 +58,9 @@ void main(int argc, char *argv[])
 	br_actor *world, *camera, *model;
 	br_order_table *order_table;
 
-	struct nk_color clear = {0,0,0,0};
-	struct nk_vec2 vec;
-	struct nk_rect bounds = {40,40,0,0};
-	rex_nuklear_context *context;
+	struct nk_color clear = {0, 0, 0, 0};
+	struct nk_rect bounds = {40, 40, 0, 0};
+	rex_nuklear_context *nk_context;
 
 	//
 	// Arguments
@@ -144,7 +143,7 @@ void main(int argc, char *argv[])
 	model->material = BrMaterialFind("checkerboard.mat");
 
 	// Allocate nuklear stuff
-	context = Rex_Nuklear_Init(rex_window->buffer_color, 13.0f);
+	nk_context = Rex_Nuklear_Init(rex_window->buffer_color, 13.0f);
 
 	//
 	// Main loop
@@ -212,17 +211,17 @@ void main(int argc, char *argv[])
 		if (KEY_PRESSED(KEY_RIGHT))
 			BrMatrix34PreRotateY(&camera->t.t.mat, BR_ANGLE_DEG(-1));
 
-		// Nuklear
-		nk_input_begin(&(context->ctx));
-		nk_input_motion(&(context->ctx), rex_mouse.x, rex_mouse.y);
+		// Nuklear inputs
+		nk_input_begin(&(nk_context->ctx));
+		nk_input_motion(&(nk_context->ctx), rex_mouse.x, rex_mouse.y);
 
-		if (MOUSE_PRESSED(MOUSE_LEFT)) nk_input_button(&(context->ctx), NK_BUTTON_LEFT, rex_mouse.x, rex_mouse.y, 1);
-		else nk_input_button(&(context->ctx), NK_BUTTON_LEFT, rex_mouse.x, rex_mouse.y, 0);
+		if (MOUSE_PRESSED(MOUSE_LEFT)) nk_input_button(&(nk_context->ctx), NK_BUTTON_LEFT, rex_mouse.x, rex_mouse.y, 1);
+		else nk_input_button(&(nk_context->ctx), NK_BUTTON_LEFT, rex_mouse.x, rex_mouse.y, 0);
 
-		if (MOUSE_PRESSED(MOUSE_RIGHT)) nk_input_button(&(context->ctx), NK_BUTTON_RIGHT, rex_mouse.x, rex_mouse.y, 1);
-		else nk_input_button(&(context->ctx), NK_BUTTON_RIGHT, rex_mouse.x, rex_mouse.y, 0);
+		if (MOUSE_PRESSED(MOUSE_RIGHT)) nk_input_button(&(nk_context->ctx), NK_BUTTON_RIGHT, rex_mouse.x, rex_mouse.y, 1);
+		else nk_input_button(&(nk_context->ctx), NK_BUTTON_RIGHT, rex_mouse.x, rex_mouse.y, 0);
 
-		nk_input_end(&(context->ctx));
+		nk_input_end(&(nk_context->ctx));
 
 		//
 		// Program logic
@@ -238,29 +237,30 @@ void main(int argc, char *argv[])
 		bounds.w = 400;
 		bounds.h = 400;
 
-		if (nk_begin(&(context->ctx), "Test", bounds, NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE | NK_WINDOW_TITLE))
+		if (nk_begin(&(nk_context->ctx), "Test", bounds, NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE | NK_WINDOW_TITLE))
 		{
 			enum {EASY, HARD};
 			static rex_int op = EASY;
 			static rex_int property = 20;
 
-			nk_layout_row_static(&(context->ctx), 30, 80, 1);
+			nk_layout_row_static(&(nk_context->ctx), 30, 80, 1);
 
-			if (nk_button_label(&(context->ctx), "button"))
+			if (nk_button_label(&(nk_context->ctx), "button"))
 				printf("button pressed\n");
 
-			nk_layout_row_dynamic(&(context->ctx), 40, 2);
+			nk_layout_row_dynamic(&(nk_context->ctx), 40, 2);
 
-			if (nk_option_label(&(context->ctx), "easy", op == EASY))
+			if (nk_option_label(&(nk_context->ctx), "easy", op == EASY))
 				op = EASY;
-			if (nk_option_label(&(context->ctx), "hard", op == HARD))
+
+			if (nk_option_label(&(nk_context->ctx), "hard", op == HARD))
 				op = HARD;
 
-			nk_layout_row_dynamic(&(context->ctx), 45, 1);
-			nk_property_int(&(context->ctx), "Compression:", 0, &property, 100, 10, 1);
+			nk_layout_row_dynamic(&(nk_context->ctx), 45, 1);
+			nk_property_int(&(nk_context->ctx), "Compression:", 0, &property, 100, 10, 1);
 		}
 
-		nk_end(&(context->ctx));
+		nk_end(&(nk_context->ctx));
 
 		//
 		// Rendering
@@ -269,8 +269,8 @@ void main(int argc, char *argv[])
 		// Render a frame
 		Rex_ExternalWindow_RenderZb(rex_window, world, camera, REX_RGBA_GRY, REX_DEPTH_BUFFER_CLEAR);
 
-		// FPS counter
-		Rex_Nuklear_Render(context, clear, 1);
+		// Nuklear
+		Rex_Nuklear_Render(nk_context, clear, 1);
 
 		// Flip buffer
 		Rex_ExternalWindow_DoubleBuffer(rex_window);
@@ -291,7 +291,7 @@ void main(int argc, char *argv[])
 	// Shutdown
 	//
 
-	Rex_Nuklear_Shutdown(context);
+	Rex_Nuklear_Shutdown(nk_context);
 
 	// Free the main window
 	Rex_WindowExternal_Remove(rex_window);
