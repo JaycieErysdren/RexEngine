@@ -907,7 +907,8 @@ NK_API void nk_brender_drawimage(const rex_nuklear_context *context, const rex_i
 // Public functions
 //
 
-rex_nuklear_context *Rex_Nuklear_Init(br_pixelmap *pm, rex_float font_size)
+// Initialize Nuklear with source pixelmap, font and font size.
+rex_nuklear_context *Rex_Nuklear_Init(br_pixelmap *pm, const rex_byte *font_filename, rex_float font_size)
 {
 	const void *tex;
 	rex_int texh, texw;
@@ -933,7 +934,7 @@ rex_nuklear_context *Rex_Nuklear_Init(br_pixelmap *pm, rex_float font_size)
 	nk_font_atlas_init_default(&context->atlas);
 	nk_font_atlas_begin(&context->atlas);
 
-	struct nk_font *font = nk_font_atlas_add_from_file(&context->atlas, "ModernDOS9x16.ttf", font_size, 0);
+	struct nk_font *font = nk_font_atlas_add_from_file(&context->atlas, font_filename, font_size, 0);
 	context->atlas.default_font = nk_font_atlas_add_default(&context->atlas, font_size, 0);
 	tex = nk_font_atlas_bake(&context->atlas, &texw, &texh, NK_FONT_ATLAS_RGBA32);
 
@@ -960,6 +961,7 @@ rex_nuklear_context *Rex_Nuklear_Init(br_pixelmap *pm, rex_float font_size)
 	return context;
 }
 
+// Shutdown the given Nuklear context.
 NK_API void Rex_Nuklear_Shutdown(rex_nuklear_context *context)
 {
 	if (context)
@@ -971,6 +973,7 @@ NK_API void Rex_Nuklear_Shutdown(rex_nuklear_context *context)
 	}
 }
 
+// Render the given Nuklear context to the defined pixelmap.
 NK_API void Rex_Nuklear_Render(const rex_nuklear_context *context, const struct nk_color clear, const rex_ubyte enable_clear)
 {
 	const struct nk_command *cmd;

@@ -143,7 +143,7 @@ void main(int argc, char *argv[])
 	model->material = BrMaterialFind("checkerboard.mat");
 
 	// Allocate nuklear stuff
-	nk_context = Rex_Nuklear_Init(window->buffer_color, 16.0f);
+	nk_context = Rex_Nuklear_Init(window->buffer_color, "ModernDOS9x16.ttf", 16.0f);
 
 	//
 	// Main loop

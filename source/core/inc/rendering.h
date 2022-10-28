@@ -59,8 +59,13 @@ typedef struct
 	struct nk_font_atlas atlas;
 } rex_nuklear_context;
 
-rex_nuklear_context *Rex_Nuklear_Init(br_pixelmap *pm, rex_float font_size);
+// Initialize Nuklear with source pixelmap, font and font size.
+rex_nuklear_context *Rex_Nuklear_Init(br_pixelmap *pm, const rex_byte *font_filename, rex_float font_size);
+
+// Render the given Nuklear context to the defined pixelmap.
 void Rex_Nuklear_Render(const rex_nuklear_context *context, const struct nk_color clear, const rex_ubyte enable_clear);
+
+// Shutdown the given Nuklear context.
 void Rex_Nuklear_Shutdown(rex_nuklear_context *context);
 
 //
@@ -108,5 +113,5 @@ rex_int Rex_Window_Update(rex_window *window);
 // Flip the buffers for a Rex BRender-enabled window.
 void Rex_Window_DoubleBuffer(rex_window *window);
 
-// Render a frame from the specified scene to the specified window's screen buffer (Using the Z-buffer).
+// Render a frame from the specified scene to the specified window's color pixelmap (Using the Z-buffer).
 void Rex_Window_RenderZb(rex_window *window, br_actor *world, br_actor *camera, rex_rgb color, rex_uint depth);

@@ -159,7 +159,7 @@ void Rex_Window_DoubleBuffer(rex_window *window)
 	BrPixelmapDoubleBuffer(window->buffer_screen, window->buffer_color);
 }
 
-// Render a frame from the specified scene to the specified window's screen buffer (Using the Z-buffer).
+// Render a frame from the specified scene to the specified window's color pixelmap (Using the Z-buffer).
 void Rex_Window_RenderZb(rex_window *window, br_actor *world, br_actor *camera, rex_rgb color, rex_uint depth)
 {
 	BrRendererFrameBegin();
