@@ -35,19 +35,19 @@
 // Set pixel on the rendering pixelmap
 static void nk_brender_setpixel(const rex_nuklear_context *context, const rex_short x, const rex_short y, const struct nk_color col)
 {
-	BrPixelmapPixelSet(context->pm, x, y, BR_COLOUR_RGB(col.r, col.g, col.b));
+	BrPixelmapRectangleFill(context->pm, x - (context->pm->width / 2), y - (context->pm->height / 2), 1, 1, BR_COLOUR_RGBA(col.r, col.g, col.b, col.a));
 }
 
 // Draw a horizontal line on a BRender pixelmap
 static void nk_brender_line_horizontal(const rex_nuklear_context *context, const rex_short x0, const rex_short y0, const rex_short x1, const struct nk_color col)
 {
-	BrPixelmapLine(context->pm, x0, y0, x1, y0, BR_COLOUR_RGB(col.r, col.g, col.b));
+	BrPixelmapRectangleFill(context->pm, x0 - (context->pm->width / 2), y0 - (context->pm->height / 2), x1 - x0, 1, BR_COLOUR_RGBA(col.r, col.g, col.b, col.a));
 }
 
 // Set pixel on an arbitrary pixelmap
 static void nk_pixelmap_setpixel(br_pixelmap *pm, const rex_int x, const rex_int y, const struct nk_color col)
 {
-	BrPixelmapPixelSet(pm, x, y, BR_COLOUR_RGB(col.r, col.g, col.b));
+	BrPixelmapRectangleFill(pm, x - (pm->width / 2), y - (pm->height / 2), 1, 1, BR_COLOUR_RGBA(col.r, col.g, col.b, col.a));
 }
 
 // Set pixel from an arbitrary pixelmap
@@ -761,7 +761,7 @@ static void nk_brender_stroke_curve(const rex_nuklear_context *context, const st
 
 static void nk_brender_clear(const rex_nuklear_context *context, const struct nk_color col)
 {
-	nk_brender_fill_rect(context, 0, 0, context->pm->width, context->pm->height, 0, col);
+	//nk_brender_fill_rect(context, 0, 0, context->pm->width, context->pm->height, 0, col);
 }
 
 static void nk_brender_stretch_image(struct br_pixelmap *dst, struct br_pixelmap *src, const struct nk_rect *dst_rect, const struct nk_rect *src_rect, const struct nk_rect *dst_scissors, const struct nk_color *fg)
@@ -913,8 +913,6 @@ rex_nuklear_context *Rex_Nuklear_Init(br_pixelmap *pm, rex_float fontSize)
 	rex_int texh, texw;
 	rex_nuklear_context *context;
 
-	//assert((pm->type == BR_PMT_ARGB_8888) || (pm->type == BR_PMT_RGBA_8888));
-
 	context = malloc(sizeof(rex_nuklear_context));
 
 	if (!context)
@@ -951,7 +949,7 @@ rex_nuklear_context *Rex_Nuklear_Init(br_pixelmap *pm, rex_float fontSize)
 	if (context->atlas.default_font)
 		nk_style_set_font(&context->ctx, &context->atlas.default_font->handle);
 
-	nk_style_load_all_cursors(&context->ctx, context->atlas.cursors);
+	//nk_style_load_all_cursors(&context->ctx, context->atlas.cursors);
 	nk_brender_scissor(context, 0, 0, context->pm->width, context->pm->height);
 
 	return context;

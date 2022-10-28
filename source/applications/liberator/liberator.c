@@ -212,6 +212,18 @@ void main(int argc, char *argv[])
 		if (KEY_PRESSED(KEY_RIGHT))
 			BrMatrix34PreRotateY(&camera->t.t.mat, BR_ANGLE_DEG(-1));
 
+		// Nuklear
+		nk_input_begin(&(context->ctx));
+		nk_input_motion(&(context->ctx), rex_mouse.x, rex_mouse.y);
+
+		if (MOUSE_PRESSED(MOUSE_LEFT)) nk_input_button(&(context->ctx), NK_BUTTON_LEFT, rex_mouse.x, rex_mouse.y, 1);
+		else nk_input_button(&(context->ctx), NK_BUTTON_LEFT, rex_mouse.x, rex_mouse.y, 0);
+
+		if (MOUSE_PRESSED(MOUSE_RIGHT)) nk_input_button(&(context->ctx), NK_BUTTON_RIGHT, rex_mouse.x, rex_mouse.y, 1);
+		else nk_input_button(&(context->ctx), NK_BUTTON_RIGHT, rex_mouse.x, rex_mouse.y, 0);
+
+		nk_input_end(&(context->ctx));
+
 		//
 		// Program logic
 		//
