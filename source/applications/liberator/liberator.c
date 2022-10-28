@@ -17,7 +17,7 @@
 // Include liberator header
 #include "liberator.h"
 
-rex_window_external *rex_window;
+rex_window *window;
 
 // Print help text
 void Liberator_PrintHelpText(void)
@@ -102,12 +102,12 @@ void main(int argc, char *argv[])
 	height = rex_desktop_size[1] / 2;
 
 	// Add main window
-	rex_window = Rex_WindowExternal_Add(
+	window = Rex_Window_Add(
 		"Liberator",
-		REX_WINDOW_EXTERNAL_CENTERED,
-		REX_WINDOW_EXTERNAL_CENTERED,
+		REX_WINDOW_CENTERED,
+		REX_WINDOW_CENTERED,
 		width, height,
-		REX_WINDOW_EXTERNAL_DEFAULT_FLAGS
+		REX_WINDOW_DEFAULT_FLAGS
 	);
 
 	// Set BRender file-finding hooks
@@ -130,7 +130,7 @@ void main(int argc, char *argv[])
 	((br_camera *)camera->type_data)->field_of_view = BR_ANGLE_DEG(90);
 	((br_camera *)camera->type_data)->hither_z = BR_SCALAR(0.1);
 	((br_camera *)camera->type_data)->yon_z = BR_SCALAR(4096);
-	((br_camera *)camera->type_data)->aspect = BR_SCALAR(rex_window->buffer_screen->width) / BR_SCALAR(rex_window->buffer_screen->height);
+	((br_camera *)camera->type_data)->aspect = BR_SCALAR(window->buffer_screen->width) / BR_SCALAR(window->buffer_screen->height);
 	BrMatrix34Translate(&camera->t.t.mat, BR_SCALAR(0), BR_SCALAR(0), BR_SCALAR(4));
 
 	// Set order table values
@@ -143,7 +143,7 @@ void main(int argc, char *argv[])
 	model->material = BrMaterialFind("checkerboard.mat");
 
 	// Allocate nuklear stuff
-	nk_context = Rex_Nuklear_Init(rex_window->buffer_color, 13.0f);
+	nk_context = Rex_Nuklear_Init(window->buffer_color, 13.0f);
 
 	//
 	// Main loop
@@ -163,9 +163,9 @@ void main(int argc, char *argv[])
 		//
 
 		// Update window values
-		if (Rex_WindowExternal_Update(rex_window))
+		if (Rex_Window_Update(window))
 		{
-			((br_camera *)camera->type_data)->aspect = BR_SCALAR(rex_window->buffer_screen->width) / BR_SCALAR(rex_window->buffer_screen->height);
+			((br_camera *)camera->type_data)->aspect = BR_SCALAR(window->buffer_screen->width) / BR_SCALAR(window->buffer_screen->height);
 		}
 
 		//
@@ -267,13 +267,13 @@ void main(int argc, char *argv[])
 		//
 
 		// Render a frame
-		Rex_ExternalWindow_RenderZb(rex_window, world, camera, REX_RGBA_GRY, REX_DEPTH_BUFFER_CLEAR);
+		Rex_Window_RenderZb(window, world, camera, REX_RGBA_GRY, REX_DEPTH_BUFFER_CLEAR);
 
 		// Nuklear
-		Rex_Nuklear_Render(nk_context, clear, 1);
+		Rex_Nuklear_Render(nk_context, clear, 0);
 
 		// Flip buffer
-		Rex_ExternalWindow_DoubleBuffer(rex_window);
+		Rex_Window_DoubleBuffer(window);
 
 		//
 		// Time counting
@@ -294,7 +294,7 @@ void main(int argc, char *argv[])
 	Rex_Nuklear_Shutdown(nk_context);
 
 	// Free the main window
-	Rex_WindowExternal_Remove(rex_window);
+	Rex_Window_Remove(window);
 
 	// Shutdown Rex Engine
 	Rex_Shutdown();

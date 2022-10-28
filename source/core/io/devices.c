@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Device I/O functions.
 //
-// LAST EDITED:		October 18th, 2022
+// LAST EDITED:		October 28th, 2022
 //
 // ========================================================
 
@@ -83,7 +83,6 @@ void Rex_IO_ReadDevices(void)
 				switch (event.window.event)
 				{
 					case SDL_WINDOWEVENT_RESIZED:
-						Rex_WindowExternal_CBFN_Resize(event.window.data1, event.window.data2);
 						break;
 
 					default:

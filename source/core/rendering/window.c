@@ -24,17 +24,17 @@
 rex_int rex_videomode;
 
 //
-// External windows
+// Windows
 //
 
-// Number of active external windows
-rex_uint rex_num_external_windows;
+// Number of active windows
+rex_uint rex_num_windows;
 
-// Add an external window
-rex_window_external *Rex_WindowExternal_Add(rex_byte_c *title, rex_int x, rex_int y, rex_int width, rex_int height, rex_uint flags)
+// Add a Rex window
+rex_window *Rex_Window_Add(rex_byte_c *title, rex_int x, rex_int y, rex_int width, rex_int height, rex_uint flags)
 {
-	// Allocate an external window
-	rex_window_external *window = (rex_window_external *)calloc(1, sizeof(rex_window_external));
+	// Allocate a Rex window
+	rex_window *window = (rex_window *)calloc(1, sizeof(rex_window));
 
 	// Buffer for OpenGL driver arguments
 	rex_byte driver_args[512];
@@ -49,7 +49,7 @@ rex_window_external *Rex_WindowExternal_Add(rex_byte_c *title, rex_int x, rex_in
 	if (window == NULL)
 		Rex_Failure("Rex Window failed to initialize!");
 
-	// Setup rex_window_external variables
+	// Setup rex_window variables
 	window->title = title;
 	window->width = width;
 	window->height = height;
@@ -102,14 +102,14 @@ rex_window_external *Rex_WindowExternal_Add(rex_byte_c *title, rex_int x, rex_in
 	// Set global videomode
 	rex_videomode = REX_VIDEOMODE_WINDOWED;
 
-	rex_num_external_windows += 1;
+	rex_num_windows += 1;
 
 	// Return pointer to window
 	return window;
 }
 
-// Remove an external window
-void Rex_WindowExternal_Remove(rex_window_external *window)
+// Remove a R window
+void Rex_Window_Remove(rex_window *window)
 {
 	if (window->buffer_depth) BrPixelmapFree(window->buffer_depth);
 	if (window->buffer_color) BrPixelmapFree(window->buffer_color);
@@ -118,11 +118,11 @@ void Rex_WindowExternal_Remove(rex_window_external *window)
 
 	free(window);
 
-	rex_num_external_windows -= 1;
+	rex_num_windows -= 1;
 }
 
-// Update the various values on an external window. Returns 1 if size changed.
-rex_int Rex_WindowExternal_Update(rex_window_external *window)
+// Update the various values on a Rex window. Returns 1 if size changed.
+rex_int Rex_Window_Update(rex_window *window)
 {
 	rex_int w, h;
 	rex_int dw, dh;
@@ -154,85 +154,17 @@ rex_int Rex_WindowExternal_Update(rex_window_external *window)
 }
 
 // Flip the buffers for a BRender window.
-void Rex_ExternalWindow_DoubleBuffer(rex_window_external *window)
+void Rex_Window_DoubleBuffer(rex_window *window)
 {
 	BrPixelmapDoubleBuffer(window->buffer_screen, window->buffer_color);
 }
 
 // Render a frame from the specified scene to the specified window's screen buffer (Using the Z-buffer).
-void Rex_ExternalWindow_RenderZb(rex_window_external *window, br_actor *world, br_actor *camera, rex_rgba color, rex_uint depth)
+void Rex_Window_RenderZb(rex_window *window, br_actor *world, br_actor *camera, rex_rgba color, rex_uint depth)
 {
 	BrRendererFrameBegin();
 	BrPixelmapFill(window->buffer_color, BR_COLOUR_RGBA(color.r, color.g, color.b, color.a));
 	BrPixelmapFill(window->buffer_depth, depth);
 	BrZbSceneRender(world, camera, window->buffer_color, window->buffer_depth);
 	BrRendererFrameEnd();
-}
-
-// External window resize callback function
-void Rex_WindowExternal_CBFN_Resize(rex_int width, rex_int height)
-{
-	if (height <= 0) height = 1;
-	if (width <= 0) width = 1;
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-
-	glViewport(0, 0, width, height);
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-}
-
-// Clear the screen for an OpenGL window.
-void Rex_ExternalWindow_ClearGL(rex_rgba rgba, rex_ubyte depth)
-{
-	glClearColor((GLclampf)rgba.r / 255, (GLclampf)rgba.g / 255, (GLclampf)rgba.b / 255, (GLclampf)rgba.a / 255);
-	glClearDepth((GLclampf)depth / 255);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
-
-// Render an SDL surface onto an OpenGL external window.
-void Rex_ExternalWindow_RenderSurfaceGL(rex_window_external *window, SDL_Surface *surface, rex_int x, rex_int y)
-{
-	if (surface == NULL) Rex_Failure("Surface is null!");
-	GLuint texture;
-
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
-
-	gluOrtho2D(0, window->width, window->height, 0);
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
-
-	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, surface->w, surface->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, surface->pixels);
-
-	glBegin(GL_QUADS);
-		glTexCoord2i(0, 0); glVertex2i(x, y);
-		glTexCoord2i(1, 0); glVertex2i(x + surface->w, y);
-		glTexCoord2i(1, 1); glVertex2i(x + surface->w, y + surface->h);
-		glTexCoord2i(0, 1); glVertex2i(x, y + surface->h);
-	glEnd();
-
-	glDisable(GL_BLEND);
-	glDisable(GL_TEXTURE_2D);
-	glEnable(GL_DEPTH_TEST);
-
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
 }

@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex Engine types.
 //
-// LAST EDITED:		October 27th, 2022
+// LAST EDITED:		October 28th, 2022
 //
 // ========================================================
 
@@ -175,7 +175,7 @@ typedef rex_rgb rex_palette[256];
 // Windows
 //
 
-// External window
+// Rex window
 typedef struct
 {
 	rex_coord2i pos;
@@ -186,7 +186,7 @@ typedef struct
 	br_pixelmap *buffer_screen;
 	br_pixelmap *buffer_color;
 	br_pixelmap *buffer_depth;
-} rex_window_external;
+} rex_window;
 
 //
 // Resources

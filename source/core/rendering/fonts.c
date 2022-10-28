@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Embeded system fonts.
 //
-// LAST EDITED:		October 18th, 2022
+// LAST EDITED:		October 28th, 2022
 //
 // ========================================================
 
@@ -88,8 +88,8 @@ void Rex_Fonts_GenerateTextSurface(SDL_Surface **surface, TTF_Font *font, rex_rg
 	*surface = TTF_RenderText_Blended_Wrapped(font, text, (SDL_Color){color.r, color.g, color.b, color.a}, rex_desktop_size[0]);
 }
 
-// Render text to the given external window
-void Rex_Fonts_RenderText(rex_window_external *window, rex_int x, rex_int y, rex_rgba color, TTF_Font *font, rex_byte *s, ...)
+// Render text to the given Rex window
+void Rex_Fonts_RenderText(rex_window *window, rex_int x, rex_int y, rex_rgba color, TTF_Font *font, rex_byte *s, ...)
 {
 	SDL_Surface *surface = TTF_RenderText_Blended(font, s, (SDL_Color){color.r, color.g, color.b, color.a});
 

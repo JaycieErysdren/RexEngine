@@ -761,7 +761,7 @@ static void nk_brender_stroke_curve(const rex_nuklear_context *context, const st
 
 static void nk_brender_clear(const rex_nuklear_context *context, const struct nk_color col)
 {
-	//nk_brender_fill_rect(context, 0, 0, context->pm->width, context->pm->height, 0, col);
+	nk_brender_fill_rect(context, 0, 0, context->pm->width, context->pm->height, 0, col);
 }
 
 static void nk_brender_stretch_image(struct br_pixelmap *dst, struct br_pixelmap *src, const struct nk_rect *dst_rect, const struct nk_rect *src_rect, const struct nk_rect *dst_scissors, const struct nk_color *fg)
@@ -907,7 +907,7 @@ NK_API void nk_brender_drawimage(const rex_nuklear_context *context, const rex_i
 // Public functions
 //
 
-rex_nuklear_context *Rex_Nuklear_Init(br_pixelmap *pm, rex_float fontSize)
+rex_nuklear_context *Rex_Nuklear_Init(br_pixelmap *pm, rex_float font_size)
 {
 	const void *tex;
 	rex_int texh, texw;
@@ -931,7 +931,7 @@ rex_nuklear_context *Rex_Nuklear_Init(br_pixelmap *pm, rex_float fontSize)
 	nk_font_atlas_init_default(&context->atlas);
 	nk_font_atlas_begin(&context->atlas);
 
-	context->atlas.default_font = nk_font_atlas_add_default(&context->atlas, fontSize, 0);
+	context->atlas.default_font = nk_font_atlas_add_default(&context->atlas, font_size, 0);
 	tex = nk_font_atlas_bake(&context->atlas, &texw, &texh, NK_FONT_ATLAS_RGBA32);
 
 	if (!tex)

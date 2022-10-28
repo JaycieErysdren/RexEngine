@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		BRenderTest program entry point.
 //
-// LAST EDITED:		October 23rd, 2022
+// LAST EDITED:		October 28th, 2022
 //
 // ========================================================
 
@@ -18,7 +18,7 @@
 #include "brendertest.h"
 
 // Main window
-rex_window_external *rex_window;
+rex_window *window;
 
 // Create basic BRender scene
 void BrenderTest_CreateScene(br_actor **_world, br_actor **_camera, br_actor **_cube)
@@ -40,7 +40,7 @@ void BrenderTest_CreateScene(br_actor **_world, br_actor **_camera, br_actor **_
 	((br_camera *)camera->type_data)->field_of_view = BR_ANGLE_DEG(90);
 	((br_camera *)camera->type_data)->hither_z = BR_SCALAR(0.1);
 	((br_camera *)camera->type_data)->yon_z = BR_SCALAR(4096);
-	((br_camera *)camera->type_data)->aspect = BR_SCALAR(rex_window->buffer_screen->width) / BR_SCALAR(rex_window->buffer_screen->height);
+	((br_camera *)camera->type_data)->aspect = BR_SCALAR(window->buffer_screen->width) / BR_SCALAR(window->buffer_screen->height);
 
 	order_table->min_z = ((br_camera *)camera->type_data)->hither_z;
 	order_table->max_z = ((br_camera *)camera->type_data)->yon_z;
@@ -77,12 +77,12 @@ void main(int argc, char *argv[])
 	Rex_Startup();
 
 	// Add main window
-	rex_window = Rex_WindowExternal_Add(
+	window = Rex_Window_Add(
 		"BRenderTest",
-		REX_WINDOW_EXTERNAL_CENTERED,
-		REX_WINDOW_EXTERNAL_CENTERED,
+		REX_WINDOW_CENTERED,
+		REX_WINDOW_CENTERED,
 		rex_desktop_size[0] / 2, rex_desktop_size[1] / 2,
-		REX_WINDOW_EXTERNAL_DEFAULT_FLAGS
+		REX_WINDOW_DEFAULT_FLAGS
 	);
 
 	// WALL
@@ -110,9 +110,9 @@ void main(int argc, char *argv[])
 		//
 
 		// Update window values
-		if (Rex_WindowExternal_Update(rex_window))
+		if (Rex_Window_Update(window))
 		{
-			((br_camera *)camera->type_data)->aspect = BR_SCALAR(rex_window->buffer_screen->width) / BR_SCALAR(rex_window->buffer_screen->height);
+			((br_camera *)camera->type_data)->aspect = BR_SCALAR(window->buffer_screen->width) / BR_SCALAR(window->buffer_screen->height);
 		}
 
 		//
@@ -170,13 +170,13 @@ void main(int argc, char *argv[])
 		//
 
 		// Render a frame
-		Rex_ExternalWindow_RenderZb(rex_window, world, camera, REX_RGB_GRY, REX_DEPTH_BUFFER_CLEAR);
+		Rex_Window_RenderZb(window, world, camera, REX_RGBA_GRY, REX_DEPTH_BUFFER_CLEAR);
 
 		// FPS counter
-		BrPixelmapTextF(rex_window->buffer_color, -(rex_window->buffer_color->width / 2) + 16, -(rex_window->buffer_color->height / 2) + 16, BR_COLOUR_RGB(255, 0, 0), BrFontFixed3x5, "FPS: %.2f", frame_elapsed_seconds);
+		BrPixelmapTextF(window->buffer_color, -(window->buffer_color->width / 2) + 16, -(window->buffer_color->height / 2) + 16, BR_COLOUR_RGB(255, 0, 0), BrFontFixed3x5, "FPS: %.2f", frame_elapsed_seconds);
 
 		// Flip buffer
-		Rex_ExternalWindow_DoubleBuffer(rex_window);
+		Rex_Window_DoubleBuffer(window);
 
 		//
 		// Time counting
@@ -191,7 +191,7 @@ void main(int argc, char *argv[])
 	}
 
 	// Free the main window
-	Rex_WindowExternal_Remove(rex_window);
+	Rex_Window_Remove(window);
 
 	// Shutdown Rex Engine
 	Rex_Shutdown();
