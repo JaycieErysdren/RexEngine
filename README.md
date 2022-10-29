@@ -2,6 +2,19 @@
 
 Multi-purpose multi-target multi-use game engine, written in C.
 
+## Building
+
+Can be easily built with CMake and GCC, though it currently only supports Linux. Windows support is pending.
+
+`build-amd64.sh` is a good starting point for building on Linux, but to summarize:
+
+```
+mkdir cmake-build-amd64
+cd cmake-build-amd64
+cmake ../source
+make
+```
+
 ## External Dependencies
 
 [SDL2](https://www.libsdl.org/)
