@@ -52,4 +52,16 @@ set(REX_UTILITIES_SRC
 	utilities/failure.c
 )
 
-add_library(RexEngine ${REX_FORMATS_SRC} ${REX_IO_SRC} ${REX_LOGIC_SRC} ${REX_PHYSICS_SRC} ${REX_RENDERING_SRC} ${REX_UTILITIES_SRC})
+set(REX_WORLD_SRC
+	world/create.c
+)
+
+add_library(RexEngine
+	${REX_FORMATS_SRC}
+	${REX_IO_SRC}
+	${REX_LOGIC_SRC}
+	${REX_PHYSICS_SRC}
+	${REX_RENDERING_SRC}
+	${REX_UTILITIES_SRC}
+	${REX_WORLD_SRC}
+)

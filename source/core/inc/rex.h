@@ -95,3 +95,8 @@
 #define __REX_RENDERING_H__
 #include "rex_rendering.h"
 #endif
+
+#ifndef __REX_WORLD_H__
+#define __REX_WORLD_H__
+#include "rex_world.h"
+#endif
