@@ -153,4 +153,4 @@ void Rex_IO_WriteResourceContainer(rex_byte *filename, rex_resource_container *r
 // tinyfiledialogs helpers (tinyfd.c)
 //
 
-rex_byte *Rex_IO_OpenFileDialog(rex_byte *title, rex_byte *default_path, rex_int num_filter_patterns, rex_byte *filter_patterns, rex_byte *filter_descriptions, rex_int allow_multiple_selects);
+rex_byte *Rex_IO_OpenFileDialog(rex_byte *title, rex_byte *default_path, rex_int num_filter_patterns, rex_byte **filter_patterns, rex_byte *filter_descriptions, rex_int allow_multiple_selects);

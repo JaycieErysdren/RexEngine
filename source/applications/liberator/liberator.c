@@ -58,6 +58,9 @@ void main(int argc, char *argv[])
 	br_actor *world, *camera, *model;
 	br_order_table *order_table;
 
+	rex_byte *filter_patterns[2] = { "*.txt", "*.text" };
+	rex_byte *openfile;
+
 	struct nk_color clear = {0, 0, 0, 0};
 	struct nk_rect bounds = {40, 40, 0, 0};
 	rex_nuklear_context *nk_context;
@@ -65,9 +68,6 @@ void main(int argc, char *argv[])
 	//
 	// Arguments
 	//
-
-	//rex_byte *filter_patterns[2] = { "*.txt", "*.text" };
-	//rex_byte *openfile = Rex_IO_OpenFileDialog("Choose file", "", 2, filter_patterns, "text files", 0);
 
 	// If no arguments, print help text
 	//if (argc == 1) Liberator_PrintHelpText();
@@ -146,7 +146,7 @@ void main(int argc, char *argv[])
 	model->material = BrMaterialFind("checkerboard.mat");
 
 	// Allocate nuklear stuff
-	nk_context = Rex_Nuklear_Init(window->buffer_color, "ModernDOS9x16.ttf", 16.0f);
+	nk_context = Rex_Nuklear_Init(window->buffer_color, "ModernDOS8x16.ttf", 16.0f);
 
 	//
 	// Main loop
@@ -248,8 +248,11 @@ void main(int argc, char *argv[])
 
 			nk_layout_row_static(&(nk_context->ctx), 30, 80, 1);
 
-			if (nk_button_label(&(nk_context->ctx), "button"))
+			if (nk_button_label(&(nk_context->ctx), "open file dialog"))
+			{
+				//openfile = Rex_IO_OpenFileDialog("Choose file", "", 2, filter_patterns, "text files", 0);
 				printf("button pressed\n");
+			}
 
 			nk_layout_row_dynamic(&(nk_context->ctx), 40, 2);
 
