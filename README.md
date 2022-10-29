@@ -9,6 +9,10 @@ Can be easily built with CMake and GCC, though it currently only supports Linux.
 `build-amd64.sh` is a good starting point for building on Linux, but to summarize:
 
 ```
+git clone https://github.com/JaycieErysdren/RexEngine
+cd RexEngine
+git submodule init
+git submodule update
 mkdir cmake-build-amd64
 cd cmake-build-amd64
 cmake ../source
