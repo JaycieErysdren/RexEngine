@@ -38,7 +38,6 @@ set(REX_LOGIC_SRC
 
 set(REX_RENDERING_SRC
 	rendering/brender.c
-	rendering/fonts.c
 	rendering/nuklear.c
 	rendering/palettes.c
 	rendering/window.c

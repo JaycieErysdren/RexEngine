@@ -21,31 +21,6 @@
 extern rex_ubyte brender_primitive_heap[1500 * 1024];
 
 //
-// Embedded system fonts (fonts.c)
-//
-
-extern TTF_Font *font_dos_8x8;		// DOS standard font, 8x8
-extern TTF_Font *font_dos_8x14;		// DOS standard font, 8x14
-extern TTF_Font *font_dos_8x16;		// DOS standard font, 8x16
-extern TTF_Font *font_dos_9x14;		// DOS standard font, 9x14
-extern TTF_Font *font_dos_9x16;		// DOS standard font, 9x16
-
-// Start up system fonts.
-void Rex_Fonts_Startup(void);
-
-// Shut down system fonts.
-void Rex_Fonts_Shutdown(void);
-
-// Generate an SDL Surface which contains a message's pixel data.
-void Rex_Fonts_GenerateTextSurface(SDL_Surface **surface, TTF_Font *font, rex_rgba color, rex_byte *s, ...);
-
-// Render text to the given external window.
-void Rex_Fonts_RenderText(rex_window *window, rex_int x, rex_int y, rex_rgba color, TTF_Font *font, rex_byte *s, ...);
-
-// Generate a BRender Pixelmap which contains a formatted message's pixel data.
-br_pixelmap *Rex_Fonts_GenerateTextPixelmap(TTF_Font *font, rex_rgba color, rex_byte *s, ...);
-
-//
 // Nuklear helpers (nuklear.c)
 //
 

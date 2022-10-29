@@ -42,7 +42,7 @@ void Liberator_PrintHelpText(void)
 }
 
 // Main function
-void main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 	//
 	// Variables
@@ -304,4 +304,6 @@ void main(int argc, char *argv[])
 
 	// Shutdown Rex Engine
 	Rex_Shutdown();
+
+	return EXIT_SUCCESS;
 }

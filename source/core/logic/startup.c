@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex Engine startup functions.
 //
-// LAST EDITED:		October 21st, 2022
+// LAST EDITED:		October 28th, 2022
 //
 // ========================================================
 
@@ -33,9 +33,6 @@ void Rex_Startup(void)
 
 	// Initialize BRender
 	BrBegin();
-
-	// Initialize Rex Engine fonts module
-	Rex_Fonts_Startup();
 
 	// Update global desktop size with displaymode size
 	rex_desktop_size[0] = dm.w;

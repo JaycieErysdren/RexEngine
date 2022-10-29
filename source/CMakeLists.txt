@@ -44,24 +44,16 @@ link_libraries(tinyfd)
 ## Define project
 project(RexEngine)
 
-## Add custom CMake modules
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
-
 ## Build type
 set(CMAKE_BUILD_TYPE Debug)
 
-## Find SDL2, SDL2TTF, and OpenGL packages
+## Find SDL2, and OpenGL packages
 find_package(SDL2 REQUIRED)
-find_package(SDL2TTF REQUIRED)
 find_package(OpenGL REQUIRED)
 
 ## Link SDL2
 link_libraries(${SDL2_LIBRARIES})
 include_directories(${SDL2_INCLUDE_DIRS})
-
-## Link SDL2TTF
-link_libraries(${SDL2TTF_LIBRARY})
-include_directories(${SDL2TTF_INCLUDE_DIR})
 
 ## Link OpenGL
 link_libraries(${OPENGL_LIBRARIES})
@@ -85,21 +77,6 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/core)
 ## Link Rex Engine
 link_libraries(RexEngine)
 
-## BRenderTest
-## BRender integration test
-add_subdirectory(${CMAKE_SOURCE_DIR}/applications/brendertest)
-
 ## Liberator
 ## Format manager
 add_subdirectory(${CMAKE_SOURCE_DIR}/applications/liberator)
-
-## TestGame
-## Raycasting test
-## add_subdirectory(${CMAKE_SOURCE_DIR}/applications/testgame)
-
-##
-## Testing Nuklear demos
-##
-
-add_executable(nuklear_sdl_surface ${CMAKE_SOURCE_DIR}/external/Nuklear/demo/sdl2surface_rawfb/main.c)
-add_executable(nuklear_sdl_renderer ${CMAKE_SOURCE_DIR}/external/Nuklear/demo/sdl_renderer/main.c)

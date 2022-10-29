@@ -21,20 +21,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <inttypes.h>
+#include <string.h>
 
 //
 // SDL2 module headers
 //
 
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
 
 //
 // OpenGL module headers
 //
 
 #include <GL/gl.h>
-#include <GL/glut.h>
 
 //
 // BRender module headers
@@ -66,32 +66,32 @@
 // Rex Engine headers
 //
 
-#ifndef __TYPES_H__
-#define __TYPES_H__
-#include "types.h"
+#ifndef __REX_TYPES_H__
+#define __REX_TYPES_H__
+#include "rex_types.h"
 #endif
 
-#ifndef __FORMATS_H__
-#define __FORMATS_H__
-#include "formats.h"
+#ifndef __REX_FORMATS_H__
+#define __REX_FORMATS_H__
+#include "rex_formats.h"
 #endif
 
-#ifndef __LOGIC_H__
-#define __LOGIC_H__
-#include "logic.h"
+#ifndef __REX_LOGIC_H__
+#define __REX_LOGIC_H__
+#include "rex_logic.h"
 #endif
 
-#ifndef __IO_H__
-#define __IO_H__
-#include "io.h"
+#ifndef __REX_IO_H__
+#define __REX_IO_H__
+#include "rex_io.h"
 #endif
 
-#ifndef __UTILITIES_H__
-#define __UTILITIES_H__
-#include "utilities.h"
+#ifndef __REX_UTILITIES_H__
+#define __REX_UTILITIES_H__
+#include "rex_utilities.h"
 #endif
 
-#ifndef __RENDERING_H__
-#define __RENDERING_H__
-#include "rendering.h"
+#ifndef __REX_RENDERING_H__
+#define __REX_RENDERING_H__
+#include "rex_rendering.h"
 #endif

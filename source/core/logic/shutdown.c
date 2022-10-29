@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Shutdown functions.
 //
-// LAST EDITED:		October 21st, 2022
+// LAST EDITED:		October 28th, 2022
 //
 // ========================================================
 
@@ -25,9 +25,6 @@ void Rex_Shutdown(void)
 
 	// Shutdown BRender
 	BrEnd();
-
-	// Shutdown fonts module
-	Rex_Fonts_Shutdown();
 
 	// Shutdown SDL
 	SDL_Quit();
