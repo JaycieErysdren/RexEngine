@@ -101,8 +101,8 @@ int main(int argc, char *argv[])
 	// Startup Rex Engine
 	Rex_Startup();
 
-	width = rex_desktop_size[0] / 2;
-	height = rex_desktop_size[1] / 2;
+	width = rex_desktop_size[0] / 1.25;
+	height = rex_desktop_size[1] / 1.25;
 
 	// Add main window
 	window = Rex_Window_Add(
@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
 	((br_camera *)camera->type_data)->field_of_view = BR_ANGLE_DEG(90);
 	((br_camera *)camera->type_data)->hither_z = BR_SCALAR(0.1);
 	((br_camera *)camera->type_data)->yon_z = BR_SCALAR(4096);
-	((br_camera *)camera->type_data)->aspect = BR_SCALAR(window->buffer_screen->width) / BR_SCALAR(window->buffer_screen->height);
+	((br_camera *)camera->type_data)->aspect = BR_SCALAR(window->buffer_screen->width / 2) / BR_SCALAR(window->buffer_screen->height / 2);
 	BrMatrix34Translate(&camera->t.t.mat, BR_SCALAR(0), BR_SCALAR(0), BR_SCALAR(4));
 
 	// Set order table values
@@ -145,13 +145,14 @@ int main(int argc, char *argv[])
 	model->model = BrModelFind("cube.dat");
 	model->material = BrMaterialFind("checkerboard.mat");
 
+	// Allocate model view pixelmap
 	br_pixelmap *model_view_color = BrPixelmapMatchTypedSized(window->buffer_color, BR_PMMATCH_OFFSCREEN, BR_PMT_RGB_888, window->buffer_color->width, window->buffer_color->height);
 	br_pixelmap *model_view_depth = BrPixelmapMatch(model_view_color, BR_PMMATCH_DEPTH_16);
 	model_view_color->origin_x = model_view_depth->origin_x = (br_int_16)(model_view_color->width / 2);
 	model_view_color->origin_y = model_view_depth->origin_y = (br_int_16)(model_view_color->height / 2);
 
 	// Allocate nuklear stuff
-	nk_context = Rex_Nuklear_Init(window->buffer_color, "ModernDOS8x16.ttf", 16.0f);
+	nk_context = Rex_Nuklear_Init(window->buffer_color, "ModernDOS8x16.ttf", (rex_float)(window->buffer_color->height / 48));
 	nk_bounds.w = window->buffer_color->width / 2;
 	nk_bounds.h = window->buffer_color->height;
 
@@ -237,7 +238,7 @@ int main(int argc, char *argv[])
 		// Update window values
 		if (Rex_Window_Update(window))
 		{
-			((br_camera *)camera->type_data)->aspect = BR_SCALAR(window->buffer_screen->width) / BR_SCALAR(window->buffer_screen->height);
+			((br_camera *)camera->type_data)->aspect = BR_SCALAR(model_view_color->width) / BR_SCALAR(model_view_color->height);
 
 			BrPixelmapResize(model_view_color, window->buffer_color->width, window->buffer_color->height);
 			BrPixelmapResize(model_view_depth, window->buffer_color->width, window->buffer_color->height);
@@ -254,10 +255,6 @@ int main(int argc, char *argv[])
 
 		if (nk_begin(&(nk_context->ctx), "Test", nk_bounds, 0))
 		{
-			enum {EASY, HARD};
-			static rex_int op = EASY;
-			static rex_int property = 20;
-
 			nk_layout_row_dynamic(&(nk_context->ctx), 32, 1);
 
 			if (nk_button_label(&(nk_context->ctx), "Open File"))
