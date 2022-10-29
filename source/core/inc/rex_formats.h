@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/core/inc/formats.h
+// FILE:			/source/core/inc/rex_formats.h
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Prototypes for the format systems.
 //
-// LAST EDITED:		October 23rd, 2022
+// LAST EDITED:		October 29th, 2022
 //
 // ========================================================
 

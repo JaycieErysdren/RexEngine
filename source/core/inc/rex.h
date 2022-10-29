@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Main Rex Engine header.
 //
-// LAST EDITED:		October 28th, 2022
+// LAST EDITED:		October 29th, 2022
 //
 // ========================================================
 
@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <math.h>
 #include <inttypes.h>
 #include <string.h>
@@ -83,6 +84,11 @@
 #ifndef __REX_UTILITIES_H__
 #define __REX_UTILITIES_H__
 #include "rex_utilities.h"
+#endif
+
+#ifndef __REX_PHYSICS_H__
+#define __REX_PHYSICS_H__
+#include "rex_physics.h"
 #endif
 
 #ifndef __REX_RENDERING_H__

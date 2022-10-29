@@ -10,7 +10,7 @@
 ##
 ## DESCRIPTION:		Core CMake project definition.
 ##
-## LAST EDITED:		October 28th, 2022
+## LAST EDITED:		October 29th, 2022
 ##
 ## ========================================================
 
@@ -36,6 +36,10 @@ set(REX_LOGIC_SRC
 	logic/shutdown.c
 )
 
+set(REX_PHYSICS_SRC
+	physics/physics.c
+)
+
 set(REX_RENDERING_SRC
 	rendering/brender.c
 	rendering/nuklear.c
@@ -48,4 +52,4 @@ set(REX_UTILITIES_SRC
 	utilities/failure.c
 )
 
-add_library(RexEngine ${REX_FORMATS_SRC} ${REX_IO_SRC} ${REX_LOGIC_SRC} ${REX_RENDERING_SRC} ${REX_UTILITIES_SRC})
+add_library(RexEngine ${REX_FORMATS_SRC} ${REX_IO_SRC} ${REX_LOGIC_SRC} ${REX_PHYSICS_SRC} ${REX_RENDERING_SRC} ${REX_UTILITIES_SRC})

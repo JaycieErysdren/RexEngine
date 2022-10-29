@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/core/inc/types.h
+// FILE:			/source/core/inc/rex_types.h
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex Engine types.
 //
-// LAST EDITED:		October 28th, 2022
+// LAST EDITED:		October 29th, 2022
 //
 // ========================================================
 
@@ -69,6 +69,16 @@ typedef rex_long rex_vector4l[4];					// Simple 4D vector, int64
 typedef rex_float rex_vector2f[2];					// Simple 2D vector, float32
 typedef rex_float rex_vector3f[3];					// Simple 3D vector, float32
 typedef rex_float rex_vector4f[4];					// Simple 4D vector, float32
+
+//
+// Complex vectors
+//
+
+// Complex 3D vector, int32
+typedef struct
+{
+	rex_int x, y, z;
+} rex_vec3i;
 
 //
 // Coordinates

@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/core/inc/rendering.h
+// FILE:			/source/core/inc/rex_rendering.h
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Prototypes for the rendering systems.
 //
-// LAST EDITED:		October 28th, 2022
+// LAST EDITED:		October 29th, 2022
 //
 // ========================================================
 

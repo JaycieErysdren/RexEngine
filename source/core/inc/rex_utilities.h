@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/core/inc/utilities.h
+// FILE:			/source/core/inc/rex_utilities.h
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Prototypes for various utilities.
 //
-// LAST EDITED:		October 18th, 2022
+// LAST EDITED:		October 29th, 2022
 //
 // ========================================================
 
