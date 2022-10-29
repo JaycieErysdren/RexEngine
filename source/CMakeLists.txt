@@ -37,6 +37,16 @@ include_directories(${CMAKE_SOURCE_DIR}/external/tinyfd)
 add_library(tinyfd ${CMAKE_SOURCE_DIR}/external/tinyfd/tinyfiledialogs.c)
 link_libraries(tinyfd)
 
+## SDL2
+find_package(SDL2 REQUIRED)
+link_libraries(${SDL2_LIBRARIES})
+include_directories(${SDL2_INCLUDE_DIRS})
+
+## Math
+if(NOT WIN32)
+	link_libraries(m)
+endif()
+
 ##
 ## Rex Engine
 ##
@@ -46,23 +56,6 @@ project(RexEngine)
 
 ## Build type
 set(CMAKE_BUILD_TYPE Debug)
-
-## Find SDL2, and OpenGL packages
-find_package(SDL2 REQUIRED)
-find_package(OpenGL REQUIRED)
-
-## Link SDL2
-link_libraries(${SDL2_LIBRARIES})
-include_directories(${SDL2_INCLUDE_DIRS})
-
-## Link OpenGL
-link_libraries(${OPENGL_LIBRARIES})
-include_directories(${OPENGL_INCLUDE_DIRS})
-
-## Link math library if not on Windows
-if(NOT WIN32)
-	link_libraries(m)
-endif()
 
 ## Include main Rex Engine header folder
 include_directories(${CMAKE_SOURCE_DIR}/core/inc)

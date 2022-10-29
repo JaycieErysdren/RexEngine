@@ -31,12 +31,6 @@
 #include <SDL2/SDL.h>
 
 //
-// OpenGL module headers
-//
-
-#include <GL/gl.h>
-
-//
 // BRender module headers
 //
 
