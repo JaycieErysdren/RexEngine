@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Prototypes for program I/O functions.
 //
-// LAST EDITED:		October 21st, 2022
+// LAST EDITED:		October 28th, 2022
 //
 // ========================================================
 
@@ -140,7 +140,7 @@ void Rex_IO_FSeek(FILE *file, rex_long to, rex_int from);
 void Rex_IO_FWrite(void *ptr, size_t size, rex_int n, FILE *file);
 
 //
-// Resource file I/O functions.
+// Resource file I/O functions (resources.c)
 //
 
 extern rex_byte_c rex_resource_container_magic[8];
@@ -148,3 +148,9 @@ extern rex_byte_c rex_resource_magic[8];
 
 // Write a resource container and its resources to a file.
 void Rex_IO_WriteResourceContainer(rex_byte *filename, rex_resource_container *res);
+
+//
+// tinyfiledialogs helpers (tinyfd.c)
+//
+
+rex_byte *Rex_IO_OpenFileDialog(rex_byte *title, rex_byte *default_path, rex_int num_filter_patterns, rex_byte *filter_patterns, rex_byte *filter_descriptions, rex_int allow_multiple_selects);

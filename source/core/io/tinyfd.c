@@ -16,3 +16,8 @@
 
 // Include Rex Engine header
 #include "rex.h"
+
+rex_byte *Rex_IO_OpenFileDialog(rex_byte *title, rex_byte *default_path, rex_int num_filter_patterns, rex_byte *filter_patterns, rex_byte *filter_descriptions, rex_int allow_multiple_selects)
+{
+	return (rex_byte *)tinyfd_openFileDialog(title, default_path, num_filter_patterns, (const char *const *)filter_patterns, filter_descriptions, allow_multiple_selects);
+}
