@@ -10,7 +10,7 @@
 ##
 ## DESCRIPTION:		Core CMake project definition.
 ##
-## LAST EDITED:		October 27th, 2022
+## LAST EDITED:		October 28th, 2022
 ##
 ## ========================================================
 
@@ -27,6 +27,7 @@ set(REX_IO_SRC
 	io/devices.c
 	io/files.c
 	io/resources.c
+	io/tinyfd.c
 )
 
 set(REX_LOGIC_SRC

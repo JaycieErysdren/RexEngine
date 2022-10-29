@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Main Rex Engine header.
 //
-// LAST EDITED:		October 27th, 2022
+// LAST EDITED:		October 28th, 2022
 //
 // ========================================================
 
@@ -42,6 +42,12 @@
 
 #include <brender.h>
 #include <brglrend.h>
+
+//
+// tinyfiledialogs module headers
+//
+
+#include <tinyfiledialogs.h>
 
 //
 // Nuklear module headers

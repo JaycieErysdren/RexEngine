@@ -10,7 +10,7 @@
 ##
 ## DESCRIPTION:		Rex Engine CMake project definition.
 ##
-## LAST EDITED:		October 27th, 2022
+## LAST EDITED:		October 28th, 2022
 ##
 ## ========================================================
 
@@ -31,6 +31,11 @@ link_libraries(BRender::Full)
 
 ## Nuklear
 include_directories(${CMAKE_SOURCE_DIR}/external/Nuklear)
+
+## tinyfiledialogs
+include_directories(${CMAKE_SOURCE_DIR}/external/tinyfd)
+add_library(tinyfd ${CMAKE_SOURCE_DIR}/external/tinyfd/tinyfiledialogs.c)
+link_libraries(tinyfd)
 
 ##
 ## Rex Engine

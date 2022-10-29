@@ -66,6 +66,9 @@ void main(int argc, char *argv[])
 	// Arguments
 	//
 
+	const char *filter_patterns[2] = { "*.txt", "*.text" };
+	char *openfile = tinyfd_openFileDialog("Choose file", "", 2, filter_patterns, "text files", 0);
+
 	// If no arguments, print help text
 	//if (argc == 1) Liberator_PrintHelpText();
 

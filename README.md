@@ -6,9 +6,11 @@ Multi-purple multi-target multi-use game engine, written in C.
 
 [SDL2](https://www.libsdl.org/)
 
-[BRender (OpenGL)](https://github.com/crocguy0688/CrocDE-BRender/)
+[BRender](https://github.com/crocguy0688/CrocDE-BRender/)
 
-[Open Watcom v2](https://open-watcom.github.io/)
+[Nuklear](https://github.com/Immediate-Mode-UI/Nuklear/)
+
+[tinyfiledialogs](https://sourceforge.net/projects/tinyfiledialogs/)
 
 [Kaitai Struct](http://kaitai.io/)
 

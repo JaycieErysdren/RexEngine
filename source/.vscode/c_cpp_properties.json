@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		VSCode C / C++ settings.
 //
-// LAST EDITED:		October 27th, 2022
+// LAST EDITED:		October 28th, 2022
 //
 // ========================================================
 
@@ -25,6 +25,7 @@
 				"${workspaceFolder}/external/BRender/brender/inc",				// BRender headers
 				"${workspaceFolder}/external/BRender/brender/glrend/include",	// BRender OpenGL driver headers
 				"${workspaceFolder}/external/Nuklear",							// Nuklear headers
+				"${workspaceFolder}/external/tinyfd",							// tinyfiledialogs headers
 				"${workspaceFolder}/../_local/brender"							// ... hack for pretok.h
 			]
 		}
