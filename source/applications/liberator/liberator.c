@@ -61,8 +61,8 @@ int main(int argc, char *argv[])
 	rex_byte *filter_patterns[2] = { "*.txt", "*.text" };
 	rex_byte *openfile;
 
-	struct nk_color clear = {0, 0, 0, 0};
-	struct nk_rect bounds = {40, 40, 0, 0};
+	struct nk_color nk_clear = {0, 0, 0, 0};
+	struct nk_rect nk_bounds = {0, 0, 0, 0};
 	rex_nuklear_context *nk_context;
 
 	//
@@ -145,8 +145,15 @@ int main(int argc, char *argv[])
 	model->model = BrModelFind("cube.dat");
 	model->material = BrMaterialFind("checkerboard.mat");
 
+	br_pixelmap *model_view_color = BrPixelmapMatchTypedSized(window->buffer_color, BR_PMMATCH_OFFSCREEN, BR_PMT_RGB_888, window->buffer_color->width, window->buffer_color->height);
+	br_pixelmap *model_view_depth = BrPixelmapMatch(model_view_color, BR_PMMATCH_DEPTH_16);
+	model_view_color->origin_x = model_view_depth->origin_x = (br_int_16)(model_view_color->width / 2);
+	model_view_color->origin_y = model_view_depth->origin_y = (br_int_16)(model_view_color->height / 2);
+
 	// Allocate nuklear stuff
 	nk_context = Rex_Nuklear_Init(window->buffer_color, "ModernDOS8x16.ttf", 16.0f);
+	nk_bounds.w = window->buffer_color->width / 2;
+	nk_bounds.h = window->buffer_color->height;
 
 	//
 	// Main loop
@@ -160,16 +167,6 @@ int main(int argc, char *argv[])
 
 		// Get start-of-frame time
 		frame_start_ticks = SDL_GetTicks64();
-
-		//
-		// Updates
-		//
-
-		// Update window values
-		if (Rex_Window_Update(window))
-		{
-			((br_camera *)camera->type_data)->aspect = BR_SCALAR(window->buffer_screen->width) / BR_SCALAR(window->buffer_screen->height);
-		}
 
 		//
 		// Device I/O
@@ -234,36 +231,40 @@ int main(int argc, char *argv[])
 		BrMatrix34PostRotateY(&model->t.t.mat, BR_ANGLE_DEG(BR_SCALAR(50) * BR_SCALAR(frame_elapsed_ticks)));
 
 		//
+		// Updates
+		//
+
+		// Update window values
+		if (Rex_Window_Update(window))
+		{
+			((br_camera *)camera->type_data)->aspect = BR_SCALAR(window->buffer_screen->width) / BR_SCALAR(window->buffer_screen->height);
+
+			BrPixelmapResize(model_view_color, window->buffer_color->width, window->buffer_color->height);
+			BrPixelmapResize(model_view_depth, window->buffer_color->width, window->buffer_color->height);
+			model_view_color->origin_x = model_view_depth->origin_x = (br_int_16)(model_view_color->width / 2);
+			model_view_color->origin_y = model_view_depth->origin_y = (br_int_16)(model_view_color->height / 2);
+
+			nk_bounds.w = window->buffer_color->width / 2;
+			nk_bounds.h = window->buffer_color->height;
+		}
+
+		//
 		// Nuklear
 		//
 
-		bounds.w = 400;
-		bounds.h = 400;
-
-		if (nk_begin(&(nk_context->ctx), "Test", bounds, NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE | NK_WINDOW_TITLE))
+		if (nk_begin(&(nk_context->ctx), "Test", nk_bounds, 0))
 		{
 			enum {EASY, HARD};
 			static rex_int op = EASY;
 			static rex_int property = 20;
 
-			nk_layout_row_static(&(nk_context->ctx), 30, 80, 1);
+			nk_layout_row_dynamic(&(nk_context->ctx), 32, 1);
 
-			if (nk_button_label(&(nk_context->ctx), "open file dialog"))
+			if (nk_button_label(&(nk_context->ctx), "Open File"))
 			{
 				//openfile = Rex_IO_OpenFileDialog("Choose file", "", 2, filter_patterns, "text files", 0);
 				printf("button pressed\n");
 			}
-
-			nk_layout_row_dynamic(&(nk_context->ctx), 40, 2);
-
-			if (nk_option_label(&(nk_context->ctx), "easy", op == EASY))
-				op = EASY;
-
-			if (nk_option_label(&(nk_context->ctx), "hard", op == HARD))
-				op = HARD;
-
-			nk_layout_row_dynamic(&(nk_context->ctx), 45, 1);
-			nk_property_int(&(nk_context->ctx), "Compression:", 0, &property, 100, 10, 1);
 		}
 
 		nk_end(&(nk_context->ctx));
@@ -273,10 +274,16 @@ int main(int argc, char *argv[])
 		//
 
 		// Render a frame
-		Rex_Window_RenderZb(window, world, camera, REX_RGB_GRY, REX_DEPTH_BUFFER_CLEAR);
+		BrRendererFrameBegin();
+		BrPixelmapFill(model_view_color, BR_COLOUR_RGB(64, 64, 64));
+		BrPixelmapFill(model_view_depth, REX_DEPTH_BUFFER_CLEAR);
+		BrZbSceneRender(world, camera, model_view_color, model_view_depth);
+		BrRendererFrameEnd();
 
 		// Nuklear
-		Rex_Nuklear_Render(nk_context, clear, 0);
+		Rex_Nuklear_Render(nk_context, nk_clear, REX_FALSE);
+
+		BrPixelmapRectangleStretchCopy(window->buffer_color, 0, -(window->buffer_color->height / 2), window->buffer_color->width / 2, window->buffer_color->height / 2, model_view_color, -(model_view_color->width / 2), -(model_view_color->height / 2), model_view_color->width, model_view_color->height);
 
 		// Flip buffer
 		Rex_Window_DoubleBuffer(window);
