@@ -21,6 +21,12 @@
 ## CMake version gate
 cmake_minimum_required(VERSION 3.13)
 
+## Build type
+set(CMAKE_BUILD_TYPE Debug)
+
+## Define project
+project(RexEngine)
+
 ##
 ## External dependencies
 ##
@@ -50,12 +56,6 @@ endif()
 ##
 ## Rex Engine
 ##
-
-## Define project
-project(RexEngine)
-
-## Build type
-set(CMAKE_BUILD_TYPE Debug)
 
 ## Include main Rex Engine header folder
 include_directories(${CMAKE_SOURCE_DIR}/core/inc)
