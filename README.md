@@ -33,6 +33,10 @@ make
 
 [Kaitai Struct](http://kaitai.io/)
 
+## Contact
+
+[Discord](https://discord.gg/5MwE3xMcdN)
+
 ## License
 
 ANTI-CAPITALIST SOFTWARE LICENSE (v 1.4)
