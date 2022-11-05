@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		File I/O functions.
 //
-// LAST EDITED:		October 21st, 2022
+// LAST EDITED:		November 5th, 2022
 //
 // ========================================================
 
@@ -34,26 +34,26 @@ FILE *Rex_IO_FOpen(rex_byte *filename, rex_byte *modes)
 void Rex_IO_FRead(void *ptr, size_t size, rex_int n, FILE *file)
 {
 	if (!fread(ptr, size, n, file))
-		Rex_Failure("Rex_IO_FRead() failed.");
+		Rex_Failure("Rex_IO_FRead() failed with error \"%s\".", strerror(errno));
 }
 
 // Wrapper for fclose() that does automatic error checking.
 void Rex_IO_FClose(FILE *file)
 {
 	if (fclose(file))
-		Rex_Failure("Rex_IO_FClose() failed.");
+		Rex_Failure("Rex_IO_FClose() failed with error \"%s\".", strerror(errno));
 }
 
 // Wrapper for fseek() that does automatic error checking.
 void Rex_IO_FSeek(FILE *file, rex_long to, rex_int from)
 {
 	if (fseek(file, to, from))
-		Rex_Failure("Rex_IO_FSeek() failed.");
+		Rex_Failure("Rex_IO_FSeek() failed with error \"%s\".", strerror(errno));
 }
 
 // Wrapper for fwrite() that does automatic error checking.
 void Rex_IO_FWrite(void *ptr, size_t size, rex_int n, FILE *file)
 {
 	if (!fwrite(ptr, size, n, file))
-		Rex_Failure("Rex_IO_FWrite() failed.");
+		Rex_Failure("Rex_IO_FWrite() failed with error \"%s\".", strerror(errno));
 }

@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Prototypes for program I/O functions.
 //
-// LAST EDITED:		October 29th, 2022
+// LAST EDITED:		November 5th, 2022
 //
 // ========================================================
 
@@ -44,6 +44,9 @@ extern rex_vector2i rex_desktop_size;
 
 // Returns true if the specified mouse button is currently pressed.
 #define MOUSE_PRESSED(A) rex_mouse_buttons[A]
+
+// Boolean that is equal to REX_TRUE if the program is supposed to be running.
+extern rex_bool rex_running;
 
 // Mouse button scancodes
 #define MOUSE_LEFT			SDL_BUTTON_LEFT

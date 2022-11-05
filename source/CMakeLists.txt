@@ -73,3 +73,14 @@ link_libraries(RexEngine)
 ## Liberator
 ## Format manager
 add_subdirectory(${CMAKE_SOURCE_DIR}/applications/liberator)
+
+##
+## Nuklear examples
+##
+
+find_package(OpenGL REQUIRED)
+find_package(GLEW REQUIRED)
+
+## Nuklear example applications
+add_executable(nuklear_file_browser ${CMAKE_SOURCE_DIR}/external/Nuklear/example/file_browser.c)
+target_link_libraries(nuklear_file_browser PRIVATE glfw GLEW)

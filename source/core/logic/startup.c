@@ -10,12 +10,15 @@
 //
 // DESCRIPTION:		Rex Engine startup functions.
 //
-// LAST EDITED:		October 28th, 2022
+// LAST EDITED:		November 5th, 2022
 //
 // ========================================================
 
 // Include engine header
 #include "rex.h"
+
+// Boolean that is equal to REX_TRUE if the program is supposed to be running.
+rex_bool rex_running;
 
 // Startup everything
 void Rex_Startup(void)
@@ -33,6 +36,8 @@ void Rex_Startup(void)
 
 	// Initialize BRender
 	BrBegin();
+
+	rex_running = REX_TRUE;
 
 	// Update global desktop size with displaymode size
 	rex_desktop_size[0] = dm.w;

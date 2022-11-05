@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Shutdown functions.
 //
-// LAST EDITED:		October 28th, 2022
+// LAST EDITED:		November 5th, 2022
 //
 // ========================================================
 
@@ -20,6 +20,8 @@
 // Shutdown everything
 void Rex_Shutdown(void)
 {
+	rex_running = REX_FALSE;
+
 	// End BRender Rendering
 	BrRendererEnd();
 

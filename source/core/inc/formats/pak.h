@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		id Software PAK types.
 //
-// LAST EDITED:		October 23rd, 2022
+// LAST EDITED:		November 5th, 2022
 //
 // ========================================================
 
@@ -23,7 +23,7 @@
 //
 
 // PAK magic
-extern rex_byte_c pak_magic[4];
+extern const rex_byte pak_magic[4];
 
 // PAK header
 typedef struct
@@ -49,9 +49,30 @@ typedef struct
 	pak_file_t *files;
 } pak_t;
 
+// New PAK container
+typedef struct
+{
+	rex_byte *filename;
+	FILE *file_pointer;
+	rex_uint num_files;
+	pak_file_t *file_table;
+} pak_new_t;
+
 //
 // PAK functions
 //
+
+// Open an id Software PAK file for reading. Returns a pointer to an open PAK object.
+pak_new_t *PAK_Open(rex_byte *filename);
+
+// Traverse a currently open PAK file and search for a file by its name. Returns a pointer to the file's data.
+rex_int PAK_GetFileByFilename(pak_new_t *pak, rex_byte *filename, void **file_buffer);
+
+// Traverse a currently open PAK file and search for a file by its index. Returns a pointer to the file's data.
+rex_int PAK_GetFileByIndex(pak_new_t *pak, rex_int index, void **file_buffer);
+
+// Close an id Software PAK file and free the associated memory.
+void PAK_Close(pak_new_t *pak);
 
 // Load an id Software PAK file into memory. Returns a pointer to a PAK object.
 pak_t *PAK_Load(rex_byte *filename);
