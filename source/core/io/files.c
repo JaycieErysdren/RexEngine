@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		File I/O functions.
 //
-// LAST EDITED:		November 5th, 2022
+// LAST EDITED:		November 6th, 2022
 //
 // ========================================================
 
@@ -25,7 +25,7 @@ FILE *Rex_IO_FOpen(rex_byte *filename, rex_byte *modes)
 
 	// Check if file exists
 	if (file == NULL)
-		Rex_Failure("Rex_IO_FOpen() failed.");
+		Rex_Failure("Rex_IO_FOpen() failed with error \"%s\".", strerror(errno));
 	else
 		return file;
 }

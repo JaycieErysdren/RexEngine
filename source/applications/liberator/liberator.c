@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Liberator program entry point.
 //
-// LAST EDITED:		November 5th, 2022
+// LAST EDITED:		November 6th, 2022
 //
 // ========================================================
 
@@ -66,11 +66,14 @@ int main(int argc, char *argv[])
 	//=======================================
 	// PAK testing
 
-	pak_new_t *pak = PAK_Open("pak0.pak");
+	pak_t *pak;
+	void *pak_file;
+	rex_int len_pak_file;
+
+	pak = PAK_Open("pak0.pak");
 	Rex_Log("Loaded PAK file %s", pak->filename);
 
-	void *pak_file;
-	rex_int len_pak_file = PAK_GetFileByFilename(pak, "e1m1.bsp", &pak_file);
+	len_pak_file = PAK_GetFileByFilename(pak, "maps/e1m1.bsp", &pak_file);
 
 	if (pak_file == NULL)
 		Rex_Log("Didn't find the file");
