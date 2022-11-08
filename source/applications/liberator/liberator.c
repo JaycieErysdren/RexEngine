@@ -71,7 +71,8 @@ int main(int argc, char *argv[])
 	rex_buffer *pak_file;
 	rex_int len_pak_file;
 
-	pak = PAK_Open("pak0.pak");
+	pak = PAK_Open("asdgsad.pak");
+	Rex_Log(REX_LOG_FILENAME, "Trying to load PAK file...");
 
 	if (pak == NULL)
 		Rex_Message(REX_MESSAGE_FAILURE, "PAK_Open() load failed with error: %s", Rex_GetError());
@@ -85,7 +86,7 @@ int main(int argc, char *argv[])
 	else
 		Rex_Log(REX_LOG_FILENAME, "File found, size is %d bytes", len_pak_file);
 
-	if (pak_file)
+	if (pak_file != NULL)
 		free(pak_file);
 
 	Rex_Log(REX_LOG_FILENAME, "Closing Rex Engine");

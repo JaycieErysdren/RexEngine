@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		id Software PAK files.
 //
-// LAST EDITED:		November 7th, 2022
+// LAST EDITED:		November 8th, 2022
 //
 // ========================================================
 
@@ -28,6 +28,13 @@ pak_t *PAK_Open(rex_byte *filename)
 	pak_t *pak;
 	pak_header_t *pak_header;
 
+	// Sanity check
+	if (strlen(filename) < 1 || filename == NULL)
+	{
+		Rex_MakeError("Provided filename string is 0 characters or NULL");
+		return NULL;
+	}
+
 	// Allocate memory
 	pak = calloc(1, sizeof(pak_t));
 	pak->filename = calloc(strlen(filename + 1), sizeof(rex_byte));
@@ -39,12 +46,20 @@ pak_t *PAK_Open(rex_byte *filename)
 	// Open file pointer
 	pak->file_pointer = Rex_IO_FOpen(filename, "rb");
 
+	// Check if file exists
+	if (pak->file_pointer == NULL)
+	{
+		PAK_Close(pak);
+		return NULL;
+	}
+
 	// Read in header
 	Rex_IO_FRead(pak_header, sizeof(pak_header_t), 1, pak->file_pointer);
 
 	// Compare magic
 	if (memcmp(pak_header->magic, pak_magic, 4))
 	{
+		PAK_Close(pak);
 		Rex_MakeError("Provided file \"%s\" has invalid file signature \"%s\"", filename, pak_header->magic);
 		return NULL;
 	}
@@ -72,9 +87,29 @@ rex_int PAK_GetFileByFilename(pak_t *pak, rex_byte *filename, void **file_buffer
 	rex_int i;
 	rex_int len_filename = (rex_int)strlen(filename);
 
-	// Sanity check
-	if (len_filename > 56)
+	// Sanity check 1
+	if (len_filename < 1 || filename == NULL)
+	{
+		Rex_MakeError("The provided filename is zero characters or NULL");
+		*file_buffer = NULL;
 		return 0;
+	}
+
+	// Sanity check 2
+	if (pak == NULL)
+	{
+		Rex_MakeError("PAK object does not exist");
+		*file_buffer = NULL;
+		return 0;
+	}
+
+	// Sanity check 3
+	if (len_filename > 56)
+	{
+		Rex_MakeError("The provided filename is longer than the allowed filenames in the PAK format");
+		*file_buffer = NULL;
+		return 0;
+	}
 
 	// Loop through the filetable and compare the filenames
 	for (i = 0; i < pak->num_files; i++)
@@ -127,6 +162,10 @@ rex_int PAK_GetFileByIndex(pak_t *pak, rex_int index, void **file_buffer)
 // Close an id Software PAK file and free the associated memory.
 void PAK_Close(pak_t *pak)
 {
+	// Sanity check
+	if (pak == NULL)
+		return;
+
 	// Free filename buffer
 	if (pak->filename)
 		free(pak->filename);

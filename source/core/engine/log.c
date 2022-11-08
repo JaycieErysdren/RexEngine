@@ -43,7 +43,7 @@ void Rex_Message(rex_int message_type, rex_byte *s, ...)
 			break;
 	}
 
-	printf("%s\n", message_buffer);
+	Rex_Log(REX_LOG_FILENAME, message_buffer);
 }
 
 // Log a non-critical message to the console and a log file. Pass NULL as the filename to skip file logging.
@@ -77,7 +77,6 @@ void Rex_Log(rex_byte *filename, rex_byte *s, ...)
 
 	// Add newline
 	strcpy(log_buffer + strlen(log_buffer), "\n");
-	printf("%d", strlen(log_buffer));
 
 	// Log to a file if filename given
 	if (filename != NULL)
@@ -89,9 +88,10 @@ void Rex_Log(rex_byte *filename, rex_byte *s, ...)
 		if (log_file == NULL)
 			Rex_MakeError("Failed to open log file %s for reading or writing", filename);
 		else
+		{
 			Rex_IO_FWrite(log_buffer, sizeof(rex_byte), strlen(log_buffer), log_file);
-		
-		Rex_IO_FClose(log_file);
+			Rex_IO_FClose(log_file);
+		}
 	}
 
 	// Print the message to stdout
