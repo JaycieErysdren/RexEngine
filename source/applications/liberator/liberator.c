@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Liberator program entry point.
 //
-// LAST EDITED:		November 6th, 2022
+// LAST EDITED:		November 7th, 2022
 //
 // ========================================================
 
@@ -38,7 +38,7 @@ void Liberator_PrintHelpText(void)
 	printf("2 - Convert file contents\n");
 	printf("3 - View file contents\n");
 
-	Rex_Shutdown();
+	Rex_Shutdown(EXIT_SUCCESS);
 }
 
 // Main function
@@ -67,22 +67,28 @@ int main(int argc, char *argv[])
 	// PAK testing
 
 	pak_t *pak;
-	void *pak_file;
+	rex_buffer *pak_file;
 	rex_int len_pak_file;
 
 	pak = PAK_Open("pak0.pak");
-	Rex_Log("Loaded PAK file %s", pak->filename);
+
+	if (pak == NULL)
+		Rex_Message(REX_MESSAGE_FAILURE, "PAK_Open() load failed with error: %s", Rex_GetError());
+	else
+		Rex_Log(NULL, "Loaded PAK file %s", pak->filename);
 
 	len_pak_file = PAK_GetFileByFilename(pak, "maps/e1m1.bsp", &pak_file);
 
-	if (pak_file == NULL)
-		Rex_Log("Didn't find the file");
+	if (pak_file == NULL || len_pak_file == 0)
+		Rex_Message(REX_MESSAGE_FAILURE, "PAK_GetFileByFilename() load failed with error: %s", Rex_GetError());
 	else
-		Rex_Log("File found, size is %d bytes", len_pak_file);
+		Rex_Log(NULL, "File found, size is %d bytes", len_pak_file);
 
-	free(pak_file);
+	if (pak_file)
+		free(pak_file);
+
 	PAK_Close(pak);
-	Rex_Shutdown();
+	Rex_Shutdown(EXIT_SUCCESS);
 
 	//
 	//=======================================
@@ -187,7 +193,7 @@ int main(int argc, char *argv[])
 	Rex_Window_Remove(window);
 
 	// Shutdown Rex Engine
-	Rex_Shutdown();
+	Rex_Shutdown(EXIT_SUCCESS);
 
 	// Tell the OS that the program shut down successfully
 	return EXIT_SUCCESS;

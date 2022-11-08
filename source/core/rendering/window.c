@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Windowing systems.
 //
-// LAST EDITED:		October 28th, 2022
+// LAST EDITED:		November 7th, 2022
 //
 // ========================================================
 
@@ -47,7 +47,7 @@ rex_window *Rex_Window_Add(rex_byte_c *title, rex_int x, rex_int y, rex_int widt
 
 	// Check for allocation error
 	if (window == NULL)
-		Rex_Failure("Rex Window failed to initialize!");
+		Rex_MakeError("Failed to allocate memory for rex_window type!");
 
 	// Setup rex_window variables
 	window->title = title;
@@ -67,7 +67,7 @@ rex_window *Rex_Window_Add(rex_byte_c *title, rex_int x, rex_int y, rex_int widt
 
 	// Check for SDL error
 	if (window->sdl_window == NULL)
-		Rex_Failure("SDL Window failed to initialize! (%s)", SDL_GetError());
+		Rex_MakeError("SDL Window failed to initialize! (%s)", SDL_GetError());
 
 	// Print driver arguments into the buffer
 	snprintf(driver_args, BR_ASIZE(driver_args), "WINDOW_HANDLE=0x%" PRIxPTR, (rex_int_ptr)window->sdl_window);
@@ -86,7 +86,8 @@ rex_window *Rex_Window_Add(rex_byte_c *title, rex_int x, rex_int y, rex_int widt
     );
 
 	// Check for BRender error
-    if (brender_error != BRE_OK) Rex_Failure("BrDevBeginVar() failed!");
+    if (brender_error != BRE_OK)
+		Rex_Message(REX_MESSAGE_FAILURE, "BrDevBeginVar() failed!");
 
 	// Allocate color and depth buffers
 	window->buffer_color = BrPixelmapMatchTypedSized(window->buffer_screen, BR_PMMATCH_OFFSCREEN, BR_PMT_RGB_888, drawable_width, drawable_height);

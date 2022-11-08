@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Prototypes for various utilities.
 //
-// LAST EDITED:		October 29th, 2022
+// LAST EDITED:		November 7th, 2022
 //
 // ========================================================
 
@@ -46,33 +46,25 @@ void Rex_EndianSwap_Long(rex_long *val);
 void Rex_EndianSwap_ULong(rex_ulong *val);
 
 //
-// Failure handling (failure.c)
+// Error handling (error.c)
 //
 
-// Error codes
-enum rex_error_codes
+// MessageBox types.
+enum rex_messagebox_types
 {
-	REX_ERROR_NONE,					// No error
-	REX_ERROR_FILE_NONE,			// Couldn't find the file specified
-	REX_ERROR_FILE_READ,			// Couldn't read the file specified
-	REX_ERROR_MEMALLOC,				// Couldn't allocate the specified memory
-	REX_ERROR_FMT_MALFORMED,		// The file specified appears malformed
-	REX_ERROR_FMT_BAD,				// The specified format was incorrect
-	REX_ERROR_FMT_DETERMINE,		// Couldn't determine the format of the specified file
-	REX_ERROR_FMT_UNSUPPORTED,		// This format is currently unsupported
+	REX_MESSAGE_NONCRITICAL,
+	REX_MESSAGE_WARNING,
+	REX_MESSAGE_FAILURE
 };
 
-// Trigger a failure and hard exit the engine.
-void Rex_Failure(char *s, ...);
+// Display a non-critical message box.
+void Rex_Message(rex_int message_type, rex_byte *s, ...);
 
-// Display a warning message.
-void Rex_Warning(char *s, ...);
+// Log a non-critical message to the console and a log file.
+void Rex_Log(rex_byte *filename, rex_byte *s, ...);
 
-// Display a non-critical message.
-void Rex_Message(char *s, ...);
+// Generate an error message that can be caught with Rex_GetError().
+void Rex_MakeError(rex_byte *s, ...);
 
-// Display a non-critical log message.
-void Rex_Log(char *s, ...);
-
-// Return a helper string for a given error code.
-rex_byte *Rex_GetError(rex_int errorcode);
+// Catches and returns an error generated with Rex_MakeError().
+rex_byte *Rex_GetError(void);

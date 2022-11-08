@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex Engine startup functions.
 //
-// LAST EDITED:		November 5th, 2022
+// LAST EDITED:		November 7th, 2022
 //
 // ========================================================
 
@@ -28,11 +28,11 @@ void Rex_Startup(void)
 
 	// Initialize SDL
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
-		Rex_Failure("SDL failed to initialize: %s", SDL_GetError());
+		Rex_Message(REX_MESSAGE_FAILURE, "SDL failed to initialize: %s", SDL_GetError());
 
 	// Initialize desktop display mode
 	if (SDL_GetDesktopDisplayMode(0, &dm) != 0)
-		Rex_Failure("SDL_GetDesktopDisplayMode failed: %s", SDL_GetError());
+		Rex_Message(REX_MESSAGE_FAILURE, "SDL_GetDesktopDisplayMode failed: %s", SDL_GetError());
 
 	// Initialize BRender
 	BrBegin();

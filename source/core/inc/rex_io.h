@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Prototypes for program I/O functions.
 //
-// LAST EDITED:		November 5th, 2022
+// LAST EDITED:		November 7th, 2022
 //
 // ========================================================
 
@@ -127,19 +127,19 @@ void Rex_IO_ReadDevices(void);
 // File handling (files.c)
 //
 
-// Wrapper for fopen() that does automatic error checking.
+// Wrapper for fopen() that does automatic error reporting.
 FILE *Rex_IO_FOpen(rex_byte *filename, rex_byte *modes);
 
-// Wrapper for fread() that does automatic error checking.
+// Wrapper for fread() that does automatic error reporting.
 void Rex_IO_FRead(void *ptr, size_t size, rex_int n, FILE *file);
 
-// Wrapper for fclose() that does automatic error checking.
+// Wrapper for fclose() that does automatic error reporting.
 void Rex_IO_FClose(FILE *file);
 
-// Wrapper for fseek() that does automatic error checking.
+// Wrapper for fseek() that does automatic error reporting.
 void Rex_IO_FSeek(FILE *file, rex_long to, rex_int from);
 
-// Wrapper for fwrite() that does automatic error checking.
+// Wrapper for fwrite() that does automatic error reporting.
 void Rex_IO_FWrite(void *ptr, size_t size, rex_int n, FILE *file);
 
 //

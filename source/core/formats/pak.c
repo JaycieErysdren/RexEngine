@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		id Software PAK files.
 //
-// LAST EDITED:		November 6th, 2022
+// LAST EDITED:		November 7th, 2022
 //
 // ========================================================
 
@@ -44,7 +44,10 @@ pak_t *PAK_Open(rex_byte *filename)
 
 	// Compare magic
 	if (memcmp(pak_header->magic, pak_magic, 4))
-		Rex_Failure("%s has invalid file signature %s", filename, pak_header->magic);
+	{
+		Rex_MakeError("Provided file \"%s\" has invalid file signature \"%s\"", filename, pak_header->magic);
+		return NULL;
+	}
 
 	// Calculate number of files
 	pak->num_files = pak_header->len_filetable / sizeof(pak_file_t);
@@ -93,6 +96,9 @@ rex_int PAK_GetFileByFilename(pak_t *pak, rex_byte *filename, void **file_buffer
 		}
 	}
 
+	// Couldn't find the file
+	Rex_MakeError("PAK file '%s' does not appear to contain '%s'", pak->filename, filename);
+	*file_buffer = NULL;
 	return 0;
 }
 
@@ -104,7 +110,7 @@ rex_int PAK_GetFileByIndex(pak_t *pak, rex_int index, void **file_buffer)
 
 	// Sanity check
 	if (index >= pak->num_files)
-		Rex_Failure("Index into PAK file table out of range!");
+		Rex_MakeError("Index into %s file table out of range!", pak->filename);
 
 	// Allocate memory
 	*file_buffer = calloc(1, pak->file_table[index].len_file);
@@ -122,15 +128,18 @@ rex_int PAK_GetFileByIndex(pak_t *pak, rex_int index, void **file_buffer)
 void PAK_Close(pak_t *pak)
 {
 	// Free filename buffer
-	free(pak->filename);
+	if (pak->filename)
+		free(pak->filename);
 
 	// Close file pointer
-	Rex_IO_FClose(pak->file_pointer);
+	if (pak->file_pointer)
+		Rex_IO_FClose(pak->file_pointer);
 
 	// Free file table
 	if (pak->file_table)
 		free(pak->file_table);
 
 	// Free container
-	free(pak);
+	if (pak)
+		free(pak);
 }

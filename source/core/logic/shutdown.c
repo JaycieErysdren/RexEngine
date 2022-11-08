@@ -10,15 +10,15 @@
 //
 // DESCRIPTION:		Shutdown functions.
 //
-// LAST EDITED:		November 5th, 2022
+// LAST EDITED:		November 7th, 2022
 //
 // ========================================================
 
 // Include engine header
 #include "rex.h"
 
-// Shutdown everything
-void Rex_Shutdown(void)
+// Shutdown everything and return exit code
+void Rex_Shutdown(rex_int exit_code)
 {
 	rex_running = REX_FALSE;
 
@@ -32,5 +32,5 @@ void Rex_Shutdown(void)
 	SDL_Quit();
 
 	// Exit program
-	exit(EXIT_SUCCESS);
+	exit(exit_code);
 }

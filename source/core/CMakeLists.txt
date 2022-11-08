@@ -10,7 +10,7 @@
 ##
 ## DESCRIPTION:		Core CMake project definition.
 ##
-## LAST EDITED:		October 29th, 2022
+## LAST EDITED:		November 7th, 2022
 ##
 ## ========================================================
 
@@ -49,7 +49,7 @@ set(REX_RENDERING_SRC
 
 set(REX_UTILITIES_SRC
 	utilities/endian.c
-	utilities/failure.c
+	utilities/error.c
 )
 
 set(REX_WORLD_SRC
