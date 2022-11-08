@@ -18,25 +18,25 @@
 #include "rex.h"
 
 // Global error text buffer. Use Rex_GetError() to access this.
-rex_byte _rex_error_buffer[512];
+rex_byte rex_error_buffer[512];
 
-// Generate an error message that can be caught with Rex_GetError()
+// Generate an error message that can be caught with Rex_GetError().
 void Rex_MakeError(rex_byte *s, ...)
 {
 	va_list args;
 
 	// Null it out
-	snprintf(_rex_error_buffer, sizeof(_rex_error_buffer), '\0');
+	snprintf(rex_error_buffer, sizeof(rex_error_buffer), '\0');
 
 	// Copy args into it
 	va_start(args, s);
-	vsprintf(_rex_error_buffer, s, args);
+	vsprintf(rex_error_buffer, s, args);
 	va_end(args);
 }
 
-// Catches and returns an error generated with Rex_MakeError()
+// Catches and returns an error generated with Rex_MakeError().
 rex_byte *Rex_GetError(void)
 {
 	// Just return the error.
-	return _rex_error_buffer;
+	return rex_error_buffer;
 }

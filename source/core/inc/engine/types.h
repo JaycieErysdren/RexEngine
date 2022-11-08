@@ -74,11 +74,23 @@ typedef rex_float rex_vector4f[4];					// Simple 4D vector, float32
 // Complex vectors
 //
 
+// Complex 2D vector, int32
+typedef struct
+{
+	rex_int x, y;
+} rex_vec2i;
+
 // Complex 3D vector, int32
 typedef struct
 {
 	rex_int x, y, z;
 } rex_vec3i;
+
+// Complex 4D vector, int32
+typedef struct
+{
+	rex_int x, y, z, w;
+} rex_vec4i;
 
 //
 // Coordinates

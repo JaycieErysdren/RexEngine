@@ -17,7 +17,7 @@
 // Include engine header
 #include "rex.h"
 
-// Resource file magics
+// Resource file signatures.
 rex_byte_c rex_resource_container_magic[8] = "REXRESFL";
 rex_byte_c rex_resource_magic[8] = "REXRESRC";
 

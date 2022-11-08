@@ -15,7 +15,7 @@
 // ========================================================
 
 // Global error text buffer. Use Rex_GetError() to access this.
-extern rex_byte _rex_error_buffer[512];
+extern rex_byte rex_error_buffer[512];
 
 // Generate an error message that can be caught with Rex_GetError().
 void Rex_MakeError(rex_byte *s, ...);

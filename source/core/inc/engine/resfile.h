@@ -14,6 +14,7 @@
 //
 // ========================================================
 
+// Resource file magics.
 extern rex_byte_c rex_resource_container_magic[8];
 extern rex_byte_c rex_resource_magic[8];
 
