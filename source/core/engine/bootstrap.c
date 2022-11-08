@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/core/logic/startup.c
+// FILE:			/source/core/engine/bootstrap.c
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -8,7 +8,7 @@
 //
 // LICENSE:			ACSL 1.4
 //
-// DESCRIPTION:		Rex Engine startup functions.
+// DESCRIPTION:		Startup and shutdown functions.
 //
 // LAST EDITED:		November 7th, 2022
 //
@@ -20,7 +20,7 @@
 // Boolean that is equal to REX_TRUE if the program is supposed to be running.
 rex_bool rex_running;
 
-// Startup everything
+// Startup all systems
 void Rex_Startup(void)
 {
 	// Add a desktop display mode for getting desktop size information
@@ -42,4 +42,22 @@ void Rex_Startup(void)
 	// Update global desktop size with displaymode size
 	rex_desktop_size[0] = dm.w;
 	rex_desktop_size[1] = dm.h;
+}
+
+// Shutdown everything and return exit code to OS
+void Rex_Shutdown(rex_int exit_code)
+{
+	rex_running = REX_FALSE;
+
+	// End BRender Rendering
+	BrRendererEnd();
+
+	// Shutdown BRender
+	BrEnd();
+
+	// Shutdown SDL
+	SDL_Quit();
+
+	// Exit program
+	exit(exit_code);
 }

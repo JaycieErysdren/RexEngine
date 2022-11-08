@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/core/inc/physics.h
+// FILE:			/source/core/inc/physics/physics.h
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Prototypes for physics module.
 //
-// LAST EDITED:		October 29th, 2022
+// LAST EDITED:		November 7th, 2022
 //
 // ========================================================
 

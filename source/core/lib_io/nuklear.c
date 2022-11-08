@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/core/rendering/nuklear.c
+// FILE:			/source/core/lib_io/nuklear.c
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Nuklear helpers.
 //
-// LAST EDITED:		October 28th, 2022
+// LAST EDITED:		November 7th, 2022
 //
 // ========================================================
 

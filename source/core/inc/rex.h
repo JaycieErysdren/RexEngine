@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Main Rex Engine header.
 //
-// LAST EDITED:		November 5th, 2022
+// LAST EDITED:		November 7th, 2022
 //
 // ========================================================
 
@@ -27,28 +27,20 @@
 #include <errno.h>
 
 //
-// SDL2 module headers
+// External headers
 //
 
+// SDL2 headers
 #include <SDL2/SDL.h>
 
-//
-// BRender module headers
-//
-
+// BRender headers
 #include <brender.h>
 #include <brglrend.h>
 
-//
 // tinyfiledialogs module headers
-//
-
 #include <tinyfiledialogs.h>
 
-//
 // Nuklear module headers
-//
-
 #define NK_INCLUDE_FIXED_TYPES
 #define NK_INCLUDE_STANDARD_IO
 #define NK_INCLUDE_STANDARD_VARARGS
@@ -62,42 +54,48 @@
 // Rex Engine headers
 //
 
-#ifndef __REX_TYPES_H__
-#define __REX_TYPES_H__
-#include "rex_types.h"
+// Main engine module
+#ifndef __REX_ENGINE_H__
+#define __REX_ENGINE_H__
+#include "engine/types.h" // MUST BE FIRST!
+#include "engine/bootstrap.h"		
+#include "engine/device_io.h"
+#include "engine/endian.h"
+#include "engine/error.h"
+#include "engine/file_io.h"
+#include "engine/log.h"
+#include "engine/math.h"
+#include "engine/resfile.h"
 #endif
 
+// Formats module
 #ifndef __REX_FORMATS_H__
 #define __REX_FORMATS_H__
-#include "rex_formats.h"
+#include "formats/lev.h"
+#include "formats/mdl.h"
+#include "formats/ms3dmm.h"
+#include "formats/pak.h"
+#include "formats/tmf.h"
+#include "formats/wal.h"
 #endif
 
-#ifndef __REX_LOGIC_H__
-#define __REX_LOGIC_H__
-#include "rex_logic.h"
+// LIB I/O module
+#ifndef __REX_LIBIO_H__
+#define __REX_LIBIO_H__
+#include "lib_io/brender.h"
+#include "lib_io/nuklear.h"
+#include "lib_io/tinyfd.h"
 #endif
 
-#ifndef __REX_IO_H__
-#define __REX_IO_H__
-#include "rex_io.h"
-#endif
-
-#ifndef __REX_UTILITIES_H__
-#define __REX_UTILITIES_H__
-#include "rex_utilities.h"
-#endif
-
+// Physics module
 #ifndef __REX_PHYSICS_H__
 #define __REX_PHYSICS_H__
-#include "rex_physics.h"
+#include "physics/physics.h"
 #endif
 
+// Rendering module
 #ifndef __REX_RENDERING_H__
 #define __REX_RENDERING_H__
-#include "rex_rendering.h"
-#endif
-
-#ifndef __REX_WORLD_H__
-#define __REX_WORLD_H__
-#include "rex_world.h"
+#include "rendering/palettes.h"
+#include "rendering/window.h"
 #endif

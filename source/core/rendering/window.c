@@ -8,7 +8,7 @@
 //
 // LICENSE:			ACSL 1.4
 //
-// DESCRIPTION:		Windowing systems.
+// DESCRIPTION:		Windowing system functions.
 //
 // LAST EDITED:		November 7th, 2022
 //

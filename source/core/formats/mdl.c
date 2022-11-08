@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		id Software MDL files.
 //
-// LAST EDITED:		October 22nd, 2022
+// LAST EDITED:		November 7th, 2022
 //
 // ========================================================
 
@@ -43,32 +43,52 @@ mdl_t *MDL_Load(rex_byte *filename)
 	// Check file signature
 	if (!memcmp(mdl->version->magic, mdl_magic_quake2, 4))
 	{
+		free(mdl->version);
+		free(mdl->header);
+		free(mdl);
 		Rex_IO_FClose(file);
-		Rex_Failure("%s is a Quake 2 model file, which is currently not supported.", filename);
+		Rex_MakeError("%s is a Quake 2 model file, which is currently not supported.", filename);
+		return NULL;
 	}
 
 	// Check file signature
 	if (memcmp(mdl->version->magic, mdl_magic_quake, 4))
 	{
+		free(mdl->version);
+		free(mdl->header);
+		free(mdl);
 		Rex_IO_FClose(file);
-		Rex_Failure("%s has an unrecognized file signature %s.", filename, mdl->version->magic);
+		Rex_MakeError("%s has an unrecognized file signature %s.", filename, mdl->version->magic);
+		return NULL;
 	}
 
 	// Check file version
 	if (mdl->version->version == MDL_VERSION_QTEST)
 	{
+		free(mdl->version);
+		free(mdl->header);
+		free(mdl);
 		Rex_IO_FClose(file);
-		Rex_Failure("%s is a QTest model file, which is currently not supported.", filename);
+		Rex_MakeError("%s is a QTest model file, which is currently not supported.", filename);
+		return NULL;
 	}
 	else if (mdl->version->version == MDL_VERSION_QUAKE2)
 	{
+		free(mdl->version);
+		free(mdl->header);
+		free(mdl);
 		Rex_IO_FClose(file);
-		Rex_Failure("%s is a Quake 2 model file, which is currently not supported.", filename);
+		Rex_MakeError("%s is a Quake 2 model file, which is currently not supported.", filename);
+		return NULL;
 	}
 	else if (mdl->version->version != MDL_VERSION_QUAKE)
 	{
+		free(mdl->version);
+		free(mdl->header);
+		free(mdl);
 		Rex_IO_FClose(file);
-		Rex_Failure("%s has an unrecognized file version.", filename);
+		Rex_MakeError("%s has an unrecognized file version.", filename);
+		return NULL;
 	}
 
 	// Read in header
@@ -91,7 +111,8 @@ mdl_t *MDL_Load(rex_byte *filename)
 		if (mdl->skins[i].skin_type != 0)
 		{
 			Rex_IO_FClose(file);
-			Rex_Failure("%s skin %d has an unsupported type.", i);
+			Rex_MakeError("%s skin %d has an unsupported type.", i);
+			return NULL;
 		}
 
 		mdl->skins[i].skin_pixels = calloc(num_pixels, sizeof(rex_ubyte));
@@ -115,7 +136,8 @@ mdl_t *MDL_Load(rex_byte *filename)
 		if (mdl->frames[i].frame_type != 0)
 		{
 			Rex_IO_FClose(file);
-			Rex_Failure("%s frame %d has an unsupported type.", i);
+			Rex_MakeError("%s frame %d has an unsupported type.", i);
+			return NULL;
 		}
 
 		mdl->frames[i].vertices = calloc(mdl->header->num_vertices, sizeof(mdl_vertex_t));

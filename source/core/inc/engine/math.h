@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/core/logic/math.c
+// FILE:			/source/core/inc/engine/math.h
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -8,17 +8,11 @@
 //
 // LICENSE:			ACSL 1.4
 //
-// DESCRIPTION:		Math helper functions.
+// DESCRIPTION:		Prototypes for the math helpers.
 //
 // LAST EDITED:		November 7th, 2022
 //
 // ========================================================
 
-// Include engine header
-#include "rex.h"
-
 // Returns a random integer between high and low.
-rex_int Rex_Random(rex_int low, rex_int high)
-{
-	return (rand() % (high - low + 1)) + low;
-}
+rex_int Rex_Random(rex_int low, rex_int high);

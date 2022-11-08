@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/core/rendering/brender.c
+// FILE:			/source/core/engine/math.c
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -8,14 +8,17 @@
 //
 // LICENSE:			ACSL 1.4
 //
-// DESCRIPTION:		BRender helpers.
+// DESCRIPTION:		Math helper functions.
 //
-// LAST EDITED:		October 21st, 2022
+// LAST EDITED:		November 7th, 2022
 //
 // ========================================================
 
 // Include engine header
 #include "rex.h"
 
-// Generic primitive heap for z-buffer renderer
-rex_ubyte brender_primitive_heap[1500 * 1024];
+// Returns a random integer between high and low.
+rex_int Rex_Random(rex_int low, rex_int high)
+{
+	return (rand() % (high - low + 1)) + low;
+}

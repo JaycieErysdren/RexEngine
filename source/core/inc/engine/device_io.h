@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/core/inc/rex_io.h
+// FILE:			/source/core/inc/engine/device_io.h
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -8,15 +8,11 @@
 //
 // LICENSE:			ACSL 1.4
 //
-// DESCRIPTION:		Prototypes for program I/O functions.
+// DESCRIPTION:		Prototypes for the device I/O functions.
 //
 // LAST EDITED:		November 7th, 2022
 //
 // ========================================================
-
-//
-// Device handling (devices.c)
-//
 
 // Keyboard scancode array
 extern rex_byte rex_keys[512];
@@ -122,38 +118,3 @@ extern rex_bool rex_running;
 
 // Reads all currently active devices (keyboard, mouse, etc)
 void Rex_IO_ReadDevices(void);
-
-//
-// File handling (files.c)
-//
-
-// Wrapper for fopen() that does automatic error reporting.
-FILE *Rex_IO_FOpen(rex_byte *filename, rex_byte *modes);
-
-// Wrapper for fread() that does automatic error reporting.
-void Rex_IO_FRead(void *ptr, size_t size, rex_int n, FILE *file);
-
-// Wrapper for fclose() that does automatic error reporting.
-void Rex_IO_FClose(FILE *file);
-
-// Wrapper for fseek() that does automatic error reporting.
-void Rex_IO_FSeek(FILE *file, rex_long to, rex_int from);
-
-// Wrapper for fwrite() that does automatic error reporting.
-void Rex_IO_FWrite(void *ptr, size_t size, rex_int n, FILE *file);
-
-//
-// Resource file I/O functions (resources.c)
-//
-
-extern rex_byte_c rex_resource_container_magic[8];
-extern rex_byte_c rex_resource_magic[8];
-
-// Write a resource container and its resources to a file.
-void Rex_IO_WriteResourceContainer(rex_byte *filename, rex_resource_container *res);
-
-//
-// tinyfiledialogs helpers (tinyfd.c)
-//
-
-rex_byte *Rex_IO_OpenFileDialog(rex_byte *title, rex_byte *default_path, rex_int num_filter_patterns, rex_byte **filter_patterns, rex_byte *filter_descriptions, rex_int allow_multiple_selects);

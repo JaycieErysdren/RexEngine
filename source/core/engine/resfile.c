@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/core/io/resources.c
+// FILE:			/source/core/engine/resfile.c
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Resource file I/O functions.
 //
-// LAST EDITED:		October 21st, 2022
+// LAST EDITED:		November 7th, 2022
 //
 // ========================================================
 

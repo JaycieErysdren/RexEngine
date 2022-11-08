@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/core/inc/rex_utilities.h
+// FILE:			/source/core/inc/engine/endian.h
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -8,15 +8,11 @@
 //
 // LICENSE:			ACSL 1.4
 //
-// DESCRIPTION:		Prototypes for various utilities.
+// DESCRIPTION:		Prototypes for the endian-swapping functions.
 //
 // LAST EDITED:		November 7th, 2022
 //
 // ========================================================
-
-//
-// Endian-swapping (endian.c)
-//
 
 // System endian check (hack)
 extern const rex_int _rex_endian_check;
@@ -44,27 +40,3 @@ void Rex_EndianSwap_Long(rex_long *val);
 
 // Endian swap unsigned long
 void Rex_EndianSwap_ULong(rex_ulong *val);
-
-//
-// Error handling (error.c)
-//
-
-// MessageBox types.
-enum rex_messagebox_types
-{
-	REX_MESSAGE_NONCRITICAL,
-	REX_MESSAGE_WARNING,
-	REX_MESSAGE_FAILURE
-};
-
-// Display a non-critical message box.
-void Rex_Message(rex_int message_type, rex_byte *s, ...);
-
-// Log a non-critical message to the console and a log file.
-void Rex_Log(rex_byte *filename, rex_byte *s, ...);
-
-// Generate an error message that can be caught with Rex_GetError().
-void Rex_MakeError(rex_byte *s, ...);
-
-// Catches and returns an error generated with Rex_MakeError().
-rex_byte *Rex_GetError(void);

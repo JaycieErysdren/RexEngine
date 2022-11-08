@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/core/inc/rex_rendering.h
+// FILE:			/source/core/inc/rendering/window.h
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -8,54 +8,11 @@
 //
 // LICENSE:			ACSL 1.4
 //
-// DESCRIPTION:		Prototypes for the rendering systems.
+// DESCRIPTION:		Prototypes for the windowing system functions.
 //
-// LAST EDITED:		October 29th, 2022
+// LAST EDITED:		November 7th, 2022
 //
 // ========================================================
-
-//
-// BRender helpers (brender.c)
-//
-
-extern rex_ubyte brender_primitive_heap[1500 * 1024];
-
-//
-// Nuklear helpers (nuklear.c)
-//
-
-// Rex Nuklear Context
-typedef struct
-{
-	struct nk_context ctx;
-	struct nk_rect scissors;
-	struct br_pixelmap *pm;
-	struct br_pixelmap *font_tex;
-	struct nk_font_atlas atlas;
-} rex_nuklear_context;
-
-// Initialize Nuklear with source pixelmap, font and font size.
-rex_nuklear_context *Rex_Nuklear_Init(br_pixelmap *pm, const rex_byte *font_filename, rex_float font_size);
-
-// Render the given Nuklear context to the defined pixelmap.
-void Rex_Nuklear_Render(const rex_nuklear_context *context, const struct nk_color clear, const rex_ubyte enable_clear);
-
-// Shutdown the given Nuklear context.
-void Rex_Nuklear_Shutdown(rex_nuklear_context *context);
-
-//
-// Embedded system palettes (palettes.c)
-//
-
-// BRender standard palette (STD.PAL)
-extern const rex_palette palette_brender;
-
-// Quake palette (PALETTE.LMP)
-extern const rex_palette palette_quake;
-
-//
-// Windowing systems (window.c)
-//
 
 // Definitions
 #define REX_DEPTH_BUFFER_CLEAR 0xFFFFFFFF

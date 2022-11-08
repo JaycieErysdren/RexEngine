@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/core/world/create.c
+// FILE:			/source/core/inc/lib_io/brender.h
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -8,12 +8,10 @@
 //
 // LICENSE:			ACSL 1.4
 //
-// DESCRIPTION:		World creation functions.
+// DESCRIPTION:		Prototypes for the BRender helpers.
 //
-// LAST EDITED:		October 29th, 2022
+// LAST EDITED:		November 7th, 2022
 //
 // ========================================================
 
-// Include engine header
-#include "rex.h"
-
+extern rex_ubyte brender_primitive_heap[1500 * 1024];

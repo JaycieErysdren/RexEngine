@@ -14,8 +14,20 @@
 ##
 ## ========================================================
 
+## Main engine module
+set(REX_ENGINE_SRC
+	engine/bootstrap.c
+	engine/device_io.c
+	engine/endian.c
+	engine/error.c
+	engine/file_io.c
+	engine/log.c
+	engine/math.c
+	engine/resfile.c
+)
+
+## Formats module
 set(REX_FORMATS_SRC
-	formats/formats.c
 	formats/lev.c
 	formats/mdl.c
 	formats/pak.c
@@ -23,45 +35,30 @@ set(REX_FORMATS_SRC
 	formats/wal.c
 )
 
-set(REX_IO_SRC
-	io/devices.c
-	io/files.c
-	io/resources.c
-	io/tinyfd.c
+## LIB I/O module
+set(REX_LIBIO_SRC
+	lib_io/brender.c
+	lib_io/nuklear.c
+	lib_io/tinyfd.c
 )
 
-set(REX_LOGIC_SRC
-	logic/math.c
-	logic/startup.c
-	logic/shutdown.c
-)
-
+## Physics module
 set(REX_PHYSICS_SRC
 	physics/physics.c
 )
 
+## Rendering module
 set(REX_RENDERING_SRC
-	rendering/brender.c
-	rendering/nuklear.c
 	rendering/palettes.c
 	rendering/window.c
 )
 
-set(REX_UTILITIES_SRC
-	utilities/endian.c
-	utilities/error.c
-)
-
-set(REX_WORLD_SRC
-	world/create.c
-)
-
+## Add Rex Engine library
 add_library(RexEngine
+	${REX_ENGINE_SRC}
 	${REX_FORMATS_SRC}
-	${REX_IO_SRC}
-	${REX_LOGIC_SRC}
+	${REX_LIBIO_SRC}
 	${REX_PHYSICS_SRC}
 	${REX_RENDERING_SRC}
-	${REX_UTILITIES_SRC}
 	${REX_WORLD_SRC}
 )

@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/core/inc/rex_types.h
+// FILE:			/source/core/inc/engine/types.h
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex Engine types.
 //
-// LAST EDITED:		October 29th, 2022
+// LAST EDITED:		November 7th, 2022
 //
 // ========================================================
 
