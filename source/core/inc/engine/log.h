@@ -10,9 +10,12 @@
 //
 // DESCRIPTION:		Prototypes for the logging and message functions.
 //
-// LAST EDITED:		November 7th, 2022
+// LAST EDITED:		November 8th, 2022
 //
 // ========================================================
+
+// Standard log filename
+#define REX_LOG_FILENAME "rex.log"
 
 // Message types.
 enum rex_message_types

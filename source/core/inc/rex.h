@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Main Rex Engine header.
 //
-// LAST EDITED:		November 7th, 2022
+// LAST EDITED:		November 8th, 2022
 //
 // ========================================================
 
@@ -25,6 +25,7 @@
 #include <inttypes.h>
 #include <string.h>
 #include <errno.h>
+#include <time.h>
 
 //
 // External headers

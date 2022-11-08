@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Liberator program entry point.
 //
-// LAST EDITED:		November 7th, 2022
+// LAST EDITED:		November 8th, 2022
 //
 // ========================================================
 
@@ -62,6 +62,7 @@ int main(int argc, char *argv[])
 
 	// Startup Rex Engine
 	Rex_Startup();
+	Rex_Log(REX_LOG_FILENAME, "Starting Rex Engine");
 
 	//=======================================
 	// PAK testing
@@ -75,17 +76,19 @@ int main(int argc, char *argv[])
 	if (pak == NULL)
 		Rex_Message(REX_MESSAGE_FAILURE, "PAK_Open() load failed with error: %s", Rex_GetError());
 	else
-		Rex_Log(NULL, "Loaded PAK file %s", pak->filename);
+		Rex_Log(REX_LOG_FILENAME, "Loaded PAK file %s", pak->filename);
 
 	len_pak_file = PAK_GetFileByFilename(pak, "maps/e1m1.bsp", &pak_file);
 
 	if (pak_file == NULL || len_pak_file == 0)
 		Rex_Message(REX_MESSAGE_FAILURE, "PAK_GetFileByFilename() load failed with error: %s", Rex_GetError());
 	else
-		Rex_Log(NULL, "File found, size is %d bytes", len_pak_file);
+		Rex_Log(REX_LOG_FILENAME, "File found, size is %d bytes", len_pak_file);
 
 	if (pak_file)
 		free(pak_file);
+
+	Rex_Log(REX_LOG_FILENAME, "Closing Rex Engine");
 
 	PAK_Close(pak);
 	Rex_Shutdown(EXIT_SUCCESS);
