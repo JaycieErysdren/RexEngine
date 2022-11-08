@@ -51,6 +51,11 @@
 #define NK_INCLUDE_SOFTWARE_FONT
 #include <nuklear.h>
 
+// ncurses module headers
+#ifdef REX_USE_NCURSES
+    #include <ncurses.h>
+#endif
+
 //
 // Rex Engine headers
 //

@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		VSCode C / C++ settings.
 //
-// LAST EDITED:		October 28th, 2022
+// LAST EDITED:		November 8th, 2022
 //
 // ========================================================
 
@@ -21,7 +21,6 @@
 			"includePath": [
 				"${workspaceFolder}/**",										// Root source folder
 				"${workspaceFolder}/core/inc/**",								// Rex Engine headers
-				"${workspaceFolder}/core/inc/embedded/**",						// Rex Engine embedded file headers
 				"${workspaceFolder}/external/BRender/brender/inc",				// BRender headers
 				"${workspaceFolder}/external/BRender/brender/glrend/include",	// BRender OpenGL driver headers
 				"${workspaceFolder}/external/Nuklear",							// Nuklear headers

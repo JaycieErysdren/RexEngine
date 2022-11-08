@@ -133,17 +133,17 @@ int main(int argc, char *argv[])
 		Rex_IO_ReadDevices();
 
 		// Quit
-		if (KEY_PRESSED(KEY_Q))
+		if (KEY_PRESSED(REX_KEY_Q))
 			rex_running = REX_FALSE;
 
 		// Nuklear inputs
 		nk_input_begin(&(nk_context->ctx));
 		nk_input_motion(&(nk_context->ctx), rex_mouse.x, rex_mouse.y);
 
-		if (MOUSE_PRESSED(MOUSE_LEFT)) nk_input_button(&(nk_context->ctx), NK_BUTTON_LEFT, rex_mouse.x, rex_mouse.y, 1);
+		if (MOUSE_PRESSED(REX_MOUSE_LEFT)) nk_input_button(&(nk_context->ctx), NK_BUTTON_LEFT, rex_mouse.x, rex_mouse.y, 1);
 		else nk_input_button(&(nk_context->ctx), NK_BUTTON_LEFT, rex_mouse.x, rex_mouse.y, 0);
 
-		if (MOUSE_PRESSED(MOUSE_RIGHT)) nk_input_button(&(nk_context->ctx), NK_BUTTON_RIGHT, rex_mouse.x, rex_mouse.y, 1);
+		if (MOUSE_PRESSED(REX_MOUSE_RIGHT)) nk_input_button(&(nk_context->ctx), NK_BUTTON_RIGHT, rex_mouse.x, rex_mouse.y, 1);
 		else nk_input_button(&(nk_context->ctx), NK_BUTTON_RIGHT, rex_mouse.x, rex_mouse.y, 0);
 
 		nk_input_end(&(nk_context->ctx));

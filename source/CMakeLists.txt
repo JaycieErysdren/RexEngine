@@ -10,7 +10,7 @@
 ##
 ## DESCRIPTION:		Rex Engine CMake project definition.
 ##
-## LAST EDITED:		October 28th, 2022
+## LAST EDITED:		November 8th, 2022
 ##
 ## ========================================================
 
@@ -26,6 +26,10 @@ set(CMAKE_BUILD_TYPE Debug)
 
 ## Define project
 project(RexEngine)
+
+## Define project options
+option(REX_USE_NCURSES "Use the ncruses library for a TUI interface" OFF)
+option(REX_BUILD_EXTERNAL_EXAMPLES "Build example programs from external libraries" OFF)
 
 ##
 ## External dependencies
@@ -47,6 +51,14 @@ link_libraries(tinyfd)
 find_package(SDL2 REQUIRED)
 link_libraries(${SDL2_LIBRARIES})
 include_directories(${SDL2_INCLUDE_DIRS})
+
+## Curses
+if(REX_USE_NCURSES)
+	find_package(Curses REQUIRED)
+	include_directories(${CURSES_INCLUDE_DIR})
+	link_libraries(${CURSES_LIBRARY})
+	add_compile_definitions("REX_USE_NCURSES")
+endif()
 
 ## Math
 if(NOT WIN32)
@@ -74,13 +86,17 @@ link_libraries(RexEngine)
 ## Format manager
 add_subdirectory(${CMAKE_SOURCE_DIR}/applications/liberator)
 
-##
-## Nuklear examples
-##
-
-find_package(OpenGL REQUIRED)
-find_package(GLEW REQUIRED)
+## JunkApp
+## Testing area
+if(REX_USE_NCURSES)
+	add_subdirectory(${CMAKE_SOURCE_DIR}/applications/junkapp)
+endif()
 
 ## Nuklear example applications
-add_executable(nuklear_file_browser ${CMAKE_SOURCE_DIR}/external/Nuklear/example/file_browser.c)
-target_link_libraries(nuklear_file_browser PRIVATE glfw GLEW)
+if(REX_BUILD_EXTERNAL_EXAMPLES)
+	find_package(OpenGL REQUIRED)
+	find_package(GLEW REQUIRED)
+
+	add_executable(nuklear_file_browser ${CMAKE_SOURCE_DIR}/external/Nuklear/example/file_browser.c)
+	target_link_libraries(nuklear_file_browser PRIVATE glfw GLEW)
+endif()
