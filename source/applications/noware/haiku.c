@@ -18,7 +18,7 @@
 #include "rex.h"
 
 // Get 5 syllable sentence
-rex_byte *haiku_get5(void)
+rex_byte *haiku5(void)
 {
 	rex_int r = Rex_Random(0, 31);
 
@@ -59,7 +59,7 @@ rex_byte *haiku_get5(void)
 }
 
 // Get 7 syllable sentence
-rex_byte *haiku_get7(void)
+rex_byte *haiku7(void)
 {
 	rex_int r = Rex_Random(0, 18);
 
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
 {
 	srand(time(NULL));
 
-	printf("\n  %s\n  %s\n  %s\n\n", haiku_get5(), haiku_get7(), haiku_get5());
+	printf("\n  %s\n  %s\n  %s\n\n", haiku5(), haiku7(), haiku5());
 
 	return EXIT_SUCCESS;
 }
