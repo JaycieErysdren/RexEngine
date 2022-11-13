@@ -56,6 +56,12 @@ void UpdateDraw(WINDOW *window)
 	wrefresh(window);
 }
 
+// Update everything
+void Update(WINDOW *window)
+{
+	UpdateDraw(window);
+}
+
 // Main function
 int main(int argc, char *argv[])
 {
@@ -78,9 +84,14 @@ int main(int argc, char *argv[])
 		// Read inputs
 		switch(wgetch(window))
 		{
-			// Redraw on resize
+			// Update on resize
 			case KEY_RESIZE:
-				UpdateDraw(window);
+				Update(window);
+				break;
+
+			// Update on r
+			case 'r':
+				Update(window);
 				break;
 
 			// Quit on q
