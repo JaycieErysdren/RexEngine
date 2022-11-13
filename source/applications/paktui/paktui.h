@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/applications/liberator/liberator.h
+// FILE:			/source/applications/paktui/paktui.h
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -8,14 +8,11 @@
 //
 // LICENSE:			ACSL 1.4
 //
-// DESCRIPTION:		Liberator header.
+// DESCRIPTION:		PAKTUI header.
 //
-// LAST EDITED:		October 24th, 2022
+// LAST EDITED:		November 12th, 2022
 //
 // ========================================================
 
 // Include engine header
 #include "rex.h"
-
-// Print help text
-void Liberator_PrintHelpText(void);

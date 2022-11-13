@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Device I/O functions.
 //
-// LAST EDITED:		November 7th, 2022
+// LAST EDITED:		November 12th, 2022
 //
 // ========================================================
 
@@ -44,16 +44,20 @@ void Rex_IO_ReadDevices(void)
 	SDL_Event event;
 	rex_coord2i rex_mouse_previous = rex_mouse;
 	rex_vector2i rex_mouse_scroll_previous;
-	SDL_DisplayMode dm;
 
-	if (SDL_GetDesktopDisplayMode(0, &dm) != 0)
-		Rex_Message(REX_MESSAGE_FAILURE, "SDL_GetDesktopDisplayMode failed: %s", SDL_GetError());
+	if (rex_displaymode == REX_DISPLAYMODE_GRAPHICS)
+	{
+		SDL_DisplayMode dm;
+
+		if (SDL_GetDesktopDisplayMode(0, &dm) != 0)
+			Rex_Message(REX_MESSAGE_FAILURE, "SDL_GetDesktopDisplayMode failed: %s", SDL_GetError());
+
+		rex_desktop_size[0] = dm.w;
+		rex_desktop_size[1] = dm.h;
+	}
 
 	rex_mouse_scroll_previous[0] = rex_mouse_scroll[0];
 	rex_mouse_scroll_previous[1] = rex_mouse_scroll[1];
-
-	rex_desktop_size[0] = dm.w;
-	rex_desktop_size[1] = dm.h;
 
 	SDL_PumpEvents();
 

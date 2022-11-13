@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Startup and shutdown functions.
 //
-// LAST EDITED:		November 7th, 2022
+// LAST EDITED:		November 12th, 2022
 //
 // ========================================================
 
@@ -21,27 +21,38 @@
 rex_bool rex_running;
 
 // Startup all systems
-void Rex_Startup(void)
+void Rex_Startup(rex_int display_mode)
 {
-	// Add a desktop display mode for getting desktop size information
-	SDL_DisplayMode dm;
+	rex_displaymode = display_mode;
 
-	// Initialize SDL
-	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
-		Rex_Message(REX_MESSAGE_FAILURE, "SDL failed to initialize: %s", SDL_GetError());
+	if (display_mode == REX_DISPLAYMODE_TERMINAL)
+	{
+		// Initialize SDL
+		if (SDL_Init(SDL_INIT_EVENTS) != 0)
+			Rex_Message(REX_MESSAGE_FAILURE, "SDL failed to initialize: %s", SDL_GetError());
+	}
+	else if (display_mode == REX_DISPLAYMODE_GRAPHICS)
+	{
+		// Add a desktop display mode for getting desktop size information
+		SDL_DisplayMode dm;
 
-	// Initialize desktop display mode
-	if (SDL_GetDesktopDisplayMode(0, &dm) != 0)
-		Rex_Message(REX_MESSAGE_FAILURE, "SDL_GetDesktopDisplayMode failed: %s", SDL_GetError());
+		// Initialize SDL
+		if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
+			Rex_Message(REX_MESSAGE_FAILURE, "SDL failed to initialize: %s", SDL_GetError());
 
-	// Initialize BRender
-	BrBegin();
+		// Initialize desktop display mode
+		if (SDL_GetDesktopDisplayMode(0, &dm) != 0)
+			Rex_Message(REX_MESSAGE_FAILURE, "SDL_GetDesktopDisplayMode failed: %s", SDL_GetError());
+
+		// Initialize BRender
+		BrBegin();
+
+		// Update global desktop size with displaymode size
+		rex_desktop_size[0] = dm.w;
+		rex_desktop_size[1] = dm.h;
+	}
 
 	rex_running = REX_TRUE;
-
-	// Update global desktop size with displaymode size
-	rex_desktop_size[0] = dm.w;
-	rex_desktop_size[1] = dm.h;
 }
 
 // Shutdown everything and return exit code to OS

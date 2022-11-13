@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Main Rex Engine header.
 //
-// LAST EDITED:		November 8th, 2022
+// LAST EDITED:		November 12th, 2022
 //
 // ========================================================
 
@@ -52,9 +52,7 @@
 #include <nuklear.h>
 
 // ncurses module headers
-#ifdef REX_USE_NCURSES
-    #include <ncurses.h>
-#endif
+#include <ncurses.h>
 
 //
 // Rex Engine headers

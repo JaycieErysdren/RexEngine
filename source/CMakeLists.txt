@@ -10,7 +10,7 @@
 ##
 ## DESCRIPTION:		Rex Engine CMake project definition.
 ##
-## LAST EDITED:		November 8th, 2022
+## LAST EDITED:		November 12th, 2022
 ##
 ## ========================================================
 
@@ -28,7 +28,6 @@ set(CMAKE_BUILD_TYPE Debug)
 project(RexEngine)
 
 ## Define project options
-option(REX_USE_NCURSES "Use the ncruses library for a TUI interface" OFF)
 option(REX_BUILD_EXTERNAL_EXAMPLES "Build example programs from external libraries" OFF)
 
 ##
@@ -53,12 +52,9 @@ link_libraries(${SDL2_LIBRARIES})
 include_directories(${SDL2_INCLUDE_DIRS})
 
 ## Curses
-if(REX_USE_NCURSES)
-	find_package(Curses REQUIRED)
-	include_directories(${CURSES_INCLUDE_DIR})
-	link_libraries(${CURSES_LIBRARY})
-	add_compile_definitions("REX_USE_NCURSES")
-endif()
+find_package(Curses REQUIRED)
+include_directories(${CURSES_INCLUDE_DIR})
+link_libraries(${CURSES_LIBRARY})
 
 ## Math
 if(NOT WIN32)
@@ -86,11 +82,9 @@ link_libraries(RexEngine)
 ## Format manager
 add_subdirectory(${CMAKE_SOURCE_DIR}/applications/liberator)
 
-## JunkApp
-## Testing area
-if(REX_USE_NCURSES)
-	add_subdirectory(${CMAKE_SOURCE_DIR}/applications/junkapp)
-endif()
+## PAKTUI
+## id Software PAK TUI
+add_subdirectory(${CMAKE_SOURCE_DIR}/applications/paktui)
 
 ## Nuklear example applications
 if(REX_BUILD_EXTERNAL_EXAMPLES)

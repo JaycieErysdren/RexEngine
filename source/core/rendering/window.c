@@ -10,18 +10,15 @@
 //
 // DESCRIPTION:		Windowing system functions.
 //
-// LAST EDITED:		November 7th, 2022
+// LAST EDITED:		November 12th, 2022
 //
 // ========================================================
 
 // Include engine header
 #include "rex.h"
 
-//
-// Video modes
-//
-
-rex_int rex_videomode;
+// Global displaymode
+rex_int rex_displaymode;
 
 //
 // Windows
@@ -99,9 +96,6 @@ rex_window *Rex_Window_Add(rex_byte_c *title, rex_int x, rex_int y, rex_int widt
 
 	// Begin BRender rendering
     BrRendererBegin(window->buffer_color, NULL, NULL, brender_primitive_heap, sizeof(brender_primitive_heap));
-
-	// Set global videomode
-	rex_videomode = REX_VIDEOMODE_WINDOWED;
 
 	rex_num_windows += 1;
 

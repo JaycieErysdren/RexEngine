@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Prototypes for the windowing system functions.
 //
-// LAST EDITED:		November 7th, 2022
+// LAST EDITED:		November 12th, 2022
 //
 // ========================================================
 
@@ -22,15 +22,14 @@
 // Number of active windows
 extern rex_uint rex_num_windows;
 
-// Global videomode
-extern rex_int rex_videomode;
+// Global displaymode
+extern rex_int rex_displaymode;
 
-// Available videomodes
-enum rex_videomodes
+// Available displaymodes
+enum rex_displaymodes
 {
-	REX_VIDEOMODE_TERMINAL,				// Terminal mode
-	REX_VIDEOMODE_WINDOWED,				// Windowed mode
-	REX_VIDEOMODE_FULLSCREEN			// Fullscreen mode
+	REX_DISPLAYMODE_TERMINAL,			// Terminal mode
+	REX_DISPLAYMODE_GRAPHICS			// Graphics mode
 };
 
 // Add a Rex window
