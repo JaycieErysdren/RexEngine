@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Liberator program entry point.
 //
-// LAST EDITED:		November 8th, 2022
+// LAST EDITED:		November 12th, 2022
 //
 // ========================================================
 
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
 	//
 
 	// Startup Rex Engine
-	Rex_Startup();
+	Rex_Startup(REX_DISPLAYMODE_GRAPHICS);
 	Rex_Log(REX_LOG_FILENAME, "Starting Rex Engine");
 
 	//=======================================

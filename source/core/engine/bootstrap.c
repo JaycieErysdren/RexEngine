@@ -60,11 +60,14 @@ void Rex_Shutdown(rex_int exit_code)
 {
 	rex_running = REX_FALSE;
 
-	// End BRender Rendering
-	BrRendererEnd();
+	if (rex_displaymode == REX_DISPLAYMODE_GRAPHICS)
+	{
+		// End BRender Rendering
+		BrRendererEnd();
 
-	// Shutdown BRender
-	BrEnd();
+		// Shutdown BRender
+		BrEnd();
+	}
 
 	// Shutdown SDL
 	SDL_Quit();

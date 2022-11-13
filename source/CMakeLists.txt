@@ -68,8 +68,35 @@ endif()
 ## Include main Rex Engine header folder
 include_directories(${CMAKE_SOURCE_DIR}/core/inc)
 
-## Add Rex Engine core directories
-add_subdirectory(${CMAKE_SOURCE_DIR}/core)
+## Rex Engine sources
+set(REX_ENGINE_SRC
+	${CMAKE_SOURCE_DIR}/core/engine/bootstrap.c
+	${CMAKE_SOURCE_DIR}/core/engine/device_io.c
+	${CMAKE_SOURCE_DIR}/core/engine/endian.c
+	${CMAKE_SOURCE_DIR}/core/engine/error.c
+	${CMAKE_SOURCE_DIR}/core/engine/file_io.c
+	${CMAKE_SOURCE_DIR}/core/engine/log.c
+	${CMAKE_SOURCE_DIR}/core/engine/math.c
+	${CMAKE_SOURCE_DIR}/core/engine/resfile.c
+	## Formats module
+	${CMAKE_SOURCE_DIR}/core/formats/lev.c
+	${CMAKE_SOURCE_DIR}/core/formats/mdl.c
+	${CMAKE_SOURCE_DIR}/core/formats/pak.c
+	${CMAKE_SOURCE_DIR}/core/formats/tmf.c
+	${CMAKE_SOURCE_DIR}/core/formats/wal.c
+	## LIB I/O module
+	${CMAKE_SOURCE_DIR}/core/lib_io/brender.c
+	${CMAKE_SOURCE_DIR}/core/lib_io/nuklear.c
+	${CMAKE_SOURCE_DIR}/core/lib_io/tinyfd.c
+	## Physics module
+	${CMAKE_SOURCE_DIR}/core/physics/physics.c
+	## Rendering module
+	${CMAKE_SOURCE_DIR}/core/rendering/palettes.c
+	${CMAKE_SOURCE_DIR}/core/rendering/window.c
+)
+
+## Rex Engine library
+add_library(RexEngine ${REX_ENGINE_SRC})
 
 ##
 ## Rex Engine Applications
@@ -85,6 +112,9 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/applications/liberator)
 ## PAKTUI
 ## id Software PAK TUI
 add_subdirectory(${CMAKE_SOURCE_DIR}/applications/paktui)
+
+## NOWARE
+add_executable(haiku ${CMAKE_SOURCE_DIR}/applications/noware/haiku.c)
 
 ## Nuklear example applications
 if(REX_BUILD_EXTERNAL_EXAMPLES)
