@@ -4,23 +4,31 @@
 //
 // AUTHORS:			Jaycie Ewald
 //
-// PROJECT:			Rex Engine
+// PROJECT:			NOWARE
 //
 // LICENSE:			ACSL 1.4
 //
-// DESCRIPTION:		NOWARE: Haiku
+// DESCRIPTION:		Haiku
 //
 // LAST EDITED:		November 13th, 2022
 //
 // ========================================================
 
-// Include engine header
-#include "rex.h"
+// Headers
+#include <stdlib.h>
+#include <time.h>
+#include <stdio.h>
+
+// Random between high and low
+int jrandom(int low, int high)
+{
+	return (rand() % (high - low + 1)) + low;
+}
 
 // Get 5 syllable sentence
-rex_byte *haiku5(void)
+char *haiku5(void)
 {
-	rex_int r = Rex_Random(0, 31);
+	int r = jrandom(0, 31);
 
 	switch (r)
 	{
@@ -59,9 +67,9 @@ rex_byte *haiku5(void)
 }
 
 // Get 7 syllable sentence
-rex_byte *haiku7(void)
+char *haiku7(void)
 {
-	rex_int r = Rex_Random(0, 18);
+	int r = jrandom(0, 18);
 
 	switch (r)
 	{

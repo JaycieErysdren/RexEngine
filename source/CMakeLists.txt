@@ -10,7 +10,7 @@
 ##
 ## DESCRIPTION:		Rex Engine CMake project definition.
 ##
-## LAST EDITED:		November 12th, 2022
+## LAST EDITED:		November 13th, 2022
 ##
 ## ========================================================
 
@@ -27,34 +27,22 @@ set(CMAKE_BUILD_TYPE Debug)
 ## Define project
 project(RexEngine)
 
-## Define project options
-option(REX_BUILD_EXTERNAL_EXAMPLES "Build example programs from external libraries" OFF)
-
 ##
-## External dependencies
+## Find and build external dependencies
 ##
 
 ## BRender
 add_subdirectory(${CMAKE_SOURCE_DIR}/external/BRender)
-link_libraries(BRender::Full)
-
-## Nuklear
-include_directories(${CMAKE_SOURCE_DIR}/external/Nuklear)
 
 ## tinyfiledialogs
-include_directories(${CMAKE_SOURCE_DIR}/external/tinyfd)
 add_library(tinyfd ${CMAKE_SOURCE_DIR}/external/tinyfd/tinyfiledialogs.c)
-link_libraries(tinyfd)
+target_include_directories(tinyfd PUBLIC ${CMAKE_SOURCE_DIR}/external/tinyfd)
 
 ## SDL2
 find_package(SDL2 REQUIRED)
-link_libraries(${SDL2_LIBRARIES})
-include_directories(${SDL2_INCLUDE_DIRS})
 
 ## Curses
 find_package(Curses REQUIRED)
-include_directories(${CURSES_INCLUDE_DIR})
-link_libraries(${CURSES_LIBRARY})
 
 ## Math
 if(NOT WIN32)
@@ -64,9 +52,6 @@ endif()
 ##
 ## Rex Engine
 ##
-
-## Include main Rex Engine header folder
-include_directories(${CMAKE_SOURCE_DIR}/core/inc)
 
 ## Rex Engine sources
 set(REX_ENGINE_SRC
@@ -95,32 +80,37 @@ set(REX_ENGINE_SRC
 	${CMAKE_SOURCE_DIR}/core/rendering/window.c
 )
 
-## Rex Engine library
+## Add Rex Engine library
 add_library(RexEngine ${REX_ENGINE_SRC})
+
+target_include_directories(RexEngine PUBLIC
+	${CMAKE_SOURCE_DIR}/core/inc
+	${SDL2_INCLUDE_DIRS}
+	${CURSES_INCLUDE_DIR}
+	${CMAKE_SOURCE_DIR}/external/tinyfd
+	${CMAKE_SOURCE_DIR}/external/Nuklear
+)
+
+target_link_libraries(RexEngine
+	BRender::Full
+	tinyfd
+	${SDL2_LIBRARIES}
+	${CURSES_LIBRARY}
+)
 
 ##
 ## Rex Engine Applications
 ##
 
-## Link Rex Engine
-link_libraries(RexEngine)
-
 ## Liberator
 ## Format manager
-add_subdirectory(${CMAKE_SOURCE_DIR}/applications/liberator)
+add_executable(liberator ${CMAKE_SOURCE_DIR}/applications/liberator/liberator.c)
+target_link_libraries(liberator RexEngine)
 
 ## PAKTUI
 ## id Software PAK TUI
-add_subdirectory(${CMAKE_SOURCE_DIR}/applications/paktui)
+add_executable(paktui ${CMAKE_SOURCE_DIR}/applications/paktui/paktui.c)
+target_link_libraries(paktui RexEngine)
 
 ## NOWARE
 add_executable(haiku ${CMAKE_SOURCE_DIR}/applications/noware/haiku.c)
-
-## Nuklear example applications
-if(REX_BUILD_EXTERNAL_EXAMPLES)
-	find_package(OpenGL REQUIRED)
-	find_package(GLEW REQUIRED)
-
-	add_executable(nuklear_file_browser ${CMAKE_SOURCE_DIR}/external/Nuklear/example/file_browser.c)
-	target_link_libraries(nuklear_file_browser PRIVATE glfw GLEW)
-endif()
