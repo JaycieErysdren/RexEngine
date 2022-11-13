@@ -4,6 +4,9 @@
 
 /cmake-build-*/
 
+/**/.vscode/
+*.code-workspace
+
 *.o
 *.O
 *.obj

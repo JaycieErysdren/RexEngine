@@ -14,10 +14,8 @@
 //
 // ========================================================
 
-// Headers
-#include <stdlib.h>
-#include <time.h>
-#include <stdio.h>
+// Include NOWARE header
+#include "noware.h"
 
 // Random between high and low
 int jrandom(int low, int high)

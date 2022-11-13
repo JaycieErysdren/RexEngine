@@ -55,6 +55,7 @@ endif()
 
 ## Rex Engine sources
 set(REX_ENGINE_SRC
+	## Main engine module
 	${CMAKE_SOURCE_DIR}/core/engine/bootstrap.c
 	${CMAKE_SOURCE_DIR}/core/engine/device_io.c
 	${CMAKE_SOURCE_DIR}/core/engine/endian.c
