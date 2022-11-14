@@ -1,4 +1,5 @@
 /_local/
+/install/
 *.blend1
 /**/__pycache__/
 
