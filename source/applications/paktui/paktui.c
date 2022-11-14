@@ -47,7 +47,7 @@ void UpdateDraw(WINDOW *window)
 	mvwprintw(window, 1, 1, "Hello World !!!");
 
 	// Add right box
-	AddBorderBox(window, (cols / 2), 0, (cols / 2), (rows - 1));
+	AddBorderBox(window, (cols / 2), 0, (cols / 2) - 1, (rows - 1));
 	mvwprintw(window, 1, (cols / 2) + 1, "Hotkeys:");
 	mvwprintw(window, 2, (cols / 2) + 1, "R : Reload");
 	mvwprintw(window, 3, (cols / 2) + 1, "Q : Quit");

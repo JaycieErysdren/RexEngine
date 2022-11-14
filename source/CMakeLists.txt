@@ -15,7 +15,7 @@
 ## ========================================================
 
 ##
-## Startup definitions
+## Project definitions
 ##
 
 ## CMake version gate
@@ -47,6 +47,14 @@ find_package(Curses REQUIRED)
 ## Math
 if(NOT WIN32)
 	link_libraries(m)
+endif()
+
+##
+## Project compile definitions
+##
+
+if(CMAKE_BUILD_TYPE MATCHES Release)
+	add_compile_options("-O3")
 endif()
 
 ##
@@ -84,6 +92,7 @@ set(REX_ENGINE_SRC
 ## Add Rex Engine library
 add_library(RexEngine ${REX_ENGINE_SRC})
 
+## Rex Engione include directories
 target_include_directories(RexEngine PUBLIC
 	${CMAKE_SOURCE_DIR}/core/inc
 	${SDL2_INCLUDE_DIRS}
@@ -92,6 +101,7 @@ target_include_directories(RexEngine PUBLIC
 	${CMAKE_SOURCE_DIR}/external/Nuklear
 )
 
+## Rex Engione external dependencies
 target_link_libraries(RexEngine
 	BRender::Full
 	tinyfd
