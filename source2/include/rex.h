@@ -24,7 +24,7 @@
 #include <string.h>
 
 //
-// Platform Headers
+// Standard Headers (platform specific)
 //
 
 // DOS
@@ -44,4 +44,15 @@
 #ifndef __REX_TYPES_H__
 #define __REX_TYPES_H__
 #include "rextypes.h"
+#endif
+
+//
+// Rex Engine DOS interface
+//
+
+#if defined __DJGPP__
+#ifndef __REX_DOS_H__
+#define __REX_DOS_H__
+#include "rexdos.h"
+#endif
 #endif
