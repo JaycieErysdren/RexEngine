@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source2/include/rextypes.h
+// FILE:			/source2/include/rex_type.h
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex Engine types.
 //
-// LAST EDITED:		November 18th, 2022
+// LAST EDITED:		November 23rd, 2022
 //
 // ========================================================
 
@@ -30,8 +30,8 @@ typedef uint32_t rex_uint_32;						// Unsigned 32-bit integer
 typedef int64_t rex_int_64;							// Signed 64-bit integer
 typedef uint64_t rex_uint_64;						// Unsigned 64-bit integer
 
-typedef _Float32 rex_float_32;						// 32-bit Float
-typedef _Float64 rex_float_64;						// 64-bit Float
+typedef float rex_float_32;							// 32-bit Float
+typedef double rex_float_64;						// 64-bit Float
 
 #define REX_TRUE 1									// True
 #define REX_FALSE 0									// False

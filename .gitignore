@@ -3,7 +3,7 @@
 *.blend1
 /**/__pycache__/
 
-/cmake-build-*/
+/**/cmake-build-*/
 
 /**/.vscode/
 *.code-workspace

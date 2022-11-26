@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex Engine header.
 //
-// LAST EDITED:		November 18th, 2022
+// LAST EDITED:		November 23rd, 2022
 //
 // ========================================================
 
@@ -43,7 +43,7 @@
 // Rex Engine Types
 #ifndef __REX_TYPES_H__
 #define __REX_TYPES_H__
-#include "rextypes.h"
+#include "rex_type.h"
 #endif
 
 //
@@ -53,6 +53,6 @@
 #if defined __DJGPP__
 #ifndef __REX_DOS_H__
 #define __REX_DOS_H__
-#include "rexdos.h"
+#include "rex_dos.h"
 #endif
 #endif

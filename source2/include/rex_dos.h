@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source2/include/rexdos.h
+// FILE:			/source2/include/rex_dos.h
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex Engine DOS interface header.
 //
-// LAST EDITED:		November 18th, 2022
+// LAST EDITED:		November 23rd, 2022
 //
 // ========================================================
 
