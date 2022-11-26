@@ -36,3 +36,24 @@ include(${CMAKE_SOURCE_DIR}/thirdparty/ImGUI.cmake)
 
 ## SDL2
 find_package(SDL2 REQUIRED)
+
+##
+## Applications
+##
+
+add_executable(testapp 
+	${CMAKE_SOURCE_DIR}/test/main.cpp
+	${CMAKE_SOURCE_DIR}/thirdparty/ImGUI/backends/imgui_impl_sdl.cpp
+	${CMAKE_SOURCE_DIR}/thirdparty/ImGUI/backends/imgui_impl_sdlrenderer.cpp
+)
+
+target_link_libraries(testapp
+	ImGUI
+	${SDL2_LIBRARIES}
+)
+
+target_include_directories(testapp PUBLIC
+	${SDL2_INCLUDE_DIRS}
+	${CMAKE_SOURCE_DIR}/thirdparty/ImGUI
+	${CMAKE_SOURCE_DIR}/thirdparty/ImGUI/backends
+)
