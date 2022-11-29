@@ -40,6 +40,7 @@ option(USE_FLOATING_POINT "Use floating point for the base engine math" ON)
 set(REX3D_SRC
 	${CMAKE_SOURCE_DIR}/source/rex3d/dos.cpp
 	${CMAKE_SOURCE_DIR}/source/rex3d/math.cpp
+	${CMAKE_SOURCE_DIR}/source/rex3d/portrend.cpp
 	${CMAKE_SOURCE_DIR}/source/rex3d/raycastr.cpp
 	${CMAKE_SOURCE_DIR}/source/rex3d/rex3d.cpp
 	${CMAKE_SOURCE_DIR}/source/rex3d/vga.cpp
