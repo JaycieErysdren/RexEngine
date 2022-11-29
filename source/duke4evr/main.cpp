@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
 
 	// Initialize VGA
 	VGA::Initialize();
-	VGA::SetPalette("quake.pal");
+	VGA::SetPalette("wolf.pal");
 
 	// Load textures
 	Raycaster::LoadTextures();
