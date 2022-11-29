@@ -43,6 +43,9 @@
 #define KB_SPACE			57
 #define KB_C				46
 
+// DOS clock speed
+#define DOS_CLOCK_SPEED 1192755L
+
 //
 //
 // DOS namespace

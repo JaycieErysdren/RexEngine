@@ -55,11 +55,15 @@ using namespace std;
 // Fixed or floating point types
 #if BASED_FIXED
 
-typedef int32_t scalar_t;
+typedef int64_t				scalar_t;
+typedef int16_t				fraction_t;
+typedef uint16_t			ufraction_t;
 
 #elif BASED_FLOAT
 
-typedef float scalar_t;
+typedef float				scalar_t;
+typedef float				fraction_t;
+typedef float				ufraction_t;
 
 #endif
 

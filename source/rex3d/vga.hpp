@@ -49,7 +49,7 @@ namespace VGA
 	// Set the palette from a file
 	void SetPalette(string filename);
 
-	// Display the palette onscreen
+	// Draw the palette on the back buffer
 	void ShowPalette();
 
 	//

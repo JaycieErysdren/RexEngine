@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
 		// Render to back buffer
 		Raycaster::Render(camera, 320, 200, true);
 
-		// Flip buffer
+		// Flip buffers
 		VGA::Flip();
 	}
 

@@ -28,6 +28,12 @@ project(Duke4Ever LANGUAGES C CXX)
 set(CMAKE_BUILD_TYPE Debug)
 
 ##
+## Project options
+##
+
+option(USE_FLOATING_POINT "Use floating point for the base engine math" ON)
+
+##
 ## Project Libraries
 ##
 

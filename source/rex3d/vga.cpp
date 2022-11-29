@@ -124,7 +124,7 @@ void VGA::SetPalette(string filename)
 	fclose(file);
 }
 
-// Display the palette onscreen
+// Draw the palette on the back buffer
 void VGA::ShowPalette()
 {
 	int i;
@@ -151,7 +151,7 @@ void VGA::PlacePixel(int x, int y, uint8_t color)
 	// set the memory
 	// same as y*320+x, but slightly quicker
 	//memset(&buffer_back[(y << 8) + (y << 6) + x], color, sizeof(uint8_t));
-	buffer_back[(y << 8) + (y << 6) + x] = color;
+	if (color < 255) buffer_back[(y << 8) + (y << 6) + x] = color;
 }
 
 // Draw a filled rectangle
