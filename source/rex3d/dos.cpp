@@ -14,7 +14,7 @@
 //
 // ========================================================
 
-// Duke4Ever header
+// Rex3D header
 #include "rex3d.hpp"
 
 //
@@ -101,6 +101,17 @@ void DOS::MouseInitialize()
 void DOS::MouseShutdown()
 {
 
+}
+
+// Read mouse position (returns mouse buttons mask)
+int DOS::MouseRead(int *x, int *y)
+{
+	union REGS r;
+	r.x.ax = 3;
+	int386(0x33, &r, &r);
+	if (x) *x = r.x.cx;
+	if (y) *y = r.x.dx;
+	return r.x.bx;
 }
 
 //

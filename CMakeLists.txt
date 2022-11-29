@@ -33,12 +33,14 @@ set(CMAKE_BUILD_TYPE Debug)
 
 set(REX3D_SRC
 	${CMAKE_SOURCE_DIR}/source/rex3d/dos.cpp
+	${CMAKE_SOURCE_DIR}/source/rex3d/math.cpp
 	${CMAKE_SOURCE_DIR}/source/rex3d/raycastr.cpp
 	${CMAKE_SOURCE_DIR}/source/rex3d/rex3d.cpp
 	${CMAKE_SOURCE_DIR}/source/rex3d/vga.cpp
 )
 
 add_library(rex3d ${REX3D_SRC})
+target_compile_definitions(rex3d PUBLIC "BASED_FLOAT=1")
 
 ##
 ## Project Applications

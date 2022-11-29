@@ -14,6 +14,9 @@
 //
 // ========================================================
 
+// Placeholder world map
+extern uint8_t world_map[24][24];
+
 //
 //
 // Raycaster namespace
@@ -25,10 +28,25 @@ namespace Raycaster
 {
 	//
 	//
+	// Classes
+	//
+	//
+
+	// A view into the 2.5D world
+	class Camera
+	{
+		public:
+			scalar_t origin[2];
+			scalar_t angle[2];
+			scalar_t plane[2];
+	};
+
+	//
+	//
 	// Functions
 	//
 	//
 
-	// Cast rays into the world
-	void Cast(int screen_xpos, int screen_width);
+	// Cast rays into the world and render the result
+	void Render(Camera &camera, int width, int height);
 }
