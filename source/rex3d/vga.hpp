@@ -46,6 +46,9 @@ namespace VGA
 	// Set a color in the palette
 	void SetPaletteColor(uint8_t i, uint8_t r, uint8_t g, uint8_t b);
 
+	// Set the palette from a file
+	void SetPalette(string filename);
+
 	//
 	// Pixel
 	//

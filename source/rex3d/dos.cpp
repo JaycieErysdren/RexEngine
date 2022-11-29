@@ -67,6 +67,10 @@ namespace DOS
 // Set all interrupts
 void DOS::Initialize()
 {
+	// Enable access to the memory we use
+	__djgpp_nearptr_enable();
+
+	// Initialize mouse & kb
 	MouseInitialize();
 	KeyboardInitialize();
 }
@@ -76,6 +80,9 @@ void DOS::Shutdown()
 {
 	MouseShutdown();
 	KeyboardShutdown();
+
+	// Reset memory access
+	__djgpp_nearptr_disable();
 }
 
 //

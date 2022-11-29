@@ -40,6 +40,10 @@ int main(int argc, char *argv[])
 
 	// Initialize VGA
 	VGA::Initialize();
+	VGA::SetPalette("quake.pal");
+
+	// Load textures
+	Raycaster::LoadTextures();
 
 	// Clear the screen
 	VGA::Clear();
@@ -94,7 +98,7 @@ int main(int argc, char *argv[])
 		VGA::Clear();
 
 		// Render to back buffer
-		Raycaster::Render(camera, 320, 200);
+		Raycaster::Render(camera, 320, 200, true);
 
 		// Flip buffer
 		VGA::Flip();

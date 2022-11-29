@@ -51,16 +51,14 @@ namespace VGA
 bool VGA::Initialize()
 {
 	// Set VGA mode 0x13
-	union REGS regs;
-	regs.x.ax = 0x13;
-	int86(0x10, &regs, &regs);
+	union REGS r;
+	r.h.ah = 0x00;
+	r.h.al = 0x13;
+	int86(0x10, &r, &r);
 
 	// Allocate & clear back buffer
 	buffer_back = new uint8_t [64000];
 	memset(buffer_back, 0, 64000);
-
-	// Enable access to the memory we use
-	__djgpp_nearptr_enable();
 
 	// Set & clear video memory
 	buffer_front = (uint8_t *)(0xa0000 + __djgpp_conventional_base);
@@ -73,12 +71,9 @@ bool VGA::Initialize()
 bool VGA::Shutdown()
 {
 	// Set mode 0x03
-	union REGS regs;
-	regs.x.ax = 0x03;
-	int86(0x10, &regs, &regs);
-
-	// Ee-enable memory checking
-	__djgpp_nearptr_disable();
+	union REGS r;
+	r.x.ax = 0x03;
+	int86(0x10, &r, &r);
 
 	// Free memory
 	delete [] (buffer_back);
@@ -90,7 +85,7 @@ bool VGA::Shutdown()
 // Palette
 //
 
-// set a colour in the palette
+// Set a color in the palette
 void VGA::SetPaletteColor(uint8_t i, uint8_t r, uint8_t g, uint8_t b)
 {
 	// Output the index of the colour
@@ -100,6 +95,28 @@ void VGA::SetPaletteColor(uint8_t i, uint8_t r, uint8_t g, uint8_t b)
 	outp(0x3c9, r);
 	outp(0x3c9, g);
 	outp(0x3c9, b);
+}
+
+// Set the palette from a file
+void VGA::SetPalette(string filename)
+{
+	int i;
+	uint8_t r, g, b;
+	int palette_size = 256 * 3;
+	uint8_t *palette = new uint8_t [palette_size];
+	FILE *file;
+
+	file = fopen(filename.c_str(), "rb");
+	fread(palette, sizeof(uint8_t), palette_size, file);
+	fclose(file);
+
+	// Tell VGA that palette data is coming
+	outp(0x03c8, 0);
+
+	for (i = 0; i < palette_size; i++)
+	{
+		outp(0x03c9, palette[i]);
+	}
 }
 
 //

@@ -41,12 +41,24 @@ namespace Raycaster
 			scalar_t plane[2];
 	};
 
+	// An 8-bit indexed texture
+	class Texture
+	{
+		public:
+			int width;
+			int height;
+			uint8_t *pixels;
+	};
+
 	//
 	//
 	// Functions
 	//
 	//
 
+	// Load some textures into memory
+	void LoadTextures();
+
 	// Cast rays into the world and render the result
-	void Render(Camera &camera, int width, int height);
+	void Render(Camera &camera, int width, int height, bool texture_mapping);
 }

@@ -17,6 +17,9 @@
 // Rex3D header
 #include "rex3d.hpp"
 
+#define texHeight 64
+#define texWidth 64
+
 // Placeholder world map
 uint8_t world_map[24][24] =
 {
@@ -38,7 +41,7 @@ uint8_t world_map[24][24] =
 	{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
 	{1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
 	{1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,4,0,0,0,0,5,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+	{1,4,0,0,0,0,4,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
 	{1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
 	{1,4,0,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
 	{1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
@@ -55,15 +58,47 @@ uint8_t world_map[24][24] =
 // Raycaster namespace definition (private)
 namespace Raycaster
 {
-
+	// Texture array
+	vector<Texture> textures;
 }
 
 //
 // Functions
 //
 
+// Load some textures into memory
+void Raycaster::LoadTextures()
+{
+	// Variables
+	Texture texture0;
+	Texture texture1;
+	FILE *file;
+
+	// Texture 0
+	texture0.width = 64;
+	texture0.height = 64;
+	texture0.pixels = new uint8_t [texture0.width * texture0.height];
+
+	file = fopen("wall001l.tex", "rb");
+	fread(texture0.pixels, sizeof(uint8_t), texture0.width * texture0.height, file);
+	fclose(file);
+
+	textures.push_back(texture0);
+
+	// Texture 1
+	texture1.width = 64;
+	texture1.height = 64;
+	texture1.pixels = new uint8_t [texture1.width * texture1.height];
+
+	file = fopen("wall001d.tex", "rb");
+	fread(texture1.pixels, sizeof(uint8_t), texture1.width * texture1.height, file);
+	fclose(file);
+
+	textures.push_back(texture1);
+}
+
 // Cast rays into the world
-void Raycaster::Render(Camera &camera, int width, int height)
+void Raycaster::Render(Camera &camera, int width, int height, bool texture_mapping)
 {
 	int x, y;
 	for (x = 0; x < width; x++)
@@ -161,24 +196,57 @@ void Raycaster::Render(Camera &camera, int width, int height)
 		int drawEnd = lineHeight / 2 + height / 2;
 		if(drawEnd >= height) drawEnd = height - 1;
 
-		//choose wall color
-		uint8_t color;
-		switch (world_map[mapX][mapY])
+		if (texture_mapping == true)
 		{
-			case 1:  color = 40; break; //red
-			case 2:  color = 47; break; //green
-			case 3:  color = 32; break; //blue
-			case 4:  color = 15; break; //white
-			default: color = 14; break; //yellow
+			// texturing calculations
+			int texNum = world_map[mapX][mapY] - 1; //1 subtracted from it so that texture 0 can be used!
+
+			// calculate value of wallX
+			scalar_t wallX; //where exactly the wall was hit
+			if (side == 0) wallX = camera.origin[1] + perpWallDist * rayDirY;
+			else           wallX = camera.origin[0] + perpWallDist * rayDirX;
+			wallX -= floor((wallX));
+
+			// x coordinate on the texture
+			int texX = int(wallX * SCALAR(texWidth));
+			if (side == 0 && rayDirX > 0) texX = texWidth - texX - 1;
+			if (side == 1 && rayDirY < 0) texX = texWidth - texX - 1;
+
+            // How much to increase the texture coordinate per screen pixel
+			scalar_t step = 1.0 * texHeight / lineHeight;
+			// Starting texture coordinate
+			scalar_t texPos = (drawStart - height / 2 + lineHeight / 2) * step;
+
+			for (y = drawStart; y < drawEnd; y++)
+			{
+				// Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
+				int texY = (int)texPos & (texHeight - 1);
+				texPos += step;
+				uint8_t color = side ? textures[1].pixels[texHeight * texY + texX] : textures[0].pixels[texHeight * texY + texX];
+				VGA::PlacePixel(x, y, color);
+			}
 		}
-
-		//give x and y sides different brightness
-		if(side == 1) {color -= 1;}
-
-		//draw the pixels of the stripe as a vertical line
-		for (y = drawStart; y < drawEnd; y++)
+		else
 		{
-			VGA::PlacePixel(x, y, color);
+			//choose wall color
+			uint8_t color;
+			switch (world_map[mapX][mapY])
+			{
+				case 1:  color = 40; break; //red
+				case 2:  color = 47; break; //green
+				case 3:  color = 32; break; //blue
+				case 4:  color = 15; break; //white
+				default: color = 14; break; //yellow
+			}
+
+			//give x and y sides different brightness
+			if(side == 1) {color -= 1;}
+
+			//draw the pixels of the stripe as a vertical line
+			for (y = drawStart; y < drawEnd; y++)
+			{
+				VGA::PlacePixel(x, y, color);
+			}
 		}
 	}
 }
