@@ -8,7 +8,7 @@
 //
 // LICENSE:			TBD
 //
-// DESCRIPTION:		Raycaster namespace header
+// DESCRIPTION:		RaycastRenderer namespace header
 //
 // LAST EDITED:		November 29th, 2022
 //
@@ -19,12 +19,12 @@ extern uint8_t world_map[24][24];
 
 //
 //
-// Raycaster namespace
+// RaycastRenderer namespace
 //
 //
 
-// Raycaster namespace definition (public)
-namespace Raycaster
+// RaycastRenderer namespace definition (public)
+namespace RaycastRenderer
 {
 	//
 	//
@@ -60,5 +60,5 @@ namespace Raycaster
 	void LoadTextures();
 
 	// Cast rays into the world and render the result
-	void Render(Camera &camera, int width, int height, bool texture_mapping);
+	void Render(Camera &camera, int width, int height, bool enable_textures, bool enable_floors);
 }
