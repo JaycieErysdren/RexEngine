@@ -72,11 +72,13 @@ void Raycaster::LoadTextures()
 	// Variables
 	Texture texture0;
 	Texture texture1;
+	Texture texture2;
+	Texture texture3;
 	FILE *file;
 
 	// Texture 0
-	texture0.width = 64;
-	texture0.height = 64;
+	texture0.width = texWidth;
+	texture0.height = texHeight;
 	texture0.pixels = new uint8_t [texture0.width * texture0.height];
 
 	file = fopen("wall001l.tex", "rb");
@@ -86,8 +88,8 @@ void Raycaster::LoadTextures()
 	textures.push_back(texture0);
 
 	// Texture 1
-	texture1.width = 64;
-	texture1.height = 64;
+	texture1.width = texWidth;
+	texture1.height = texHeight;
 	texture1.pixels = new uint8_t [texture1.width * texture1.height];
 
 	file = fopen("wall001d.tex", "rb");
@@ -95,12 +97,86 @@ void Raycaster::LoadTextures()
 	fclose(file);
 
 	textures.push_back(texture1);
-}
+
+	// Texture 2
+	texture2.width = texWidth;
+	texture2.height = texHeight;
+	texture2.pixels = new uint8_t [texture2.width * texture2.height];
+
+	file = fopen("floor001.tex", "rb");
+	fread(texture2.pixels, sizeof(uint8_t), texture2.width * texture2.height, file);
+	fclose(file);
+
+	textures.push_back(texture2);
+
+	// Texture 3
+	texture3.width = texWidth;
+	texture3.height = texHeight;
+	texture3.pixels = new uint8_t [texture3.width * texture3.height];
+
+	file = fopen("ceil001.tex", "rb");
+	fread(texture3.pixels, sizeof(uint8_t), texture3.width * texture3.height, file);
+	fclose(file);
+
+	textures.push_back(texture3);}
 
 // Cast rays into the world
 void Raycaster::Render(Camera &camera, int width, int height, bool texture_mapping)
 {
 	int x, y;
+
+    //FLOOR CASTING
+	for(y = 0; y < height; y++)
+	{
+		// rayDir for leftmost ray (x = 0) and rightmost ray (x = w)
+		scalar_t rayDirX0 = camera.angle[0] - camera.plane[0];
+		scalar_t rayDirY0 = camera.angle[1] - camera.plane[1];
+		scalar_t rayDirX1 = camera.angle[0] + camera.plane[0];
+		scalar_t rayDirY1 = camera.angle[1] + camera.plane[1];
+
+		// Current y position compared to the center of the screen (the horizon)
+		int p = y - height / 2;
+
+		// Horizontal distance from the camera to the floor for the current row.
+		// 0.5 is the z position exactly in the middle between floor and ceiling.
+		scalar_t rowDistance = camera.origin[2] / p;
+
+		// calculate the real world step vector we have to add for each x (parallel to camera plane)
+		// adding step by step avoids multiplications with a weight in the inner loop
+		scalar_t floorStepX = rowDistance * (rayDirX1 - rayDirX0) / width;
+		scalar_t floorStepY = rowDistance * (rayDirY1 - rayDirY0) / width;
+
+		// real world coordinates of the leftmost column. This will be updated as we step to the right.
+		scalar_t floorX = camera.origin[0] + rowDistance * rayDirX0;
+		scalar_t floorY = camera.origin[1] + rowDistance * rayDirY0;
+
+		for(int x = 0; x < width; x++)
+		{
+			// the cell coord is simply got from the integer parts of floorX and floorY
+			int cellX = (int)(floorX);
+			int cellY = (int)(floorY);
+
+			// get the texture coordinate from the fractional part
+			int tx = (int)(texWidth * (floorX - cellX)) & (texWidth - 1);
+			int ty = (int)(texHeight * (floorY - cellY)) & (texHeight - 1);
+
+			floorX += floorStepX;
+			floorY += floorStepY;
+
+			// choose texture and draw the pixel
+			uint8_t color;
+
+			// floor
+			color = textures[2].pixels[texWidth * ty + tx];
+			VGA::PlacePixel(x, y, color);
+
+			//ceiling (symmetrical, at height - y - 1 instead of y)
+			color = textures[3].pixels[texWidth * ty + tx];
+			VGA::PlacePixel(x, height - y - 1, color);
+		}
+	}
+
+	// WALL CASTING
 	for (x = 0; x < width; x++)
 	{
 		//calculate ray position and direction

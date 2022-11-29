@@ -36,7 +36,7 @@ namespace Raycaster
 	class Camera
 	{
 		public:
-			scalar_t origin[2];
+			scalar_t origin[3];
 			scalar_t angle[2];
 			scalar_t plane[2];
 	};

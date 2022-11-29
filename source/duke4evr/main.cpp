@@ -30,6 +30,7 @@ int main(int argc, char *argv[])
 	// Setup camera defaults
 	camera.origin[0] = SCALAR(22.0f);
 	camera.origin[1] = SCALAR(12.0f);
+	camera.origin[2] = SCALAR(0.5f * 200);
 	camera.angle[0] = SCALAR(-1.0f);
 	camera.angle[1] = SCALAR(0.0f);
 	camera.plane[0] = SCALAR(0.0f);

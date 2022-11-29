@@ -150,6 +150,7 @@ void VGA::PlacePixel(int x, int y, uint8_t color)
 {
 	// set the memory
 	// same as y*320+x, but slightly quicker
+	//memset(&buffer_back[(y << 8) + (y << 6) + x], color, sizeof(uint8_t));
 	buffer_back[(y << 8) + (y << 6) + x] = color;
 }
 
