@@ -1,0 +1,9 @@
+# unversioned files
+/local/
+
+# vscode
+.vscode/
+*.code-workspace
+
+# cmake
+cmake-build-*/
