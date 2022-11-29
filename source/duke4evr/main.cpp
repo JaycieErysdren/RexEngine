@@ -24,8 +24,9 @@ int main(int argc, char *argv[])
 	int i, x, y;
 	scalar_t move_speed = SCALAR(0.2f);
 	scalar_t rot_speed = SCALAR(0.1f);
-	Raycaster::Camera camera;
+	RaycastRenderer::Camera camera;
 	int mb, mx, my;
+	bool enable_textures = true, enable_floors = true;
 
 	// Setup camera defaults
 	camera.origin[0] = SCALAR(22.0f);
@@ -43,8 +44,11 @@ int main(int argc, char *argv[])
 	VGA::Initialize();
 	VGA::SetPalette("wolf.pal");
 
-	// Load textures
-	Raycaster::LoadTextures();
+	// Load RaycastRenderer textures
+	RaycastRenderer::LoadTextures();
+
+	// Load PortalRender data
+	//PortalRenderer::LoadData();
 
 	// Clear the screen
 	VGA::Clear();
@@ -60,21 +64,21 @@ int main(int argc, char *argv[])
 		mb = DOS::MouseRead(&mx, &my);
 
 		// Move forward
-		if(DOS::KeyTest(KB_W))
+		if (DOS::KeyTest(KB_W))
 		{
 			if(world_map[int(camera.origin[0] + camera.angle[0] * move_speed)][int(camera.origin[1])] == false) camera.origin[0] += camera.angle[0] * move_speed;
 			if(world_map[int(camera.origin[0])][int(camera.origin[1] + camera.angle[1] * move_speed)] == false) camera.origin[1] += camera.angle[1] * move_speed;
 		}
 		
 		// Move backward
-		if(DOS::KeyTest(KB_S))
+		if (DOS::KeyTest(KB_S))
 		{
 			if(world_map[int(camera.origin[0] - camera.angle[0] * move_speed)][int(camera.origin[1])] == false) camera.origin[0] -= camera.angle[0] * move_speed;
 			if(world_map[int(camera.origin[0])][int(camera.origin[1] - camera.angle[1] * move_speed)] == false) camera.origin[1] -= camera.angle[1] * move_speed;
 		}
 
 		// Rotate right
-		if(DOS::KeyTest(KB_D))
+		if (DOS::KeyTest(KB_D))
 		{
 			scalar_t old_dir0 = camera.angle[0];
 			camera.angle[0] = camera.angle[0] * cos(-rot_speed) - camera.angle[1] * sin(-rot_speed);
@@ -85,7 +89,7 @@ int main(int argc, char *argv[])
 		}
 
 		// Rotate left
-		if(DOS::KeyTest(KB_A))
+		if (DOS::KeyTest(KB_A))
 		{
 			scalar_t old_dir0 = camera.angle[0];
 			camera.angle[0] = camera.angle[0] * cos(rot_speed) - camera.angle[1] * sin(rot_speed);
@@ -95,11 +99,16 @@ int main(int argc, char *argv[])
 			camera.plane[1] = old_plane0 * sin(rot_speed) + camera.plane[1] * cos(rot_speed);
 		}
 
+		// Toggle floor
+		if (DOS::KeyTest(KB_F)) enable_floors = !enable_floors;
+		if (DOS::KeyTest(KB_G)) enable_textures = !enable_textures;
+
 		// Clear back buffer
 		VGA::Clear();
 
 		// Render to back buffer
-		Raycaster::Render(camera, 320, 200, true);
+		RaycastRenderer::Render(camera, 320, 200, enable_textures, enable_textures);
+		//PortalRenderer::Render(320, 200, enable_textures);
 
 		// Flip buffers
 		VGA::Flip();
@@ -107,6 +116,9 @@ int main(int argc, char *argv[])
 
 	// Shutdown VGA
 	VGA::Shutdown();
+
+	// Shutdown Portal Renderer
+	//PortalRenderer::UnloadData();
 
 	// Shutdown DOS
 	DOS::Shutdown();

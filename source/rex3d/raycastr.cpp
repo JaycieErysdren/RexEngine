@@ -8,7 +8,7 @@
 //
 // LICENSE:			TBD
 //
-// DESCRIPTION:		Raycaster namespace implementation
+// DESCRIPTION:		RaycastRenderer namespace implementation
 //
 // LAST EDITED:		November 29th, 2022
 //
@@ -51,12 +51,12 @@ uint8_t world_map[24][24] =
 
 //
 //
-// Raycaster namespace
+// RaycastRenderer namespace
 //
 //
 
-// Raycaster namespace definition (private)
-namespace Raycaster
+// RaycastRenderer namespace definition (private)
+namespace RaycastRenderer
 {
 	// Texture array
 	vector<Texture> textures;
@@ -67,7 +67,7 @@ namespace Raycaster
 //
 
 // Load some textures into memory
-void Raycaster::LoadTextures()
+void RaycastRenderer::LoadTextures()
 {
 	// Variables
 	Texture texture0;
@@ -122,58 +122,75 @@ void Raycaster::LoadTextures()
 }
 
 // Cast rays into the world
-void Raycaster::Render(Camera &camera, int width, int height, bool texture_mapping)
+void RaycastRenderer::Render(Camera &camera, int width, int height, bool enable_textures, bool enable_floors)
 {
 	int x, y;
 
     //FLOOR CASTING
-	for(y = 0; y < height; y++)
+	if (enable_floors == true)
 	{
-		// rayDir for leftmost ray (x = 0) and rightmost ray (x = w)
-		scalar_t rayDirX0 = camera.angle[0] - camera.plane[0];
-		scalar_t rayDirY0 = camera.angle[1] - camera.plane[1];
-		scalar_t rayDirX1 = camera.angle[0] + camera.plane[0];
-		scalar_t rayDirY1 = camera.angle[1] + camera.plane[1];
-
-		// Current y position compared to the center of the screen (the horizon)
-		int p = y - height / 2;
-
-		// Horizontal distance from the camera to the floor for the current row.
-		// 0.5 is the z position exactly in the middle between floor and ceiling.
-		scalar_t rowDistance = camera.origin[2] / p;
-
-		// calculate the real world step vector we have to add for each x (parallel to camera plane)
-		// adding step by step avoids multiplications with a weight in the inner loop
-		scalar_t floorStepX = rowDistance * (rayDirX1 - rayDirX0) / width;
-		scalar_t floorStepY = rowDistance * (rayDirY1 - rayDirY0) / width;
-
-		// real world coordinates of the leftmost column. This will be updated as we step to the right.
-		scalar_t floorX = camera.origin[0] + rowDistance * rayDirX0;
-		scalar_t floorY = camera.origin[1] + rowDistance * rayDirY0;
-
-		for(int x = 0; x < width; x++)
+		for (y = 0; y < height; y++)
 		{
-			// the cell coord is simply got from the integer parts of floorX and floorY
-			int cellX = (int)(floorX);
-			int cellY = (int)(floorY);
+			// rayDir for leftmost ray (x = 0) and rightmost ray (x = w)
+			scalar_t rayDirX0 = camera.angle[0] - camera.plane[0];
+			scalar_t rayDirY0 = camera.angle[1] - camera.plane[1];
+			scalar_t rayDirX1 = camera.angle[0] + camera.plane[0];
+			scalar_t rayDirY1 = camera.angle[1] + camera.plane[1];
 
-			// get the texture coordinate from the fractional part
-			int tx = (int)(texWidth * (floorX - cellX)) & (texWidth - 1);
-			int ty = (int)(texHeight * (floorY - cellY)) & (texHeight - 1);
+			// Current y position compared to the center of the screen (the horizon)
+			int p = y - height / 2;
 
-			floorX += floorStepX;
-			floorY += floorStepY;
+			// Horizontal distance from the camera to the floor for the current row.
+			// 0.5 is the z position exactly in the middle between floor and ceiling.
+			scalar_t rowDistance = camera.origin[2] / p;
 
-			// choose texture and draw the pixel
-			uint8_t color;
+			// calculate the real world step vector we have to add for each x (parallel to camera plane)
+			// adding step by step avoids multiplications with a weight in the inner loop
+			scalar_t floorStepX = rowDistance * (rayDirX1 - rayDirX0) / width;
+			scalar_t floorStepY = rowDistance * (rayDirY1 - rayDirY0) / width;
 
-			// floor
-			color = textures[2].pixels[texWidth * ty + tx];
-			VGA::PlacePixel(x, y, color);
+			// real world coordinates of the leftmost column. This will be updated as we step to the right.
+			scalar_t floorX = camera.origin[0] + rowDistance * rayDirX0;
+			scalar_t floorY = camera.origin[1] + rowDistance * rayDirY0;
 
-			//ceiling (symmetrical, at height - y - 1 instead of y)
-			color = textures[3].pixels[texWidth * ty + tx];
-			VGA::PlacePixel(x, height - y - 1, color);
+			for(int x = 0; x < width; x++)
+			{
+				// the cell coord is simply got from the integer parts of floorX and floorY
+				int cellX = (int)(floorX);
+				int cellY = (int)(floorY);
+
+				// get the texture coordinate from the fractional part
+				int tx = (int)(texWidth * (floorX - cellX)) & (texWidth - 1);
+				int ty = (int)(texHeight * (floorY - cellY)) & (texHeight - 1);
+
+				floorX += floorStepX;
+				floorY += floorStepY;
+
+				uint8_t color;
+
+				if (enable_textures == true)
+				{
+					// choose texture and draw the pixel
+
+					// floor
+					color = textures[2].pixels[texWidth * ty + tx];
+					VGA::PlacePixel(x, y, color);
+
+					//ceiling (symmetrical, at height - y - 1 instead of y)
+					color = textures[3].pixels[texWidth * ty + tx];
+					VGA::PlacePixel(x, height - y - 1, color);
+				}
+				else
+				{
+					// floor
+					color = 2;
+					VGA::PlacePixel(x, y, color);
+
+					// ceiling
+					color = 4;
+					VGA::PlacePixel(x, height - y - 1, color);
+				}
+			}
 		}
 	}
 
@@ -273,7 +290,7 @@ void Raycaster::Render(Camera &camera, int width, int height, bool texture_mappi
 		int drawEnd = lineHeight / 2 + height / 2;
 		if(drawEnd >= height) drawEnd = height - 1;
 
-		if (texture_mapping == true)
+		if (enable_textures == true)
 		{
 			// texturing calculations
 			int texNum = world_map[mapX][mapY] - 1; //1 subtracted from it so that texture 0 can be used!

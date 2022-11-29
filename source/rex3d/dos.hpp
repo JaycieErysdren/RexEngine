@@ -40,6 +40,8 @@
 #define KB_A				30
 #define KB_S				31
 #define KB_D				32
+#define KB_F				33
+#define KB_G				34
 #define KB_SPACE			57
 #define KB_C				46
 

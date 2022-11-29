@@ -79,6 +79,7 @@ typedef float				ufraction_t;
 #include "vga.hpp"
 
 // Graphics
+#include "portrend.hpp"
 #include "raycastr.hpp"
 
 #endif // __REX3D_H__
