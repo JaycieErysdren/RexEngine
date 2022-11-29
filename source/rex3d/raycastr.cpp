@@ -118,7 +118,8 @@ void Raycaster::LoadTextures()
 	fread(texture3.pixels, sizeof(uint8_t), texture3.width * texture3.height, file);
 	fclose(file);
 
-	textures.push_back(texture3);}
+	textures.push_back(texture3);
+}
 
 // Cast rays into the world
 void Raycaster::Render(Camera &camera, int width, int height, bool texture_mapping)
