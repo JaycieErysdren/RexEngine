@@ -25,13 +25,19 @@ cmake_minimum_required(VERSION 3.13)
 project(Duke4Ever LANGUAGES C CXX)
 
 ## Build type
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
 
 ##
-## Project options
+## Project Options
 ##
 
 option(USE_FLOATING_POINT "Use floating point for the base engine math" ON)
+
+##
+## Project Compile Options
+##
+
+add_compile_options("-O3")
 
 ##
 ## Project Libraries
@@ -40,7 +46,6 @@ option(USE_FLOATING_POINT "Use floating point for the base engine math" ON)
 set(REX3D_SRC
 	${CMAKE_SOURCE_DIR}/source/rex3d/dos.cpp
 	${CMAKE_SOURCE_DIR}/source/rex3d/math.cpp
-	${CMAKE_SOURCE_DIR}/source/rex3d/portrend.cpp
 	${CMAKE_SOURCE_DIR}/source/rex3d/raycastr.cpp
 	${CMAKE_SOURCE_DIR}/source/rex3d/rex3d.cpp
 	${CMAKE_SOURCE_DIR}/source/rex3d/vga.cpp

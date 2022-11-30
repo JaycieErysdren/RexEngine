@@ -68,3 +68,9 @@ namespace Math
 #define MUL(a, b)			((a) * (b))
 
 #endif
+
+// Fixed/float/integer conversion functions
+#define X2I(a)				((a) >> 16)
+#define I2X(a)				((a) << 16)
+#define X2F(a)				(((float)(a)) / I2X(1))
+#define F2X(a)				((int)((a) * I2X(1)))
