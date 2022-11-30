@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/dos.cpp
+// FILE:			/source/hwdrv/dos.cpp
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		DOS namespace implementation
 //
-// LAST EDITED:		November 29th, 2022
+// LAST EDITED:		November 30th, 2022
 //
 // ========================================================
 

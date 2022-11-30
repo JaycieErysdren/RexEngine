@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex3D main engine header
 //
-// LAST EDITED:		November 29th, 2022
+// LAST EDITED:		November 30th, 2022
 //
 // ========================================================
 
@@ -43,43 +43,56 @@
 using namespace std;
 
 //
+//
+// Rex3D forward definitions
+//
+//
+
+//
 // Handle math type (fixed or floating point)
 //
 
-// Default to fixed point
+// Default to fixed point math if not defined
 #if !defined(BASED_FIXED) && !defined(BASED_FLOAT)
 #define BASED_FIXED true
 #define BASED_FLOAT false
 #endif
 
-// Fixed or floating point types
-#if BASED_FIXED
-
-typedef int64_t				scalar_t;
-typedef int16_t				fraction_t;
-typedef uint16_t			ufraction_t;
-
-#elif BASED_FLOAT
-
-typedef float				scalar_t;
-typedef float				fraction_t;
-typedef float				ufraction_t;
-
-#endif
-
+//
 //
 // Rex3D Headers
 //
+//
+
+//
+// Core
+//
+
+// Types
+#include "core/types.hpp"
 
 // Math
-#include "math.hpp"
+#include "core/math.hpp"
 
-// System I/O
-#include "dos.hpp"
-#include "vga.hpp"
+//
+// Hardware drivers
+//
 
-// Graphics
-#include "portrend.hpp"
-#include "raycastr.hpp"
+// DOS
+#include "hwdrv/dos.hpp"
+
+//
+// Video drivers
+//
+
+// VGA
+#include "viddrv/vga.hpp"
+
+//
+// Renderers 
+//
+
+// Raycasting
+#include "rend/raycastr.hpp"
 
 #endif // __REX3D_H__

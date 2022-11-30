@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/math.cpp
+// FILE:			/source/core/math.hpp
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -8,14 +8,11 @@
 //
 // LICENSE:			TBD
 //
-// DESCRIPTION:		Math namespace implementation
+// DESCRIPTION:		Math namespace header
 //
-// LAST EDITED:		November 29th, 2022
+// LAST EDITED:		November 30th, 2022
 //
 // ========================================================
-
-// Rex3D header
-#include "rex3d.hpp"
 
 //
 //
@@ -23,7 +20,7 @@
 //
 //
 
-// Math namespace definition (private)
+// Math namespace definition (public)
 namespace Math
 {
 

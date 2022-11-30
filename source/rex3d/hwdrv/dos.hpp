@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/dos.hpp
+// FILE:			/source/hwdrv/dos.hpp
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		DOS namespace header
 //
-// LAST EDITED:		November 29th, 2022
+// LAST EDITED:		November 30th, 2022
 //
 // ========================================================
 
