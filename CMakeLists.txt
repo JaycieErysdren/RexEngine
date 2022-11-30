@@ -46,7 +46,7 @@ add_compile_options("-O3")
 set(REX3D_SRC
 	${CMAKE_SOURCE_DIR}/source/rex3d/dos.cpp
 	${CMAKE_SOURCE_DIR}/source/rex3d/math.cpp
-	${CMAKE_SOURCE_DIR}/source/rex3d/raycast2.cpp
+	${CMAKE_SOURCE_DIR}/source/rex3d/raycastr.cpp
 	${CMAKE_SOURCE_DIR}/source/rex3d/rex3d.cpp
 	${CMAKE_SOURCE_DIR}/source/rex3d/vga.cpp
 )
