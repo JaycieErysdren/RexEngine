@@ -80,6 +80,6 @@ typedef float				ufraction_t;
 
 // Graphics
 #include "portrend.hpp"
-#include "raycastr.hpp"
+#include "raycast2.hpp"
 
 #endif // __REX3D_H__

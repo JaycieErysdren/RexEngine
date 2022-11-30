@@ -74,3 +74,7 @@ namespace Math
 #define I2X(a)				((a) << 16)
 #define X2F(a)				(((float)(a)) / I2X(1))
 #define F2X(a)				((int)((a) * I2X(1)))
+
+#define MIN(a,b) (((a) < (b)) ? (a) : (b)) // min: Choose smaller of two values.
+#define MAX(a,b) (((a) > (b)) ? (a) : (b)) // max: Choose bigger of two values.
+#define CLAMP(a, min, max) MIN(MAX(a, min), max)  // clamp: Clamp value into set range.

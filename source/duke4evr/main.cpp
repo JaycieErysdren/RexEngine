@@ -24,9 +24,10 @@ int main(int argc, char *argv[])
 	int i, x, y;
 	scalar_t move_speed = SCALAR(0.2f);
 	scalar_t rot_speed = SCALAR(0.1f);
-	RaycastRenderer::Camera camera;
 	int mb, mx, my;
 	bool enable_textures = true, enable_floors = true;
+
+	#ifdef NOPE
 
 	// Setup camera defaults
 	camera.origin[0] = SCALAR(22.0f);
@@ -37,6 +38,8 @@ int main(int argc, char *argv[])
 	camera.plane[0] = SCALAR(0.0f);
 	camera.plane[1] = SCALAR(0.66f);
 
+	#endif
+
 	// Initialize DOS
 	DOS::Initialize();
 
@@ -44,11 +47,8 @@ int main(int argc, char *argv[])
 	VGA::Initialize();
 	VGA::SetPalette("wolf.pal");
 
-	// Load RaycastRenderer textures
-	RaycastRenderer::LoadTextures();
-
-	// Load PortalRender data
-	//PortalRenderer::LoadData();
+	// Initialize Raycaster
+	Raycaster::Initialize();
 
 	// Clear the screen
 	VGA::Clear();
@@ -59,6 +59,8 @@ int main(int argc, char *argv[])
 		//
 		// Input handling
 		//
+
+		#ifdef NOPE
 
 		// Read mouse
 		mb = DOS::MouseRead(&mx, &my);
@@ -99,16 +101,13 @@ int main(int argc, char *argv[])
 			camera.plane[1] = old_plane0 * sin(rot_speed) + camera.plane[1] * cos(rot_speed);
 		}
 
-		// Toggle floor
-		if (DOS::KeyTest(KB_F)) enable_floors = !enable_floors;
-		if (DOS::KeyTest(KB_G)) enable_textures = !enable_textures;
+		#endif
 
 		// Clear back buffer
 		VGA::Clear();
 
 		// Render to back buffer
-		RaycastRenderer::Render(camera, 320, 200, enable_textures, enable_textures);
-		//PortalRenderer::Render(320, 200, enable_textures);
+		Raycaster::Render();
 
 		// Flip buffers
 		VGA::Flip();

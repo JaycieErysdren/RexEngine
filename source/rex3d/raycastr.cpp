@@ -8,7 +8,7 @@
 //
 // LICENSE:			TBD
 //
-// DESCRIPTION:		RaycastRenderer namespace implementation
+// DESCRIPTION:		Raycaster namespace implementation
 //
 // LAST EDITED:		November 29th, 2022
 //
@@ -51,12 +51,12 @@ uint8_t world_map[24][24] =
 
 //
 //
-// RaycastRenderer namespace
+// Raycaster namespace
 //
 //
 
-// RaycastRenderer namespace definition (private)
-namespace RaycastRenderer
+// Raycaster namespace definition (private)
+namespace Raycaster
 {
 	// Texture array
 	vector<Texture> textures;
@@ -67,7 +67,7 @@ namespace RaycastRenderer
 //
 
 // Load some textures into memory
-void RaycastRenderer::LoadTextures()
+void Raycaster::LoadTextures()
 {
 	// Variables
 	Texture texture0;
@@ -122,7 +122,7 @@ void RaycastRenderer::LoadTextures()
 }
 
 // Cast rays into the world
-void RaycastRenderer::Render(Camera &camera, int width, int height, bool enable_textures, bool enable_floors)
+void Raycaster::Render(Camera &camera, int width, int height, bool enable_textures, bool enable_floors)
 {
 	int x, y;
 

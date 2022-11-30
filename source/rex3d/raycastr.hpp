@@ -8,7 +8,7 @@
 //
 // LICENSE:			TBD
 //
-// DESCRIPTION:		RaycastRenderer namespace header
+// DESCRIPTION:		Raycaster namespace header
 //
 // LAST EDITED:		November 29th, 2022
 //
@@ -19,12 +19,12 @@ extern uint8_t world_map[24][24];
 
 //
 //
-// RaycastRenderer namespace
+// Raycaster namespace
 //
 //
 
-// RaycastRenderer namespace definition (public)
-namespace RaycastRenderer
+// Raycaster namespace definition (public)
+namespace Raycaster
 {
 	//
 	//
