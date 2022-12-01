@@ -1,12 +1,12 @@
 // ========================================================
 //
-// FILE:		/source/duke4evr/main.cpp
+// FILE:			/source/duke4evr/main.cpp
 //
-// AUTHORS:		Jaycie Ewald
+// AUTHORS:			Jaycie Ewald
 //
-// PROJECT:		Duke4Ever
+// PROJECT:			Duke4Ever
 //
-// LICENSE:		TBD
+// LICENSE:			TBD
 //
 // DESCRIPTION:		Duke4Ever program entry point
 //
@@ -22,10 +22,11 @@ int main(int argc, char *argv[])
 {
 	// Variables
 	int i, x, y;
+	int mb, mx, my;
+	#ifdef RAYCASTER
 	scalar_t move_speed = SCALAR(0.2f);
 	scalar_t rot_speed = SCALAR(0.1f);
 	Raycaster::Camera camera;
-	int mb, mx, my;
 	bool enable_textures = true, enable_floors = true;
 
 	// Setup camera defaults
@@ -36,6 +37,7 @@ int main(int argc, char *argv[])
 	camera.angle[1] = SCALAR(0.0f);
 	camera.plane[0] = SCALAR(0.0f);
 	camera.plane[1] = SCALAR(0.66f);
+	#endif
 
 	// Initialize DOS
 	DOS::Initialize();
@@ -44,11 +46,10 @@ int main(int argc, char *argv[])
 	VGA::Initialize();
 	VGA::SetPalette("wolf.pal");
 
+	#ifdef RAYCASTER
 	// Load Raycaster textures
 	Raycaster::LoadTextures();
-
-	// Load PortalRender data
-	//PortalRenderer::LoadData();
+	#endif
 
 	// Clear the screen
 	VGA::Clear();
@@ -63,6 +64,7 @@ int main(int argc, char *argv[])
 		// Read mouse
 		mb = DOS::MouseRead(&mx, &my);
 
+		#ifdef RAYCASTER
 		// Move forward
 		if (DOS::KeyTest(KB_W))
 		{
@@ -108,17 +110,14 @@ int main(int argc, char *argv[])
 
 		// Render to back buffer
 		Raycaster::Render(camera, 320, 200, enable_textures, enable_textures);
-		//PortalRenderer::Render(320, 200, enable_textures);
 
 		// Flip buffers
 		VGA::Flip();
+		#endif
 	}
 
 	// Shutdown VGA
 	VGA::Shutdown();
-
-	// Shutdown Portal Renderer
-	//PortalRenderer::UnloadData();
 
 	// Shutdown DOS
 	DOS::Shutdown();

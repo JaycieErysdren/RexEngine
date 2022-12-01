@@ -15,68 +15,62 @@
 // ========================================================
 
 //
-// Conversion macros
+// Screen definitions
 //
 
-#define X2I(a)				((a) >> 16)
-#define I2X(a)				((a) << 16)
-#define X2F(a)				(((float)(a)) / I2X(1))
-#define F2X(a)				((int)((a) * I2X(1)))
+#define SCREEN_WIDTH 320
+#define SCREEN_HEIGHT 200
 
 //
-// Useful macros
+// Shortcut macros
 //
 
-#define MIN(a, b)			(((a) < (b)) ? (a) : (b))	// min: Choose smaller of two values.
-#define MAX(a, b)			(((a) > (b)) ? (a) : (b))	// max: Choose bigger of two values.
-#define CLAMP(a, min, max)	MIN(MAX(a, min), max)		// clamp: Clamp value into set range.
+#define MIN(a, b)					(((a) < (b)) ? (a) : (b))
+#define MAX(a, b)					(((a) > (b)) ? (a) : (b))
+#define CLAMP(a, min, max)			MIN(MAX(a, min), max)
 
 //
-// Math-specific types & macros
+// Fixed-point types & macros
 //
 
-#if BASED_FIXED
+// 32-bit and 16-bit fixed point types
+typedef int16_t						fix16_t;
+typedef int32_t						fix32_t;
 
-// 1 in various fixed-point forms
-#define ONE_LS				(1 << 16)
-#define ONE_LSF				(1 << 15)
-#define ONE_LU				(1 << 16)
-#define ONE_LUF				(1 << 16)
+// 16-bit fixed point bits, masks
+#define FIX16_INT_BITS				10
+#define FIX16_FRAC_BITS				(16 - FIX16_INT_BITS)
 
-#define ONE_SS				(1 << 8)
-#define ONE_SSF				(1 << 7)
-#define ONE_SU				(1 << 8)
-#define ONE_SUF				(1 << 8) 
+#define FIX16_INT_MASK				(((1 << FIX16_INT_BITS) - 1) << FIX16_FRAC_BITS)
+#define FIX16_FRAC_MASK				((1 << FIX16_FRAC_BITS) - 1)
 
-// Fixed point helpers
-#define SCALAR_EPSILON		0x0001
-#define SCALAR_MAX			0x7fffffff
-#define SCALAR_MIN			0x80000000
+// 32-bit fixed point bits, masks
+#define FIX32_INT_BITS				22
+#define FIX32_FRAC_BITS				(32 - FIX32_INT_BITS)
 
-// Base types
-typedef int64_t				scalar_t;
-typedef int16_t				fraction_t;
-typedef uint16_t			ufraction_t;
+#define FIX32_INT_MASK				(((1 << FIX32_INT_BITS) - 1) << FIX32_FRAC_BITS)
+#define FIX32_FRAC_MASK				((1 << FIX32_FRAC_BITS) - 1)
 
-// Macros for static initialization
-#define SCALAR(a)			((scalar_t)(ONE_LS * (a)))
-#define FRACTION(a)			((fraction_t)((ONE_LSF * (a)) >= ONE_LSF ? ONE_LSF - 1 : ONE_LSF * (a)))
-#define UFRACTION(a)		((ufraction_t)((ONE_LUF * (a)) >= ONE_LUF ? ONE_LUF - 1 : ONE_LUF * (a)))
+// 32-bit and 16-bit fixed point conversion macros
+#define FIX16(value)				((fix16_t)((value) * (1 << FIX16_FRAC_BITS)))
+#define FIX32(value)				((fix32_t)((value) * (1 << FIX32_FRAC_BITS)))
 
-#elif BASED_FLOAT
+// 32-bit fixed point operation shortcut macros
+#define ADD32(x, y)					((x) + (y))
+#define SUB32(x, y)					((x) - (y))
+#define MUL32(x, y)					(((x) >> FIX32_FRAC_BITS / 2) * ((y) >> FIX32_FRAC_BITS / 2))
+#define DIV32(x, y)					(((x) << FIX32_FRAC_BITS / 2) / ((y) >> FIX32_FRAC_BITS / 2))
+#define NEG32(x)					(0 - (x))
+#define MULDIV32(x, y, z)			(DIV32(MUL32((x), (y)), z))
+#define INT2FIX32(x)				((fix32_t)((x) << FIX32_FRAC_BITS))
+#define FIX2INT32(x)				((int32_t)((x) >> FIX32_FRAC_BITS))
 
-// Base types
-typedef float				scalar_t;
-typedef float				fraction_t;
-typedef float				ufraction_t;
-
-// Macros for static initialization
-#define SCALAR(a)			((scalar_t)(a))
-#define FRACTION(a)			((fraction_t)(a))
-#define UFRACTION(a)		((ufraction_t)(a))
-
-// Math macros
-#define DIV(a, b)			((a) / (b))
-#define MUL(a, b)			((a) * (b))
-
-#endif
+// 16-bit fixed point operation shortcut macros
+#define ADD16(x, y)					((x) + (y))
+#define SUB16(x, y)					((x) - (y))
+#define MUL16(x, y)					(((x) * (y)) >> FIX16_FRAC_BITS)
+#define DIV16(x, y)					(((x) << FIX16_FRAC_BITS) / y)
+#define NEG16(x)					(0 - (x))
+#define MULDIV16(x, y, z)			(DIV16(MUL16((x), (y)), z))
+#define INT2FIX16(x)				((fix16_t)((x) << FIX16_FRAC_BITS))
+#define FIX2INT16(x)				((int16_t)((x) >> FIX16_FRAC_BITS))

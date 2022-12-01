@@ -10,7 +10,7 @@
 ##
 ## DESCRIPTION:		Duke4Ever CMake project definition
 ##
-## LAST EDITED:		November 29th, 2022
+## LAST EDITED:		November 30th, 2022
 ##
 ## ========================================================
 
@@ -55,15 +55,10 @@ set(REX3D_VIDDRV_SRC
 	${CMAKE_SOURCE_DIR}/source/rex3d/viddrv/vga.cpp
 )
 
-set(REX3D_REND_SRC
-	${CMAKE_SOURCE_DIR}/source/rex3d/rend/raycastr.cpp
-)
-
 add_library(rex3d
 	${REX3D_CORE_SRC}
 	${REX3D_HWDRV_SRC}
 	${REX3D_VIDDRV_SRC}
-	${REX3D_REND_SRC}
 )
 
 target_compile_definitions(rex3d PUBLIC "BASED_FLOAT=1")

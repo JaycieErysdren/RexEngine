@@ -27,6 +27,7 @@
 #include <cstring>
 #include <cmath>
 #include <vector>
+#include <algorithm>
 
 // Standard C headers
 #include <unistd.h>
@@ -92,7 +93,31 @@ using namespace std;
 // Renderers 
 //
 
+#ifdef RAYCASTER
+
 // Raycasting
 #include "rend/raycastr.hpp"
+
+#endif
+
+#ifdef EXPERIMENTAL
+
+// Span rendering
+#include "rend/spanner.hpp"
+
+//
+// World construction 
+//
+
+// Planes
+#include "world/plane.hpp"
+
+// Sectors
+#include "world/sector.hpp"
+
+// BSP
+#include "world/bsp.hpp"
+
+#endif
 
 #endif // __REX3D_H__

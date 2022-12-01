@@ -148,10 +148,12 @@ void VGA::ShowPalette()
 // Place a pixel in the back buffer
 void VGA::PlacePixel(int x, int y, uint8_t color)
 {
+	//memset(&buffer_back[(y << 8) + (y << 6) + x], color, sizeof(uint8_t));
+	//if (color < 255) buffer_back[(y << 8) + (y << 6) + x] = color;
+
 	// set the memory
 	// same as y*320+x, but slightly quicker
-	//memset(&buffer_back[(y << 8) + (y << 6) + x], color, sizeof(uint8_t));
-	if (color < 255) buffer_back[(y << 8) + (y << 6) + x] = color;
+	buffer_back[(y << 8) + (y << 6) + x] = color;
 }
 
 // Draw a filled rectangle
@@ -177,7 +179,7 @@ void VGA::DrawRectangleFilled(int left, int top, int right, int bottom, uint8_t 
 	bottom_offset = (bottom << 8) + (bottom << 6) + left;
 	width = right - left + 1;
 
-	for(i = top_offset; i <= bottom_offset; i += 320)
+	for(i = top_offset; i <= bottom_offset; i += SCREEN_WIDTH)
 	{
 		memset(&buffer_back[i], color, width);
 	}
