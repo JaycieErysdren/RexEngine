@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Duke4Ever program entry point
 //
-// LAST EDITED:		November 30th, 2022
+// LAST EDITED:		December 1st, 2022
 //
 // ========================================================
 
@@ -62,12 +62,8 @@ int main(int argc, char *argv[])
 		Picture::Clear(&pic_bbuffer, 64);
 
 		// Add some console text
-		sprintf(console_buffer, "Mouse X: %d", mx);
+		sprintf(console_buffer, "Mouse X: %d Mouse Y: %d Mouse B: %d", mx, my, mb);
 		Console::AddText(0, 0, console_buffer);
-		sprintf(console_buffer, "Mouse Y: %d", my);
-		Console::AddText(0, 1, console_buffer);
-		sprintf(console_buffer, "Mouse B: %d", mb);
-		Console::AddText(0, 2, console_buffer);
 
 		// Render the mouse cursor
 		Picture::Draw8(&pic_bbuffer, &pic_cursor, mx, my, Picture::COLORKEY);
@@ -75,7 +71,7 @@ int main(int argc, char *argv[])
 		// Render the console text
 		Console::Render(&pic_bbuffer, &pic_font);
 
-		// Flip buffers
+		// Flip the rendering buffers
 		Picture::Copy(&pic_fbuffer, &pic_bbuffer);
 	}
 

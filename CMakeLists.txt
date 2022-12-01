@@ -10,7 +10,7 @@
 ##
 ## DESCRIPTION:		Duke4Ever CMake project definition
 ##
-## LAST EDITED:		November 30th, 2022
+## LAST EDITED:		December 1st, 2022
 ##
 ## ========================================================
 
@@ -26,12 +26,6 @@ project(Duke4Ever LANGUAGES C CXX)
 
 ## Build type
 set(CMAKE_BUILD_TYPE Release)
-
-##
-## Project Options
-##
-
-option(USE_FLOATING_POINT "Use floating point for the base engine math" ON)
 
 ##
 ## Project Compile Options
@@ -56,6 +50,7 @@ set(REX3D_HWDRV_SRC
 
 set(REX3D_MATH_SRC
 	${CMAKE_SOURCE_DIR}/source/rex3d/math/math_i.cpp
+	${CMAKE_SOURCE_DIR}/source/rex3d/math/matrix.cpp
 	${CMAKE_SOURCE_DIR}/source/rex3d/math/sintable.cpp
 )
 
@@ -64,6 +59,7 @@ set(REX3D_VIDDRV_SRC
 )
 
 set(REX3D_WORLD_SRC
+	${CMAKE_SOURCE_DIR}/source/rex3d/world/object.cpp
 	${CMAKE_SOURCE_DIR}/source/rex3d/world/sector.cpp
 )
 
@@ -72,9 +68,9 @@ add_library(rex3d STATIC
 	${REX3D_HWDRV_SRC}
 	${REX3D_MATH_SRC}
 	${REX3D_VIDDRV_SRC}
+	${REX3D_WORLD_SRC}
 )
 
-target_compile_definitions(rex3d PUBLIC "BASED_FLOAT=1")
 target_include_directories(rex3d PUBLIC ${CMAKE_SOURCE_DIR}/source)
 target_include_directories(rex3d PUBLIC ${CMAKE_SOURCE_DIR}/source/rex3d)
 

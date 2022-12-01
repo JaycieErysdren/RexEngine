@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		World namespace header
 //
-// LAST EDITED:		November 30th, 2022
+// LAST EDITED:		December 1st, 2022
 //
 // ========================================================
 
@@ -29,7 +29,7 @@ namespace World
 	//
 	//
 
-	// Vertex
+	// Vertex type
 	typedef struct
 	{
 		int32_t x;
@@ -40,7 +40,7 @@ namespace World
 		int32_t w;
 	} vertex_t;
 
-	// Surface
+	// Surface type
 	typedef struct
 	{
 		uint8_t texture;
@@ -57,7 +57,28 @@ namespace World
 		int32_t reserved;
 	} surface_t;
 
-	// Wall
+	// Sector type
+	typedef struct
+	{
+		// Persistent Variables. Moving these variables will break the file format!
+		int16_t lid;
+		int16_t padding;
+		int16_t first_wall;
+		int16_t flags;
+		surface_t top;
+		surface_t bot;
+		surface_t mid;
+
+		int reserved;
+
+		// Calculated variables. These variables are not saved out to a file.
+		int32_t vis_id;
+		rect_t bounds;
+		point_t center;
+		int32_t locked;
+	} sector_t;
+
+	// Wall type
 	typedef struct
 	{
 		// Persistent Variables. Moving these variables will break the file format!
@@ -80,4 +101,7 @@ namespace World
 		int32_t length;
 		int32_t distance;
 	} wall_t;
+
+	// Polygon type
+	typedef vertex_t polygon_t[MAX_POLYGON];
 }

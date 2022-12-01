@@ -10,9 +10,20 @@
 //
 // DESCRIPTION:		Rex3D engine types
 //
-// LAST EDITED:		November 30th, 2022
+// LAST EDITED:		December 1st, 2022
 //
 // ========================================================
+
+//
+// Engine limits
+//
+
+#define MAX_POINT				1024
+#define MAX_WALL				4192
+#define MAX_SECTOR				1024
+#define MAX_OBJECT				1024
+#define MAX_TEXTURE				256
+#define MAX_POLYGON				64
 
 //
 // Graphics definitions
@@ -23,12 +34,6 @@
 
 typedef uint8_t lightmap_t[32][256];
 typedef uint8_t texture66_t[64][64];
-
-//
-// Compiler macros
-//
-
-#define FORCE_INLINE __attribute__((always_inline))
 
 //
 // Shortcut macros
@@ -92,6 +97,39 @@ extern const fix16_t sintable16[1024];
 #define MULDIV16(x, y, z)			(DIV16(MUL16((x), (y)), z))
 #define INT2FIX16(x)				((fix16_t)((x) << FIX16_FRAC_BITS))
 #define FIX2INT16(x)				((int16_t)((x) >> FIX16_FRAC_BITS))
+
+//
+// Portal2D types
+//
+
+// Point
+typedef struct
+{
+	int32_t x, y;
+} point_t;
+
+// Rect
+typedef struct
+{
+	int32_t x1, y1, x2, y2;
+} rect_t;
+
+// Motion
+typedef struct
+{
+	int32_t x, xx, xxx;
+	int32_t y, yy, yyy;
+	int32_t z, zz, zzz;
+} motion_t;
+
+// Vector
+typedef struct
+{
+	int32_t x, y, z;
+} vec3_t;
+
+typedef int32_t plane_t[4];
+typedef plane_t matrix_t[4];
 
 //
 // Portal2D fixed-point macros

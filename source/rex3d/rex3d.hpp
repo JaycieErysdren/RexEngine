@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex3D main engine header
 //
-// LAST EDITED:		November 30th, 2022
+// LAST EDITED:		December 1st, 2022
 //
 // ========================================================
 
@@ -94,6 +94,12 @@ using namespace std;
 // Integer math
 #include "math/math_i.hpp"
 
+// Fixed-point math
+#include "math/math_x.hpp"
+
+// Matrix
+#include "math/matrix.hpp"
+
 // Fixed-point sin table
 #include "math/sintable.hpp"
 
@@ -119,14 +125,13 @@ using namespace std;
 // World construction 
 //
 
-#ifdef EXPERIMENTAL
-
 // World
 #include "world/world.hpp"
 
+// Objects
+#include "world/object.hpp"
+
 // Sectors
 #include "world/sector.hpp"
-
-#endif
 
 #endif // __REX3D_H__
