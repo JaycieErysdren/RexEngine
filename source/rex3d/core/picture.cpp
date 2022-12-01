@@ -101,7 +101,7 @@ void Copy(pic_t *dst, pic_t *src)
 	memcpy(dst->buffer, src->buffer, dst->bytes_per_row * dst->height);
 }
 
-void Load(pic_t *picture, string filename)
+void LoadBMP(pic_t *picture, string filename)
 {
 	FILE *fp;
 	uint16_t width, height;

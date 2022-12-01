@@ -71,7 +71,7 @@ namespace Picture
 	void Resize(pic_t *picture, int width, int height);
 	void Clear(pic_t *picture, uint8_t color);
 	void Copy(pic_t *dst, pic_t *src);
-	void Load(pic_t *picture, string filename);
+	void LoadBMP(pic_t *picture, string filename);
 	void Save(pic_t *picture, string filename);
 	void AssertSame(pic_t *dst, pic_t *src);
 	void Flip8(pic_t *dst, pic_t *src);
