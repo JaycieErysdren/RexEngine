@@ -57,7 +57,7 @@ namespace VGA
 	//
 
 	// Place a pixel in the back buffer
-	void SetPixel(int x, int y, uint8_t color);
+	void SetPixel(int16_t x, int16_t y, uint8_t color);
 
 	// Draw a vertical line
 	void DrawVerticalLine(int x, int y1, int y2, uint8_t color);
@@ -66,15 +66,25 @@ namespace VGA
 	void DrawHorizontalLine(int x1, int x2, int y, uint8_t color);
 
 	// Draw a filled rectangle
-	void DrawRectangleFilled(int left, int top, int right, int bottom, uint8_t color);
+	void DrawRectangleFilled(int x, int y, int w, int h, uint8_t color);
 
 	//
 	// Rendering
 	//
 
 	// Clear the back buffer
-	void Clear();
+	void Clear(uint8_t color);
 
 	// Copy the back buffer to the front buffer
 	void Flip();
+
+	//
+	// Font
+	//
+
+	// Load a font from a raw buffer file
+	void FontLoadRaw(string filename, int width, int height);
+
+	// Debug
+	void FontDrawAtlas();
 }

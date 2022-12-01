@@ -51,6 +51,10 @@ set(REX3D_HWDRV_SRC
 	${CMAKE_SOURCE_DIR}/source/rex3d/hwdrv/dos.cpp
 )
 
+set(REX3D_MATH_SRC
+	${CMAKE_SOURCE_DIR}/source/rex3d/math/sintable.cpp
+)
+
 set(REX3D_VIDDRV_SRC
 	${CMAKE_SOURCE_DIR}/source/rex3d/viddrv/vga.cpp
 )

@@ -23,20 +23,12 @@ int main(int argc, char *argv[])
 	// Variables
 	int i, x, y;
 	int mb, mx, my;
-	#ifdef RAYCASTER
-	scalar_t move_speed = SCALAR(0.2f);
-	scalar_t rot_speed = SCALAR(0.1f);
-	Raycaster::Camera camera;
-	bool enable_textures = true, enable_floors = true;
 
-	// Setup camera defaults
-	camera.origin[0] = SCALAR(22.0f);
-	camera.origin[1] = SCALAR(12.0f);
-	camera.origin[2] = SCALAR(0.5f * 200);
-	camera.angle[0] = SCALAR(-1.0f);
-	camera.angle[1] = SCALAR(0.0f);
-	camera.plane[0] = SCALAR(0.0f);
-	camera.plane[1] = SCALAR(0.66f);
+	#ifdef UGH
+	fix32_t posx, posy, posz, ang;
+	int sx, sy;
+	int board[64][64];
+	uint8_t textures[4][64][64];
 	#endif
 
 	// Initialize DOS
@@ -46,13 +38,39 @@ int main(int argc, char *argv[])
 	VGA::Initialize();
 	VGA::SetPalette("duke3d.pal");
 
-	#ifdef RAYCASTER
-	// Load Raycaster textures
-	Raycaster::LoadTextures();
-	#endif
+	#ifdef UGH
+	// Generate textures
+	for (y = 0; y < 64; y++)
+	{
+		for (x = 0; x < 64; x++)
+		{
+			textures[0][x][y] = (x + y) / 2 + 0;
+			textures[1][x][y] = ((x ^ y) * .875 + rand() * 64 * .125) * .5 + 64;
+			textures[2][x][y] = ((x | y) * .875 + rand() * 64 * .125) * .5 + 128;
+			textures[3][x][y] = (x * x + y * y) / 128 + 192;
+		}
+	}
 
-	// Clear the screen
-	VGA::Clear();
+	// Generate board
+	for (i = 0; i < 64; i++)
+	{
+		board[i][0] = (4 * rand()) + 1;
+		board[0][i] = (4 * rand()) + 1;
+		board[i][63] = (4 * rand()) + 1;
+		board[63][i] = (4 * rand()) + 1;
+	}
+	for (i = 0; i < 1024; i++)
+	{
+		board[(62 * rand()) + 1][(62 * rand()) + 1] = (4 * rand()) + 1;
+	}
+
+	// Initialize raycaster values
+	posx = FIX32(x) + FIX32(.5);
+	posy = FIX32(y) + FIX32(.5);
+	posz = FIX32(0);
+	ang = FIX32(PI * 2 * rand());
+
+	#endif
 
 	// Main loop
 	while (!DOS::KeyTest(KB_ESC))
@@ -65,64 +83,42 @@ int main(int argc, char *argv[])
 		mb = DOS::MouseRead(&mx, &my);
 
 		// Clear back buffer
-		VGA::Clear();
+		VGA::Clear(79);
 
-		// Render to back buffer
-		VGA::DrawPalette();
+		#ifdef UGH
 
-		// Flip buffers
-		VGA::Flip();
+		// Floor (causes page fault?)
+		VGA::DrawRectangleFilled(0, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT / 2, 111);
 
-		#ifdef RAYCASTER
-		// Move forward
-		if (DOS::KeyTest(KB_W))
+		// Walls
+		fix32_t cosang = COS32(ang);
+		fix32_t sinang = SIN32(ang);
+		fix32_t vxinc = sinang * -2 / SCREEN_WIDTH;
+		fix32_t vx = cosang + sinang + vxinc * FIX32(0.5);
+		fix32_t vyinc = cosang * 2 / SCREEN_WIDTH;
+		fix32_t vy = sinang - cosang + vyinc * FIX32(0.5);
+
+		for (sx = 0; sx < SCREEN_WIDTH; sx++)
 		{
-			if(world_map[int(camera.origin[0] + camera.angle[0] * move_speed)][int(camera.origin[1])] == false) camera.origin[0] += camera.angle[0] * move_speed;
-			if(world_map[int(camera.origin[0])][int(camera.origin[1] + camera.angle[1] * move_speed)] == false) camera.origin[1] += camera.angle[1] * move_speed;
-		}
-		
-		// Move backward
-		if (DOS::KeyTest(KB_S))
-		{
-			if(world_map[int(camera.origin[0] - camera.angle[0] * move_speed)][int(camera.origin[1])] == false) camera.origin[0] -= camera.angle[0] * move_speed;
-			if(world_map[int(camera.origin[0])][int(camera.origin[1] - camera.angle[1] * move_speed)] == false) camera.origin[1] -= camera.angle[1] * move_speed;
-		}
+			int32_t xscan = FIX2INT32(posx);
+			fix32_t xdir = Math::signum(vx);
+			fix32_t incx = ABS(vx);
 
-		// Rotate right
-		if (DOS::KeyTest(KB_D))
-		{
-			scalar_t old_dir0 = camera.angle[0];
-			camera.angle[0] = camera.angle[0] * cos(-rot_speed) - camera.angle[1] * sin(-rot_speed);
-			camera.angle[1] = old_dir0 * sin(-rot_speed) + camera.angle[1] * cos(-rot_speed);
-			scalar_t old_plane0 = camera.plane[0];
-			camera.plane[0] = camera.plane[0] * cos(-rot_speed) - camera.plane[1] * sin(-rot_speed);
-			camera.plane[1] = old_plane0 * sin(-rot_speed) + camera.plane[1] * cos(-rot_speed);
+			int32_t yscan = FIX2INT32(posy);
+			fix32_t ydir = Math::signum(vy);
+			fix32_t incy = ABS(vy);
+
+			fix32_t xtemp = posx - FIX32(xscan);
+			if (xdir > 0) xtemp = 1 - xtemp;
+			fix32_t ytemp = posy - FIX32(yscan);
+			if (ydir > 0) ytemp = 1 - ytemp;
+			fix32_t d = xtemp * incy - ytemp * incx;
 		}
 
-		// Rotate left
-		if (DOS::KeyTest(KB_A))
-		{
-			scalar_t old_dir0 = camera.angle[0];
-			camera.angle[0] = camera.angle[0] * cos(rot_speed) - camera.angle[1] * sin(rot_speed);
-			camera.angle[1] = old_dir0 * sin(rot_speed) + camera.angle[1] * cos(rot_speed);
-			scalar_t old_plane0 = camera.plane[0];
-			camera.plane[0] = camera.plane[0] * cos(rot_speed) - camera.plane[1] * sin(rot_speed);
-			camera.plane[1] = old_plane0 * sin(rot_speed) + camera.plane[1] * cos(rot_speed);
-		}
-
-		// Toggle floor
-		if (DOS::KeyTest(KB_F)) enable_floors = !enable_floors;
-		if (DOS::KeyTest(KB_G)) enable_textures = !enable_textures;
-
-		// Clear back buffer
-		VGA::Clear();
-
-		// Render to back buffer
-		Raycaster::Render(camera, 320, 200, enable_textures, enable_textures);
-
-		// Flip buffers
-		VGA::Flip();
 		#endif
+
+		// Flip buffers
+		VGA::Flip();
 	}
 
 	// Shutdown VGA

@@ -17,6 +17,7 @@
 // Rex3D header
 #include "rex3d.hpp"
 
+// VGA text macros
 #define SLOWPOS(x, y)		(((y) * SCREEN_HEIGHT) + (x))
 #define FASTPOS(x, y)		(((y) << 8) + ((y) << 6) + (x))
 
@@ -45,6 +46,9 @@ uint8_t *buffer_back;
 
 // Front buffer (pointer to video memory)
 uint8_t *buffer_front;
+
+// Font buffer
+uint8_t *buffer_font;
 
 //
 //
@@ -85,7 +89,8 @@ bool Shutdown()
 	int86(0x10, &r, &r);
 
 	// Free memory
-	delete [] (buffer_back);
+	if (buffer_back != NULL) delete [] (buffer_back);
+	if (buffer_font != NULL) delete [] (buffer_font);
 
 	return true;
 }
@@ -154,8 +159,17 @@ void DrawPalette()
 //
 
 // Place a pixel in the back buffer
-void SetPixel(int x, int y, uint8_t color)
+void SetPixel(int16_t x, int16_t y, uint8_t color)
 {
+	#ifdef NOPE
+	asm("pushl	%ax\n\t"
+		"pushl	%bx\n\t"
+		"pushl	%cl\n\t"
+		"mov	$0, ax\n\t"
+		"mov	$1, bx\n\t"
+		"mov	$2, cl\n\t");
+	#endif
+
 	//if (color < 255) buffer_back[(y << 8) + (y << 6) + x] = color;
 	//buffer_back[(y << 8) + (y << 6) + x] = color;
 
@@ -189,31 +203,14 @@ void DrawHorizontalLine(int x1, int x2, int y, uint8_t color)
 }
 
 // Draw a filled rectangle
-void DrawRectangleFilled(int left, int top, int right, int bottom, uint8_t color)
+void DrawRectangleFilled(int x, int y, int w, int h, uint8_t color)
 {
-	int top_offset, bottom_offset, i, temp, width;
+	int top = FASTPOS(x, y);
+	int bottom = FASTPOS(x + w, y + h);
 
-	if (top > bottom)
+	for (int i = top; i <= bottom; i += SCREEN_WIDTH)
 	{
-		temp = top;
-		top = bottom;
-		bottom = temp;
-	}
-
-	if (left > right)
-	{
-		temp = left;
-		left = right;
-		right = temp;
-	}
-
-	top_offset = (top << 8) + (top << 6) + left;
-	bottom_offset = (bottom << 8) + (bottom << 6) + left;
-	width = right - left + 1;
-
-	for(i = top_offset; i <= bottom_offset; i += SCREEN_WIDTH)
-	{
-		memset(&buffer_back[i], color, width);
+		memset(&buffer_back[i], color, w);
 	}
 }
 
@@ -222,9 +219,9 @@ void DrawRectangleFilled(int left, int top, int right, int bottom, uint8_t color
 //
 
 // Clear the back buffer
-void Clear()
+void Clear(uint8_t color)
 {
-	memset(buffer_back, 0, 64000);
+	memset(buffer_back, color, 64000);
 }
 
 // Copy the back buffer to the front buffer
@@ -236,6 +233,48 @@ void Flip()
 
 	// Copy the back buffer to the front buffer
 	memcpy(buffer_front, buffer_back, 64000);
+}
+
+//
+// Fonts
+//
+
+void FontLoadRaw(string filename, int width, int height)
+{
+	FILE *file = fopen(filename.c_str(), "rb");
+
+	if (file == NULL)
+	{
+		fclose(file);
+		return;
+	}
+
+	// Allocate memory
+	buffer_font = new uint8_t [width * height];
+
+	fread(buffer_font, sizeof(uint8_t), width * height, file);
+
+	fclose(file);
+}
+
+// lazy stupid function
+void FontDrawAtlas()
+{
+	int fntx, fnty, scrx, scry, i;
+	int fontoffset;
+	int scrnoffset;
+
+	for (fntx = 0; fntx < 2048; fntx += SCREEN_WIDTH)
+	{
+		for (fnty = 0; fnty < 8; fnty++)
+		{
+			fontoffset = fntx + (fnty * 2048);
+			scrnoffset = scry + (fnty * SCREEN_WIDTH);
+			memcpy(&buffer_back[scrnoffset], &buffer_font[fontoffset], SCREEN_WIDTH);
+		}
+
+		scry += (SCREEN_WIDTH * 8);
+	}
 }
 
 } // namespace VGA
