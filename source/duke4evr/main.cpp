@@ -186,6 +186,7 @@ int main(int argc, char *argv[])
 			}
 		}
 
+		// does this work
 		//Picture::DrawRectangle(&pic_bbuffer, 32, 32, 32, 32, 159, true);
 		//Picture::DrawRectangle(&pic_bbuffer, 64, 64, 32, 32, 159, false);
 
