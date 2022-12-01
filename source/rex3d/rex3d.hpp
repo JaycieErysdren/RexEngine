@@ -28,6 +28,9 @@
 #include <cmath>
 #include <vector>
 #include <algorithm>
+#include <cassert>
+#include <climits>
+#include <cstdarg>
 
 // Standard C headers
 #include <unistd.h>
@@ -72,8 +75,27 @@ using namespace std;
 // Types
 #include "core/types.hpp"
 
+// Palettes
+#include "core/palette.hpp"
+
+// Pictures
+#include "core/picture.hpp"
+
+// Console
+#include "core/console.hpp"
+
+// Utilities
+#include "core/utils.hpp"
+
+//
 // Math
-#include "core/math.hpp"
+//
+
+// Integer math
+#include "math/math_i.hpp"
+
+// Fixed-point sin table
+#include "math/sintable.hpp"
 
 //
 // Hardware drivers

@@ -235,46 +235,4 @@ void Flip()
 	memcpy(buffer_front, buffer_back, 64000);
 }
 
-//
-// Fonts
-//
-
-void FontLoadRaw(string filename, int width, int height)
-{
-	FILE *file = fopen(filename.c_str(), "rb");
-
-	if (file == NULL)
-	{
-		fclose(file);
-		return;
-	}
-
-	// Allocate memory
-	buffer_font = new uint8_t [width * height];
-
-	fread(buffer_font, sizeof(uint8_t), width * height, file);
-
-	fclose(file);
-}
-
-// lazy stupid function
-void FontDrawAtlas()
-{
-	int fntx, fnty, scrx, scry, i;
-	int fontoffset;
-	int scrnoffset;
-
-	for (fntx = 0; fntx < 2048; fntx += SCREEN_WIDTH)
-	{
-		for (fnty = 0; fnty < 8; fnty++)
-		{
-			fontoffset = fntx + (fnty * 2048);
-			scrnoffset = scry + (fnty * SCREEN_WIDTH);
-			memcpy(&buffer_back[scrnoffset], &buffer_font[fontoffset], SCREEN_WIDTH);
-		}
-
-		scry += (SCREEN_WIDTH * 8);
-	}
-}
-
 } // namespace VGA

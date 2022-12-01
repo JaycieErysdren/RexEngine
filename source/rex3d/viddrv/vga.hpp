@@ -16,6 +16,14 @@
 
 //
 //
+// Text macros
+//
+//
+
+#define VGA_VIDMEM_PTR (0xa0000 + __djgpp_conventional_base)
+
+//
+//
 // VGA namespace
 //
 //
@@ -77,14 +85,4 @@ namespace VGA
 
 	// Copy the back buffer to the front buffer
 	void Flip();
-
-	//
-	// Font
-	//
-
-	// Load a font from a raw buffer file
-	void FontLoadRaw(string filename, int width, int height);
-
-	// Debug
-	void FontDrawAtlas();
 }

@@ -15,11 +15,20 @@
 // ========================================================
 
 //
-// Screen definitions
+// Graphics definitions
 //
 
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 200
+
+typedef uint8_t lightmap_t[32][256];
+typedef uint8_t texture66_t[64][64];
+
+//
+// Compiler macros
+//
+
+#define FORCE_INLINE __attribute__((always_inline))
 
 //
 // Shortcut macros
@@ -83,3 +92,16 @@ extern const fix16_t sintable16[1024];
 #define MULDIV16(x, y, z)			(DIV16(MUL16((x), (y)), z))
 #define INT2FIX16(x)				((fix16_t)((x) << FIX16_FRAC_BITS))
 #define FIX2INT16(x)				((int16_t)((x) >> FIX16_FRAC_BITS))
+
+//
+// Portal2D fixed-point macros
+//
+
+// Fixed-point conversion macros
+#define f2i(a) ((a) >> 16)
+#define i2f(a) ((a) << 16)
+#define f2fl(a) (((float)(a)) / i2f(1))
+#define fl2f(a) ((int)((a) * i2f(1)))
+
+// Fixed-point ceiling macro
+#define fixceil(a) (((a) + 0xFFFF) >> 16)

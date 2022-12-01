@@ -44,7 +44,10 @@ add_compile_options("-O3")
 ##
 
 set(REX3D_CORE_SRC
-	${CMAKE_SOURCE_DIR}/source/rex3d/core/math.cpp
+	${CMAKE_SOURCE_DIR}/source/rex3d/core/console.cpp
+	${CMAKE_SOURCE_DIR}/source/rex3d/core/palette.cpp
+	${CMAKE_SOURCE_DIR}/source/rex3d/core/picture.cpp
+	${CMAKE_SOURCE_DIR}/source/rex3d/core/utils.cpp
 )
 
 set(REX3D_HWDRV_SRC
@@ -52,6 +55,7 @@ set(REX3D_HWDRV_SRC
 )
 
 set(REX3D_MATH_SRC
+	${CMAKE_SOURCE_DIR}/source/rex3d/math/math_i.cpp
 	${CMAKE_SOURCE_DIR}/source/rex3d/math/sintable.cpp
 )
 
@@ -59,9 +63,10 @@ set(REX3D_VIDDRV_SRC
 	${CMAKE_SOURCE_DIR}/source/rex3d/viddrv/vga.cpp
 )
 
-add_library(rex3d
+add_library(rex3d STATIC
 	${REX3D_CORE_SRC}
 	${REX3D_HWDRV_SRC}
+	${REX3D_MATH_SRC}
 	${REX3D_VIDDRV_SRC}
 )
 

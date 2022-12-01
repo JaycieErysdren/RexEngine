@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/core/math.cpp
+// FILE:			/source/math/math_i.hpp
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -8,23 +8,17 @@
 //
 // LICENSE:			TBD
 //
-// DESCRIPTION:		Math namespace implementation
+// DESCRIPTION:		Integer math header
 //
 // LAST EDITED:		November 30th, 2022
 //
 // ========================================================
 
-// Rex3D header
-#include "rex3d.hpp"
-
 //
 //
-// Math namespace
+// Functions
 //
 //
 
-// Math namespace definition (private)
-namespace Math
-{
-
-}
+// Integer square root
+int32_t isqr(int32_t value);
