@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Picture namespace implementation
 //
-// LAST EDITED:		November 30th, 2022
+// LAST EDITED:		December 1st, 2022
 //
 // ========================================================
 
@@ -260,6 +260,124 @@ void Blend8(pic_t *dst, pic_t *src1, pic_t *src2, clut_t blender)
 		for (x = dst->width; x--;)
 		{
 			*a++ = blender[*b++][*c++];
+		}
+	}
+}
+
+void DrawPixel(pic_t *dst, int x, int y, uint8_t color)
+{
+	if (x >= dst->width || x < 0 || y >= dst->height || y < 0)
+		return;
+
+	memset(&dst->scanlines.b[y][x], color, sizeof(uint8_t));
+}
+
+void DrawLine(pic_t *dst, int x1, int y1, int x2, int y2, uint8_t color)
+{
+	int i, dx, dy, sdx, sdy, dxabs, dyabs, x, y, px, py;
+
+	dx = x2 - x1; // the horizontal distance of the line
+	dy = y2 - y1; // the vertical distance of the line
+	dxabs = ABS(dx);
+	dyabs = ABS(dy);
+	sdx = SGN(dx);
+	sdy = SGN(dy);
+	x = dyabs >> 1;
+	y = dxabs >> 1;
+	px = x1;
+	py = y1;
+
+	DrawPixel(dst, px, py, color);
+
+	if (dxabs >= dyabs) // the line is more horizontal than vertical
+	{
+		for (i = 0; i < dxabs; i++)
+		{
+			y += dyabs;
+
+			if (y >= dxabs)
+			{
+				y -= dxabs;
+				py += sdy;
+			}
+
+			px += sdx;
+
+			DrawPixel(dst, px, py, color);
+		}
+	}
+	else // the line is more vertical than horizontal
+	{
+		for (i = 0; i < dyabs; i++)
+		{
+			x += dxabs;
+
+			if (x >= dyabs)
+			{
+				x -= dyabs;
+				px += sdx;
+			}
+
+			py += sdy;
+
+			DrawPixel(dst, px, py, color);
+		}
+	}
+}
+
+// Draw a horizontal line
+void DrawHorizontalLine(pic_t *dst, int x1, int x2, int y, uint8_t color)
+{
+	if (x1 > x2)
+		memset(&dst->scanlines.b[y][x2], color, x1 - x2);
+	else
+		memset(&dst->scanlines.b[y][x1], color, x2 - x1);
+}
+
+// Draw a vertical line
+void DrawVerticalLine(pic_t *dst, int x, int y1, int y2, uint8_t color)
+{
+	if (y1 > y2)
+	{
+		int ofs = y2 - y1;
+
+		for (int i = y2; i < y1; i++)
+		{
+			memset(&dst->scanlines.b[i][x], color, sizeof(uint8_t));
+		}
+	}
+	else
+	{
+		int ofs = y1 - y2;
+
+		for (int i = y1; i < y2; i++)
+		{
+			memset(&dst->scanlines.b[i][x], color, sizeof(uint8_t));
+		}
+	}
+}
+
+// Draw a filled or outlined rectangle
+void DrawRectangle(pic_t *dst, int x, int y, int w, int h, uint8_t color, bool filled)
+{
+	if (filled == true)
+	{
+		for (int i = 0; i < h; i++)
+		{
+			memset(&dst->scanlines.b[y + i][x], color, w);
+		}
+	}
+	else
+	{
+		// draw horizontal lines
+		memset(&dst->scanlines.b[y][x], color, w - 1);
+		memset(&dst->scanlines.b[y + h - 1][x], color, w - 1);
+
+		// draw vertical lines
+		for (int i = 0; i < h; i++)
+		{
+			memset(&dst->scanlines.b[y + i][x], color, sizeof(uint8_t));
+			memset(&dst->scanlines.b[y + i][x + w - 1], color, sizeof(uint8_t));
 		}
 	}
 }

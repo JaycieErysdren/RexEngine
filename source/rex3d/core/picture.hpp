@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Picture namespace header
 //
-// LAST EDITED:		November 30th, 2022
+// LAST EDITED:		December 1st, 2022
 //
 // ========================================================
 
@@ -79,4 +79,9 @@ namespace Picture
 	void Blit8(pic_t *dst, int x1, int y1, int x2, int y2, pic_t *src, int u1, int v1, int u2, int v2, pic_blit_mode mode);
 	void LiquidEffect8(pic_t *dst, pic_t *src, int tick);
 	void Blend8(pic_t *dst, pic_t *src1, pic_t *src2, Palette::clut_t blender);
+
+	void DrawPixel(pic_t *dst, int x, int y, uint8_t color);
+	void DrawLine(pic_t *dst, int x1, int y1, int x2, int y2, uint8_t color);
+	void DrawHorizontalLine(pic_t *dst, int x1, int x2, int y, uint8_t color);
+	void DrawRectangle(pic_t *dst, int x, int y, int w, int h, uint8_t color, bool filled);
 }

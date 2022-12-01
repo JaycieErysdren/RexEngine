@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		DOS namespace implementation
 //
-// LAST EDITED:		November 30th, 2022
+// LAST EDITED:		December 1st, 2022
 //
 // ========================================================
 
@@ -101,8 +101,8 @@ void DOS::MouseInitialize()
 	int86(0x33, &r, &r);
 
 	// Don't show the mouse
-	//r.x.ax = 0x01;
-	//int86(0x33, &r, &r);
+	r.x.ax = 0x02;
+	int86(0x33, &r, &r);
 }
 
 // Shutdown mouse

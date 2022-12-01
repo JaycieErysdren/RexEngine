@@ -43,6 +43,7 @@ typedef uint8_t texture66_t[64][64];
 #define MAX(a, b)					(((a) > (b)) ? (a) : (b))
 #define CLAMP(a, min, max)			MIN(MAX(a, min), max)
 #define ABS(a)						(((a) < 0) ? -(a) : (a))
+#define SGN(a)						((a < 0) ? -1 : ((a > 0) ? 1 : 0))
 
 //
 // Fixed-point types & macros

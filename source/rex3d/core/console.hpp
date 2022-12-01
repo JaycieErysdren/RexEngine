@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Console namespace header
 //
-// LAST EDITED:		November 30th, 2022
+// LAST EDITED:		December 1st, 2022
 //
 // ========================================================
 
@@ -19,6 +19,9 @@ namespace Console
 {
 	// Initialize console buffer
 	void Initialize();
+
+	// Destroy console buffer
+	void Shutdown();
 
 	// Add text to the console buffer
 	void AddText(int x, int y, const char *text);

@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Console namespace implementation
 //
-// LAST EDITED:		November 30th, 2022
+// LAST EDITED:		December 1st, 2022
 //
 // ========================================================
 
@@ -39,6 +39,12 @@ Picture::pic_t pic_console;
 void Initialize()
 {
 	Picture::Create(&pic_console, 40, 10, 8, 0, 0);
+}
+
+// Destroy console buffer
+void Shutdown()
+{
+	Picture::Destroy(&pic_console);
 }
 
 // Add text to the console buffer
