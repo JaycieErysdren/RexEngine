@@ -24,6 +24,8 @@ int main(int argc, char *argv[])
 	Picture::pic_t pic_font;
 	Picture::pic_t pic_bbuffer;
 	Picture::pic_t pic_fbuffer;
+	Picture::pic_t pic_cursor;
+	char console_buffer[256];
 
 	// Initialize DOS
 	DOS::Initialize();
@@ -37,17 +39,40 @@ int main(int argc, char *argv[])
 	Picture::LoadBMP(&pic_font, "gfx/font8x8.bmp");
 	Picture::Create(&pic_fbuffer, SCREEN_WIDTH, SCREEN_HEIGHT, 8, 0, (void *)VGA_VIDMEM_PTR);
 	Picture::Create(&pic_bbuffer, SCREEN_WIDTH, SCREEN_HEIGHT, 8, 0, 0);
+	Picture::LoadBMP(&pic_cursor, "gfx/cursor.bmp");
 
 	// Main loop
 	while (!DOS::KeyTest(KB_ESC))
 	{
+		//
+		// Input handling
+		//
+
+		// Get the mouse cursor input
+		int16_t mx, my, mb;
+		mb = DOS::MouseRead(&mx, &my);
+		if (mx >= SCREEN_WIDTH - pic_cursor.width) mx = SCREEN_WIDTH - pic_cursor.width;
+		if (my >= SCREEN_HEIGHT - pic_cursor.height) my = SCREEN_HEIGHT - pic_cursor.height;
+
+		//
+		// Rendering
+		//
+
 		// Clear back buffer
 		Picture::Clear(&pic_bbuffer, 64);
 
 		// Add some console text
-		Console::AddText(1, 1, "hello world");
+		sprintf(console_buffer, "Mouse X: %d", mx);
+		Console::AddText(0, 0, console_buffer);
+		sprintf(console_buffer, "Mouse Y: %d", my);
+		Console::AddText(0, 1, console_buffer);
+		sprintf(console_buffer, "Mouse B: %d", mb);
+		Console::AddText(0, 2, console_buffer);
 
-		// Add some console text
+		// Render the mouse cursor
+		Picture::Draw8(&pic_bbuffer, &pic_cursor, mx, my, Picture::COLORKEY);
+
+		// Render the console text
 		Console::Render(&pic_bbuffer, &pic_font);
 
 		// Flip buffers

@@ -84,7 +84,7 @@ namespace DOS
 	void MouseShutdown();
 
 	// Read mouse position (returns mouse buttons mask)
-	int MouseRead(int *x, int *y);
+	int MouseRead(int16_t *x, int16_t *y);
 
 	//
 	// Keyboard

@@ -63,6 +63,10 @@ set(REX3D_VIDDRV_SRC
 	${CMAKE_SOURCE_DIR}/source/rex3d/viddrv/vga.cpp
 )
 
+set(REX3D_WORLD_SRC
+	${CMAKE_SOURCE_DIR}/source/rex3d/world/sector.cpp
+)
+
 add_library(rex3d STATIC
 	${REX3D_CORE_SRC}
 	${REX3D_HWDRV_SRC}

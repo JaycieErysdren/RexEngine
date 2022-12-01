@@ -115,30 +115,17 @@ using namespace std;
 // Renderers 
 //
 
-#ifdef RAYCASTER
-
-// Raycasting
-#include "rend/raycastr.hpp"
-
-#endif
-
-#ifdef EXPERIMENTAL
-
-// Span rendering
-#include "rend/spanner.hpp"
-
 //
 // World construction 
 //
 
-// Planes
-#include "world/plane.hpp"
+#ifdef EXPERIMENTAL
+
+// World
+#include "world/world.hpp"
 
 // Sectors
 #include "world/sector.hpp"
-
-// BSP
-#include "world/bsp.hpp"
 
 #endif
 

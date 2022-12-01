@@ -64,7 +64,7 @@ namespace DOS
 // Bootstrap
 //
 
-// Set all interrupts
+// Initialize all interrupts
 void DOS::Initialize()
 {
 	// Enable access to the memory we use
@@ -78,6 +78,7 @@ void DOS::Initialize()
 // Free all interrupts
 void DOS::Shutdown()
 {
+	// Shutdown mouse & kb
 	MouseShutdown();
 	KeyboardShutdown();
 
@@ -96,12 +97,12 @@ void DOS::MouseInitialize()
 	union REGS r;
 
 	// Start mouse driver
-	r.x.ax = 0;
-	int386(0x33, &r, &r);
+	r.x.ax = 0x00;
+	int86(0x33, &r, &r);
 
 	// Don't show the mouse
-	r.x.ax = 2;
-	int386(0x33, &r, &r);
+	//r.x.ax = 0x01;
+	//int86(0x33, &r, &r);
 }
 
 // Shutdown mouse
@@ -111,11 +112,11 @@ void DOS::MouseShutdown()
 }
 
 // Read mouse position (returns mouse buttons mask)
-int DOS::MouseRead(int *x, int *y)
+int DOS::MouseRead(int16_t *x, int16_t *y)
 {
 	union REGS r;
-	r.x.ax = 3;
-	int386(0x33, &r, &r);
+	r.x.ax = 0x03;
+	int86(0x33, &r, &r);
 	if (x) *x = r.x.cx;
 	if (y) *y = r.x.dx;
 	return r.x.bx;
