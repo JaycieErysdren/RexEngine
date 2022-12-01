@@ -17,6 +17,9 @@
 // Rex3D header
 #include "rex3d.hpp"
 
+#define SLOWPOS(x, y)		(((y) * SCREEN_HEIGHT) + (x))
+#define FASTPOS(x, y)		(((y) << 8) + ((y) << 6) + (x))
+
 //
 //
 // VGA namespace
@@ -26,29 +29,35 @@
 // VGA namespace definition (private)
 namespace VGA
 {
-	//
-	//
-	// Variables
-	//
-	//
 
-	//
-	// Buffers
-	//
+//
+//
+// Global variables
+//
+//
 
-	// Back buffer
-	uint8_t *buffer_back;
+//
+// Buffers
+//
 
-	// Front buffer (pointer to video memory)
-	uint8_t *buffer_front;
-}
+// Back buffer
+uint8_t *buffer_back;
+
+// Front buffer (pointer to video memory)
+uint8_t *buffer_front;
+
+//
+//
+// Functions
+//
+//
 
 //
 // Bootstrap
 //
 
 // Initialize
-bool VGA::Initialize()
+bool Initialize()
 {
 	// Set VGA mode 0x13
 	union REGS r;
@@ -68,7 +77,7 @@ bool VGA::Initialize()
 }
 
 // Shutdown
-bool VGA::Shutdown()
+bool Shutdown()
 {
 	// Set mode 0x03
 	union REGS r;
@@ -86,7 +95,7 @@ bool VGA::Shutdown()
 //
 
 // Set a color in the palette
-void VGA::SetPaletteColor(uint8_t i, uint8_t r, uint8_t g, uint8_t b)
+void SetPaletteColor(uint8_t i, uint8_t r, uint8_t g, uint8_t b)
 {
 	// Output the index of the colour
 	outp(0x3c8, i);
@@ -98,7 +107,7 @@ void VGA::SetPaletteColor(uint8_t i, uint8_t r, uint8_t g, uint8_t b)
 }
 
 // Set the palette from a file
-void VGA::SetPalette(string filename)
+void SetPalette(string filename)
 {
 	int i;
 	FILE *file;
@@ -125,7 +134,7 @@ void VGA::SetPalette(string filename)
 }
 
 // Draw the palette on the back buffer
-void VGA::ShowPalette()
+void DrawPalette()
 {
 	int i;
 	int left, top, right, bottom;
@@ -136,7 +145,6 @@ void VGA::ShowPalette()
 		top = (i / 16) * 12;
 		right = left + 20;
 		bottom = top + 12;
-		//BrPixelmapRectangleFill(offScreenBuffer,(x%16)*20,(x/16)*12,20,12,x);
 		DrawRectangleFilled(left, top, right, bottom, i);
 	}
 }
@@ -146,18 +154,42 @@ void VGA::ShowPalette()
 //
 
 // Place a pixel in the back buffer
-void VGA::PlacePixel(int x, int y, uint8_t color)
+void SetPixel(int x, int y, uint8_t color)
 {
-	//memset(&buffer_back[(y << 8) + (y << 6) + x], color, sizeof(uint8_t));
 	//if (color < 255) buffer_back[(y << 8) + (y << 6) + x] = color;
+	//buffer_back[(y << 8) + (y << 6) + x] = color;
 
 	// set the memory
 	// same as y*320+x, but slightly quicker
-	buffer_back[(y << 8) + (y << 6) + x] = color;
+	memset(&buffer_back[FASTPOS(x, y)], color, sizeof(uint8_t));
+}
+
+// Draw a vertical line
+void DrawVerticalLine(int x, int y1, int y2, uint8_t color)
+{
+	if (y1 > y2)
+	{
+		for (int y = y2; y < y1; y++)
+			SetPixel(x, y, color);
+	}
+	else
+	{
+		for (int y = y1; y < y2; y++)
+			SetPixel(x, y, color);
+	}
+}
+
+// Draw a horizontal line
+void DrawHorizontalLine(int x1, int x2, int y, uint8_t color)
+{
+	if (x1 > x2)
+		memset(&buffer_back[FASTPOS(x2, y)], color, x1 - x2);
+	else
+		memset(&buffer_back[FASTPOS(x1, y)], color, x2 - x1);
 }
 
 // Draw a filled rectangle
-void VGA::DrawRectangleFilled(int left, int top, int right, int bottom, uint8_t color)
+void DrawRectangleFilled(int left, int top, int right, int bottom, uint8_t color)
 {
 	int top_offset, bottom_offset, i, temp, width;
 
@@ -190,13 +222,13 @@ void VGA::DrawRectangleFilled(int left, int top, int right, int bottom, uint8_t 
 //
 
 // Clear the back buffer
-void VGA::Clear()
+void Clear()
 {
 	memset(buffer_back, 0, 64000);
 }
 
 // Copy the back buffer to the front buffer
-void VGA::Flip()
+void Flip()
 {
 	// Wait for vertical retrace
 	while (inportb(0x3da) & 0x08);
@@ -205,3 +237,5 @@ void VGA::Flip()
 	// Copy the back buffer to the front buffer
 	memcpy(buffer_front, buffer_back, 64000);
 }
+
+} // namespace VGA

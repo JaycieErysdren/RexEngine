@@ -50,14 +50,20 @@ namespace VGA
 	void SetPalette(string filename);
 
 	// Draw the palette on the back buffer
-	void ShowPalette();
+	void DrawPalette();
 
 	//
 	// Pixel
 	//
 
 	// Place a pixel in the back buffer
-	void PlacePixel(int x, int y, uint8_t color);
+	void SetPixel(int x, int y, uint8_t color);
+
+	// Draw a vertical line
+	void DrawVerticalLine(int x, int y1, int y2, uint8_t color);
+
+	// Draw a horizontal line
+	void DrawHorizontalLine(int x1, int x2, int y, uint8_t color);
 
 	// Draw a filled rectangle
 	void DrawRectangleFilled(int left, int top, int right, int bottom, uint8_t color);

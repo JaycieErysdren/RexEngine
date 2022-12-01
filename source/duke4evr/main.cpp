@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
 
 	// Initialize VGA
 	VGA::Initialize();
-	VGA::SetPalette("wolf.pal");
+	VGA::SetPalette("duke3d.pal");
 
 	#ifdef RAYCASTER
 	// Load Raycaster textures
@@ -63,6 +63,15 @@ int main(int argc, char *argv[])
 
 		// Read mouse
 		mb = DOS::MouseRead(&mx, &my);
+
+		// Clear back buffer
+		VGA::Clear();
+
+		// Render to back buffer
+		VGA::DrawPalette();
+
+		// Flip buffers
+		VGA::Flip();
 
 		#ifdef RAYCASTER
 		// Move forward
