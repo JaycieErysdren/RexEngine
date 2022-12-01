@@ -47,9 +47,6 @@ uint8_t *buffer_back;
 // Front buffer (pointer to video memory)
 uint8_t *buffer_front;
 
-// Font buffer
-uint8_t *buffer_font;
-
 //
 //
 // Functions
@@ -61,7 +58,7 @@ uint8_t *buffer_font;
 //
 
 // Initialize
-bool Initialize()
+void Initialize()
 {
 	// Set VGA mode 0x13
 	union REGS r;
@@ -69,6 +66,7 @@ bool Initialize()
 	r.h.al = 0x13;
 	int86(0x10, &r, &r);
 
+	#ifdef OLD_VGA
 	// Allocate & clear back buffer
 	buffer_back = new uint8_t [64000];
 	memset(buffer_back, 0, 64000);
@@ -76,23 +74,22 @@ bool Initialize()
 	// Set & clear video memory
 	buffer_front = (uint8_t *)(0xa0000 + __djgpp_conventional_base);
 	memset(buffer_front, 0, 64000);
-
-	return true;
+	#endif
 }
 
 // Shutdown
-bool Shutdown()
+void Shutdown()
 {
 	// Set mode 0x03
 	union REGS r;
 	r.x.ax = 0x03;
 	int86(0x10, &r, &r);
 
+	#ifdef OLD_VGA
 	// Free memory
 	if (buffer_back != NULL) delete [] (buffer_back);
 	if (buffer_font != NULL) delete [] (buffer_font);
-
-	return true;
+	#endif
 }
 
 //

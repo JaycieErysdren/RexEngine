@@ -42,10 +42,10 @@ namespace VGA
 	//
 
 	// Set mode 13h
-	bool Initialize();
+	void Initialize();
 
 	// Return to text mode
-	bool Shutdown();
+	void Shutdown();
 
 	//
 	// Palette

@@ -30,11 +30,11 @@ int main(int argc, char *argv[])
 
 	// Initialize VGA
 	VGA::Initialize();
-	VGA::SetPalette("duke3d.pal");
+	VGA::SetPalette("gfx/duke3d.pal");
 
 	// Create pictures
 	Console::Initialize();
-	Picture::Load(&pic_font, "font8x8.bmp");
+	Picture::Load(&pic_font, "gfx/font8x8.bmp");
 	Picture::Create(&pic_fbuffer, SCREEN_WIDTH, SCREEN_HEIGHT, 8, 0, (void *)VGA_VIDMEM_PTR);
 	Picture::Create(&pic_bbuffer, SCREEN_WIDTH, SCREEN_HEIGHT, 8, 0, 0);
 
@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
 	while (!DOS::KeyTest(KB_ESC))
 	{
 		// Clear back buffer
-		Picture::Clear(&pic_bbuffer);
+		Picture::Clear(&pic_bbuffer, 64);
 
 		// Add some console text
 		Console::AddText(1, 1, "hello world");

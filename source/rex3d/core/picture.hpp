@@ -69,7 +69,7 @@ namespace Picture
 	void CreateMip(pic_t *dst, pic_t *src, Palette::clut_t blender);
 	void Destroy(pic_t *picture);
 	void Resize(pic_t *picture, int width, int height);
-	void Clear(pic_t *picture);
+	void Clear(pic_t *picture, uint8_t color);
 	void Copy(pic_t *dst, pic_t *src);
 	void Load(pic_t *picture, string filename);
 	void Save(pic_t *picture, string filename);

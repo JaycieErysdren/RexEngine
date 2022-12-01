@@ -23,7 +23,7 @@ namespace Console
 	// Add text to the console buffer
 	void AddText(int x, int y, const char *text);
 
-	// Add text to the console buffer (formatted)
+	// Add formatted text to the console buffer (doesn't work)
 	void AddTextF(int x, int y, const char *fmt, ...);
 
 	// Render the console to the given buffer

@@ -90,9 +90,9 @@ void Resize(pic_t *picture, int width, int height)
 }
 
 // A fast picture content clear.
-void Clear(pic_t *picture)
+void Clear(pic_t *picture, uint8_t color)
 {
-	memset(picture->buffer, 0, picture->bytes_per_row * picture->height);
+	memset(picture->buffer, color, picture->bytes_per_row * picture->height);
 }
 
 // A fast picture content copy. s must be compatible.

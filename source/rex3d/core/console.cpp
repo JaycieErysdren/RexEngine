@@ -48,7 +48,7 @@ void AddText(int x, int y, const char *text)
 	for (p = &pic_console.scanlines.b[y][x]; (*p++ = *text++) != 0;);
 }
 
-// Add text to the console buffer
+// Add formatted text to the console buffer (doesn't work)
 void AddTextF(int x, int y, const char *fmt, ...)
 {
 	va_list args;
