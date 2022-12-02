@@ -264,6 +264,16 @@ void Blend8(pic_t *dst, pic_t *src1, pic_t *src2, clut_t blender)
 	}
 }
 
+// Get the color of a pixel from the specified x and y coordinate
+uint8_t GetPixel(pic_t *pic, int x, int y)
+{
+	if (x >= 0 && y >= 0 && x < pic->width && y < pic->height)
+		return pic->scanlines.b[y][x];
+	else
+		return 0;
+}
+
+// Plot a pixel at the specificed x and y coordinate
 void DrawPixel(pic_t *dst, int x, int y, uint8_t color)
 {
 	if (x >= dst->width || x < 0 || y >= dst->height || y < 0)
@@ -360,8 +370,13 @@ void DrawVerticalLine(pic_t *dst, int x, int y1, int y2, uint8_t color)
 // Draw a filled or outlined rectangle
 void DrawRectangle(pic_t *dst, int x, int y, int w, int h, uint8_t color, bool filled)
 {
+	// Sanity check
+	if (x < 0 || y < 0 || x >= dst->width || y >= dst->height || (x + w) >= dst->width || (y + h) >= dst->height)
+		return;
+
 	if (filled == true)
 	{
+		// fill it in with horizontal lines
 		for (int i = 0; i < h; i++)
 		{
 			memset(&dst->scanlines.b[y + i][x], color, w);
@@ -379,6 +394,39 @@ void DrawRectangle(pic_t *dst, int x, int y, int w, int h, uint8_t color, bool f
 			memset(&dst->scanlines.b[y + i][x], color, sizeof(uint8_t));
 			memset(&dst->scanlines.b[y + i][x + w - 1], color, sizeof(uint8_t));
 		}
+	}
+}
+
+// Flood fill from the specified point
+void FloodFill(pic_t *dst, int x, int y, uint8_t color)
+{
+	if (GetPixel(dst, x, y) != color)
+	{
+		DrawPixel(dst, x, y, color);
+		FloodFill(dst, x + 1, y, color);
+		FloodFill(dst, x, y + 1, color);
+		FloodFill(dst, x - 1, y, color);
+		FloodFill(dst, x, y - 1, color);
+	}
+}
+
+// Draw a polygon with n sides
+void DrawPolygon(pic_t *dst, int n, int *v, uint8_t color, bool filled)
+{
+	if (filled == true)
+	{
+
+	}
+	else
+	{
+		// Draw lines
+		for (int i = 0; i < n - 1; i++)
+		{
+			DrawLine(dst, v[(i << 1) + 0], v[(i << 1) + 1], v[(i << 1) + 2], v[(i << 1) + 3], color);
+		}
+
+		// Draw last line
+		DrawLine(dst, v[0], v[1], v[(n << 1) - 2], v[(n << 1) - 1], color);
 	}
 }
 
