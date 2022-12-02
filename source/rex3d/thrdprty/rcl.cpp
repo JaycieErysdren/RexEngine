@@ -77,10 +77,19 @@ void Initialize(int sx, int sy, int sa, int lw, int lh, int8_t *ld)
 // Camera helpers
 //
 
-void CameraTransform(int x, int y)
+void CameraRotateX(int x)
 {
-	camera.position.x += x;
-	camera.position.y += y;
+	camera.direction += x;
+}
+
+void CameraTransformDir(int step)
+{
+	RCL_Vector2D angle = RCL_angleToDirection(camera.direction);
+	angle.x /= 10;
+	angle.y /= 10;
+
+	camera.position.x += step * angle.x;
+	camera.position.y += step * angle.y;
 }
 
 void CameraSetPosition(int x, int y)

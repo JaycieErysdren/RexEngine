@@ -35,6 +35,12 @@ namespace RCL
 	// Render
 	void Render(Picture::pic_t *dst, int max_hits, int max_steps);
 
+	// Rotate camera on X axis
+	void CameraRotateX(int x);
+
+	// Transform camera in the current look direction
+	void CameraTransformDir(int step);
+
 	// Add x and y to the camera's position
 	void CameraTransform(int x, int y);
 

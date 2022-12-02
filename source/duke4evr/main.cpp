@@ -93,36 +93,23 @@ int main(int argc, char *argv[])
 		// Cycles
 		for (c = 0; c < cycles; c++)
 		{
-			#ifdef FUCK
 			//
 			// Input handling
 			//
-			RCL_Vector2D angle = RCL_angleToDirection(camera.direction);
 
-			int step = 1;
-			int step2 = 5;
-
-			angle.x /= 10;
-			angle.y /= 10;
+			int step1 = 2, step2 = 6;
 
 			if (DOS::KeyTest(KB_D))
-				camera.direction += step2;
+				RCL::CameraRotateX(step2);
 			
 			if (DOS::KeyTest(KB_A))
-				camera.direction -= step2;
+				RCL::CameraRotateX(-step2);
 
 			if (DOS::KeyTest(KB_W))
-			{
-				camera.position.x += step * angle.x;
-				camera.position.y += step * angle.y;
-			}
+				RCL::CameraTransformDir(step1);
 
 			if (DOS::KeyTest(KB_S))
-			{
-				camera.position.x -= step * angle.x;
-				camera.position.y -= step * angle.y;
-			}
-			#endif
+				RCL::CameraTransformDir(-step1);
 		}
 
 		//
