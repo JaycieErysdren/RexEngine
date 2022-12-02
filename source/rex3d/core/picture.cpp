@@ -347,20 +347,17 @@ void DrawHorizontalLine(pic_t *dst, int x1, int x2, int y, uint8_t color)
 // Draw a vertical line
 void DrawVerticalLine(pic_t *dst, int x, int y1, int y2, uint8_t color)
 {
+	int i;
 	if (y1 > y2)
 	{
-		int ofs = y2 - y1;
-
-		for (int i = y2; i < y1; i++)
+		for (i = y2; i < y1; i++)
 		{
 			memset(&dst->scanlines.b[i][x], color, sizeof(uint8_t));
 		}
 	}
 	else
 	{
-		int ofs = y1 - y2;
-
-		for (int i = y1; i < y2; i++)
+		for (i = y1; i < y2; i++)
 		{
 			memset(&dst->scanlines.b[i][x], color, sizeof(uint8_t));
 		}
