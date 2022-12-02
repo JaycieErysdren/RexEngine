@@ -48,6 +48,12 @@ namespace DOS
 	char key_last_pressed;
 
 	//
+	// Timer
+	//
+
+	int64_t start_time;
+
+	//
 	//
 	// Functions
 	//
@@ -73,6 +79,7 @@ void DOS::Initialize()
 	// Initialize mouse & kb
 	MouseInitialize();
 	KeyboardInitialize();
+	TimerInitialize();
 }
 
 // Free all interrupts
@@ -173,4 +180,20 @@ void DOS::KeyboardShutdown()
 char DOS::KeyTest(int scancode)
 {
 	return keys[scancode];
+}
+
+//
+// Timer
+//
+
+// Initialize uclock timer
+void DOS::TimerInitialize()
+{
+	start_time = uclock();
+}
+
+// Fetch the current time since initialization
+int64_t DOS::TimerGet64()
+{
+	return (uclock() - start_time);
 }

@@ -56,6 +56,10 @@ set(REX3D_MATH_SRC
 	${CMAKE_SOURCE_DIR}/source/rex3d/math/sintable2.cpp
 )
 
+set(REX3D_REND_SRC
+	${CMAKE_SOURCE_DIR}/source/rex3d/rend/spanner.cpp
+)
+
 set(REX3D_VIDDRV_SRC
 	${CMAKE_SOURCE_DIR}/source/rex3d/viddrv/vga.cpp
 )
@@ -69,6 +73,7 @@ add_library(rex3d STATIC
 	${REX3D_CORE_SRC}
 	${REX3D_HWDRV_SRC}
 	${REX3D_MATH_SRC}
+	${REX3D_REND_SRC}
 	${REX3D_VIDDRV_SRC}
 	${REX3D_WORLD_SRC}
 )

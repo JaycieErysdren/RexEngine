@@ -35,6 +35,7 @@
 // Standard C headers
 #include <unistd.h>
 #include <stdint.h>
+#include <time.h>
 
 // DJGPP headers
 #include <dpmi.h>
@@ -120,6 +121,9 @@ using namespace std;
 //
 // Renderers 
 //
+
+// Spanner
+#include "rend/spanner.hpp"
 
 //
 // World construction 

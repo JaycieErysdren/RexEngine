@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		DOS namespace header
 //
-// LAST EDITED:		November 30th, 2022
+// LAST EDITED:		December 1st, 2022
 //
 // ========================================================
 
@@ -98,4 +98,14 @@ namespace DOS
 
 	// Get key press
 	char KeyTest(int scancode);
+
+	//
+	// Timer
+	//
+
+	// Initialize uclock timer
+	void TimerInitialize();
+
+	// Fetch the current time since initialization
+	int64_t TimerGet64();
 }

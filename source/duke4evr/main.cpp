@@ -17,37 +17,63 @@
 // Duke4Ever header
 #include "duke4evr.hpp"
 
-#define MAP_X 8
-#define MAP_Y 8
+#define MAP_W 24
+#define MAP_H 24
 #define MAP_SIZE 8
 #define PLAYER_SIZE 2
 #define PLAYER_SPEED FIX32(0.133333f)
+#define CYCLES 30
 
-int map[MAP_Y][MAP_X] =
+int map[MAP_W][MAP_H] =
 {
-	{1,1,1,1,1,1,1,1},
-	{1,0,1,0,0,0,0,1},
-	{1,0,1,0,0,0,0,1},
-	{1,0,1,0,0,0,0,1},
-	{1,0,0,0,0,0,0,1},
-	{1,0,0,0,0,1,0,1},
-	{1,0,0,0,0,0,0,1},
-	{1,1,1,1,1,1,1,1},
+	{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+	{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+	{1,0,0,0,0,0,2,2,2,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
+	{1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1},
+	{1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,3,0,0,0,3,0,0,0,1},
+	{1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1},
+	{1,0,0,0,0,0,2,2,0,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+	{1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+	{1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+	{1,4,0,0,0,0,5,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+	{1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+	{1,4,0,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+	{1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+	{1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+	{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 };
 
 // Main entry point
 int main(int argc, char *argv[])
 {
-	// Variables
+	// Picture buffers
 	Picture::pic_t pic_font;
 	Picture::pic_t pic_bbuffer;
 	Picture::pic_t pic_fbuffer;
 	Picture::pic_t pic_cursor;
 	Picture::pic_t pic_shotgun;
+	
+	// Console buffer
 	char console_buffer[256];
+
+	// Cycles
+	int64_t frame_start, frame_end;
+	int cycles, c;
+
+	// Player inforamtion
 	fix32_t px = FIX32(12.0f), py = FIX32(16.0f);
-	uint8_t pa = 64;
+	uint8_t pa = 255;
 	fix32_t pdx = FIX32(-1.0f), pdy = FIX32(0.0f);
+	fix32_t plane_x = FIX32(0.0f), plane_y = FIX32(0.66f);
 
 	// Initialize DOS
 	DOS::Initialize();
@@ -64,37 +90,47 @@ int main(int argc, char *argv[])
 	Picture::LoadBMP(&pic_cursor, "gfx/cursor.bmp");
 	Picture::LoadBMP(&pic_shotgun, "gfx/shot001a.bmp");
 
+	// Start counting time
+	frame_end = DOS::TimerGet64();
+
 	// Main loop
 	while (!DOS::KeyTest(KB_ESC))
 	{
-		//
-		// Input handling
-		//
+		// Get start of frame time
+		frame_start = DOS::TimerGet64();
+		cycles = CYCLES * (frame_start - frame_end) / UCLOCKS_PER_SEC;
 
-		if (DOS::KeyTest(KB_A))
+		// Cycles
+		for (c = 0; c < cycles; c++)
 		{
-			pa += 1;
+			//
+			// Input handling
+			//
+
+			if (DOS::KeyTest(KB_A))
+			{
+				pa += 4;
+			}
+
+			if (DOS::KeyTest(KB_D))
+			{
+				pa -= 4;
+			}
+
 			pdx = cosFixed(pa);
 			pdy = sinFixed(pa);
-		}
 
-		if (DOS::KeyTest(KB_D))
-		{
-			pa -= 1;
-			pdx = cosFixed(pa);
-			pdy = sinFixed(pa);
-		}
+			if (DOS::KeyTest(KB_W))
+			{
+				px += pdx;
+				py -= pdy;
+			}
 
-		if (DOS::KeyTest(KB_W))
-		{
-			px += pdx;
-			py -= pdy;
-		}
-
-		if (DOS::KeyTest(KB_S))
-		{
-			px -= pdx;
-			py += pdy;
+			if (DOS::KeyTest(KB_S))
+			{
+				px -= pdx;
+				py += pdy;
+			}
 		}
 
 		//
@@ -104,24 +140,37 @@ int main(int argc, char *argv[])
 		// Clear back buffer
 		Picture::Clear(&pic_bbuffer, 64);
 
-		// Raycaster rendering
+		// Render world
+		{
+
+
+		}
+
+		// Render shotgun
+		Picture::Draw8(&pic_bbuffer, &pic_shotgun, 168, 116, Picture::COLORKEY);
+
+		// Map overlay
+		//if (DOS::KeyTest(KB_F))
 		{
 			// Draw map
 			{
-				int x, y, xo, yo;
-				uint8_t color;
-
-				for (y = 0; y < MAP_Y; y++)
+				for (int y = 0; y < MAP_H; y++)
 				{
-					for (x = 0; x < MAP_X; x++)
+					for (int x = 0; x < MAP_W; x++)
 					{
-						xo = x * MAP_SIZE;
-						yo = y * MAP_SIZE;
+						uint8_t color;
 
-						if (map[y][x] == 1)
-							Picture::DrawRectangle(&pic_bbuffer, xo, yo, MAP_SIZE, MAP_SIZE, 47, true);
-						else
-							Picture::DrawRectangle(&pic_bbuffer, xo, yo, MAP_SIZE, MAP_SIZE, 0, true);
+						switch (map[y][x])
+						{
+							case 1: color = 47; break;
+							case 2: color = 127; break;
+							case 3: color = 149; break;
+							case 4: color = 191; break;
+							case 5: color = 255; break;
+							default: color = 0; break;
+						}
+
+						Picture::DrawRectangle(&pic_bbuffer, x * MAP_SIZE, y * MAP_SIZE, MAP_SIZE, MAP_SIZE, color, true);
 					}
 				}
 			}
@@ -132,14 +181,14 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		// Render shotgun
-		Picture::Draw8(&pic_bbuffer, &pic_shotgun, 168, 116, Picture::COLORKEY);
-
 		// Render the console text
 		Console::Render(&pic_bbuffer, &pic_font);
 
 		// Flip the rendering buffers
 		Picture::Copy(&pic_fbuffer, &pic_bbuffer);
+
+		// Get end of frame time
+		frame_end = frame_end + cycles * UCLOCKS_PER_SEC / CYCLES;
 	}
 
 	// Shutdown VGA
