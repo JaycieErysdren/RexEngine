@@ -34,6 +34,25 @@ set(CMAKE_BUILD_TYPE Release)
 add_compile_options("-O3")
 
 ##
+## Project Thirdparty Libraries
+##
+
+if(ENABLE_RVR)
+
+set(RVR_DIR ${CMAKE_SOURCE_DIR}/source/thirdparty/rvr)
+set(ANARCH_DIR ${RVR_DIR}/anarch)
+
+add_library(rvr STATIC ${RVR_DIR}/RvR_all.c)
+add_library(rvr_dos STATIC ${RVR_DIR}/backend/RvR_backend_dos.cpp)
+
+aux_source_directory(${ANARCH_DIR} ANARCH_SRC) 
+add_executable(anarch ${ANARCH_SRC})
+target_include_directories(anarch PUBLIC ${RVR_DIR})
+target_link_libraries(anarch PUBLIC rvr rvr_dos)
+
+endif()
+
+##
 ## Project Libraries
 ##
 
@@ -56,26 +75,20 @@ set(REX3D_MATH_SRC
 	${CMAKE_SOURCE_DIR}/source/rex3d/math/sintable2.cpp
 )
 
-set(REX3D_REND_SRC
-	${CMAKE_SOURCE_DIR}/source/rex3d/rend/spanner.cpp
+set(REX3D_THRDPRTY_SRC
+	${CMAKE_SOURCE_DIR}/source/rex3d/thrdprty/rcl.cpp
 )
 
 set(REX3D_VIDDRV_SRC
 	${CMAKE_SOURCE_DIR}/source/rex3d/viddrv/vga.cpp
 )
 
-set(REX3D_WORLD_SRC
-	${CMAKE_SOURCE_DIR}/source/rex3d/world/object.cpp
-	${CMAKE_SOURCE_DIR}/source/rex3d/world/sector.cpp
-)
-
 add_library(rex3d STATIC
 	${REX3D_CORE_SRC}
 	${REX3D_HWDRV_SRC}
 	${REX3D_MATH_SRC}
-	${REX3D_REND_SRC}
+	${REX3D_THRDPRTY_SRC}
 	${REX3D_VIDDRV_SRC}
-	${REX3D_WORLD_SRC}
 )
 
 target_include_directories(rex3d PUBLIC ${CMAKE_SOURCE_DIR}/source)

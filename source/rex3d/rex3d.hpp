@@ -119,23 +119,10 @@ using namespace std;
 #include "viddrv/vga.hpp"
 
 //
-// Renderers 
+// Thirdparty I/O 
 //
 
-// Spanner
-#include "rend/spanner.hpp"
-
-//
-// World construction 
-//
-
-// World
-#include "world/world.hpp"
-
-// Objects
-#include "world/object.hpp"
-
-// Sectors
-#include "world/sector.hpp"
+// raycastlib
+#include "thrdprty/rcl.hpp"
 
 #endif // __REX3D_H__

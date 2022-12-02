@@ -17,47 +17,43 @@
 // Duke4Ever header
 #include "duke4evr.hpp"
 
-#define MAP_W 24
-#define MAP_H 24
-#define MAP_SIZE 8
-#define PLAYER_SIZE 2
-#define PLAYER_SPEED FIX32(0.133333f)
+// Painful globals
+Picture::pic_t pic_bbuffer;
+
 #define CYCLES 30
 
-int map[MAP_W][MAP_H] =
+#define LEVEL_W 20
+#define LEVEL_H 15
+#define LEVEL_SIZE 8
+
+int8_t level[LEVEL_W * LEVEL_H] = // here 1 means wall, 0 floor
 {
-	{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-	{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,2,2,2,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
-	{1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,3,0,0,0,3,0,0,0,1},
-	{1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,2,2,0,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,4,0,0,0,0,5,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,4,0,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
+//	0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, // 0
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, // 1
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, // 2
+	1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, // 3
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, // 4
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, // 5
+	1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, // 6
+	0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, // 7
+	0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, // 8
+	0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9
+	0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, // 10
+	0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, // 11
+	0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, // 12
+	0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, // 13
+	0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0  // 14
 };
 
 // Main entry point
 int main(int argc, char *argv[])
 {
+	// raycastlib stuff
+	RCL::Initialize(2, 2, 0, LEVEL_W, LEVEL_H, level);
+
 	// Picture buffers
 	Picture::pic_t pic_font;
-	Picture::pic_t pic_bbuffer;
 	Picture::pic_t pic_fbuffer;
 	Picture::pic_t pic_cursor;
 	Picture::pic_t pic_shotgun;
@@ -68,12 +64,6 @@ int main(int argc, char *argv[])
 	// Cycles
 	int64_t frame_start, frame_end;
 	int cycles, c;
-
-	// Player inforamtion
-	fix32_t px = FIX32(12.0f), py = FIX32(16.0f);
-	uint8_t pa = 255;
-	fix32_t pdx = FIX32(-1.0f), pdy = FIX32(0.0f);
-	fix32_t plane_x = FIX32(0.0f), plane_y = FIX32(0.66f);
 
 	// Initialize DOS
 	DOS::Initialize();
@@ -103,34 +93,36 @@ int main(int argc, char *argv[])
 		// Cycles
 		for (c = 0; c < cycles; c++)
 		{
+			#ifdef FUCK
 			//
 			// Input handling
 			//
+			RCL_Vector2D angle = RCL_angleToDirection(camera.direction);
 
-			if (DOS::KeyTest(KB_A))
-			{
-				pa += 4;
-			}
+			int step = 1;
+			int step2 = 5;
+
+			angle.x /= 10;
+			angle.y /= 10;
 
 			if (DOS::KeyTest(KB_D))
-			{
-				pa -= 4;
-			}
-
-			pdx = cosFixed(pa);
-			pdy = sinFixed(pa);
+				camera.direction += step2;
+			
+			if (DOS::KeyTest(KB_A))
+				camera.direction -= step2;
 
 			if (DOS::KeyTest(KB_W))
 			{
-				px += pdx;
-				py -= pdy;
+				camera.position.x += step * angle.x;
+				camera.position.y += step * angle.y;
 			}
 
 			if (DOS::KeyTest(KB_S))
 			{
-				px -= pdx;
-				py += pdy;
+				camera.position.x -= step * angle.x;
+				camera.position.y -= step * angle.y;
 			}
+			#endif
 		}
 
 		//
@@ -142,25 +134,24 @@ int main(int argc, char *argv[])
 
 		// Render world
 		{
-
-
+			RCL::Render(&pic_bbuffer, 1, 40);
 		}
 
 		// Render shotgun
 		Picture::Draw8(&pic_bbuffer, &pic_shotgun, 168, 116, Picture::COLORKEY);
 
 		// Map overlay
-		//if (DOS::KeyTest(KB_F))
+		if (DOS::KeyTest(KB_F))
 		{
-			// Draw map
+			// Draw level map
 			{
-				for (int y = 0; y < MAP_H; y++)
+				for (int y = 0; y < LEVEL_H; y++)
 				{
-					for (int x = 0; x < MAP_W; x++)
+					for (int x = 0; x < LEVEL_W; x++)
 					{
 						uint8_t color;
 
-						switch (map[y][x])
+						switch (level[y * LEVEL_W + x])
 						{
 							case 1: color = 47; break;
 							case 2: color = 127; break;
@@ -170,16 +161,22 @@ int main(int argc, char *argv[])
 							default: color = 0; break;
 						}
 
-						Picture::DrawRectangle(&pic_bbuffer, x * MAP_SIZE, y * MAP_SIZE, MAP_SIZE, MAP_SIZE, color, true);
+						Picture::DrawRectangle(&pic_bbuffer, x * LEVEL_SIZE, y * LEVEL_SIZE, LEVEL_SIZE, LEVEL_SIZE, color, true);
 					}
 				}
 			}
 
 			// Draw player
 			{
-				Picture::DrawRectangle(&pic_bbuffer, FIX2INT32(px) - 1, FIX2INT32(py) - 1, 2, 2, 159, true);
+				#ifdef FUCK
+				Picture::DrawRectangle(&pic_bbuffer, FIX2INT32(camera.position.x) - 1, FIX2INT32(camera.position.y) - 1, 2, 2, 159, true);
+				#endif
 			}
 		}
+
+		// Console
+		//sprintf(console_buffer, "cx: %d cy: %d", FIX2INT32(camera.position.x), FIX2INT32(camera.position.y));
+		//Console::AddText(0, 0, console_buffer);
 
 		// Render the console text
 		Console::Render(&pic_bbuffer, &pic_font);
