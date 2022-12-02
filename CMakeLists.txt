@@ -37,20 +37,8 @@ add_compile_options("-O3")
 ## Project Thirdparty Libraries
 ##
 
-if(ENABLE_RVR)
-
-set(RVR_DIR ${CMAKE_SOURCE_DIR}/source/thirdparty/rvr)
-set(ANARCH_DIR ${RVR_DIR}/anarch)
-
-add_library(rvr STATIC ${RVR_DIR}/RvR_all.c)
-add_library(rvr_dos STATIC ${RVR_DIR}/backend/RvR_backend_dos.cpp)
-
-aux_source_directory(${ANARCH_DIR} ANARCH_SRC) 
-add_executable(anarch ${ANARCH_SRC})
-target_include_directories(anarch PUBLIC ${RVR_DIR})
-target_link_libraries(anarch PUBLIC rvr rvr_dos)
-
-endif()
+add_library(cjson STATIC ${CMAKE_SOURCE_DIR}/source/thirdparty/cjson/cJSON.c)
+target_include_directories(cjson PUBLIC ${CMAKE_SOURCE_DIR}/source/thirdparty/cjson)
 
 ##
 ## Project Libraries
@@ -77,6 +65,7 @@ set(REX3D_MATH_SRC
 
 set(REX3D_THRDPRTY_SRC
 	${CMAKE_SOURCE_DIR}/source/rex3d/thrdprty/rcl.cpp
+	${CMAKE_SOURCE_DIR}/source/rex3d/thrdprty/tiled.cpp
 )
 
 set(REX3D_VIDDRV_SRC
@@ -93,6 +82,7 @@ add_library(rex3d STATIC
 
 target_include_directories(rex3d PUBLIC ${CMAKE_SOURCE_DIR}/source)
 target_include_directories(rex3d PUBLIC ${CMAKE_SOURCE_DIR}/source/rex3d)
+target_link_libraries(rex3d PUBLIC cjson)
 
 ##
 ## Project Applications

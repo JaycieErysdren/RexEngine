@@ -57,6 +57,13 @@ RCL_Camera camera;
 //
 
 //
+// Forward declarations
+//
+
+RCL_Unit Height(int16_t x, int16_t y);
+void Pixel(RCL_PixelInfo *p);
+
+//
 // Bootstrap
 //
 
@@ -76,6 +83,19 @@ void Initialize(int sx, int sy, int sa, int lw, int lh, int8_t *ld)
 //
 // Camera helpers
 //
+
+void CameraTransform(int step)
+{
+	RCL_Vector2D offset;
+	RCL_Vector2D angle = RCL_angleToDirection(camera.direction);
+	angle.x /= 10;
+	angle.y /= 10;
+
+	offset.x = step * angle.x;
+	offset.y = step * angle.y;
+
+	RCL_moveCameraWithCollision(&camera, offset, 0, Height, 0, 1, 1);
+}
 
 void CameraRotateX(int x)
 {

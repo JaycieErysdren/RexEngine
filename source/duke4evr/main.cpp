@@ -17,9 +17,6 @@
 // Duke4Ever header
 #include "duke4evr.hpp"
 
-// Painful globals
-Picture::pic_t pic_bbuffer;
-
 #define CYCLES 30
 
 #define LEVEL_W 20
@@ -57,7 +54,8 @@ int main(int argc, char *argv[])
 	Picture::pic_t pic_fbuffer;
 	Picture::pic_t pic_cursor;
 	Picture::pic_t pic_shotgun;
-	
+	Picture::pic_t pic_bbuffer;
+
 	// Console buffer
 	char console_buffer[256];
 
@@ -106,10 +104,10 @@ int main(int argc, char *argv[])
 				RCL::CameraRotateX(-step2);
 
 			if (DOS::KeyTest(KB_W))
-				RCL::CameraTransformDir(step1);
+				RCL::CameraTransform(step1);
 
 			if (DOS::KeyTest(KB_S))
-				RCL::CameraTransformDir(-step1);
+				RCL::CameraTransform(-step1);
 		}
 
 		//

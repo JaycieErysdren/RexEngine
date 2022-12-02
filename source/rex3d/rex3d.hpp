@@ -125,4 +125,7 @@ using namespace std;
 // raycastlib
 #include "thrdprty/rcl.hpp"
 
+// Tiled
+#include "thrdprty/tiled.hpp"
+
 #endif // __REX3D_H__

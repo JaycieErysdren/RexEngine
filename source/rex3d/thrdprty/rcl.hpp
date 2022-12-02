@@ -42,7 +42,7 @@ namespace RCL
 	void CameraTransformDir(int step);
 
 	// Add x and y to the camera's position
-	void CameraTransform(int x, int y);
+	void CameraTransform(int step);
 
 	// Set the position of the camera
 	void CameraSetPosition(int x, int y);
