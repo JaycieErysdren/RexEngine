@@ -83,6 +83,7 @@ namespace Picture
 	void DrawPixel(pic_t *dst, int x, int y, uint8_t color);
 	void DrawLine(pic_t *dst, int x1, int y1, int x2, int y2, uint8_t color);
 	void DrawHorizontalLine(pic_t *dst, int x1, int x2, int y, uint8_t color);
+	void DrawVerticalLine(pic_t *dst, int x, int y1, int y2, uint8_t color);
 	void DrawRectangle(pic_t *dst, int x, int y, int w, int h, uint8_t color, bool filled);
 	void DrawPolygon(pic_t *dst, int n, int *v, uint8_t color, bool filled);
 
