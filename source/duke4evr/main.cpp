@@ -60,18 +60,6 @@ int main(int argc, char *argv[])
 	int64_t frame_start, frame_end;
 	int cycles, c;
 
-	//
-	// Test
-	//
-
-	Tiled::TileMap *map = Tiled::LoadTMJ("maps/test2.tmj");
-
-	printf("width: %d height: %d\n", map->width, map->height);
-
-	Tiled::FreeTileMap(map);
-
-	exit(0);
-
 	// Initialize DOS
 	DOS::Initialize();
 
