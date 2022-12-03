@@ -80,6 +80,11 @@ void Initialize(int sx, int sy, int sa, int lw, int lh, int8_t *ld)
 	camera.direction = sa;
 }
 
+void InitializeTileMap(int start_x, int start_y, int start_angle, Tiled::TileMap *tilemap)
+{
+	
+}
+
 //
 // Camera helpers
 //

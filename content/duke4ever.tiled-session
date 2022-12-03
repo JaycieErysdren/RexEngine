@@ -5,17 +5,24 @@
     },
     "activeFile": "mapsrc/test2.tmj",
     "expandedProjectPaths": [
-        "tilesrc",
         ".",
+        "tilesrc",
         "mapsrc"
     ],
     "fileStates": {
+        "mapsrc/heightmaps.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
         "mapsrc/test2.tmj": {
-            "scale": 0.25,
-            "selectedLayer": 0,
+            "expandedGroupLayers": [
+                6
+            ],
+            "scale": 0.5,
+            "selectedLayer": 4,
             "viewCenter": {
-                "x": 1536,
-                "y": 776
+                "x": 716,
+                "y": 636
             }
         },
         "tilesrc/duke4ever.tsx": {
@@ -28,27 +35,40 @@
             "scaleInDock": 1,
             "scaleInEditor": 1
         },
+        "tilesrc/heightmaps.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
         "tilesrc/walls.tsx": {
             "scaleInDock": 1.5,
             "scaleInEditor": 1
         }
     },
-    "last.imagePath": "/home/jaycie/Projects/duke4ever/builddos/tex_bmp/duke3d",
+    "last.imagePath": "/home/jaycie/Projects/duke4ever/content/tilesrc",
     "map.height": 32,
     "map.lastUsedFormat": "json",
     "map.tileHeight": 128,
     "map.tileWidth": 128,
     "map.width": 32,
     "openFiles": [
-        "mapsrc/test2.tmj"
+        "mapsrc/test2.tmj",
+        "tilesrc/heightmaps.tsx"
     ],
     "project": "duke4ever.tiled-project",
+    "property.type": "int",
     "recentFiles": [
+        "tilesrc/heightmaps.tsx",
         "mapsrc/test2.tmj",
+        "mapsrc/heightmaps.tsx",
         "tilesrc/floors.tsx",
         "tilesrc/walls.tsx",
         "tilesrc/duke4ever.tsx"
     ],
     "tileset.lastUsedFormat": "tsx",
-    "tileset.type": 1
+    "tileset.tileSize": {
+        "height": 64,
+        "width": 64
+    },
+    "tileset.type": 0
 }

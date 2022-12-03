@@ -25,8 +25,29 @@ namespace Tiled
 {
 	//
 	//
+	// Classes
+	//
+	//
+
+	class TileMap
+	{
+		public:
+			int width;
+			int height;
+			uint8_t *floor_height_data;
+			uint8_t *floor_texture_data;
+			uint8_t *wall_texture_data;
+			uint8_t *ceiling_height_data;
+			uint8_t *ceiling_texture_data;
+	};
+
+	//
+	//
 	// Functions
 	//
 	//
+
+	TileMap *LoadTMJ(string filename);
+	void FreeTileMap(TileMap *map);
 
 }

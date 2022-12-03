@@ -46,9 +46,6 @@ int8_t level[LEVEL_W * LEVEL_H] = // here 1 means wall, 0 floor
 // Main entry point
 int main(int argc, char *argv[])
 {
-	// raycastlib stuff
-	RCL::Initialize(2, 2, 0, LEVEL_W, LEVEL_H, level);
-
 	// Picture buffers
 	Picture::pic_t pic_font;
 	Picture::pic_t pic_fbuffer;
@@ -62,6 +59,18 @@ int main(int argc, char *argv[])
 	// Cycles
 	int64_t frame_start, frame_end;
 	int cycles, c;
+
+	//
+	// Test
+	//
+
+	Tiled::TileMap *map = Tiled::LoadTMJ("maps/test2.tmj");
+
+	printf("width: %d height: %d\n", map->width, map->height);
+
+	Tiled::FreeTileMap(map);
+
+	exit(0);
 
 	// Initialize DOS
 	DOS::Initialize();
@@ -77,6 +86,9 @@ int main(int argc, char *argv[])
 	Picture::Create(&pic_bbuffer, SCREEN_WIDTH, SCREEN_HEIGHT, 8, 0, 0);
 	Picture::LoadBMP(&pic_cursor, "gfx/cursor.bmp");
 	Picture::LoadBMP(&pic_shotgun, "gfx/shot001a.bmp");
+
+	// raycastlib
+	RCL::Initialize(2, 2, 0, LEVEL_W, LEVEL_H, level);
 
 	// Start counting time
 	frame_end = DOS::TimerGet64();

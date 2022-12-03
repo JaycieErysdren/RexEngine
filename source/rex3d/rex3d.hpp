@@ -35,6 +35,8 @@
 // Standard C headers
 #include <unistd.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include <time.h>
 
 // DJGPP headers
@@ -46,6 +48,15 @@
 
 // Use standard namespace
 using namespace std;
+
+//
+//
+// Thirdparty headers
+//
+//
+
+// cJSON
+#include "thirdparty/cjson/cJSON.h"
 
 //
 //
@@ -122,10 +133,10 @@ using namespace std;
 // Thirdparty I/O 
 //
 
-// raycastlib
-#include "thrdprty/rcl.hpp"
-
 // Tiled
 #include "thrdprty/tiled.hpp"
+
+// raycastlib
+#include "thrdprty/rcl.hpp"
 
 #endif // __REX3D_H__
