@@ -49,9 +49,17 @@ int main(int argc, char *argv[])
 	// Picture buffers
 	Picture::pic_t pic_font;
 	Picture::pic_t pic_fbuffer;
-	Picture::pic_t pic_cursor;
-	Picture::pic_t pic_shotgun;
 	Picture::pic_t pic_bbuffer;
+
+	// Fuck my life
+	scalar_t vx1 = SCALAR(70);
+	scalar_t vy1 = SCALAR(20);
+	scalar_t vx2 = SCALAR(70);
+	scalar_t vy2 = SCALAR(70);
+
+	scalar_t px = SCALAR(50);
+	scalar_t py = SCALAR(50);
+	int32_t angle = 0;
 
 	// Console buffer
 	char console_buffer[256];
@@ -72,11 +80,6 @@ int main(int argc, char *argv[])
 	Picture::LoadBMP(&pic_font, "gfx/font8x8.bmp");
 	Picture::Create(&pic_fbuffer, SCREEN_WIDTH, SCREEN_HEIGHT, 8, 0, (void *)VGA_VIDMEM_PTR);
 	Picture::Create(&pic_bbuffer, SCREEN_WIDTH, SCREEN_HEIGHT, 8, 0, 0);
-	Picture::LoadBMP(&pic_cursor, "gfx/cursor.bmp");
-	Picture::LoadBMP(&pic_shotgun, "gfx/shot001a.bmp");
-
-	// raycastlib
-	RCL::Initialize(2, 2, 0, LEVEL_W, LEVEL_H, level);
 
 	// Start counting time
 	frame_end = DOS::TimerGet64();
@@ -95,19 +98,20 @@ int main(int argc, char *argv[])
 			// Input handling
 			//
 
-			int step1 = 2, step2 = 6;
-
-			if (DOS::KeyTest(KB_D))
-				RCL::CameraRotateX(step2);
-			
-			if (DOS::KeyTest(KB_A))
-				RCL::CameraRotateX(-step2);
+			if (DOS::KeyTest(KB_A)) angle -= 4;
+			if (DOS::KeyTest(KB_D)) angle += 4;
 
 			if (DOS::KeyTest(KB_W))
-				RCL::CameraTransform(step1);
+			{
+				px += FloatToScalar(cos(angle / 180.0f * M_PI));
+				py += FloatToScalar(sin(angle / 180.0f * M_PI));
+			}
 
 			if (DOS::KeyTest(KB_S))
-				RCL::CameraTransform(-step1);
+			{
+				px -= FloatToScalar(cos(angle / 180.0f * M_PI));
+				py -= FloatToScalar(sin(angle / 180.0f * M_PI));
+			}
 		}
 
 		//
@@ -117,51 +121,29 @@ int main(int argc, char *argv[])
 		// Clear back buffer
 		Picture::Clear(&pic_bbuffer, 64);
 
-		// Render world
+		// Render a world
 		{
-			RCL::Render(&pic_bbuffer, 1, 40);
+			int32_t svx1 = ScalarToInteger(vx1);
+			int32_t svy1 = ScalarToInteger(vy1);
+			int32_t svx2 = ScalarToInteger(vx2);
+			int32_t svy2 = ScalarToInteger(vy2);
+
+			int32_t spx = ScalarToInteger(px);
+			int32_t spy = ScalarToInteger(py);
+
+			int32_t spxl = ScalarToInteger(FloatToScalar(cos(angle / 180.0f * M_PI) * 10) + px);
+			int32_t spyl = ScalarToInteger(FloatToScalar(sin(angle / 180.0f * M_PI) * 10) + py);
+
+			// Draw the player
+			Picture::DrawLine(&pic_bbuffer, spx, spy, spxl, spyl, 150);
+			Picture::DrawPixel(&pic_bbuffer, spx, spy, 159);
+
+			// Draw the wall
+			Picture::DrawLine(&pic_bbuffer, svx1, svy1, svx2, svy2, 31);
+
+			sprintf(console_buffer, "a: %d spxl: %d spyl %d", angle, spxl, spyl);
+			Console::AddText(0, 0, console_buffer);
 		}
-
-		// Render shotgun
-		Picture::Draw8(&pic_bbuffer, &pic_shotgun, 168, 116, Picture::COLORKEY);
-
-		// Map overlay
-		if (DOS::KeyTest(KB_F))
-		{
-			// Draw level map
-			{
-				for (int y = 0; y < LEVEL_H; y++)
-				{
-					for (int x = 0; x < LEVEL_W; x++)
-					{
-						uint8_t color;
-
-						switch (level[y * LEVEL_W + x])
-						{
-							case 1: color = 47; break;
-							case 2: color = 127; break;
-							case 3: color = 149; break;
-							case 4: color = 191; break;
-							case 5: color = 255; break;
-							default: color = 0; break;
-						}
-
-						Picture::DrawRectangle(&pic_bbuffer, x * LEVEL_SIZE, y * LEVEL_SIZE, LEVEL_SIZE, LEVEL_SIZE, color, true);
-					}
-				}
-			}
-
-			// Draw player
-			{
-				#ifdef FUCK
-				Picture::DrawRectangle(&pic_bbuffer, FIX2INT32(camera.position.x) - 1, FIX2INT32(camera.position.y) - 1, 2, 2, 159, true);
-				#endif
-			}
-		}
-
-		// Console
-		//sprintf(console_buffer, "cx: %d cy: %d", FIX2INT32(camera.position.x), FIX2INT32(camera.position.y));
-		//Console::AddText(0, 0, console_buffer);
 
 		// Render the console text
 		Console::Render(&pic_bbuffer, &pic_font);
@@ -184,7 +166,6 @@ int main(int argc, char *argv[])
 	Picture::Destroy(&pic_font);
 	Picture::Destroy(&pic_fbuffer);
 	Picture::Destroy(&pic_bbuffer);
-	Picture::Destroy(&pic_shotgun);
 
 	// Exit gracefully
 	return EXIT_SUCCESS;
