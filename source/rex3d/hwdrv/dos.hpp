@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		DOS namespace header
 //
-// LAST EDITED:		December 1st, 2022
+// LAST EDITED:		December 3rd, 2022
 //
 // ========================================================
 
@@ -36,7 +36,9 @@
 #define KB_PAGEDN			81
 #define KB_INSERT			82
 #define KB_DELETE			83
+#define KB_Q				16
 #define KB_W				17
+#define KB_E				18
 #define KB_A				30
 #define KB_S				31
 #define KB_D				32

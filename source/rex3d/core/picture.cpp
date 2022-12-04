@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Picture namespace implementation
 //
-// LAST EDITED:		December 1st, 2022
+// LAST EDITED:		December 3rd, 2022
 //
 // ========================================================
 
@@ -297,7 +297,8 @@ void DrawLine(pic_t *dst, int x1, int y1, int x2, int y2, uint8_t color)
 	px = x1;
 	py = y1;
 
-	DrawPixel(dst, px, py, color);
+	if (px > -1 && px < SCREEN_WIDTH && py > -1 && py < SCREEN_HEIGHT)
+		DrawPixel(dst, px, py, color);
 
 	if (dxabs >= dyabs) // the line is more horizontal than vertical
 	{
@@ -313,7 +314,8 @@ void DrawLine(pic_t *dst, int x1, int y1, int x2, int y2, uint8_t color)
 
 			px += sdx;
 
-			DrawPixel(dst, px, py, color);
+			if (px > -1 && px < SCREEN_WIDTH && py > -1 && py < SCREEN_HEIGHT)
+				DrawPixel(dst, px, py, color);
 		}
 	}
 	else // the line is more vertical than horizontal
@@ -330,7 +332,8 @@ void DrawLine(pic_t *dst, int x1, int y1, int x2, int y2, uint8_t color)
 
 			py += sdy;
 
-			DrawPixel(dst, px, py, color);
+			if (px > -1 && px < SCREEN_WIDTH && py > -1 && py < SCREEN_HEIGHT)
+				DrawPixel(dst, px, py, color);
 		}
 	}
 }

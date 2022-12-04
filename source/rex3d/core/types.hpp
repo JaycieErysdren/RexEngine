@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex3D engine types
 //
-// LAST EDITED:		December 1st, 2022
+// LAST EDITED:		December 3rd, 2022
 //
 // ========================================================
 
@@ -72,14 +72,20 @@ extern const fix16_t sintable16[1024];
 #define FIX32_FRAC_MASK				((1 << FIX32_FRAC_BITS) - 1)
 
 // 32-bit and 16-bit fixed point conversion macros
-#define FIX16(value)				((fix16_t)((value) * (1 << FIX16_FRAC_BITS)))
-#define FIX32(value)				((fix32_t)((value) * (1 << FIX32_FRAC_BITS)))
+#define FIX16(a)					((fix16_t)((a) * (1 << 8)))
+#define FIX32(a)					((fix32_t)((a) * (1 << 16)))
+
+#define INT16(a)					((int16_t)((a) >> 8))
+#define INT32(a)					((int32_t)((a) >> 16))
+
+#define FLOAT16(a)					(((float)(a) / (1 << 8)))
+#define FLOAT32(a)					(((float)(a) / (1 << 16)))
 
 // 32-bit fixed point operation shortcut macros
 #define ADD32(x, y)					((x) + (y))
 #define SUB32(x, y)					((x) - (y))
-#define MUL32(x, y)					(((x) >> FIX32_FRAC_BITS / 2) * ((y) >> FIX32_FRAC_BITS / 2))
-#define DIV32(x, y)					(((x) << FIX32_FRAC_BITS / 2) / ((y) >> FIX32_FRAC_BITS / 2))
+#define MUL32(x, y)					((fix32_t)(((int64_t)(x) * (y)) >> 16))
+#define DIV32(x, y)					((fix32_t)(((int64_t)(x) << 16) / (y)))
 #define NEG32(x)					(0 - (x))
 #define SIN32(x)					(sintable32[(x) & 1023])
 #define COS32(x)					(sintable32[((x) + 256) & 1023])
@@ -91,7 +97,7 @@ extern const fix16_t sintable16[1024];
 #define ADD16(x, y)					((x) + (y))
 #define SUB16(x, y)					((x) - (y))
 #define MUL16(x, y)					(((x) * (y)) >> FIX16_FRAC_BITS)
-#define DIV16(x, y)					(((x) << FIX16_FRAC_BITS) / y)
+#define DIV16(x, y)					(((x) << FIX16_FRAC_BITS) / (y))
 #define NEG16(x)					(0 - (x))
 #define SIN16(x)					(sintable16[(x) & 1023])
 #define COS16(x)					(sintable16[((x) + 256) & 1023])
@@ -144,3 +150,102 @@ typedef plane_t matrix_t[4];
 
 // Fixed-point ceiling macro
 #define fixceil(a) (((a) + 0xFFFF) >> 16)
+
+// Various fixed-point types
+typedef int32_t fixed_32s_t;		// 32 bit signed fixed				15.16
+typedef int16_t fixed_32sf_t;		// 32 bit signed fixed fraction		0.15
+
+typedef uint32_t fixed_32u_t;		// 32 bit unsigned fixed			16.16
+typedef uint16_t fixed_32uf_t;		// 32 bit unsigned fixed fraction	0.16
+
+typedef int16_t fixed_16s_t;		// 16 bit signed fixed				7.8
+typedef int8_t fixed_16sf_t;		// 16 bit signed fixed fraction		0.7
+
+typedef uint16_t fixed_16u_t;		// 16 bit unsigned fixed			8.8
+typedef int8_t fixed_16uf_t;		// 16 bit unsigned fixed fraction	0.8
+
+// Base fixed-point types (scalar)
+typedef fixed_32s_t					scalar_t;
+typedef fixed_32sf_t				fraction_t;
+typedef fixed_32uf_t				ufraction_t;
+
+#define SCALAR_EPSILON				0x0001
+#define SCALAR_MAX					0x7fffffff
+#define SCALAR_MIN					0x80000000
+
+// 1 in various fixed-point forms
+#define X_ONE_32S					(1 << 16)
+#define X_ONE_32SF					(1 << 15)
+#define X_ONE_32U					(1 << 16)
+#define X_ONE_32UF					(1 << 16)
+
+#define X_ONE_16S					(1 << 8)
+#define X_ONE_16SF					(1 << 7)
+#define X_ONE_16U					(1 << 8)
+#define X_ONE_16UF					(1 << 8) 
+
+//
+// Macros for static initialization
+//
+
+// Initialize scalar
+#define SCALAR(x)					((scalar_t)(X_ONE_32S * (x)))
+
+// Initialize signed fraction
+#define FRACTION(x)					((fraction_t)((X_ONE_32SF * (x)) >= X_ONE_32SF ? X_ONE_32SF - 1 : X_ONE_32SF * (x)))
+
+// Initialize unsigned fraction
+#define UFRACTION(x)				((ufraction_t)((X_ONE_32UF * (x)) >= X_ONE_32UF ? X_ONE_32UF - 1 : X_ONE_32UF * (x)))
+
+//
+// Macros for type conversion
+//
+
+// Float to scalar
+#define FloatToScalar(f)			((scalar_t)((f) * (float)X_ONE_32S))
+
+// Scalar to float
+#define ScalarToFloat(s)			((s) / (float)X_ONE_32S)
+
+// Integer to scalar
+#define IntegerToScalar(i)			((scalar_t)((i) * (int32_t)X_ONE_32S))
+
+// Scalar to integer
+#define ScalarToInteger(s)			((s) / (int32_t)X_ONE_32S)
+
+// Fixed to scalar
+#define FixedToScalar(f)			(f)
+
+// Scalar to fixed
+#define ScalarToFixed(s)			(s)
+
+// Signed fraction to scalar
+#define FractionToScalar(f)			((scalar_t)((f) * 2))
+
+// Scalar to signed fraction
+#define ScalarToFraction(s)			((fraction_t)((s) / 2))
+
+// Unsigned fraction to scalar
+#define UFractionToScalar(f)		((scalar_t)(f))
+
+// Scalar to unsigned fraction
+#define ScalarToUFraction(s)		((ufraction_t)(s))
+
+// Integer to fixed
+#define IntegerToFixed(i)			((i) << 16)
+
+// Fixed to integer
+#define FixedToInteger(i)			((i) >> 16)
+
+// Float to fixed
+#define FloatToFixed(f)				((scalar_t)((f) * (float)X_ONE_32S))
+
+// Fixed to float
+#define FixedToFloat(s)				((s) * (1.0 / (float)X_ONE_32S))
+
+//
+// Various arithmetic operations
+//
+
+#define ScalarMul(a, b)				(((int64_t)(a) * (b)) >> 16)
+
