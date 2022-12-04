@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex3D engine types
 //
-// LAST EDITED:		December 3rd, 2022
+// LAST EDITED:		December 4th, 2022
 //
 // ========================================================
 
@@ -247,5 +247,34 @@ typedef fixed_32uf_t				ufraction_t;
 // Various arithmetic operations
 //
 
-#define ScalarMul(a, b)				(((int64_t)(a) * (b)) >> 16)
+#define MUL(a, b)					(((int64_t)(a) * (b)) >> 16)
 
+//
+// Angles
+//
+
+#ifdef AGHH
+
+typedef fixed_32uf_t				angle_t;
+
+#define ANGLE_DEG(deg)				((angle_t)(int32_t)((deg) * 182))
+#define ANGLE_RAD(rad)				((angle_t)(int32_t)((rad) * 10430))
+
+#define AngleToDegree(a)			MUL((a), SCALAR(360.0f))
+#define DegreeToAngle(d)			((angle_t)BR_MULDIV((d), SCALAR(1.0f), SCALAR(360.0f)))
+#define AngleToRadian(a)			MUL((a), SCALAR(2.0f * PI))
+#define RadianToAngle(r)			((angle_t)(MUL((r), SCALAR(0.5f / PI))))
+#define DegreeToRadian(d)			(BR_MULDIV((d),SCALAR(PI), SCALAR(180.0f)))
+#define RadianToDegree(r)			(MUL((r), SCALAR(180.0f / PI)))
+
+#define AngleToScalar(a)			((scalar_t)(a))
+#define ScalarToAngle(s)			((angle_t)(int32_t)(s))
+
+#define BR_SIN(a)					BrFixedSin(a)
+#define BR_COS(a)					BrFixedCos(a)
+#define BR_ASIN(a)					BrFixedASin(a)
+#define BR_ACOS(a)					BrFixedACos(a)
+#define BR_ATAN2(a,b)				BrFixedATan2(a,b)
+#define BR_ATAN2FAST(a,b)			BrFixedATan2Fast(a,b)
+
+#endif

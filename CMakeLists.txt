@@ -10,7 +10,7 @@
 ##
 ## DESCRIPTION:		Duke4Ever CMake project definition
 ##
-## LAST EDITED:		December 1st, 2022
+## LAST EDITED:		December 4th, 2022
 ##
 ## ========================================================
 
@@ -61,6 +61,7 @@ set(REX3D_MATH_SRC
 	${CMAKE_SOURCE_DIR}/source/rex3d/math/matrix.cpp
 	${CMAKE_SOURCE_DIR}/source/rex3d/math/sintable.cpp
 	${CMAKE_SOURCE_DIR}/source/rex3d/math/sintable2.cpp
+	${CMAKE_SOURCE_DIR}/source/rex3d/math/tables.cpp
 )
 
 set(REX3D_THRDPRTY_SRC
