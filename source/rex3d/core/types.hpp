@@ -250,6 +250,7 @@ typedef fixed_32uf_t				ufraction_t;
 #define MUL(a, b)					(((int64_t)(a) * (b)) >> 16)
 #define DIV(a, b)					(((int64_t)(a) << 16) / (b))
 
+#define SAFEDIV(a, b)				((((a) == 0) || (b) == 0) ? SCALAR_MAX : DIV((a), (b)))
 //
 // Angles
 //

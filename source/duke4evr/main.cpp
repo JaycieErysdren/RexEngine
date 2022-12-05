@@ -19,53 +19,32 @@
 
 #define CYCLES 30
 
-#define MAP_X 24
-#define MAP_Y 24
+//
+// Types
+//
 
-int8_t map[MAP_Y][MAP_X]=
-{
-	{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-	{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,2,2,2,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
-	{1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,3,0,0,0,3,0,0,0,1},
-	{1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,2,2,0,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,4,0,0,0,0,5,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,4,0,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-	{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-};
-
+// 3-point integer vector
 typedef struct
 {
 	int32_t x, y, z;
 } vec3i_t;
 
+// 3-point scalar vector
 typedef struct
 {
 	scalar_t x, y, z;
 } vec3s_t;
 
+//
+// Globals
+//
+
+// player
 struct player
 {
 	// Scalar vectors
 	vec3s_t origin; 	// x, y, z
 	vec3s_t movedir;	// x, y, z
-	vec3s_t plane;		// x, y, z
 	vec3i_t angle;		// pitch, yaw, roll
 
 	// Speed keys
@@ -73,12 +52,53 @@ struct player
 	int anglespeedkey;
 } player;
 
+// math tables
 struct math
 {
 	scalar_t cos[360];
 	scalar_t sin[360];
 	scalar_t tan[360];
 } math;
+
+//
+// Drawing functions
+//
+
+void RenderWall(Picture::pic_t *dst, int x1, int x2, int yb1, int yb2, int yt1, int yt2, uint8_t color)
+{
+	int x, y;
+
+	// Distance deltas
+	int dyb = yb2 - yb1;
+	int dyt = yt2 - yt1;
+
+	int dx = x2 - x1;
+	if (dx == 0) dx = 1;
+
+	int xs = x1;
+
+	Picture::DrawLine(dst, x1, yb1, x2, yb2, color);
+	Picture::DrawLine(dst, x1, yt1, x2, yt2, color);
+
+	return;
+
+	for (x = x1; x < x2; x++)
+	{
+		int y1 = dyb * (x - xs) / dx + yb1;
+		int y2 = dyt * (x - xs) / dx + yt1;
+
+		// fill in the wall with vertical lines
+		//Picture::DrawVerticalLine(dst, x, y1, y2, color);
+
+		// just draw the top and bottom lines
+		Picture::DrawPixel(dst, x, y1, color);
+		Picture::DrawPixel(dst, x, y2, color);
+	}
+}
+
+//
+// Main entry point
+//
 
 // Main entry point
 int main(int argc, char *argv[])
@@ -95,18 +115,14 @@ int main(int argc, char *argv[])
 	char console_buffer[256];
 
 	// Player variables
-	player.origin.x = SCALAR(22.0f);
-	player.origin.y = SCALAR(12.0f);
-	player.origin.z = SCALAR(0.0f);
-	player.movedir.x = SCALAR(-1.0f);
-	player.movedir.y = SCALAR(0.0f);
-	player.movedir.z = SCALAR(0.0f);
-	player.plane.x = SCALAR(1.0f);
-	player.plane.y = SCALAR(0.66f);
-	player.plane.z = SCALAR(0.0f);
+	player.origin.x = SCALAR(70.0f);
+	player.origin.y = SCALAR(-110.0f);
+	player.origin.z = SCALAR(20.0f);
 	player.angle.x = 0;
 	player.angle.y = 0;
 	player.angle.z = 0;
+	player.anglespeedkey = 4;
+	player.movespeedkey = 4;
 
 	// Cycles
 	int64_t frame_start, frame_end;
@@ -150,52 +166,78 @@ int main(int argc, char *argv[])
 			// Input handling
 			//
 
-			#define ROT_SPEED 0.1f
-			#define MOVE_SPEED 1
+			// Mouse read
+			int16_t mb, mx, my;
+			mb = DOS::MouseRead(&mx, &my);
 
-			//move forward if no wall in front of you
-			if(DOS::KeyTest(KB_UPARROW))
+			// Rotate leftwards
+			if (DOS::KeyTest(KB_LTARROW))
 			{
-				if (map[ScalarToInteger(player.origin.x + player.movedir.x * MOVE_SPEED)][ScalarToInteger(player.origin.y)] == 0)
-					player.origin.x += player.movedir.x * MOVE_SPEED;
-
-				if (map[ScalarToInteger(player.origin.x)][ScalarToInteger(player.origin.y + player.movedir.y * MOVE_SPEED)] == 0)
-					player.origin.y += player.movedir.y * MOVE_SPEED;
+				player.angle.y -= player.anglespeedkey;
+				if (player.angle.y < 0) player.angle.y += 360;
 			}
 
-			//move backwards if no wall behind you
-			if(DOS::KeyTest(KB_DNARROW))
+			// Rotate rightwards
+			if (DOS::KeyTest(KB_RTARROW))
 			{
-				if (map[ScalarToInteger(player.origin.x - player.movedir.x * MOVE_SPEED)][ScalarToInteger(player.origin.y)] == 0)
-					player.origin.x -= player.movedir.x * MOVE_SPEED;
-
-				if (map[ScalarToInteger(player.origin.x)][ScalarToInteger(player.origin.y - player.movedir.y * MOVE_SPEED)] == 0)
-					player.origin.y -= player.movedir.y * MOVE_SPEED;
+				player.angle.y += player.anglespeedkey;
+				if (player.angle.y > 359) player.angle.y -= 360;
 			}
 
-			//rotate to the right
-			if(DOS::KeyTest(KB_RTARROW))
+			// Look upwards
+			if (DOS::KeyTest(KB_UPARROW))
 			{
-				//both camera direction and camera plane must be rotated
-				scalar_t oldDirX = player.movedir.x;
-				player.movedir.x = MUL(player.movedir.x, SCALAR(cos(-ROT_SPEED))) - MUL(player.movedir.y, SCALAR(sin(-ROT_SPEED)));
-				player.movedir.y = MUL(oldDirX, SCALAR(sin(-ROT_SPEED))) + MUL(player.movedir.y, SCALAR(cos(-ROT_SPEED)));
-				scalar_t oldPlaneX = player.plane.x;
-				player.plane.x = MUL(player.plane.x, SCALAR(cos(-ROT_SPEED))) - MUL(player.plane.y, SCALAR(sin(-ROT_SPEED)));
-				player.plane.y = MUL(oldPlaneX, SCALAR(sin(-ROT_SPEED))) + MUL(player.plane.y, SCALAR(cos(-ROT_SPEED)));
+				player.angle.x += player.anglespeedkey;
+				if (player.angle.x >= 180) player.angle.x = 180;
 			}
 
-			//rotate to the left
-			if(DOS::KeyTest(KB_LTARROW))
+			// Look downwards
+			if (DOS::KeyTest(KB_DNARROW))
 			{
-				//both camera direction and camera plane must be rotated
-				scalar_t oldDirX = player.movedir.x;
-				player.movedir.x = MUL(player.movedir.x, SCALAR(cos(ROT_SPEED))) - MUL(player.movedir.y, SCALAR(sin(ROT_SPEED)));
-				player.movedir.y = MUL(oldDirX, SCALAR(sin(ROT_SPEED))) + MUL(player.movedir.y, SCALAR(cos(ROT_SPEED)));
-				scalar_t oldPlaneX = player.plane.x;
-				player.plane.x = MUL(player.plane.x, SCALAR(cos(ROT_SPEED))) - MUL(player.plane.y, SCALAR(sin(ROT_SPEED)));
-				player.plane.y = MUL(oldPlaneX, SCALAR(sin(ROT_SPEED))) + MUL(player.plane.y, SCALAR(cos(ROT_SPEED)));
+				player.angle.x -= player.anglespeedkey;
+				if (player.angle.x <= -180) player.angle.x = -180;
 			}
+	
+			// Set movedir
+			player.movedir.x = math.sin[player.angle.y] * player.movespeedkey;
+			player.movedir.y = math.cos[player.angle.y] * player.movespeedkey;
+			player.movedir.z = SCALAR(1.0f) * player.movespeedkey;
+
+			// Move forwards
+			if (DOS::KeyTest(KB_W))
+			{
+				player.origin.x += player.movedir.x;
+				player.origin.y += player.movedir.y;
+			}
+
+			// Move backwards
+			if (DOS::KeyTest(KB_S))
+			{
+				player.origin.x -= player.movedir.x;
+				player.origin.y -= player.movedir.y;
+			}
+
+			// Move leftwards
+			if (DOS::KeyTest(KB_A))
+			{
+				player.origin.x -= player.movedir.y;
+				player.origin.y += player.movedir.x;
+			}
+
+			// Move rightwards
+			if (DOS::KeyTest(KB_D))
+			{
+				player.origin.x += player.movedir.y;
+				player.origin.y -= player.movedir.x;
+			}
+
+			// Move upwards
+			if (DOS::KeyTest(KB_Q))
+				player.origin.z += player.movedir.z;
+
+			// Move downwards
+			if (DOS::KeyTest(KB_E))
+				player.origin.z -= player.movedir.z;
 		}
 
 		//
@@ -207,130 +249,96 @@ int main(int argc, char *argv[])
 
 		// Render a world
 		{
-			for(int x = 0; x < SCREEN_WIDTH; x++)
+			scalar_t wv[4][3]; // World space vertices (x, y, z)
+			scalar_t pv1[4][3]; // Player space vertices (part 1) (x, y, z)
+			scalar_t pv2[4][3]; // Player space vertices (part 2) (x, y, z)
+			int32_t sv[4][2]; // Screen space vertices (x, y)
+
+			// Current cos and sin of player yaw
+			scalar_t cs = math.cos[player.angle.y];
+			scalar_t sn = math.sin[player.angle.y];
+
+			// World space vertices
+			wv[0][0] = SCALAR(40);
+			wv[0][1] = SCALAR(10);
+			wv[0][2] = SCALAR(0);
+
+			wv[1][0] = SCALAR(40);
+			wv[1][1] = SCALAR(290);
+			wv[1][2] = SCALAR(0);
+
+			wv[2][0] = SCALAR(40);
+			wv[2][1] = SCALAR(10);
+			wv[2][2] = SCALAR(64);
+
+			wv[3][0] = SCALAR(40);
+			wv[3][1] = SCALAR(290);
+			wv[3][2] = SCALAR(64);
+
+			// Player space vertices (part 1)
+			pv1[0][0] = wv[0][0] - player.origin.x;
+			pv1[0][1] = wv[0][1] - player.origin.y;
+			pv1[0][2] = wv[0][2] - player.origin.z;
+
+			pv1[1][0] = wv[1][0] - player.origin.x;
+			pv1[1][1] = wv[1][1] - player.origin.y;
+			pv1[1][2] = wv[1][2] - player.origin.z;
+
+			pv1[2][0] = wv[2][0] - player.origin.x;
+			pv1[2][1] = wv[2][1] - player.origin.y;
+			pv1[2][2] = wv[2][2] - player.origin.z;
+
+			pv1[3][0] = wv[3][0] - player.origin.x;
+			pv1[3][1] = wv[3][1] - player.origin.y;
+			pv1[3][2] = wv[3][2] - player.origin.z;
+
+			// Player space vertices (part 2)
+			pv2[0][0] = MUL(pv1[0][0], cs) - MUL(pv1[0][1], sn);
+			pv2[0][1] = MUL(pv1[0][1], cs) + MUL(pv1[0][0], sn);
+			pv2[0][2] = 0 - pv1[0][2] + DIV(MUL(SCALAR(player.angle.x), pv2[0][1]), SCALAR(32));
+
+			pv2[1][0] = MUL(pv1[1][0], cs) - MUL(pv1[1][1], sn);
+			pv2[1][1] = MUL(pv1[1][1], cs) + MUL(pv1[1][0], sn);
+			pv2[1][2] = 0 - pv1[1][2] + DIV(MUL(SCALAR(player.angle.x), pv2[1][1]), SCALAR(32));
+
+			pv2[2][0] = MUL(pv1[2][0], cs) - MUL(pv1[2][1], sn);
+			pv2[2][1] = MUL(pv1[2][1], cs) + MUL(pv1[2][0], sn);
+			pv2[2][2] = 0 - pv1[2][2] + DIV(MUL(SCALAR(player.angle.x), pv2[2][1]), SCALAR(32));
+
+			pv2[3][0] = MUL(pv1[3][0], cs) - MUL(pv1[3][1], sn);
+			pv2[3][1] = MUL(pv1[3][1], cs) + MUL(pv1[3][0], sn);
+			pv2[3][2] = 0 - pv1[3][2] + DIV(MUL(SCALAR(player.angle.x), pv2[3][1]), SCALAR(32));
+
+			// Screen space vertices (with divide-by-zero checking)
+			if (pv2[0][1] != 0 && pv2[1][1] != 0 && pv2[2][1] != 0 && pv2[3][1] != 0)
 			{
-				//calculate ray position and direction
-				scalar_t cameraX = DIV(SCALAR(2 * x), SCALAR(SCREEN_WIDTH - 1)); //x-coordinate in camera space
-				scalar_t rayDirX = player.movedir.x + MUL(player.plane.x, cameraX);
-				scalar_t rayDirY = player.movedir.y + MUL(player.plane.y, cameraX);
+				sv[0][0] = ScalarToInteger(DIV(MUL(pv2[0][0], SCALAR(200)), pv2[0][1])) + (SCREEN_WIDTH / 2);
+				sv[0][1] = ScalarToInteger(DIV(MUL(pv2[0][2], SCALAR(200)), pv2[0][1])) + (SCREEN_HEIGHT / 2);
 
-				//which box of the map we're in
-				int mapX = ScalarToInteger(player.origin.x);
-				int mapY = ScalarToInteger(player.origin.y);
+				sv[1][0] = ScalarToInteger(DIV(MUL(pv2[1][0], SCALAR(200)), pv2[1][1])) + (SCREEN_WIDTH / 2);
+				sv[1][1] = ScalarToInteger(DIV(MUL(pv2[1][2], SCALAR(200)), pv2[1][1])) + (SCREEN_HEIGHT / 2);
 
-				//length of ray from current position to next x or y-side
-				scalar_t sideDistX;
-				scalar_t sideDistY;
+				sv[2][0] = ScalarToInteger(DIV(MUL(pv2[2][0], SCALAR(200)), pv2[2][1])) + (SCREEN_WIDTH / 2);
+				sv[2][1] = ScalarToInteger(DIV(MUL(pv2[2][2], SCALAR(200)), pv2[2][1])) + (SCREEN_HEIGHT / 2);
 
-				//length of ray from one x or y-side to next x or y-side
-				//these are derived as:
-				//deltaDistX = sqrt(1 + (rayDirY * rayDirY) / (rayDirX * rayDirX))
-				//deltaDistY = sqrt(1 + (rayDirX * rayDirX) / (rayDirY * rayDirY))
-				//which can be simplified to abs(|rayDir| / rayDirX) and abs(|rayDir| / rayDirY)
-				//where |rayDir| is the length of the vector (rayDirX, rayDirY). Its length,
-				//unlike (dirX, dirY) is not 1, however this does not matter, only the
-				//ratio between deltaDistX and deltaDistY matters, due to the way the DDA
-				//stepping further below works. So the values can be computed as below.
-				// Division through zero is prevented, even though technically that's not
-				// needed in C++ with IEEE 754 floating point values.
-				scalar_t deltaDistX = (rayDirX == 0) ? SCALAR_MIN : ABS(DIV(SCALAR(1.0f), rayDirX));
-				scalar_t deltaDistY = (rayDirY == 0) ? SCALAR_MIN : ABS(DIV(SCALAR(1.0f), rayDirY));
+				sv[3][0] = ScalarToInteger(DIV(MUL(pv2[3][0], SCALAR(200)), pv2[3][1])) + (SCREEN_WIDTH / 2);
+				sv[3][1] = ScalarToInteger(DIV(MUL(pv2[3][2], SCALAR(200)), pv2[3][1])) + (SCREEN_HEIGHT / 2);
 
-				scalar_t perpWallDist;
+				// RenderWall
+				RenderWall(&pic_bbuffer, sv[0][0], sv[1][0], sv[0][1], sv[1][1], sv[2][1], sv[3][1], 159);
 
-				//what direction to step in x or y-direction (either +1 or -1)
-				int stepX;
-				int stepY;
-
-				bool hit = false; //was there a wall hit?
-				bool side; //was a NS or a EW wall hit?
-
-				//calculate step and initial sideDist
-				if (rayDirX < 0)
-				{
-					stepX = -1;
-					sideDistX = MUL((player.origin.x - SCALAR(mapX)), deltaDistX);
-				}
-				else
-				{
-					stepX = 1;
-					sideDistX = MUL((SCALAR(mapX) + SCALAR(1) - player.origin.x), deltaDistX);
-				}
-
-				if (rayDirY < 0)
-				{
-					stepY = -1;
-					sideDistY = MUL((player.origin.y - SCALAR(mapY)), deltaDistY);
-				}
-				else
-				{
-					stepY = 1;
-					sideDistY = MUL((SCALAR(mapY) + SCALAR(1) - player.origin.y), deltaDistY);
-				}
-
-				//perform DDA
-				while (hit == false)
-				{
-					//jump to next map square, either in x-direction, or in y-direction
-					if (sideDistX < sideDistY)
-					{
-						sideDistX += deltaDistX;
-						mapX += stepX;
-						side = false;
-					}
-					else
-					{
-						sideDistY += deltaDistY;
-						mapY += stepY;
-						side = true;
-					}
-
-					//Check if ray has hit a wall
-					if(map[mapX][mapY] > 0) hit = true;
-				}
-
-				//Calculate distance projected on camera direction. This is the shortest distance from the point where the wall is
-				//hit to the camera plane. Euclidean to center camera point would give fisheye effect!
-				//This can be computed as (mapX - posX + (1 - stepX) / 2) / rayDirX for side == 0, or same formula with Y
-				//for size == 1, but can be simplified to the code below thanks to how sideDist and deltaDist are computed:
-				//because they were left scaled to |rayDir|. sideDist is the entire length of the ray above after the multiple
-				//steps, but we subtract deltaDist once because one step more into the wall was taken above.
-				if (side == false)
-					perpWallDist = (sideDistX - deltaDistX);
-				else
-					perpWallDist = (sideDistY - deltaDistY);
-
-				if (perpWallDist != 0)
-				{
-					//Calculate height of line to draw on screen
-					int lineHeight = ScalarToInteger(DIV(SCALAR(SCREEN_HEIGHT), perpWallDist));
-
-					//calculate lowest and highest pixel to fill in current stripe
-					int drawStart = -lineHeight / 2 + SCREEN_HEIGHT / 2;
-					if (drawStart < 0) drawStart = 0;
-					int drawEnd = lineHeight / 2 + SCREEN_HEIGHT / 2;
-					if (drawEnd >= SCREEN_HEIGHT) drawEnd = SCREEN_HEIGHT - 1;
-
-					//choose wall color
-					uint8_t color;
-					switch (map[mapX][mapY])
-					{
-						case 1:  color = 31; break;
-						case 2:  color = 47; break;
-						case 3:  color = 63; break;
-						case 4:  color = 79; break;
-						default: color = 95; break;
-					}
-
-					//give x and y sides different brightness
-					if(side == true) {color -= 4;}
-
-					//draw the pixels of the stripe as a vertical line
-					Picture::DrawVerticalLine(&pic_bbuffer, x, drawStart, drawEnd, color);
-				}
-				sprintf(console_buffer, "px: %d py: %d pz: %d", (player.plane.x), (player.plane.y), (player.plane.z));
-				Console::AddText(0, 0, console_buffer);
+				// Dots
+				//Picture::DrawPixel(&pic_bbuffer, sv[0][0], sv[0][1], 159);
+				//Picture::DrawPixel(&pic_bbuffer, sv[1][0], sv[1][1], 159);
 			}
+
+			// Print some console info
+			sprintf(console_buffer, "px: %d py: %d pz: %d", ScalarToInteger(player.origin.x), ScalarToInteger(player.origin.y), ScalarToInteger(player.origin.z));
+			Console::AddText(0, 0, console_buffer);
+			sprintf(console_buffer, "sv0: %d sv1: %d", sv[0][0], sv[0][1]);
+			Console::AddText(0, 1, console_buffer);
+			sprintf(console_buffer, "sv0: %d sv1: %d", sv[1][0], sv[1][1]);
+			Console::AddText(0, 2, console_buffer);
 		}
 
 		// Render the console text
