@@ -23,7 +23,7 @@
 // Types
 //
 
-// 2-point integer vector
+// 2-point 32-bit integer vector
 typedef struct
 {
 	int32_t x, y;
@@ -40,6 +40,21 @@ typedef struct
 {
 	scalar_t x, y, z;
 } vec3s_t;
+
+// 2-point 16-bit integer vector
+typedef struct
+{
+	int16_t x, y;
+} vertex_t;
+
+// Wall
+typedef struct
+{
+	uint16_t vertex_0_id;
+	uint16_t vertex_1_id;
+	int8_t height;
+	uint8_t color;
+} wall_t;
 
 //
 // Globals
