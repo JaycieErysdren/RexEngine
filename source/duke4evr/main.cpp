@@ -77,23 +77,39 @@ void RenderWall(Picture::pic_t *dst, int x1, int x2, int yb1, int yb2, int yt1, 
 
 	int xs = x1;
 
-	Picture::DrawLine(dst, x1, yb1, x2, yb2, color);
-	Picture::DrawLine(dst, x1, yt1, x2, yt2, color);
-
-	return;
+	// clip x
+	if (x1 < 1) x1 = 1;
+	if (x2 < 1) x2 = 1;
+	if (x1 > dst->width - 1) x1 = dst->width - 1;
+	if (x2 > dst->width - 1) x2 = dst->width - 1;
 
 	for (x = x1; x < x2; x++)
 	{
 		int y1 = dyb * (x - xs) / dx + yb1;
 		int y2 = dyt * (x - xs) / dx + yt1;
 
-		// fill in the wall with vertical lines
-		//Picture::DrawVerticalLine(dst, x, y1, y2, color);
+		// clip y
+		if (y1 < 1) y1 = 1;
+		if (y2 < 1) y2 = 1;
+		if (y1 > dst->height - 1) y1 = dst->height - 1;
+		if (y2 > dst->height - 1) y2 = dst->height - 1;
 
-		// just draw the top and bottom lines
-		Picture::DrawPixel(dst, x, y1, color);
-		Picture::DrawPixel(dst, x, y2, color);
+		Picture::DrawVerticalLine(dst, x, y1, y2, color);
 	}
+}
+
+void ClipWall(scalar_t *x1, scalar_t *y1, scalar_t *z1, scalar_t x2, scalar_t y2, scalar_t z2)
+{
+	scalar_t da = *y1;
+	scalar_t db = y2;
+	scalar_t d = da - db;
+	if (d == 0) d = SCALAR(1);
+	scalar_t s = DIV(da, da - db);
+	*x1 = *x1 + MUL(s, x2 - (*x1));
+	*y1 = *y1 + MUL(s, y2 - (*y1));
+	*z1 = *z1 + MUL(s, z2 - (*z1));
+
+	if (*y1 == 0) *y1 = SCALAR(1);
 }
 
 //
@@ -310,8 +326,20 @@ int main(int argc, char *argv[])
 			pv2[3][2] = 0 - pv1[3][2] + DIV(MUL(SCALAR(player.angle.x), pv2[3][1]), SCALAR(32));
 
 			// Screen space vertices (with divide-by-zero checking)
-			if (pv2[0][1] != 0 && pv2[1][1] != 0 && pv2[2][1] != 0 && pv2[3][1] != 0)
+			if (pv2[0][1] > SCALAR(0) && pv2[1][1] > SCALAR(0))
 			{
+				if (pv2[0][1] <= SCALAR(0))
+				{
+					ClipWall(&pv2[0][0], &pv2[0][1], &pv2[0][1], pv2[1][0], pv2[1][1], pv2[1][2]);
+					ClipWall(&pv2[2][0], &pv2[2][1], &pv2[2][1], pv2[3][0], pv2[3][1], pv2[3][2]);
+				}
+
+				if (pv2[1][1] <= SCALAR(0))
+				{
+					ClipWall(&pv2[1][0], &pv2[1][1], &pv2[1][1], pv2[0][0], pv2[0][1], pv2[0][2]);
+					ClipWall(&pv2[3][0], &pv2[3][1], &pv2[3][1], pv2[2][0], pv2[2][1], pv2[2][2]);
+				}
+
 				sv[0][0] = ScalarToInteger(DIV(MUL(pv2[0][0], SCALAR(200)), pv2[0][1])) + (SCREEN_WIDTH / 2);
 				sv[0][1] = ScalarToInteger(DIV(MUL(pv2[0][2], SCALAR(200)), pv2[0][1])) + (SCREEN_HEIGHT / 2);
 
@@ -326,10 +354,6 @@ int main(int argc, char *argv[])
 
 				// RenderWall
 				RenderWall(&pic_bbuffer, sv[0][0], sv[1][0], sv[0][1], sv[1][1], sv[2][1], sv[3][1], 159);
-
-				// Dots
-				//Picture::DrawPixel(&pic_bbuffer, sv[0][0], sv[0][1], 159);
-				//Picture::DrawPixel(&pic_bbuffer, sv[1][0], sv[1][1], 159);
 			}
 
 			// Print some console info
