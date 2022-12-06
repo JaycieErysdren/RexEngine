@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Duke4Ever program entry point
 //
-// LAST EDITED:		December 4th, 2022
+// LAST EDITED:		December 6th, 2022
 //
 // ========================================================
 
@@ -42,6 +42,12 @@ typedef struct
 {
 	int32_t x, y, z;
 } vec3i_t;
+
+typedef struct
+{
+	int32_t x, y;
+	int32_t w, h;
+} rect_t;
 
 typedef vec2s_t vertex_t;
 
@@ -87,6 +93,8 @@ typedef struct
 
 #define VERTEX(a, b)				(VEC2S((a), (b)))
 
+#define RECT(x, y, w, h)			((rect_t){(x), (y), (w), (h)})
+
 //
 // Globals
 //
@@ -106,7 +114,7 @@ math_t math;
 // Rendering functions
 //
 
-void RenderWall(Picture::pic_t *dst, int x1, int x2, int yb1, int yb2, int yt1, int yt2, uint8_t color)
+void RenderWall(Picture::pic_t *dst, rect_t area, int x1, int x2, int yb1, int yb2, int yt1, int yt2, uint8_t color)
 {
 	int x, y;
 
@@ -120,10 +128,10 @@ void RenderWall(Picture::pic_t *dst, int x1, int x2, int yb1, int yb2, int yt1, 
 	int xs = x1;
 
 	// clip x
-	if (x1 < 0) x1 = 0;
-	if (x2 < 0) x2 = 0;
-	if (x1 > dst->width) x1 = dst->width;
-	if (x2 > dst->width) x2 = dst->width;
+	if (x1 < area.x) x1 = area.x;
+	if (x2 < area.x) x2 = area.x;
+	if (x1 > area.x + area.w) x1 = area.x + area.w;
+	if (x2 > area.x + area.w) x2 = area.x + area.w;
 
 	for (x = x1; x < x2; x++)
 	{
@@ -131,10 +139,10 @@ void RenderWall(Picture::pic_t *dst, int x1, int x2, int yb1, int yb2, int yt1, 
 		int y2 = dyt * (x - xs) / dx + yt1;
 
 		// clip y
-		if (y1 < 0) y1 = 0;
-		if (y2 < 0) y2 = 0;
-		if (y1 > dst->height) y1 = dst->height;
-		if (y2 > dst->height) y2 = dst->height;
+		if (y1 < area.y) y1 = area.y;
+		if (y2 < area.y) y2 = area.y;
+		if (y1 > area.y + area.h) y1 = area.y + area.h;
+		if (y2 > area.y + area.h) y2 = area.y + area.h;
 
 		Picture::DrawVerticalLine(dst, x, y1, y2, color);
 	}
@@ -152,7 +160,7 @@ void ClipWall(scalar_t *x1, scalar_t *y1, scalar_t *z1, scalar_t x2, scalar_t y2
 	*z1 = *z1 + MUL(s, z2 - (*z1));
 }
 
-void RenderSector(Picture::pic_t *dst, int sector_id, int visible_x_start, int visible_x_end)
+void RenderSector(Picture::pic_t *dst, int sector_id, rect_t area)
 {
 	// General variables
 	int i, w;
@@ -179,11 +187,11 @@ void RenderSector(Picture::pic_t *dst, int sector_id, int visible_x_start, int v
 		// Transform the vertices into the player's view
 		v[0].x = vertices[wall.vertex_0_id].x - player.origin.x;
 		v[0].y = vertices[wall.vertex_0_id].y - player.origin.y;
-		v[0].z = SCALAR(sector.floor_height) - player.origin.z;
+		v[0].z = SCALAR(sector.floor_height) + player.origin.z;
 
 		v[1].x = vertices[wall.vertex_1_id].x - player.origin.x;
 		v[1].y = vertices[wall.vertex_1_id].y - player.origin.y;
-		v[1].z = SCALAR(sector.floor_height) - player.origin.z;
+		v[1].z = SCALAR(sector.floor_height) + player.origin.z;
 
 		// Rotate the values around the player's view
 		pv[0].x = MUL(v[0].x, cs) - MUL(v[0].y, sn);
@@ -196,11 +204,11 @@ void RenderSector(Picture::pic_t *dst, int sector_id, int visible_x_start, int v
 
 		pv[2].x = pv[0].x;
 		pv[2].y = pv[0].y;
-		pv[2].z = pv[0].z + SCALAR(sector.ceiling_height);
+		pv[2].z = pv[0].z - SCALAR(sector.ceiling_height);
 
 		pv[3].x = pv[1].x;
 		pv[3].y = pv[1].y;
-		pv[3].z = pv[1].z + SCALAR(sector.ceiling_height);
+		pv[3].z = pv[1].z - SCALAR(sector.ceiling_height);
 
 		// Don't even bother if both points are behind the player
 		if (pv[0].y <= 0 && pv[1].y <= 0) continue;
@@ -218,7 +226,7 @@ void RenderSector(Picture::pic_t *dst, int sector_id, int visible_x_start, int v
 			ClipWall(&pv[3].x, &pv[3].y, &pv[3].z, pv[2].x, pv[2].y, pv[2].z);
 		}
 
-		// Screen space vertices
+		// Screen space verticesRenderWall
 		sv[0].x = ScalarToInteger(DIV(MUL(pv[0].x, SCALAR(200)), pv[0].y)) + (dst->width / 2);
 		sv[0].y = ScalarToInteger(DIV(MUL(pv[0].z, SCALAR(200)), pv[0].y)) + (dst->height / 2);
 
@@ -231,8 +239,12 @@ void RenderSector(Picture::pic_t *dst, int sector_id, int visible_x_start, int v
 		sv[3].x = ScalarToInteger(DIV(MUL(pv[3].x, SCALAR(200)), pv[3].y)) + (dst->width / 2);
 		sv[3].y = ScalarToInteger(DIV(MUL(pv[3].z, SCALAR(200)), pv[3].y)) + (dst->height / 2);
 
+		//
+		// Render the wall
+		//
+
 		// Render the wall (filled)
-		RenderWall(dst, sv[0].x, sv[1].x, sv[0].y, sv[1].y, sv[2].y, sv[3].y, wall.color);
+		RenderWall(dst, area, sv[0].x, sv[1].x, sv[0].y, sv[1].y, sv[2].y, sv[3].y, wall.color);
 	}
 }
 
@@ -242,9 +254,9 @@ void RenderSector(Picture::pic_t *dst, int sector_id, int visible_x_start, int v
 
 void InitializePlayer()
 {
-	player.origin.x = SCALAR(64);
-	player.origin.y = SCALAR(-64);
-	player.origin.z = SCALAR(32);
+	player.origin.x = SCALAR(0);
+	player.origin.y = SCALAR(0);
+	player.origin.z = SCALAR(64);
 
 	player.angles.x = 0;
 	player.angles.y = 0;
@@ -259,17 +271,29 @@ void InitializePlayer()
 void InitializeSectors()
 {
 	// Vertices
-	vertices[0].x = SCALAR(-128);
-	vertices[0].y = SCALAR(128);
+	vertices[0].x = SCALAR(-256);
+	vertices[0].y = SCALAR(0);
 
-	vertices[1].x = SCALAR(128);
-	vertices[1].y = SCALAR(128);
+	vertices[1].x = SCALAR(-128);
+	vertices[1].y = SCALAR(256);
 
 	vertices[2].x = SCALAR(128);
-	vertices[2].y = SCALAR(-128);
+	vertices[2].y = SCALAR(256);
 
-	vertices[3].x = SCALAR(-128);
-	vertices[3].y = SCALAR(-128);
+	vertices[3].x = SCALAR(256);
+	vertices[3].y = SCALAR(0);
+
+	vertices[4].x = SCALAR(128);
+	vertices[4].y = SCALAR(-256);
+
+	vertices[5].x = SCALAR(-128);
+	vertices[5].y = SCALAR(-256);
+
+	vertices[6].x = SCALAR(256);
+	vertices[6].y = SCALAR(512);
+
+	vertices[7].x = SCALAR(512);
+	vertices[7].y = SCALAR(128);
 
 	// Walls
 	walls[0].vertex_0_id = 0;
@@ -285,14 +309,39 @@ void InitializeSectors()
 	walls[2].color = 150;
 
 	walls[3].vertex_0_id = 3;
-	walls[3].vertex_1_id = 0;
+	walls[3].vertex_1_id = 4;
 	walls[3].color = 159;
+
+	walls[4].vertex_0_id = 4;
+	walls[4].vertex_1_id = 5;
+	walls[4].color = 150;
+
+	walls[5].vertex_0_id = 5;
+	walls[5].vertex_1_id = 0;
+	walls[5].color = 159;
+
+	walls[6].vertex_0_id = 2;
+	walls[6].vertex_1_id = 6;
+	walls[6].color = 159;
+
+	walls[7].vertex_0_id = 6;
+	walls[7].vertex_1_id = 7;
+	walls[7].color = 150;
+
+	walls[8].vertex_0_id = 7;
+	walls[8].vertex_1_id = 3;
+	walls[8].color = 159;
 
 	// Sectors
 	sectors[0].wall_start_id = 0;
-	sectors[0].num_walls = 4;
+	sectors[0].num_walls = 6;
 	sectors[0].floor_height = 0;
-	sectors[0].ceiling_height = 128;
+	sectors[0].ceiling_height = 256;
+
+	sectors[1].wall_start_id = 6;
+	sectors[1].num_walls = 3;
+	sectors[1].floor_height = 0;
+	sectors[1].ceiling_height = 256;
 }
 
 //
@@ -441,7 +490,7 @@ int main(int argc, char *argv[])
 
 		// Render a world
 		{
-			RenderSector(&pic_bbuffer, player.sector_id, 0, SCREEN_WIDTH);
+			RenderSector(&pic_bbuffer, player.sector_id, RECT(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
 		}
 
 		// Render the console text

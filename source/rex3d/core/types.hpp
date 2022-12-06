@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex3D engine types
 //
-// LAST EDITED:		December 4th, 2022
+// LAST EDITED:		December 6th, 2022
 //
 // ========================================================
 
@@ -115,11 +115,15 @@ typedef struct
 	int32_t x, y;
 } point_t;
 
+#ifdef UGH
+
 // Rect
 typedef struct
 {
 	int32_t x1, y1, x2, y2;
 } rect_t;
+
+#endif
 
 // Motion
 typedef struct
