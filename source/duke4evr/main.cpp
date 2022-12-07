@@ -206,21 +206,15 @@ void RenderRays(Picture::pic_t *dst, rect_t area)
 	scalar_t cs = math.cos[player.angles.y];
 	scalar_t tn = math.tan[player.angles.y];
 
-
 	// Ray sweep loop
 	for (x = draw_x0; x < draw_x1; x++)
 	{
 		// The angle of projection
 		int angle = (player.angles.y - (player.fov / 2)) + ((player.fov * x) / area.w);
 
-		//angle += player.fov / area.w;
-
 		// Projection angle sanity check
 		if (angle < 0) angle += 360;
 		if (angle > 359) angle -= 360;
-
-		//scalar_t plane_dist = DIV(SCALAR(area.w / 2), math.tan[player.fov / 2]);
-		//scalar_t ray_dist;
 
 		vec2s_t raydir;
 		vec2s_t raypos;
@@ -330,8 +324,8 @@ void RenderRays(Picture::pic_t *dst, rect_t area)
 					uint8_t color = Picture::GetPixel(&pic_wall, tex_x, tex_y);
 
 					// Lookup in colormap for brightness
-					if (side == true) color = ColormapLookup(color, ScalarToInteger(perp_wall_dist) - 4);
-					else color = ColormapLookup(color, ScalarToInteger(perp_wall_dist));
+					if (side == true) color = ColormapLookup(color, ScalarToInteger(MUL(perp_wall_dist, SCALAR(0.25f))) - 4);
+					else color = ColormapLookup(color, ScalarToInteger(MUL(perp_wall_dist, SCALAR(0.25f))));
 
 					Picture::DrawPixel(dst, x, y, color);
 				}
@@ -350,8 +344,8 @@ void RenderRays(Picture::pic_t *dst, rect_t area)
 				}
 
 				// Lookup in colormap for brightness
-				if (side == true) color = ColormapLookup(color, ScalarToInteger(perp_wall_dist) - 4);
-				else color = ColormapLookup(color, ScalarToInteger(perp_wall_dist));
+				if (side == true) color = ColormapLookup(color, ScalarToInteger(MUL(perp_wall_dist, SCALAR(2))) - 4);
+				else color = ColormapLookup(color, ScalarToInteger(MUL(perp_wall_dist, SCALAR(2))));
 
 				//draw the pixels of the stripe as a vertical line
 				Picture::DrawVerticalLine(dst, x, drawStart, drawEnd, color);
