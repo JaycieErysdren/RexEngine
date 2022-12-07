@@ -121,6 +121,8 @@ char console_buffer[256];
 #define MAP_X 24
 #define MAP_Y 24
 #define MAP_SIZE 2
+#define TEXTURE_X 64
+#define TEXTURE_Y 64
 
 uint8_t map[MAP_X][MAP_Y] = {
 	{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
@@ -148,6 +150,8 @@ uint8_t map[MAP_X][MAP_Y] = {
 	{1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
 	{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 };
+
+uint8_t textures[1][TEXTURE_Y * TEXTURE_X];
 
 //
 // Raycast rendering functions
@@ -184,6 +188,7 @@ void RenderRays(Picture::pic_t *dst, rect_t area)
 		int map_x = ScalarToInteger(player.origin.x), map_y = ScalarToInteger(player.origin.y);
 		int step_x, step_y;
 		bool hit = false, side = false;
+		bool texturemapping = true;
 
 		raydir.x = math.sin[angle];
 		raydir.y = math.cos[angle];
@@ -250,50 +255,57 @@ void RenderRays(Picture::pic_t *dst, rect_t area)
 			int drawEnd = lineHeight / 2 + area.h / 2;
 			if (drawEnd >= area.h) drawEnd = area.h;
 
-			//choose wall color
-			uint8_t color;
-			switch (map[map_y][map_x])
+			//texturing calculations
+			if (texturemapping == true)
 			{
-				case 1:  color = 31; break;
-				case 2:  color = 47; break;
-				case 3:  color = 63; break;
-				case 4:  color = 79; break;
-				default: color = 95; break;
+				int tex_num = map[map_y][map_x] - 1; //1 subtracted from it so that texture 0 can be used!
+
+				//calculate value of wallX
+				scalar_t wall_x; //where exactly the wall was hit
+				if (side == false) wall_x = player.origin.y + MUL(perp_wall_dist, raydir.y);
+				else wall_x = player.origin.x + MUL(perp_wall_dist, raydir.x);
+
+				//x coordinate on the texture
+				int tex_x = ScalarToInteger(MUL(wall_x, SCALAR(TEXTURE_X)));
+				if (side == false && raydir.x > 0) tex_x = TEXTURE_X - tex_x - 1;
+				if (side == true && raydir.y < 0) tex_x = TEXTURE_X - tex_x - 1;
+
+				// How much to increase the texture coordinate per screen pixel
+				scalar_t step = DIV(MUL(SCALAR(1.0f), SCALAR(TEXTURE_X)), SCALAR(lineHeight));
+
+				// Starting texture coordinate
+				scalar_t texcoord = MUL(SCALAR(drawStart - (area.h / 2) + (lineHeight / 2)), step);
+
+				for (int y = drawStart; y < drawEnd; y++)
+				{
+					// Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
+					int tex_y = ScalarToInteger(texcoord) & (TEXTURE_Y - 1);
+					texcoord += step;
+					uint8_t color = textures[0][TEXTURE_Y * tex_y + tex_x];
+
+					Picture::DrawPixel(dst, x, y, color);
+				}
 			}
-
-			//give x and y sides different brightness
-			if(side == true) {color -= 4;}
-
-			//draw the pixels of the stripe as a vertical line
-			Picture::DrawVerticalLine(dst, x, drawStart, drawEnd, color);
-		}
-
-		#ifdef OLDRAYCASTER
-
-		scalar_t scan_x, scan_y;
-		int map_x, map_y;
-		int inc_x, inc_y;
-
-		map_x = ScalarToInteger(player.origin.x);
-		map_y = ScalarToInteger(player.origin.y);
-
-		for (scalar_t r = SCALAR(0); r < SCALAR(64); r += SCALAR(0.01f))
-		{
-			scan_x = player.origin.x + MUL(r, math.sin[angle]);
-			scan_y = player.origin.y + MUL(r, math.cos[angle]);
-
-			map_x = ScalarToInteger(scan_x);
-			map_y = ScalarToInteger(scan_y);
-
-			if (map[map_y][map_x] == 0)
-				continue;
 			else
-				break;
+			{
+				//choose wall color
+				uint8_t color;
+				switch (map[map_y][map_x])
+				{
+					case 1: color = 31; break;
+					case 2: color = 47; break;
+					case 3: color = 63; break;
+					case 4: color = 79; break;
+					default: color = 95; break;
+				}
+
+				//give x and y sides different brightness
+				if(side == true) {color -= 4;}
+
+				//draw the pixels of the stripe as a vertical line
+				Picture::DrawVerticalLine(dst, x, drawStart, drawEnd, color);
+			}
 		}
-
-		Picture::DrawLine(dst, ScalarToInteger(player.origin.x) * MAP_SIZE, ScalarToInteger(player.origin.y) * MAP_SIZE, ScalarToInteger(scan_x) * MAP_SIZE, ScalarToInteger(scan_y) * MAP_SIZE, 150);
-
-		#endif
 
 		sprintf(console_buffer, "angle: %d", angle);
 		Console::AddText(0, 2, console_buffer);
@@ -312,10 +324,10 @@ void DrawMap(Picture::pic_t *dst, int x, int y, int cell_width, int cell_height)
 			uint8_t color;
 			switch (map[my][mx])
 			{
-				case 1:  color = 31; break;
-				case 2:  color = 47; break;
-				case 3:  color = 63; break;
-				case 4:  color = 79; break;
+				case 1: color = 31; break;
+				case 2: color = 47; break;
+				case 3: color = 63; break;
+				case 4: color = 79; break;
 				default: color = 0; break;
 			}
 
@@ -325,6 +337,18 @@ void DrawMap(Picture::pic_t *dst, int x, int y, int cell_width, int cell_height)
 
 	// Draw the player on the map
 	Picture::DrawPixel(dst, x + ScalarToInteger(MUL((player.origin.x), SCALAR(cell_width))), y + ScalarToInteger(MUL((player.origin.y), SCALAR(cell_height))), 159);
+}
+
+void GenerateTextures()
+{
+	// generate a texture
+	for(int x = 0; x < TEXTURE_X; x++)
+	{
+		for(int y = 0; y < TEXTURE_Y; y++)
+		{
+			textures[0][TEXTURE_X * y + x] = 32 - ((y + 1) / 2);
+		}
+	}
 }
 
 //
@@ -695,7 +719,10 @@ int main(int argc, char *argv[])
 	PlayerInit();
 
 	// Initialize sector data
-	SectorsInit();
+	//SectorsInit();
+
+	// Initialize texture data
+	GenerateTextures();
 
 	// Initialize DOS
 	DOS::Initialize();
