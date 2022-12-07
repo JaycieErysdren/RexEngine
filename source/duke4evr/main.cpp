@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Duke4Ever program entry point
 //
-// LAST EDITED:		December 6th, 2022
+// LAST EDITED:		December 7th, 2022
 //
 // ========================================================
 
@@ -19,7 +19,7 @@
 
 #define CYCLES 30
 
-#define RAYCASTER
+#define PORTREND
 
 //
 // Types
@@ -104,9 +104,9 @@ typedef struct
 // Globals
 //
 
-#define MAX_VERTICES 512
-#define MAX_WALLS 512
-#define MAX_SECTORS 512
+#define MAX_VERTICES 32
+#define MAX_WALLS 32
+#define MAX_SECTORS 32
 
 vertex_t vertices[MAX_VERTICES];
 wall_t walls[MAX_WALLS];
@@ -406,14 +406,14 @@ void ClipWall(scalar_t *x1, scalar_t *y1, scalar_t *z1, scalar_t x2, scalar_t y2
 	scalar_t da = *y1;
 	scalar_t db = y2;
 	scalar_t d = da - db;
-	if (d == 0) d = SCALAR(1);
+	if (ScalarToInteger(d) == 0) d = SCALAR(1);
 	scalar_t s = DIV(da, d);
 	*x1 = *x1 + MUL(s, x2 - (*x1));
-	*y1 = *y1 + MUL(s, y2 - (*y1)); if (*y1 == 0) *y1 = SCALAR(1);
+	*y1 = *y1 + MUL(s, y2 - (*y1)); if (ScalarToInteger(*y1) == 0) *y1 = SCALAR(16);
 	*z1 = *z1 + MUL(s, z2 - (*z1));
 }
 
-void RenderSectors(Picture::pic_t *dst, int sector_id, rect_t area)
+void RenderSector(Picture::pic_t *dst, rect_t dst_area, int sector_id)
 {
 	// General variables
 	int i, w;
@@ -427,10 +427,10 @@ void RenderSectors(Picture::pic_t *dst, int sector_id, rect_t area)
 	sector_t sector = sectors[sector_id];
 
 	// Draw bounds
-	int draw_x0 = area.x;
-	int draw_y0 = area.y;
-	int draw_x1 = area.x + area.w;
-	int draw_y1 = area.y + area.h;
+	int draw_x0 = dst_area.x;
+	int draw_y0 = dst_area.y;
+	int draw_x1 = dst_area.x + dst_area.w;
+	int draw_y1 = dst_area.y + dst_area.h;
 
 	// Parse through the walls and render them
 	for (w = sector.wall_start_id; w < sector.wall_start_id + sector.num_walls; w++)
@@ -453,18 +453,22 @@ void RenderSectors(Picture::pic_t *dst, int sector_id, rect_t area)
 		v[1].z = SCALAR(sector.floor_height) + player.origin.z;
 
 		// Rotate the y values around the player's view
-		pv[0].y = MUL(v[0].y, cs) + MUL(v[0].x, sn);
-		pv[1].y = MUL(v[1].y, cs) + MUL(v[1].x, sn);
+		pv[0].y = MUL(v[0].x, sn) + MUL(v[0].y, cs);
+		pv[1].y = MUL(v[1].x, sn) + MUL(v[1].y, cs);
 
 		// Don't even bother if both y points are behind the player
-		if (pv[0].y <= 0 && pv[1].y <= 0) continue;
+		if (pv[0].y < SCALAR(1) && pv[1].y < SCALAR(1)) continue;
 
-		// Rotate the x and zvalues around the player's view
+		// Rotate the x and z values around the player's view
 		pv[0].x = MUL(v[0].x, cs) - MUL(v[0].y, sn);
 		pv[0].z = v[0].z + DIV(MUL(SCALAR(player.angles.x), pv[0].y), SCALAR(32));
 
 		pv[1].x = MUL(v[1].x, cs) - MUL(v[1].y, sn);
 		pv[1].z = v[1].z + DIV(MUL(SCALAR(player.angles.x), pv[1].y), SCALAR(32));
+
+		// Clip the vertices if they're partially behind the player
+		if (pv[0].y < SCALAR(1)) ClipWall(&pv[0].x, &pv[0].y, &pv[0].z, pv[1].x, pv[1].y, pv[1].z);
+		if (pv[1].y < SCALAR(1)) ClipWall(&pv[1].x, &pv[1].y, &pv[1].z, pv[0].x, pv[0].y, pv[0].z);
 
 		// Project the top-of-wall vertices
 		pv[2].x = pv[0].x;
@@ -475,22 +479,15 @@ void RenderSectors(Picture::pic_t *dst, int sector_id, rect_t area)
 		pv[3].y = pv[1].y;
 		pv[3].z = pv[1].z - SCALAR(sector.ceiling_height);
 
-		// Clip the vertices if they're partially behind the player
-		if (pv[0].y <= 0)
-		{
-			ClipWall(&pv[0].x, &pv[0].y, &pv[0].z, pv[1].x, pv[1].y, pv[1].z);
-			ClipWall(&pv[2].x, &pv[2].y, &pv[2].z, pv[3].x, pv[3].y, pv[3].z);
-		}
-
-		if (pv[1].y <= 0)
-		{
-			ClipWall(&pv[1].x, &pv[1].y, &pv[1].z, pv[0].x, pv[0].y, pv[0].z);
-			ClipWall(&pv[3].x, &pv[3].y, &pv[3].z, pv[2].x, pv[2].y, pv[2].z);
-		}
-
 		//
 		// Screen space vertices (perspective transform)
 		//
+
+		scalar_t xscale1 = DIV(SCALAR(140), pv[0].y);
+		scalar_t yscale1 = DIV(SCALAR(32), pv[0].y);
+
+		scalar_t xscale2 = DIV(SCALAR(140), pv[1].y);
+		scalar_t yscale2 = DIV(SCALAR(32), pv[1].y);
 
 		sv[0].x = ScalarToInteger(DIV(MUL(pv[0].x, SCALAR(150)), pv[0].y)) + (dst->width / 2);
 		sv[0].y = ScalarToInteger(DIV(MUL(pv[0].z, SCALAR(150)), pv[0].y)) + (dst->height / 2);
@@ -498,15 +495,22 @@ void RenderSectors(Picture::pic_t *dst, int sector_id, rect_t area)
 		sv[1].x = ScalarToInteger(DIV(MUL(pv[1].x, SCALAR(150)), pv[1].y)) + (dst->width / 2);
 		sv[1].y = ScalarToInteger(DIV(MUL(pv[1].z, SCALAR(150)), pv[1].y)) + (dst->height / 2);
 
-		sv[2].x = ScalarToInteger(DIV(MUL(pv[2].x, SCALAR(150)), pv[2].y)) + (dst->width / 2);
+		if (sv[0].x == sv[1].x) continue;
+
+		// the x values will always be the same, so save some cycles
+
+		sv[2].x = sv[0].x;
 		sv[2].y = ScalarToInteger(DIV(MUL(pv[2].z, SCALAR(150)), pv[2].y)) + (dst->height / 2);
 
-		sv[3].x = ScalarToInteger(DIV(MUL(pv[3].x, SCALAR(150)), pv[3].y)) + (dst->width / 2);
+		sv[3].x = sv[1].x;
 		sv[3].y = ScalarToInteger(DIV(MUL(pv[3].z, SCALAR(150)), pv[3].y)) + (dst->height / 2);
 
 		//
 		// Draw the wall
 		//
+
+		// Pixel positions
+		int x, y1, y2;
 
 		// Distance deltas
 		int delta_bottom_y = sv[1].y - sv[0].y;
@@ -524,10 +528,10 @@ void RenderSectors(Picture::pic_t *dst, int sector_id, rect_t area)
 		if (sv[1].x > draw_x1) sv[1].x = draw_x1;
 
 		// Vertical line loop
-		for (int x = sv[0].x; x < sv[1].x; x++)
+		for (x = sv[0].x; x < sv[1].x; x++)
 		{
-			int y1 = delta_bottom_y * (x - x0) / delta_x + sv[0].y;
-			int y2 = delta_top_y * (x - x0) / delta_x + sv[2].y;
+			y1 = delta_bottom_y * (x - x0) / delta_x + sv[0].y;
+			y2 = delta_top_y * (x - x0) / delta_x + sv[2].y;
 
 			// Clip y values
 			if (y1 < draw_y0) y1 = draw_y0;
@@ -537,6 +541,20 @@ void RenderSectors(Picture::pic_t *dst, int sector_id, rect_t area)
 
 			// Draw the wall column
 			Picture::DrawVerticalLine(dst, x, y1, y2, wall.color);
+
+			// Draw the ceiling column (lazy)
+			if (player.origin.z < SCALAR(sector.ceiling_height) && y2 < draw_y1)
+			{
+				Picture::DrawVerticalLine(dst, x, y2, draw_y0, sector.ceiling_color);
+				Picture::DrawPixel(dst, x, y2, 0); // trim
+			}
+
+			// Draw the floor column (lazy)
+			if (player.origin.z > SCALAR(sector.floor_height) && y1 > draw_y0)
+			{
+				Picture::DrawVerticalLine(dst, x, y1, draw_y1, sector.floor_color);
+				Picture::DrawPixel(dst, x, y1, 0); // trim
+			}
 		}
 	}
 }
@@ -584,10 +602,12 @@ void PlayerController()
 	delta_my = my_prev - my;
 
 	// Mouse look
-	{
-		if (delta_mx != 0) player.angles.y -= delta_mx;
-		if (delta_my != 0) player.angles.x += delta_my;
-	}
+	if (mb == 1 && delta_mx != 0) player.angles.y -= delta_mx;
+	if (mb == 2 && delta_my != 0) player.angles.x += delta_my;
+
+	// Reset pitch
+	if (mb == 3)
+		player.angles.x = 0;
 
 	// Keyboard look
 	{
@@ -614,9 +634,9 @@ void PlayerController()
 
 	// Check if sprinting
 	if (DOS::KeyTest(KB_LTSHIFT))
-		player.movespeedkey = 4;
+		player.movespeedkey = 6;
 	else
-		player.movespeedkey = 2;
+		player.movespeedkey = 4;
 
 	// Set velocity
 	#ifdef RAYCASTER
@@ -746,11 +766,15 @@ void SectorsInit()
 	sectors[0].num_walls = 6;
 	sectors[0].floor_height = 0;
 	sectors[0].ceiling_height = 256;
+	sectors[0].ceiling_color = 143;
+	sectors[0].floor_color = 143;
 
 	sectors[1].wall_start_id = 6;
 	sectors[1].num_walls = 3;
 	sectors[1].floor_height = 0;
 	sectors[1].ceiling_height = 256;
+	sectors[1].ceiling_color = 143;
+	sectors[1].floor_color = 143;
 }
 
 #endif
@@ -803,7 +827,7 @@ int main(int argc, char *argv[])
 
 	// Initialize VGA
 	VGA::Initialize();
-	VGA::SetPalette("gfx/quake.pal");
+	VGA::SetPalette("gfx/duke3d.pal");
 
 	// Create pictures
 	Console::Initialize();
@@ -856,7 +880,7 @@ int main(int argc, char *argv[])
 		#ifdef PORTREND
 		// Sector rendering
 		{
-			RenderSectors(&pic_bbuffer, player.sector_id, RECT(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
+			RenderSector(&pic_bbuffer, RECT(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT), player.sector_id);
 		}
 		#endif
 
@@ -871,7 +895,7 @@ int main(int argc, char *argv[])
 
 		// Render the console text
 		//Picture::DrawRectangle(&pic_bbuffer, 0, 0, 256, 16, 0, true);
-		//Console::Render(&pic_bbuffer, &pic_font);
+		Console::Render(&pic_bbuffer, &pic_font);
 
 		// Flip the rendering buffers
 		Picture::Copy(&pic_fbuffer, &pic_bbuffer);

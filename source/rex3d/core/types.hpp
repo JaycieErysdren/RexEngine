@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex3D engine types
 //
-// LAST EDITED:		December 6th, 2022
+// LAST EDITED:		December 7th, 2022
 //
 // ========================================================
 
@@ -215,7 +215,7 @@ typedef fixed_32uf_t				ufraction_t;
 #define IntegerToScalar(i)			((scalar_t)((i) * (int32_t)X_ONE_32S))
 
 // Scalar to integer
-#define ScalarToInteger(s)			((s) / (int32_t)X_ONE_32S)
+#define ScalarToInteger(s)			((int32_t)(s) / (int32_t)X_ONE_32S)
 
 // Fixed to scalar
 #define FixedToScalar(f)			(f)
@@ -254,7 +254,11 @@ typedef fixed_32uf_t				ufraction_t;
 #define MUL(a, b)					(((int64_t)(a) * (b)) >> 16)
 #define DIV(a, b)					(((int64_t)(a) << 16) / (b))
 
-#define SAFEDIV(a, b)				((((a) == 0) || (b) == 0) ? SCALAR_MAX : DIV((a), (b)))
+// result: (a * b) / c
+#define MULDIV(a, b, c)				(DIV(MUL((a), (b)), (c)))
+#define SAFEMULDIV(a, b, c)			(SAFEDIV(MUL((a), (b)), (c)))
+
+#define SAFEDIV(a, b)				((((a) == 0) || (b) == 0) ? SCALAR_MIN : DIV((a), (b)))
 //
 // Angles
 //
