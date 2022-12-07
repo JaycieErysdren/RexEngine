@@ -120,6 +120,35 @@ char console_buffer[256];
 Picture::pic_t pic_wall;
 bool texturemapping = false;
 
+uint8_t colormap[64 * 256];
+
+//
+// Colormap functions
+//
+
+// Valid values for "light" are a range from -32 to 31.
+uint8_t ColormapLookup(uint8_t index, int light)
+{
+	// this is the original color in the colormap
+	// (32 * 256) + index;
+	light = CLAMP(light, -32, 31);
+	return colormap[((light + 32) * 256) + index];
+}
+
+// Load a colormap from file
+void ColormapLoad(string filename)
+{
+	FILE *file = fopen(filename.c_str(), "rb");
+
+	fread(&colormap, sizeof(uint8_t), 64 * 256, file);
+
+	fclose(file);
+}
+
+//
+// Raycaster globals
+//
+
 #ifdef RAYCASTER
 
 #define MAP_X 24
@@ -177,19 +206,28 @@ void RenderRays(Picture::pic_t *dst, rect_t area)
 	scalar_t cs = math.cos[player.angles.y];
 	scalar_t tn = math.tan[player.angles.y];
 
+
 	// Ray sweep loop
 	for (x = draw_x0; x < draw_x1; x++)
 	{
 		// The angle of projection
 		int angle = (player.angles.y - (player.fov / 2)) + ((player.fov * x) / area.w);
+
+		//angle += player.fov / area.w;
+
+		// Projection angle sanity check
 		if (angle < 0) angle += 360;
 		if (angle > 359) angle -= 360;
+
+		//scalar_t plane_dist = DIV(SCALAR(area.w / 2), math.tan[player.fov / 2]);
+		//scalar_t ray_dist;
 
 		vec2s_t raydir;
 		vec2s_t raypos;
 		vec2s_t delta_dist;
 		vec2s_t side_dist;
-		int map_x = ScalarToInteger(player.origin.x), map_y = ScalarToInteger(player.origin.y);
+		int map_x = ScalarToInteger(player.origin.x);
+		int map_y = ScalarToInteger(player.origin.y);
 		int step_x, step_y;
 		bool hit = false, side = false;
 
@@ -247,15 +285,19 @@ void RenderRays(Picture::pic_t *dst, rect_t area)
 		if (side == false) perp_wall_dist = (side_dist.x - delta_dist.x);
 		else perp_wall_dist = (side_dist.y - delta_dist.y);
 
+		//ray_dist = MUL(side_dist.x, side_dist.x) + MUL(side_dist.y, side_dist.y);
+		//ray_dist = SCALAR(sqrt(ScalarToFloat(ray_dist)));
+
 		if (perp_wall_dist != 0)
 		{
 			//Calculate height of line to draw on screen
-			int lineHeight = ScalarToInteger(DIV(SCALAR(area.h), perp_wall_dist));
+			int line_height = ScalarToInteger(DIV(SCALAR(area.h), perp_wall_dist));
+			//int line_height = ScalarToInteger(DIV(SCALAR(32), MUL(ray_dist, plane_dist)));
 
 			//calculate lowest and highest pixel to fill in current stripe
-			int drawStart = -lineHeight / 2 + area.h / 2;
+			int drawStart = -line_height / 2 + area.h / 2;
 			if (drawStart < 0) drawStart = 0;
-			int drawEnd = lineHeight / 2 + area.h / 2;
+			int drawEnd = line_height / 2 + area.h / 2;
 			if (drawEnd >= area.h) drawEnd = area.h;
 
 			//texturing calculations
@@ -274,10 +316,10 @@ void RenderRays(Picture::pic_t *dst, rect_t area)
 				if (side == true && raydir.y < 0) tex_x = TEXTURE_X - tex_x - 1;
 
 				// How much to increase the texture coordinate per screen pixel
-				scalar_t step = DIV(MUL(SCALAR(1.0f), SCALAR(TEXTURE_X)), SCALAR(lineHeight));
+				scalar_t step = DIV(MUL(SCALAR(1.0f), SCALAR(TEXTURE_X)), SCALAR(line_height));
 
 				// Starting texture coordinate
-				scalar_t texcoord = MUL(SCALAR(drawStart - (area.h / 2) + (lineHeight / 2)), step);
+				scalar_t texcoord = MUL(SCALAR(drawStart - (area.h / 2) + (line_height / 2)), step);
 
 				for (int y = drawStart; y < drawEnd; y++)
 				{
@@ -286,6 +328,10 @@ void RenderRays(Picture::pic_t *dst, rect_t area)
 					texcoord += step;
 					//uint8_t color = textures[0][TEXTURE_Y * tex_y + tex_x];
 					uint8_t color = Picture::GetPixel(&pic_wall, tex_x, tex_y);
+
+					// Lookup in colormap for brightness
+					if (side == true) color = ColormapLookup(color, ScalarToInteger(perp_wall_dist) - 4);
+					else color = ColormapLookup(color, ScalarToInteger(perp_wall_dist));
 
 					Picture::DrawPixel(dst, x, y, color);
 				}
@@ -303,8 +349,9 @@ void RenderRays(Picture::pic_t *dst, rect_t area)
 					default: color = 95; break;
 				}
 
-				//give x and y sides different brightness
-				if(side == true) {color -= 4;}
+				// Lookup in colormap for brightness
+				if (side == true) color = ColormapLookup(color, ScalarToInteger(perp_wall_dist) - 4);
+				else color = ColormapLookup(color, ScalarToInteger(perp_wall_dist));
 
 				//draw the pixels of the stripe as a vertical line
 				Picture::DrawVerticalLine(dst, x, drawStart, drawEnd, color);
@@ -340,7 +387,7 @@ void DrawMap(Picture::pic_t *dst, int x, int y, int cell_width, int cell_height)
 	}
 
 	// Draw the player on the map
-	Picture::DrawPixel(dst, x + ScalarToInteger(MUL((player.origin.x), SCALAR(cell_width))), y + ScalarToInteger(MUL((player.origin.y), SCALAR(cell_height))), 159);
+	Picture::DrawPixel(dst, x + ScalarToInteger(MUL((player.origin.x), SCALAR(cell_width))), y + ScalarToInteger(MUL((player.origin.y), SCALAR(cell_height))), 254);
 }
 
 void GenerateTextures()
@@ -755,6 +802,9 @@ int main(int argc, char *argv[])
 	#ifdef RAYCASTER
 	// Initialize texture data
 	GenerateTextures();
+
+	// Initialize colormap
+	ColormapLoad("gfx/quake.tab");
 	#endif
 
 	// Initialize DOS
@@ -762,13 +812,13 @@ int main(int argc, char *argv[])
 
 	// Initialize VGA
 	VGA::Initialize();
-	VGA::SetPalette("gfx/duke3d.pal");
+	VGA::SetPalette("gfx/quake.pal");
 
 	// Create pictures
 	Console::Initialize();
 	Picture::LoadBMP(&pic_font, "gfx/font8x8.bmp");
 	Picture::LoadBMP(&pic_shotgun, "gfx/shot001a.bmp");
-	Picture::LoadBMP(&pic_wall, "tex_bmp/duke3d/wall001.bmp");
+	Picture::LoadBMP(&pic_wall, "tex_bmp/quake/city2_3.bmp");
 	Picture::Create(&pic_fbuffer, SCREEN_WIDTH, SCREEN_HEIGHT, 8, 0, (void *)VGA_VIDMEM_PTR);
 	Picture::Create(&pic_bbuffer, SCREEN_WIDTH, SCREEN_HEIGHT, 8, 0, 0);
 
@@ -821,7 +871,7 @@ int main(int argc, char *argv[])
 
 		// HUD elements
 		{
-			Picture::Draw8(&pic_bbuffer, &pic_shotgun, 200, 116, Picture::COLORKEY);
+			//Picture::Draw8(&pic_bbuffer, &pic_shotgun, 200, 116, Picture::COLORKEY);
 
 			#ifdef RAYCASTER
 			DrawMap(&pic_bbuffer, SCREEN_WIDTH - (2 * MAP_X) - 1, 0, 2, 2);
@@ -830,7 +880,7 @@ int main(int argc, char *argv[])
 
 		// Render the console text
 		//Picture::DrawRectangle(&pic_bbuffer, 0, 0, 256, 16, 0, true);
-		Console::Render(&pic_bbuffer, &pic_font);
+		//Console::Render(&pic_bbuffer, &pic_font);
 
 		// Flip the rendering buffers
 		Picture::Copy(&pic_fbuffer, &pic_bbuffer);
