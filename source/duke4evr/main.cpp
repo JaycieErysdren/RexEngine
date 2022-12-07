@@ -47,8 +47,8 @@ typedef struct
 
 typedef struct
 {
-	int32_t x, y;
-	int32_t w, h;
+	int32_t x1, y1;
+	int32_t x2, y2;
 } rect_t;
 
 typedef vec2s_t vertex_t;
@@ -70,6 +70,12 @@ typedef struct
 	uint8_t color;
 	uint8_t r, g, b;
 } wall_t;
+
+typedef struct
+{
+	uint16_t sector0;
+	uint16_t sector1;
+} portal_t;
 
 typedef struct
 {
@@ -98,7 +104,7 @@ typedef struct
 
 #define VERTEX(a, b)				(VEC2S((a), (b)))
 
-#define RECT(x, y, w, h)			((rect_t){(x), (y), (w), (h)})
+#define RECT(x1, y1, x2, y2)		((rect_t){(x1), (y1), (x2), (y2)})
 
 //
 // Globals
@@ -110,6 +116,7 @@ typedef struct
 
 vertex_t *vertices[MAX_VERTICES];
 wall_t *walls[MAX_WALLS];
+portal_t *portals[MAX_WALLS];
 sector_t *sectors[MAX_SECTORS];
 
 bool rendered_sectors[MAX_SECTOR];
@@ -403,12 +410,6 @@ void RenderSector(Picture::pic_t *dst, rect_t dst_area, int sector_id)
 	// Current sector
 	sector_t *sector = sectors[sector_id];
 
-	// Draw bounds
-	int draw_x0 = dst_area.x;
-	int draw_y0 = dst_area.y;
-	int draw_x1 = dst_area.x + dst_area.w;
-	int draw_y1 = dst_area.y + dst_area.h;
-
 	// If this sector has already been rendered in this frame, return
 	if (rendered_sectors[sector_id] == true) return;
 	else rendered_sectors[sector_id] = true;
@@ -418,6 +419,11 @@ void RenderSector(Picture::pic_t *dst, rect_t dst_area, int sector_id)
 	{
 		// Current wall
 		wall_t *wall = walls[sector->walls[w]];
+
+		// Current portal (if applicable)
+		portal_t *portal = portals[sector->walls[w]];
+		bool is_portal = false;
+		int portal_sector_id;
 
 		// Variables
 		vec3s_t v[2];			// Initial vertex values
@@ -464,12 +470,6 @@ void RenderSector(Picture::pic_t *dst, rect_t dst_area, int sector_id)
 		// Screen space vertices (perspective transform)
 		//
 
-		scalar_t xscale1 = DIV(SCALAR(140), pv[0].y);
-		scalar_t yscale1 = DIV(SCALAR(32), pv[0].y);
-
-		scalar_t xscale2 = DIV(SCALAR(140), pv[1].y);
-		scalar_t yscale2 = DIV(SCALAR(32), pv[1].y);
-
 		sv[0].x = ScalarToInteger(DIV(MUL(pv[0].x, SCALAR(150)), pv[0].y)) + (dst->width / 2);
 		sv[0].y = ScalarToInteger(DIV(MUL(pv[0].z, SCALAR(150)), pv[0].y)) + (dst->height / 2);
 
@@ -484,6 +484,21 @@ void RenderSector(Picture::pic_t *dst, rect_t dst_area, int sector_id)
 
 		sv[3].x = sv[1].x;
 		sv[3].y = ScalarToInteger(DIV(MUL(pv[3].z, SCALAR(150)), pv[3].y)) + (dst->height / 2);
+
+		// Now check for portals (start with a sanity check)
+		if (portal != NULL && portal->sector0 != portal->sector1)
+		{
+			if (portal->sector0 == sector_id)
+			{
+				is_portal = true;
+				portal_sector_id = portal->sector1;
+			}
+			else if (portal->sector1 == sector_id)
+			{
+				is_portal = true;
+				portal_sector_id = portal->sector0;
+			}
+		}
 
 		//
 		// Draw the wall
@@ -502,10 +517,12 @@ void RenderSector(Picture::pic_t *dst, rect_t dst_area, int sector_id)
 		int x0 = sv[0].x;
 
 		// Clip x values
-		if (sv[0].x < draw_x0) sv[0].x = draw_x0;
-		if (sv[1].x < draw_x0) sv[1].x = draw_x0;
-		if (sv[0].x > draw_x1) sv[0].x = draw_x1;
-		if (sv[1].x > draw_x1) sv[1].x = draw_x1;
+		if (sv[0].x < dst_area.x1) sv[0].x = dst_area.x1;
+		if (sv[1].x < dst_area.x1) sv[1].x = dst_area.x1;
+		if (sv[0].x > dst_area.x2) sv[0].x = dst_area.x2;
+		if (sv[1].x > dst_area.x2) sv[1].x = dst_area.x2;
+
+		rect_t wall_area = RECT(sv[0].x, dst_area.y1, sv[1].x, dst_area.y2);
 
 		// Vertical line loop
 		for (x = sv[0].x; x < sv[1].x; x++)
@@ -514,10 +531,10 @@ void RenderSector(Picture::pic_t *dst, rect_t dst_area, int sector_id)
 			y2 = delta_top_y * (x - x0) / delta_x + sv[2].y;
 
 			// Clip y values
-			if (y1 < draw_y0) y1 = draw_y0;
-			if (y2 < draw_y0) y2 = draw_y0;
-			if (y1 > draw_y1) y1 = draw_y1;
-			if (y2 > draw_y1) y2 = draw_y1;
+			if (y1 < dst_area.y1) y1 = dst_area.y1;
+			if (y2 < dst_area.y1) y2 = dst_area.y1;
+			if (y1 > dst_area.y2) y1 = dst_area.y2;
+			if (y2 > dst_area.y2) y2 = dst_area.y2;
 
 			// Draw the wall column
 			Picture::DrawVerticalLine(dst, x, y1, y2, wall->color);
@@ -525,17 +542,19 @@ void RenderSector(Picture::pic_t *dst, rect_t dst_area, int sector_id)
 			// Draw the ceiling column (lazy)
 			if (player.origin.z < SCALAR(sector->ceiling_height))
 			{
-				Picture::DrawVerticalLine(dst, x, y2, draw_y0, sector->ceiling_color);
+				Picture::DrawVerticalLine(dst, x, y2, dst_area.y1, sector->ceiling_color);
 				//Picture::DrawPixel(dst, x, y2, 0); // trim
 			}
 
 			// Draw the floor column (lazy)
 			if (player.origin.z > SCALAR(sector->floor_height))
 			{
-				Picture::DrawVerticalLine(dst, x, y1, draw_y1, sector->floor_color);
+				Picture::DrawVerticalLine(dst, x, y1, dst_area.y2, sector->floor_color);
 				//Picture::DrawPixel(dst, x, y1, 0); // trim
 			}
 		}
+
+		if (is_portal == true) RenderSector(dst, wall_area, portal_sector_id);
 	}
 
 	// Now that we're at the end of the frame, mark this sector as un-rendered
@@ -692,6 +711,12 @@ void FreeWall(int id)
 	if (walls[id] != NULL) free(walls[id]);
 }
 
+// Free portal
+void FreePortal(int id)
+{
+	if (portals[id] != NULL) free(portals[id]);
+}
+
 // Free sector
 void FreeSector(int id)
 {
@@ -718,6 +743,16 @@ void AddWall(int id, uint16_t v0, uint16_t v1, uint8_t color)
 	walls[id]->vertex_0_id = v0;
 	walls[id]->vertex_1_id = v1;
 	walls[id]->color = color;
+}
+
+// Add new portal
+void AddPortal(int id, uint16_t sector0, uint16_t sector1)
+{
+	FreePortal(id);
+
+	portals[id] = (portal_t *)calloc(1, sizeof(portal_t));
+	portals[id]->sector0 = sector0;
+	portals[id]->sector1 = sector1;
 }
 
 // Add new sector
@@ -749,12 +784,13 @@ void SectorsShutdown()
 	for (i = 0; i < MAX_SECTORS; i++) FreeSector(i);
 	for (i = 0; i < MAX_VERTICES; i++) FreeVertex(i);
 	for (i = 0; i < MAX_WALLS; i++) FreeWall(i);
+	for (i = 0; i < MAX_WALLS; i++) FreePortal(i);
 }
 
 // Make some world data
 void SectorsInit()
 {
-	// Vertices
+	// Add some vertices
 	AddVertex(0, SCALAR(-256), SCALAR(0));
 	AddVertex(1, SCALAR(-128), SCALAR(256));
 	AddVertex(2, SCALAR(128), SCALAR(256));
@@ -764,23 +800,26 @@ void SectorsInit()
 	AddVertex(6, SCALAR(256), SCALAR(512));
 	AddVertex(7, SCALAR(512), SCALAR(128));
 
-	// Walls
+	// Add some walls
 	AddWall(0, 0, 1, 150);
 	AddWall(1, 1, 2, 159);
 	AddWall(2, 2, 3, 150);
 	AddWall(3, 3, 4, 159);
 	AddWall(4, 4, 5, 150);
 	AddWall(5, 5, 0, 159);
-	AddWall(6, 2, 6, 159);
-	AddWall(7, 6, 7, 150);
-	AddWall(8, 7, 3, 159);
+	AddWall(6, 2, 6, 150);
+	AddWall(7, 6, 7, 159);
+	AddWall(8, 7, 3, 150);
 
-	// Sectors
+	// Add some sectors
 	int16_t walls0[6] = {0, 1, 2, 3, 4, 5};
 	AddSector(0, 6, walls0, 0, 256, 143, 143);
 
 	int16_t walls1[4] = {2, 6, 7, 8};
 	AddSector(1, 4, walls1, 0, 256, 143, 143);
+
+	// Add a portal connecting the two spaces
+	AddPortal(2, 0, 1);
 }
 
 #endif
