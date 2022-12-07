@@ -19,7 +19,7 @@
 
 #define CYCLES 30
 
-#define RAYCASTER
+#define PORTREND
 
 //
 // Types
@@ -57,8 +57,8 @@ typedef struct
 {
 	int16_t floor_height;
 	int16_t ceiling_height;
-	int16_t wall_start_id;
 	int16_t num_walls;
+	int16_t *walls;
 	uint8_t floor_color;
 	uint8_t ceiling_color;
 } sector_t;
@@ -104,13 +104,15 @@ typedef struct
 // Globals
 //
 
-#define MAX_VERTICES 32
-#define MAX_WALLS 32
-#define MAX_SECTORS 32
+#define MAX_VERTICES 64
+#define MAX_WALLS 64
+#define MAX_SECTORS 64
 
-vertex_t vertices[MAX_VERTICES];
-wall_t walls[MAX_WALLS];
-sector_t sectors[MAX_SECTORS];
+vertex_t *vertices[MAX_VERTICES];
+wall_t *walls[MAX_WALLS];
+sector_t *sectors[MAX_SECTORS];
+
+bool rendered_sectors[MAX_SECTOR];
 
 player_t player;
 math_t math;
@@ -399,7 +401,7 @@ void RenderSector(Picture::pic_t *dst, rect_t dst_area, int sector_id)
 	scalar_t tn = math.tan[player.angles.y];
 
 	// Current sector
-	sector_t sector = sectors[sector_id];
+	sector_t *sector = sectors[sector_id];
 
 	// Draw bounds
 	int draw_x0 = dst_area.x;
@@ -407,11 +409,15 @@ void RenderSector(Picture::pic_t *dst, rect_t dst_area, int sector_id)
 	int draw_x1 = dst_area.x + dst_area.w;
 	int draw_y1 = dst_area.y + dst_area.h;
 
+	// If this sector has already been rendered in this frame, return
+	if (rendered_sectors[sector_id] == true) return;
+	else rendered_sectors[sector_id] = true;
+
 	// Parse through the walls and render them
-	for (w = sector.wall_start_id; w < sector.wall_start_id + sector.num_walls; w++)
+	for (w = 0; w < sector->num_walls; w++)
 	{
 		// Current wall
-		wall_t wall = walls[w];
+		wall_t *wall = walls[sector->walls[w]];
 
 		// Variables
 		vec3s_t v[2];			// Initial vertex values
@@ -419,13 +425,13 @@ void RenderSector(Picture::pic_t *dst, rect_t dst_area, int sector_id)
 		vec2i_t sv[4];			// Perspective transformed coordinates
 
 		// Transform the vertices into the player's view
-		v[0].x = vertices[wall.vertex_0_id].x - player.origin.x;
-		v[0].y = vertices[wall.vertex_0_id].y - player.origin.y;
-		v[0].z = SCALAR(sector.floor_height) + player.origin.z;
+		v[0].x = vertices[wall->vertex_0_id]->x - player.origin.x;
+		v[0].y = vertices[wall->vertex_0_id]->y - player.origin.y;
+		v[0].z = SCALAR(sector->floor_height) + player.origin.z;
 
-		v[1].x = vertices[wall.vertex_1_id].x - player.origin.x;
-		v[1].y = vertices[wall.vertex_1_id].y - player.origin.y;
-		v[1].z = SCALAR(sector.floor_height) + player.origin.z;
+		v[1].x = vertices[wall->vertex_1_id]->x - player.origin.x;
+		v[1].y = vertices[wall->vertex_1_id]->y - player.origin.y;
+		v[1].z = SCALAR(sector->floor_height) + player.origin.z;
 
 		// Rotate the y values around the player's view
 		pv[0].y = MUL(v[0].x, sn) + MUL(v[0].y, cs);
@@ -448,11 +454,11 @@ void RenderSector(Picture::pic_t *dst, rect_t dst_area, int sector_id)
 		// Project the top-of-wall vertices
 		pv[2].x = pv[0].x;
 		pv[2].y = pv[0].y;
-		pv[2].z = pv[0].z - SCALAR(sector.ceiling_height);
+		pv[2].z = pv[0].z - SCALAR(sector->ceiling_height);
 
 		pv[3].x = pv[1].x;
 		pv[3].y = pv[1].y;
-		pv[3].z = pv[1].z - SCALAR(sector.ceiling_height);
+		pv[3].z = pv[1].z - SCALAR(sector->ceiling_height);
 
 		//
 		// Screen space vertices (perspective transform)
@@ -473,7 +479,6 @@ void RenderSector(Picture::pic_t *dst, rect_t dst_area, int sector_id)
 		if (sv[0].x == sv[1].x) continue;
 
 		// the x values will always be the same, so save some cycles
-
 		sv[2].x = sv[0].x;
 		sv[2].y = ScalarToInteger(DIV(MUL(pv[2].z, SCALAR(150)), pv[2].y)) + (dst->height / 2);
 
@@ -515,23 +520,26 @@ void RenderSector(Picture::pic_t *dst, rect_t dst_area, int sector_id)
 			if (y2 > draw_y1) y2 = draw_y1;
 
 			// Draw the wall column
-			Picture::DrawVerticalLine(dst, x, y1, y2, wall.color);
+			Picture::DrawVerticalLine(dst, x, y1, y2, wall->color);
 
 			// Draw the ceiling column (lazy)
-			if (player.origin.z < SCALAR(sector.ceiling_height) && y2 < draw_y1)
+			if (player.origin.z < SCALAR(sector->ceiling_height))
 			{
-				Picture::DrawVerticalLine(dst, x, y2, draw_y0, sector.ceiling_color);
-				Picture::DrawPixel(dst, x, y2, 0); // trim
+				Picture::DrawVerticalLine(dst, x, y2, draw_y0, sector->ceiling_color);
+				//Picture::DrawPixel(dst, x, y2, 0); // trim
 			}
 
 			// Draw the floor column (lazy)
-			if (player.origin.z > SCALAR(sector.floor_height) && y1 > draw_y0)
+			if (player.origin.z > SCALAR(sector->floor_height))
 			{
-				Picture::DrawVerticalLine(dst, x, y1, draw_y1, sector.floor_color);
-				Picture::DrawPixel(dst, x, y1, 0); // trim
+				Picture::DrawVerticalLine(dst, x, y1, draw_y1, sector->floor_color);
+				//Picture::DrawPixel(dst, x, y1, 0); // trim
 			}
 		}
 	}
+
+	// Now that we're at the end of the frame, mark this sector as un-rendered
+	rendered_sectors[sector_id] = false;
 }
 
 #endif
@@ -669,87 +677,110 @@ void PlayerController()
 #ifdef PORTREND
 
 //
-// Sector functions
+// Data functions
 //
 
+// Free vertex
+void FreeVertex(int id)
+{
+	if (vertices[id] != NULL) free(vertices[id]);
+}
+
+// Free wall
+void FreeWall(int id)
+{
+	if (walls[id] != NULL) free(walls[id]);
+}
+
+// Free sector
+void FreeSector(int id)
+{
+	//if (sectors[id]->walls != NULL) free(sectors[id]->walls);
+	if (sectors[id] != NULL) free(sectors[id]);
+}
+
+// Add new vertex
+void AddVertex(int id, scalar_t x, scalar_t y)
+{
+	FreeVertex(id);
+
+	vertices[id] = (vertex_t *)calloc(1, sizeof(wall_t));
+	vertices[id]->x = x;
+	vertices[id]->y = y;
+}
+
+// Add new wall
+void AddWall(int id, uint16_t v0, uint16_t v1, uint8_t color)
+{
+	FreeWall(id);
+
+	walls[id] = (wall_t *)calloc(1, sizeof(wall_t));
+	walls[id]->vertex_0_id = v0;
+	walls[id]->vertex_1_id = v1;
+	walls[id]->color = color;
+}
+
+// Add new sector
+void AddSector(int id, int16_t n_walls, int16_t *walls, int16_t f_height, int16_t c_height, uint8_t f_color, uint8_t c_color)
+{
+	FreeSector(id);
+
+	sectors[id] = (sector_t *)calloc(1, sizeof(sector_t));
+	sectors[id]->num_walls = n_walls;
+	sectors[id]->floor_height = f_height;
+	sectors[id]->ceiling_height = c_height;
+	sectors[id]->ceiling_color = c_color;
+	sectors[id]->floor_color = f_color;
+
+	// Add in the wall array
+	sectors[id]->walls = (int16_t *)calloc(n_walls, sizeof(int16_t));
+
+	for (int i = 0; i < n_walls; i++)
+	{
+		sectors[id]->walls[i] = walls[i];
+	}
+}
+
+// Cleanup world data
+void SectorsShutdown()
+{
+	int i;
+
+	for (i = 0; i < MAX_SECTORS; i++) FreeSector(i);
+	for (i = 0; i < MAX_VERTICES; i++) FreeVertex(i);
+	for (i = 0; i < MAX_WALLS; i++) FreeWall(i);
+}
+
+// Make some world data
 void SectorsInit()
 {
 	// Vertices
-	vertices[0].x = SCALAR(-256);
-	vertices[0].y = SCALAR(0);
-
-	vertices[1].x = SCALAR(-128);
-	vertices[1].y = SCALAR(256);
-
-	vertices[2].x = SCALAR(128);
-	vertices[2].y = SCALAR(256);
-
-	vertices[3].x = SCALAR(256);
-	vertices[3].y = SCALAR(0);
-
-	vertices[4].x = SCALAR(128);
-	vertices[4].y = SCALAR(-256);
-
-	vertices[5].x = SCALAR(-128);
-	vertices[5].y = SCALAR(-256);
-
-	vertices[6].x = SCALAR(256);
-	vertices[6].y = SCALAR(512);
-
-	vertices[7].x = SCALAR(512);
-	vertices[7].y = SCALAR(128);
+	AddVertex(0, SCALAR(-256), SCALAR(0));
+	AddVertex(1, SCALAR(-128), SCALAR(256));
+	AddVertex(2, SCALAR(128), SCALAR(256));
+	AddVertex(3, SCALAR(256), SCALAR(0));
+	AddVertex(4, SCALAR(128), SCALAR(-256));
+	AddVertex(5, SCALAR(-128), SCALAR(-256));
+	AddVertex(6, SCALAR(256), SCALAR(512));
+	AddVertex(7, SCALAR(512), SCALAR(128));
 
 	// Walls
-	walls[0].vertex_0_id = 0;
-	walls[0].vertex_1_id = 1;
-	walls[0].color = 150;
-
-	walls[1].vertex_0_id = 1;
-	walls[1].vertex_1_id = 2;
-	walls[1].color = 159;
-
-	walls[2].vertex_0_id = 2;
-	walls[2].vertex_1_id = 3;
-	walls[2].color = 150;
-
-	walls[3].vertex_0_id = 3;
-	walls[3].vertex_1_id = 4;
-	walls[3].color = 159;
-
-	walls[4].vertex_0_id = 4;
-	walls[4].vertex_1_id = 5;
-	walls[4].color = 150;
-
-	walls[5].vertex_0_id = 5;
-	walls[5].vertex_1_id = 0;
-	walls[5].color = 159;
-
-	walls[6].vertex_0_id = 2;
-	walls[6].vertex_1_id = 6;
-	walls[6].color = 159;
-
-	walls[7].vertex_0_id = 6;
-	walls[7].vertex_1_id = 7;
-	walls[7].color = 150;
-
-	walls[8].vertex_0_id = 7;
-	walls[8].vertex_1_id = 3;
-	walls[8].color = 159;
+	AddWall(0, 0, 1, 150);
+	AddWall(1, 1, 2, 159);
+	AddWall(2, 2, 3, 150);
+	AddWall(3, 3, 4, 159);
+	AddWall(4, 4, 5, 150);
+	AddWall(5, 5, 0, 159);
+	AddWall(6, 2, 6, 159);
+	AddWall(7, 6, 7, 150);
+	AddWall(8, 7, 3, 159);
 
 	// Sectors
-	sectors[0].wall_start_id = 0;
-	sectors[0].num_walls = 6;
-	sectors[0].floor_height = 0;
-	sectors[0].ceiling_height = 256;
-	sectors[0].ceiling_color = 143;
-	sectors[0].floor_color = 143;
+	int16_t walls0[6] = {0, 1, 2, 3, 4, 5};
+	AddSector(0, 6, walls0, 0, 256, 143, 143);
 
-	sectors[1].wall_start_id = 6;
-	sectors[1].num_walls = 3;
-	sectors[1].floor_height = 0;
-	sectors[1].ceiling_height = 256;
-	sectors[1].ceiling_color = 143;
-	sectors[1].floor_color = 143;
+	int16_t walls1[4] = {2, 6, 7, 8};
+	AddSector(1, 4, walls1, 0, 256, 143, 143);
 }
 
 #endif
@@ -892,6 +923,11 @@ int main(int argc, char *argv[])
 	Picture::Destroy(&pic_bbuffer);
 	Picture::Destroy(&pic_shotgun);
 	Picture::Destroy(&pic_wall);
+
+	#ifdef PORTREND
+	// Cleanup sector data
+	SectorsShutdown();
+	#endif
 
 	// Exit gracefully
 	return EXIT_SUCCESS;
