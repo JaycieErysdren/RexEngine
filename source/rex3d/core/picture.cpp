@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Picture namespace implementation
 //
-// LAST EDITED:		December 3rd, 2022
+// LAST EDITED:		December 6th, 2022
 //
 // ========================================================
 
@@ -270,7 +270,7 @@ uint8_t GetPixel(pic_t *pic, int x, int y)
 	if (x >= 0 && y >= 0 && x < pic->width && y < pic->height)
 		return pic->scanlines.b[y][x];
 	else
-		return 0;
+		return 255;
 }
 
 // Plot a pixel at the specificed x and y coordinate

@@ -19,7 +19,7 @@
 
 #define CYCLES 30
 
-#define PORTREND
+#define RAYCASTER
 
 //
 // Types
@@ -117,6 +117,9 @@ player_t player;
 math_t math;
 char console_buffer[256];
 
+Picture::pic_t pic_wall;
+bool texturemapping = false;
+
 #ifdef RAYCASTER
 
 #define MAP_X 24
@@ -189,7 +192,6 @@ void RenderRays(Picture::pic_t *dst, rect_t area)
 		int map_x = ScalarToInteger(player.origin.x), map_y = ScalarToInteger(player.origin.y);
 		int step_x, step_y;
 		bool hit = false, side = false;
-		bool texturemapping = true;
 
 		raydir.x = math.sin[angle];
 		raydir.y = math.cos[angle];
@@ -282,7 +284,8 @@ void RenderRays(Picture::pic_t *dst, rect_t area)
 					// Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
 					int tex_y = ScalarToInteger(texcoord) & (TEXTURE_Y - 1);
 					texcoord += step;
-					uint8_t color = textures[0][TEXTURE_Y * tex_y + tex_x];
+					//uint8_t color = textures[0][TEXTURE_Y * tex_y + tex_x];
+					uint8_t color = Picture::GetPixel(&pic_wall, tex_x, tex_y);
 
 					Picture::DrawPixel(dst, x, y, color);
 				}
@@ -765,6 +768,7 @@ int main(int argc, char *argv[])
 	Console::Initialize();
 	Picture::LoadBMP(&pic_font, "gfx/font8x8.bmp");
 	Picture::LoadBMP(&pic_shotgun, "gfx/shot001a.bmp");
+	Picture::LoadBMP(&pic_wall, "tex_bmp/duke3d/wall001.bmp");
 	Picture::Create(&pic_fbuffer, SCREEN_WIDTH, SCREEN_HEIGHT, 8, 0, (void *)VGA_VIDMEM_PTR);
 	Picture::Create(&pic_bbuffer, SCREEN_WIDTH, SCREEN_HEIGHT, 8, 0, 0);
 
@@ -847,6 +851,7 @@ int main(int argc, char *argv[])
 	Picture::Destroy(&pic_fbuffer);
 	Picture::Destroy(&pic_bbuffer);
 	Picture::Destroy(&pic_shotgun);
+	Picture::Destroy(&pic_wall);
 
 	// Exit gracefully
 	return EXIT_SUCCESS;
