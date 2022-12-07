@@ -19,6 +19,8 @@
 
 #define CYCLES 30
 
+#define PORTREND
+
 //
 // Types
 //
@@ -60,9 +62,6 @@ typedef struct
 	int16_t num_walls;
 	uint8_t floor_color;
 	uint8_t ceiling_color;
-
-	// Calculated
-	int16_t surface_points[SCREEN_WIDTH];
 } sector_t;
 
 typedef struct
@@ -117,6 +116,8 @@ sector_t sectors[MAX_SECTORS];
 player_t player;
 math_t math;
 char console_buffer[256];
+
+#ifdef RAYCASTER
 
 #define MAP_X 24
 #define MAP_Y 24
@@ -351,6 +352,10 @@ void GenerateTextures()
 	}
 }
 
+#endif
+
+#ifdef PORTREND
+
 //
 // Sector rendering functions
 //
@@ -495,15 +500,25 @@ void RenderSectors(Picture::pic_t *dst, int sector_id, rect_t area)
 	}
 }
 
+#endif
+
 //
 // Player functions
 //
 
 void PlayerInit()
 {
+	#ifdef RAYCASTER
 	player.origin.x = SCALAR(8.5f);
 	player.origin.y = SCALAR(2.5f);
 	player.origin.z = SCALAR(0.5f);
+	#endif
+
+	#ifdef PORTREND
+	player.origin.x = SCALAR(0);
+	player.origin.y = SCALAR(0);
+	player.origin.z = SCALAR(64);
+	#endif
 
 	player.angles.x = 0;
 	player.angles.y = 0;
@@ -512,7 +527,6 @@ void PlayerInit()
 	player.sector_id = 0;
 
 	player.anglespeedkey = 4;
-	player.movespeedkey = 2;
 
 	player.fov = 90;
 }
@@ -559,14 +573,22 @@ void PlayerController()
 
 	// Check if sprinting
 	if (DOS::KeyTest(KB_LTSHIFT))
-		player.movespeedkey = 2;
+		player.movespeedkey = 4;
 	else
-		player.movespeedkey = 1;
+		player.movespeedkey = 2;
 
 	// Set velocity
+	#ifdef RAYCASTER
 	player.velocity.x = MUL(math.sin[player.angles.y], SCALAR(0.1f)) * player.movespeedkey;
 	player.velocity.y = MUL(math.cos[player.angles.y], SCALAR(0.1f)) * player.movespeedkey;
 	player.velocity.z = SCALAR(1.0f) * player.movespeedkey;
+	#endif
+
+	#ifdef PORTREND
+	player.velocity.x = math.sin[player.angles.y] * player.movespeedkey;
+	player.velocity.y = math.cos[player.angles.y] * player.movespeedkey;
+	player.velocity.z = SCALAR(1.0f) * player.movespeedkey;
+	#endif
 
 	// Move forwards
 	if (DOS::KeyTest(KB_W))
@@ -607,6 +629,8 @@ void PlayerController()
 	mx_prev = mx;
 	my_prev = my;
 }
+
+#ifdef PORTREND
 
 //
 // Sector functions
@@ -688,6 +712,8 @@ void SectorsInit()
 	sectors[1].ceiling_height = 256;
 }
 
+#endif
+
 //
 // Main entry point
 //
@@ -718,11 +744,15 @@ int main(int argc, char *argv[])
 	// Initialize player data
 	PlayerInit();
 
+	#ifdef PORTREND
 	// Initialize sector data
-	//SectorsInit();
+	SectorsInit();
+	#endif
 
+	#ifdef RAYCASTER
 	// Initialize texture data
 	GenerateTextures();
+	#endif
 
 	// Initialize DOS
 	DOS::Initialize();
@@ -771,24 +801,27 @@ int main(int argc, char *argv[])
 		// Clear back buffer
 		Picture::Clear(&pic_bbuffer, 64);
 
+		#ifdef RAYCASTER
 		// Raycaster rendering
 		{
 			RenderRays(&pic_bbuffer, RECT(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
 		}
+		#endif
 
+		#ifdef PORTREND
 		// Sector rendering
 		{
-			//RenderSectors(&pic_bbuffer, player.sector_id, RECT(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
+			RenderSectors(&pic_bbuffer, player.sector_id, RECT(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
 		}
+		#endif
 
 		// HUD elements
 		{
 			Picture::Draw8(&pic_bbuffer, &pic_shotgun, 200, 116, Picture::COLORKEY);
-		}
 
-		// Map
-		{
+			#ifdef RAYCASTER
 			DrawMap(&pic_bbuffer, SCREEN_WIDTH - (2 * MAP_X) - 1, 0, 2, 2);
+			#endif
 		}
 
 		// Render the console text
