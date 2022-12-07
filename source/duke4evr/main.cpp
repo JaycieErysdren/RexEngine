@@ -19,7 +19,7 @@
 
 #define CYCLES 30
 
-#define RAYCASTER
+#define PORTREND
 
 //
 // Types
@@ -792,10 +792,10 @@ int main(int argc, char *argv[])
 	#ifdef RAYCASTER
 	// Initialize texture data
 	GenerateTextures();
+	#endif
 
 	// Initialize colormap
 	Colormap::Load("gfx/duke3d.tab");
-	#endif
 
 	// Initialize DOS
 	DOS::Initialize();
