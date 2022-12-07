@@ -55,7 +55,6 @@ typedef vec2s_t vertex_t;
 
 typedef struct
 {
-	// Saved to file
 	int16_t floor_height;
 	int16_t ceiling_height;
 	int16_t wall_start_id;
@@ -224,6 +223,7 @@ void RenderRays(Picture::pic_t *dst, rect_t area)
 		int map_y = ScalarToInteger(player.origin.y);
 		int step_x, step_y;
 		bool hit = false, side = false;
+		bool oob = false;
 
 		raydir.x = math.sin[angle];
 		raydir.y = math.cos[angle];
@@ -255,7 +255,7 @@ void RenderRays(Picture::pic_t *dst, rect_t area)
 		}
 
 		//perform DDA
-		while (hit == false)
+		while (hit == false && oob == false)
 		{
 			if (side_dist.x < side_dist.y)
 			{
@@ -271,22 +271,22 @@ void RenderRays(Picture::pic_t *dst, rect_t area)
 			}
 
 			//Check if ray has hit a wall
-			if(map[map_y][map_x] > 0) hit = true;
+			if (map[map_y][map_x] > 0) hit = true;
+			
+			if (map_y >= MAP_Y || map_y < 0 || map_x >= MAP_X || map_x < 0) oob = true;
 		}
+
+		if (oob == true) continue;
 
 		scalar_t perp_wall_dist;
 
 		if (side == false) perp_wall_dist = (side_dist.x - delta_dist.x);
 		else perp_wall_dist = (side_dist.y - delta_dist.y);
 
-		//ray_dist = MUL(side_dist.x, side_dist.x) + MUL(side_dist.y, side_dist.y);
-		//ray_dist = SCALAR(sqrt(ScalarToFloat(ray_dist)));
-
 		if (perp_wall_dist != 0)
 		{
 			//Calculate height of line to draw on screen
 			int line_height = ScalarToInteger(DIV(SCALAR(area.h), perp_wall_dist));
-			//int line_height = ScalarToInteger(DIV(SCALAR(32), MUL(ray_dist, plane_dist)));
 
 			//calculate lowest and highest pixel to fill in current stripe
 			int drawStart = -line_height / 2 + area.h / 2;
@@ -324,7 +324,7 @@ void RenderRays(Picture::pic_t *dst, rect_t area)
 					uint8_t color = Picture::GetPixel(&pic_wall, tex_x, tex_y);
 
 					// Lookup in colormap for brightness
-					if (side == true) color = ColormapLookup(color, ScalarToInteger(MUL(perp_wall_dist, SCALAR(0.25f))) - 4);
+					if (side == true) color = ColormapLookup(color, ScalarToInteger(MUL(perp_wall_dist, SCALAR(0.25f))) - 2);
 					else color = ColormapLookup(color, ScalarToInteger(MUL(perp_wall_dist, SCALAR(0.25f))));
 
 					Picture::DrawPixel(dst, x, y, color);
@@ -340,7 +340,8 @@ void RenderRays(Picture::pic_t *dst, rect_t area)
 					case 2: color = 47; break;
 					case 3: color = 63; break;
 					case 4: color = 79; break;
-					default: color = 95; break;
+					case 5: color = 95; break;
+					default: color = 0; break;
 				}
 
 				// Lookup in colormap for brightness
@@ -351,11 +352,6 @@ void RenderRays(Picture::pic_t *dst, rect_t area)
 				Picture::DrawVerticalLine(dst, x, drawStart, drawEnd, color);
 			}
 		}
-
-		sprintf(console_buffer, "angle: %d", angle);
-		Console::AddText(0, 2, console_buffer);
-		sprintf(console_buffer, "mx: %d my: %d", (map_x), (map_y));
-		Console::AddText(0, 3, console_buffer);
 	}
 }
 
@@ -373,6 +369,7 @@ void DrawMap(Picture::pic_t *dst, int x, int y, int cell_width, int cell_height)
 				case 2: color = 47; break;
 				case 3: color = 63; break;
 				case 4: color = 79; break;
+				case 5: color = 95; break;
 				default: color = 0; break;
 			}
 
