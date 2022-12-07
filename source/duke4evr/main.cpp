@@ -536,22 +536,30 @@ void RenderSector(Picture::pic_t *dst, rect_t dst_area, int sector_id)
 			if (y1 > dst_area.y2) y1 = dst_area.y2;
 			if (y2 > dst_area.y2) y2 = dst_area.y2;
 
-			// Draw the wall column
-			Picture::DrawVerticalLine(dst, x, y1, y2, wall->color);
-
 			// Draw the ceiling column (lazy)
 			if (player.origin.z < SCALAR(sector->ceiling_height))
 			{
 				Picture::DrawVerticalLine(dst, x, y2, dst_area.y1, sector->ceiling_color);
-				//Picture::DrawPixel(dst, x, y2, 0); // trim
 			}
 
 			// Draw the floor column (lazy)
 			if (player.origin.z > SCALAR(sector->floor_height))
 			{
 				Picture::DrawVerticalLine(dst, x, y1, dst_area.y2, sector->floor_color);
-				//Picture::DrawPixel(dst, x, y1, 0); // trim
 			}
+
+			// Draw the wall column
+			// "toon shading"
+			if (x == sv[0].x)
+				Picture::DrawVerticalLine(dst, x, y1, y2, 0);
+			else
+				Picture::DrawVerticalLine(dst, x, y1, y2, wall->color);
+
+			// Ceiling trim
+			Picture::DrawPixel(dst, x, y2, 0);
+
+			// Floor trim
+			Picture::DrawPixel(dst, x, y1, 0);
 		}
 
 		if (is_portal == true) RenderSector(dst, wall_area, portal_sector_id);
