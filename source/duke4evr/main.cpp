@@ -19,7 +19,7 @@
 
 #define CYCLES 30
 
-#define PORTREND
+#define RAYCASTER
 
 //
 // Types
@@ -299,8 +299,8 @@ void RenderRays(Picture::pic_t *dst, rect_t area)
 					uint8_t color = Picture::GetPixel(&pic_wall, tex_x, tex_y);
 
 					// Lookup in colormap for brightness
-					if (side == true) color = Colormap::Lookup(color, ScalarToInteger(MUL(perp_wall_dist, SCALAR(0.25f))) - 2);
-					else color = Colormap::Lookup(color, ScalarToInteger(MUL(perp_wall_dist, SCALAR(0.25f))));
+					if (side == true) color = Colormap::Lookup(color, ScalarToInteger(MUL(perp_wall_dist, SCALAR(2))) - 2);
+					else color = Colormap::Lookup(color, ScalarToInteger(MUL(perp_wall_dist, SCALAR(2))));
 
 					Picture::DrawPixel(dst, x, y, color);
 				}
@@ -808,7 +808,7 @@ int main(int argc, char *argv[])
 	Console::Initialize();
 	Picture::LoadBMP(&pic_font, "gfx/font8x8.bmp");
 	Picture::LoadBMP(&pic_shotgun, "gfx/shot001a.bmp");
-	Picture::LoadBMP(&pic_wall, "tex_bmp/quake/city2_3.bmp");
+	Picture::LoadBMP(&pic_wall, "tex_bmp/duke3d/wall001.bmp");
 	Picture::Create(&pic_fbuffer, SCREEN_WIDTH, SCREEN_HEIGHT, 8, 0, (void *)VGA_VIDMEM_PTR);
 	Picture::Create(&pic_bbuffer, SCREEN_WIDTH, SCREEN_HEIGHT, 8, 0, 0);
 
@@ -843,7 +843,7 @@ int main(int argc, char *argv[])
 		//
 
 		// Clear back buffer
-		Picture::Clear(&pic_bbuffer, 64);
+		Picture::Clear(&pic_bbuffer, 0);
 
 		#ifdef RAYCASTER
 		// Raycaster rendering

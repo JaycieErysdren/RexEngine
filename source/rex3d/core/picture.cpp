@@ -267,10 +267,10 @@ void Blend8(pic_t *dst, pic_t *src1, pic_t *src2, clut_t blender)
 // Get the color of a pixel from the specified x and y coordinate
 uint8_t GetPixel(pic_t *pic, int x, int y)
 {
-	if (x >= 0 && y >= 0 && x < pic->width && y < pic->height)
+	//if (x >= 0 && y >= 0 && x < pic->width && y < pic->height)
 		return pic->scanlines.b[y][x];
-	else
-		return 255;
+	//else
+	//	return 255;
 }
 
 // Plot a pixel at the specificed x and y coordinate
