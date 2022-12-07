@@ -19,7 +19,7 @@
 
 #define CYCLES 30
 
-#define PORTREND
+#define RAYCASTER
 
 //
 // Types
@@ -118,31 +118,6 @@ char console_buffer[256];
 
 Picture::pic_t pic_wall;
 bool texturemapping = false;
-
-uint8_t colormap[64 * 256];
-
-//
-// Colormap functions
-//
-
-// Valid values for "light" are a range from -32 to 31.
-uint8_t ColormapLookup(uint8_t index, int light)
-{
-	// this is the original color in the colormap
-	// (32 * 256) + index;
-	light = CLAMP(light, -32, 31);
-	return colormap[((light + 32) * 256) + index];
-}
-
-// Load a colormap from file
-void ColormapLoad(string filename)
-{
-	FILE *file = fopen(filename.c_str(), "rb");
-
-	fread(&colormap, sizeof(uint8_t), 64 * 256, file);
-
-	fclose(file);
-}
 
 //
 // Raycaster globals
@@ -324,8 +299,8 @@ void RenderRays(Picture::pic_t *dst, rect_t area)
 					uint8_t color = Picture::GetPixel(&pic_wall, tex_x, tex_y);
 
 					// Lookup in colormap for brightness
-					if (side == true) color = ColormapLookup(color, ScalarToInteger(MUL(perp_wall_dist, SCALAR(0.25f))) - 2);
-					else color = ColormapLookup(color, ScalarToInteger(MUL(perp_wall_dist, SCALAR(0.25f))));
+					if (side == true) color = Colormap::Lookup(color, ScalarToInteger(MUL(perp_wall_dist, SCALAR(0.25f))) - 2);
+					else color = Colormap::Lookup(color, ScalarToInteger(MUL(perp_wall_dist, SCALAR(0.25f))));
 
 					Picture::DrawPixel(dst, x, y, color);
 				}
@@ -345,8 +320,8 @@ void RenderRays(Picture::pic_t *dst, rect_t area)
 				}
 
 				// Lookup in colormap for brightness
-				if (side == true) color = ColormapLookup(color, ScalarToInteger(MUL(perp_wall_dist, SCALAR(2))) - 4);
-				else color = ColormapLookup(color, ScalarToInteger(MUL(perp_wall_dist, SCALAR(2))));
+				if (side == true) color = Colormap::Lookup(color, ScalarToInteger(MUL(perp_wall_dist, SCALAR(2))) - 4);
+				else color = Colormap::Lookup(color, ScalarToInteger(MUL(perp_wall_dist, SCALAR(2))));
 
 				//draw the pixels of the stripe as a vertical line
 				Picture::DrawVerticalLine(dst, x, drawStart, drawEnd, color);
@@ -819,7 +794,7 @@ int main(int argc, char *argv[])
 	GenerateTextures();
 
 	// Initialize colormap
-	ColormapLoad("gfx/quake.tab");
+	Colormap::Load("gfx/duke3d.tab");
 	#endif
 
 	// Initialize DOS

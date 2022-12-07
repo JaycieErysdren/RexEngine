@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex3D main engine header
 //
-// LAST EDITED:		December 1st, 2022
+// LAST EDITED:		December 7th, 2022
 //
 // ========================================================
 
@@ -86,6 +86,9 @@ using namespace std;
 
 // Types
 #include "core/types.hpp"
+
+// Colormaps
+#include "core/colormap.hpp"
 
 // Palettes
 #include "core/palette.hpp"

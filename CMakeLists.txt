@@ -10,7 +10,7 @@
 ##
 ## DESCRIPTION:		Duke4Ever CMake project definition
 ##
-## LAST EDITED:		December 4th, 2022
+## LAST EDITED:		December 7th, 2022
 ##
 ## ========================================================
 
@@ -45,6 +45,7 @@ target_include_directories(cjson PUBLIC ${CMAKE_SOURCE_DIR}/source/thirdparty/cj
 ##
 
 set(REX3D_CORE_SRC
+	${CMAKE_SOURCE_DIR}/source/rex3d/core/colormap.cpp
 	${CMAKE_SOURCE_DIR}/source/rex3d/core/console.cpp
 	${CMAKE_SOURCE_DIR}/source/rex3d/core/palette.cpp
 	${CMAKE_SOURCE_DIR}/source/rex3d/core/picture.cpp
