@@ -35,7 +35,7 @@
 #define MAX(a, b)					(((a) > (b)) ? (a) : (b))
 #define CLAMP(a, min, max)			MIN(MAX(a, min), max)
 #define ABS(a)						(((a) < 0) ? -(a) : (a))
-#define SGN(a)						((a < 0) ? -1 : ((a > 0) ? 1 : 0))
+#define SGN(a)						(((a) < 0) ? -1 : (((a) > 0) ? 1 : 0))
 
 //
 // Portal2D

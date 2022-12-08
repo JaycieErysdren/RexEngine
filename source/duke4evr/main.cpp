@@ -109,7 +109,6 @@ void RenderRays(Picture::pic_t *dst, rect_t area)
 	// Current sin, cos and tan of player's yaw
 	scalar_t sn = math.sin[player.angles.y];
 	scalar_t cs = math.cos[player.angles.y];
-	scalar_t tn = math.tan[player.angles.y];
 
 	// Ray sweep loop
 	for (x = area.x1; x < area.x2; x++)
@@ -130,8 +129,8 @@ void RenderRays(Picture::pic_t *dst, rect_t area)
 		// rotate around 0,0 by player.angles.y
 		vec2s_t temp = raydir;
 
-		raydir.x = MUL(-temp.x, math.cos[player.angles.y]) - MUL(-temp.y, math.sin[player.angles.y]);
-		raydir.y = MUL(temp.x, math.sin[player.angles.y]) + MUL(temp.y, math.cos[player.angles.y]);
+		raydir.x = MUL(-temp.x, cs) - MUL(-temp.y, sn);
+		raydir.y = MUL(temp.x, sn) + MUL(temp.y, cs);
 
 		// prevent div by 0
 		delta_dist.x = (raydir.x == 0) ? SCALAR_MAX : ABS(DIV(SCALAR(1.0f), raydir.x));
@@ -178,7 +177,7 @@ void RenderRays(Picture::pic_t *dst, rect_t area)
 
 			//Check if ray has hit a wall
 			if (map[map_y][map_x] > 0) hit = true;
-			
+
 			if (map_y >= MAP_Y || map_y < 0 || map_x >= MAP_X || map_x < 0) oob = true;
 		}
 
@@ -412,7 +411,7 @@ void PlayerController()
 	// Move downwards
 	if (DOS::KeyTest(KB_E))
 		player.origin.z -= player.velocity.z;
-	
+
 	mx_prev = mx;
 	my_prev = my;
 }
@@ -575,7 +574,7 @@ int main(int argc, char *argv[])
 			//
 
 			PlayerController();
-			
+
 			// Print some player info
 			sprintf(console_buffer, "x: %d y: %d z %d", ScalarToInteger(player.origin.x), ScalarToInteger(player.origin.y), ScalarToInteger(player.origin.z));
 			Console::AddText(0, 0, console_buffer);
