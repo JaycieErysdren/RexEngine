@@ -514,7 +514,7 @@ int main(int argc, char *argv[])
 	Picture::pic_t pic_font;
 	Picture::pic_t pic_fbuffer;
 	Picture::pic_t pic_bbuffer;
-	Picture::pic_t pic_shotgun;
+	Picture::pic_t pic_gun;
 
 	// Cycles
 	int64_t frame_start, frame_end;
@@ -549,7 +549,7 @@ int main(int argc, char *argv[])
 	Console::Initialize();
 	Picture::InitializeFrontBuffer();
 	Picture::LoadBMP(&pic_font, "gfx/font8x8.bmp");
-	Picture::LoadBMP(&pic_shotgun, "gfx/shot001a.bmp");
+	Picture::LoadBMP(&pic_gun, "gfx/gun.bmp");
 	Picture::LoadBMP(&pic_wall, "tex_bmp/duke3d/wall001.bmp");
 	Picture::Create(&pic_bbuffer, vidinfo.width, vidinfo.height, vidinfo.bpp, 0, 0);
 
@@ -593,7 +593,7 @@ int main(int argc, char *argv[])
 
 		// HUD elements
 		{
-			Picture::Draw8(&pic_bbuffer, &pic_shotgun, vidinfo.width / 2, vidinfo.height - 84, Picture::COLORKEY);
+			Picture::Draw8(&pic_bbuffer, &pic_gun, vidinfo.width / 2 + 64, vidinfo.height - 64, Picture::COLORKEY);
 
 			DrawMap(&pic_bbuffer, vidinfo.width - (2 * MAP_X) - 1, 0, 2, 2);
 		}
@@ -619,7 +619,7 @@ int main(int argc, char *argv[])
 	Console::Shutdown();
 	Picture::Destroy(&pic_font);
 	Picture::Destroy(&pic_bbuffer);
-	Picture::Destroy(&pic_shotgun);
+	Picture::Destroy(&pic_gun);
 	Picture::Destroy(&pic_wall);
 	Picture::ShutdownFrontBuffer();
 

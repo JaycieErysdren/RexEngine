@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Palette namespace implementation
 //
-// LAST EDITED:		November 30th, 2022
+// LAST EDITED:		December 7th, 2022
 //
 // ========================================================
 
@@ -23,13 +23,22 @@ namespace Palette
 
 //
 //
+// Globals
+//
+//
+
+clut_t blender;
+
+//
+//
 // Functions
 //
 //
 
-int Search(palette_t palette, int r, int g, int b)
+uint8_t Search(palette_t palette, uint8_t r, uint8_t g, uint8_t b)
 {
-	int i, pen, dist = INT_MAX;
+	int i, dist = INT_MAX;
+	uint8_t pen;
 
 	for (i = 256; i--;)
 	{
@@ -43,6 +52,28 @@ int Search(palette_t palette, int r, int g, int b)
 	}
 
 	return pen;
+}
+
+//
+// CLUT
+//
+
+void GenerateCLUT(palette_t palette)
+{
+	int x, y, r;
+
+	for (x = 255; x--;)
+	{
+		for (y = 255; y--;)
+		{
+			r = (palette[x][0] + palette[y][0]) >> 1;
+
+			blender[y][x] = Search(palette,
+				(palette[x][0] + palette[y][0]) >> 1,
+				(palette[x][1] + palette[y][1]) >> 1,
+				(palette[x][2] + palette[y][2]) >> 1);
+		}
+	}
 }
 
 } // namespace Palette

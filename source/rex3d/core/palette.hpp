@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Palette namespace header
 //
-// LAST EDITED:		November 30th, 2022
+// LAST EDITED:		December 7th, 2022
 //
 // ========================================================
 
@@ -38,5 +38,6 @@ namespace Palette
 	//
 	//
 
-	int Search(palette_t palette, int r, int g, int b);
+	uint8_t Search(palette_t palette, uint8_t r, uint8_t g, uint8_t b);
+	void GenerateCLUT(palette_t palette);
 }
