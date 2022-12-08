@@ -114,15 +114,7 @@ void RenderRays(Picture::pic_t *dst, rect_t area)
 	// Ray sweep loop
 	for (x = area.x1; x < area.x2; x++)
 	{
-		// The angle of projection
-		int angle = (player.angles.y - (player.fov / 2)) + ((player.fov * x) / draw_w);
-
-		// Projection angle sanity check
-		if (angle < 0) angle += 360;
-		if (angle > 359) angle -= 360;
-
 		vec2s_t raydir;
-		vec2s_t raypos;
 		vec2s_t delta_dist;
 		vec2s_t side_dist;
 		int map_x = ScalarToInteger(player.origin.x);
@@ -131,13 +123,21 @@ void RenderRays(Picture::pic_t *dst, rect_t area)
 		bool hit = false, side = false;
 		bool oob = false;
 
-		raydir.x = math.sin[angle];
-		raydir.y = math.cos[angle];
+		// calculate ray direction
+		raydir.x = MUL(DIV(SCALAR(2.0f), SCALAR(draw_w)), SCALAR(x)) - SCALAR(1.0f);
+		raydir.y = SCALAR(1.0f);
 
+		// rotate around 0,0 by player.angles.y
+		vec2s_t temp = raydir;
+
+		raydir.x = MUL(temp.x, math.cos[player.angles.y]) - MUL(temp.y, math.sin[player.angles.y]);
+		raydir.y = MUL(temp.x, math.sin[player.angles.y]) + MUL(temp.y, math.cos[player.angles.y]);
+
+		// prevent div by 0
 		delta_dist.x = (raydir.x == 0) ? SCALAR_MAX : ABS(DIV(SCALAR(1.0f), raydir.x));
 		delta_dist.y = (raydir.y == 0) ? SCALAR_MAX : ABS(DIV(SCALAR(1.0f), raydir.y));
 
-		//calculate step and initial sideDist
+		// calculate step and initial side_dist
 		if (raydir.x < 0)
 		{
 			step_x = -1;
