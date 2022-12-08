@@ -19,7 +19,6 @@
 
 #define CYCLES 30
 
-#define RAYCASTER
 
 //
 // Types
@@ -58,7 +57,6 @@ bool texturemapping = false;
 // Raycaster globals
 //
 
-#ifdef RAYCASTER
 
 #define MAP_X 24
 #define MAP_Y 24
@@ -94,6 +92,31 @@ uint8_t map[MAP_X][MAP_Y] = {
 };
 
 uint8_t textures[1][TEXTURE_Y * TEXTURE_X];
+
+//
+// Dithering functions
+//
+// https://www.youtube.com/watch?v=N8elxpSu9pw
+//
+
+unsigned Dither8x8[8][8];
+unsigned DitherCandCount = 64;
+
+void InitDither()
+{
+	// Create bayer dithering matrix, adjusted for candidate count
+	for(unsigned y=0; y<8; ++y)
+	{
+		for(unsigned x=0; x<8; ++x)
+		{
+			unsigned i = x ^ y, j;
+			j = (x & 4)/4u + (x & 2)*2u + (x & 1)*16u;
+			i = (i & 4)/2u + (i & 2)*4u + (i & 1)*32u;
+			Dither8x8[y][x] = (j+i)*DitherCandCount/64u;
+		}
+	}
+}
+
 
 //
 // Raycast rendering functions
@@ -301,18 +324,15 @@ void GenerateTextures()
 	}
 }
 
-#endif
 //
 // Player functions
 //
 
 void PlayerInit()
 {
-	#ifdef RAYCASTER
 	player.origin.x = SCALAR(8.5f);
 	player.origin.y = SCALAR(2.5f);
 	player.origin.z = SCALAR(0.5f);
-	#endif
 
 	player.angles.x = 0;
 	player.angles.y = 0;
@@ -374,11 +394,9 @@ void PlayerController()
 		player.movespeedkey = 4;
 
 	// Set velocity
-	#ifdef RAYCASTER
 	player.velocity.x = MUL(math.sin[player.angles.y], SCALAR(0.1f)) * player.movespeedkey;
 	player.velocity.y = MUL(math.cos[player.angles.y], SCALAR(0.1f)) * player.movespeedkey;
 	player.velocity.z = SCALAR(1.0f) * player.movespeedkey;
-	#endif
 
 	// Move forwards
 	if (DOS::KeyTest(KB_W))
@@ -538,13 +556,11 @@ int main(int argc, char *argv[])
 	// Initialize player data
 	PlayerInit();
 
-	#ifdef RAYCASTER
 	// Initialize texture data
 	GenerateTextures();
-	#endif
 
-	// Initialize colormap
-	Colormap::Load("gfx/duke3d.tab");
+	// Initialize dithering
+	InitDither();
 
 	// Initialize DOS
 	DOS::Initialize();
@@ -552,6 +568,9 @@ int main(int argc, char *argv[])
 	// Initialize VGA
 	VGA::Initialize();
 	VGA::SetPalette("gfx/duke3d.pal");
+
+	// Initialize colormap
+	Colormap::Load("gfx/duke3d.tab");
 
 	// Create pictures
 	Console::Initialize();
@@ -594,20 +613,16 @@ int main(int argc, char *argv[])
 		// Clear back buffer
 		Picture::Clear(&pic_bbuffer, 0);
 
-		#ifdef RAYCASTER
 		// Raycaster rendering
 		{
 			RenderRays(&pic_bbuffer, RECT(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
 		}
-		#endif
 
 		// HUD elements
 		{
-			//Picture::Draw8(&pic_bbuffer, &pic_shotgun, 200, 116, Picture::COLORKEY);
+			Picture::Draw8(&pic_bbuffer, &pic_shotgun, 200, 116, Picture::COLORKEY);
 
-			#ifdef RAYCASTER
 			DrawMap(&pic_bbuffer, SCREEN_WIDTH - (2 * MAP_X) - 1, 0, 2, 2);
-			#endif
 		}
 
 		// Render the console text
