@@ -130,7 +130,7 @@ void RenderRays(Picture::pic_t *dst, rect_t area)
 		// rotate around 0,0 by player.angles.y
 		vec2s_t temp = raydir;
 
-		raydir.x = MUL(temp.x, math.cos[player.angles.y]) - MUL(temp.y, math.sin[player.angles.y]);
+		raydir.x = MUL(-temp.x, math.cos[player.angles.y]) - MUL(-temp.y, math.sin[player.angles.y]);
 		raydir.y = MUL(temp.x, math.sin[player.angles.y]) + MUL(temp.y, math.cos[player.angles.y]);
 
 		// prevent div by 0
@@ -342,10 +342,10 @@ void PlayerController()
 	// Keyboard look
 	{
 		// Rotate leftwards
-		if (DOS::KeyTest(KB_LTARROW)) player.angles.y -= player.anglespeedkey;
+		if (DOS::KeyTest(KB_LTARROW)) player.angles.y += player.anglespeedkey;
 
 		// Rotate rightwards
-		if (DOS::KeyTest(KB_RTARROW)) player.angles.y += player.anglespeedkey;
+		if (DOS::KeyTest(KB_RTARROW)) player.angles.y -= player.anglespeedkey;
 
 		// Look upwards
 		if (DOS::KeyTest(KB_UPARROW)) player.angles.x += player.anglespeedkey;
@@ -390,15 +390,15 @@ void PlayerController()
 	// Move leftwards
 	if (DOS::KeyTest(KB_A))
 	{
-		player.origin.x -= player.velocity.y;
-		player.origin.y += player.velocity.x;
+		player.origin.x += player.velocity.y;
+		player.origin.y -= player.velocity.x;
 	}
 
 	// Move rightwards
 	if (DOS::KeyTest(KB_D))
 	{
-		player.origin.x += player.velocity.y;
-		player.origin.y -= player.velocity.x;
+		player.origin.x -= player.velocity.y;
+		player.origin.y += player.velocity.x;
 	}
 
 	// Move upwards
