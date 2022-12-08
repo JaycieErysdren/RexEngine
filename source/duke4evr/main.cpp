@@ -176,10 +176,8 @@ uint8_t textures[1][TEXTURE_Y * TEXTURE_X];
 void RenderRays(Picture::pic_t *dst, rect_t area)
 {
 	// Draw bounds
-	int draw_x0 = area.x;
-	int draw_y0 = area.y;
-	int draw_x1 = area.x + area.w;
-	int draw_y1 = area.y + area.h;
+	int draw_w = area.x2 - area.x1;
+	int draw_h = area.y2 - area.y1;
 
 	// The positions of the pixels we'll be drawing
 	int x, y;
@@ -190,10 +188,10 @@ void RenderRays(Picture::pic_t *dst, rect_t area)
 	scalar_t tn = math.tan[player.angles.y];
 
 	// Ray sweep loop
-	for (x = draw_x0; x < draw_x1; x++)
+	for (x = area.x1; x < area.x2; x++)
 	{
 		// The angle of projection
-		int angle = (player.angles.y - (player.fov / 2)) + ((player.fov * x) / area.w);
+		int angle = (player.angles.y - (player.fov / 2)) + ((player.fov * x) / draw_w);
 
 		// Projection angle sanity check
 		if (angle < 0) angle += 360;
@@ -270,13 +268,13 @@ void RenderRays(Picture::pic_t *dst, rect_t area)
 		if (perp_wall_dist != 0)
 		{
 			//Calculate height of line to draw on screen
-			int line_height = ScalarToInteger(DIV(SCALAR(area.h), perp_wall_dist));
+			int line_height = ScalarToInteger(DIV(SCALAR(draw_h), perp_wall_dist));
 
 			//calculate lowest and highest pixel to fill in current stripe
-			int drawStart = -line_height / 2 + area.h / 2;
+			int drawStart = -line_height / 2 + draw_h / 2;
 			if (drawStart < 0) drawStart = 0;
-			int drawEnd = line_height / 2 + area.h / 2;
-			if (drawEnd >= area.h) drawEnd = area.h;
+			int drawEnd = line_height / 2 + draw_h / 2;
+			if (drawEnd >= draw_h) drawEnd = draw_h;
 
 			//texturing calculations
 			if (texturemapping == true)
@@ -297,7 +295,7 @@ void RenderRays(Picture::pic_t *dst, rect_t area)
 				scalar_t step = DIV(MUL(SCALAR(1.0f), SCALAR(TEXTURE_X)), SCALAR(line_height));
 
 				// Starting texture coordinate
-				scalar_t texcoord = MUL(SCALAR(drawStart - (area.h / 2) + (line_height / 2)), step);
+				scalar_t texcoord = MUL(SCALAR(drawStart - (draw_h / 2) + (line_height / 2)), step);
 
 				for (int y = drawStart; y < drawEnd; y++)
 				{
@@ -397,7 +395,61 @@ void ClipWall(scalar_t *x1, scalar_t *y1, scalar_t *z1, scalar_t x2, scalar_t y2
 	*z1 = *z1 + MUL(s, z2 - (*z1));
 }
 
-void RenderSector(Picture::pic_t *dst, rect_t dst_area, int sector_id)
+void RenderWall(Picture::pic_t *dst, rect_t dst_area, sector_t *sector, wall_t *wall, int x1, int x2, int yb1, int yb2, int yt1, int yt2, bool bfloor, bool bceiling, bool bwall)
+{
+	// Pixel positions
+	int x, y1, y2;
+
+	// Distance deltas
+	int delta_bottom_y = yb2 - yb1;
+	int delta_top_y = yt2 - yt1;
+
+	int delta_x = x2 - x1;
+	if (delta_x == 0) delta_x = 1;
+
+	int x1_preclip = x1;
+
+	// Clip x values
+	if (x1 < dst_area.x1) x1 = dst_area.x1;
+	if (x2 < dst_area.x1) x2 = dst_area.x1;
+	if (x1 > dst_area.x2) x1 = dst_area.x2;
+	if (x2 > dst_area.x2) x2 = dst_area.x2;
+
+	// Vertical line loop
+	for (x = x1; x < x2; x++)
+	{
+		y1 = delta_bottom_y * (x - x1_preclip) / delta_x + yb1;
+		y2 = delta_top_y * (x - x1_preclip) / delta_x + yt1;
+
+		// Clip y values
+		if (y1 < dst_area.y1) y1 = dst_area.y1;
+		if (y2 < dst_area.y1) y2 = dst_area.y1;
+		if (y1 > dst_area.y2) y1 = dst_area.y2;
+		if (y2 > dst_area.y2) y2 = dst_area.y2;
+
+		// Draw the ceiling column (lazy)
+		if (bceiling == true && player.origin.z < SCALAR(sector->ceiling_height))
+			Picture::DrawVerticalLine(dst, x, y2, dst_area.y1, sector->ceiling_color);
+
+		// Draw the floor column (lazy)
+		if (bfloor == true && player.origin.z > SCALAR(sector->floor_height))
+			Picture::DrawVerticalLine(dst, x, y1, dst_area.y2, sector->floor_color);
+
+		// Draw the wall column with "toon shading"
+		if (bwall == true && x == x1)
+			Picture::DrawVerticalLine(dst, x, y1, y2, 0);
+		else if (bwall == true)
+			Picture::DrawVerticalLine(dst, x, y1, y2, wall->color);
+
+		// Ceiling trim
+		Picture::DrawPixel(dst, x, y2, 0);
+
+		// Floor trim
+		Picture::DrawPixel(dst, x, y1, 0);
+	}
+}
+
+void RenderSector(Picture::pic_t *dst, rect_t dst_area, int sector_id, int sector_start_id)
 {
 	// General variables
 	int i, w;
@@ -409,6 +461,9 @@ void RenderSector(Picture::pic_t *dst, rect_t dst_area, int sector_id)
 
 	// Current sector
 	sector_t *sector = sectors[sector_id];
+
+	// Break out of the rendering loop when rendering sectors
+	if (sector_id == sector_start_id) return;
 
 	// If this sector has already been rendered in this frame, return
 	if (rendered_sectors[sector_id] == true) return;
@@ -428,16 +483,32 @@ void RenderSector(Picture::pic_t *dst, rect_t dst_area, int sector_id)
 		// Variables
 		vec3s_t v[2];			// Initial vertex values
 		vec3s_t pv[4];			// Player-space coordinates
+		vec3s_t nv[4];			// Neighbor sector coordinates
 		vec2i_t sv[4];			// Perspective transformed coordinates
+
+		// Check for portals (start with a sanity check)
+		if (portal != NULL && portal->sector0 != portal->sector1)
+		{
+			if (portal->sector0 == sector_id)
+			{
+				is_portal = true;
+				portal_sector_id = portal->sector1;
+			}
+			else if (portal->sector1 == sector_id)
+			{
+				is_portal = true;
+				portal_sector_id = portal->sector0;
+			}
+		}
 
 		// Transform the vertices into the player's view
 		v[0].x = vertices[wall->vertex_0_id]->x - player.origin.x;
 		v[0].y = vertices[wall->vertex_0_id]->y - player.origin.y;
-		v[0].z = SCALAR(sector->floor_height) + player.origin.z;
+		v[0].z = -SCALAR(sector->floor_height) + player.origin.z;
 
 		v[1].x = vertices[wall->vertex_1_id]->x - player.origin.x;
 		v[1].y = vertices[wall->vertex_1_id]->y - player.origin.y;
-		v[1].z = SCALAR(sector->floor_height) + player.origin.z;
+		v[1].z = -SCALAR(sector->floor_height) + player.origin.z;
 
 		// Rotate the y values around the player's view
 		pv[0].y = MUL(v[0].x, sn) + MUL(v[0].y, cs);
@@ -460,11 +531,11 @@ void RenderSector(Picture::pic_t *dst, rect_t dst_area, int sector_id)
 		// Project the top-of-wall vertices
 		pv[2].x = pv[0].x;
 		pv[2].y = pv[0].y;
-		pv[2].z = pv[0].z - SCALAR(sector->ceiling_height);
+		pv[2].z = pv[0].z - SCALAR(sector->ceiling_height) + SCALAR(sector->floor_height);
 
 		pv[3].x = pv[1].x;
 		pv[3].y = pv[1].y;
-		pv[3].z = pv[1].z - SCALAR(sector->ceiling_height);
+		pv[3].z = pv[1].z - SCALAR(sector->ceiling_height) + SCALAR(sector->floor_height);
 
 		//
 		// Screen space vertices (perspective transform)
@@ -485,84 +556,79 @@ void RenderSector(Picture::pic_t *dst, rect_t dst_area, int sector_id)
 		sv[3].x = sv[1].x;
 		sv[3].y = ScalarToInteger(DIV(MUL(pv[3].z, SCALAR(150)), pv[3].y)) + (dst->height / 2);
 
-		// Now check for portals (start with a sanity check)
-		if (portal != NULL && portal->sector0 != portal->sector1)
-		{
-			if (portal->sector0 == sector_id)
-			{
-				is_portal = true;
-				portal_sector_id = portal->sector1;
-			}
-			else if (portal->sector1 == sector_id)
-			{
-				is_portal = true;
-				portal_sector_id = portal->sector0;
-			}
-		}
-
 		//
-		// Draw the wall
+		// Draw the wall or the neighboring sector
 		//
 
-		// Pixel positions
-		int x, y1, y2;
-
-		// Distance deltas
-		int delta_bottom_y = sv[1].y - sv[0].y;
-		int delta_top_y = sv[3].y - sv[2].y;
-
-		int delta_x = sv[1].x - sv[0].x;
-		if (delta_x == 0) delta_x = 1;
-
-		int x0 = sv[0].x;
-
-		// Clip x values
-		if (sv[0].x < dst_area.x1) sv[0].x = dst_area.x1;
-		if (sv[1].x < dst_area.x1) sv[1].x = dst_area.x1;
-		if (sv[0].x > dst_area.x2) sv[0].x = dst_area.x2;
-		if (sv[1].x > dst_area.x2) sv[1].x = dst_area.x2;
-
-		rect_t wall_area = RECT(sv[0].x, dst_area.y1, sv[1].x, dst_area.y2);
-
-		// Vertical line loop
-		for (x = sv[0].x; x < sv[1].x; x++)
+		if (is_portal == true)
 		{
-			y1 = delta_bottom_y * (x - x0) / delta_x + sv[0].y;
-			y2 = delta_top_y * (x - x0) / delta_x + sv[2].y;
+			int x1, x2;
 
-			// Clip y values
-			if (y1 < dst_area.y1) y1 = dst_area.y1;
-			if (y2 < dst_area.y1) y2 = dst_area.y1;
-			if (y1 > dst_area.y2) y1 = dst_area.y2;
-			if (y2 > dst_area.y2) y2 = dst_area.y2;
+			// Clip x values
+			if (sv[0].x < dst_area.x1) sv[0].x = dst_area.x1;
+			if (sv[1].x < dst_area.x1) sv[1].x = dst_area.x1;
+			if (sv[0].x > dst_area.x2) sv[0].x = dst_area.x2;
+			if (sv[1].x > dst_area.x2) sv[1].x = dst_area.x2;
 
-			// Draw the ceiling column (lazy)
-			if (player.origin.z < SCALAR(sector->ceiling_height))
+			rect_t portal_area = RECT(sv[0].x, dst_area.y1, sv[1].x, dst_area.y2);
+
+			RenderSector(dst, portal_area, portal_sector_id, sector_id);
+
+			// If their floor is higher than hours, draw a wall
+			if (sectors[portal_sector_id]->floor_height > sector->floor_height || sectors[portal_sector_id]->ceiling_height < sector->ceiling_height)
 			{
-				Picture::DrawVerticalLine(dst, x, y2, dst_area.y1, sector->ceiling_color);
-			}
+				scalar_t neighbor_z0; // bottom z 1
+				scalar_t neighbor_z1; // bottom z 2
+				scalar_t neighbor_z2; // top z 1
+				scalar_t neighbor_z3; // top z 2
+				int neighbor_sy0; // bottom y 1
+				int neighbor_sy1; // bottom y 2
+				int neighbor_sy2; // top y 1
+				int neighbor_sy3; // top y 2
 
-			// Draw the floor column (lazy)
-			if (player.origin.z > SCALAR(sector->floor_height))
-			{
-				Picture::DrawVerticalLine(dst, x, y1, dst_area.y2, sector->floor_color);
-			}
+				neighbor_z0 = -SCALAR(sectors[portal_sector_id]->floor_height) + player.origin.z;
+				neighbor_z1 = -SCALAR(sectors[portal_sector_id]->floor_height) + player.origin.z;
 
-			// Draw the wall column
-			// "toon shading"
-			if (x == sv[0].x)
-				Picture::DrawVerticalLine(dst, x, y1, y2, 0);
+				neighbor_z0 += DIV(MUL(SCALAR(player.angles.x), pv[0].y), SCALAR(32));
+				neighbor_z1 += DIV(MUL(SCALAR(player.angles.x), pv[1].y), SCALAR(32));
+
+				neighbor_z2 = neighbor_z0 - SCALAR(sectors[portal_sector_id]->ceiling_height) + SCALAR(sectors[portal_sector_id]->floor_height);
+				neighbor_z3 = neighbor_z1 - SCALAR(sectors[portal_sector_id]->ceiling_height) + SCALAR(sectors[portal_sector_id]->floor_height);
+
+				// just do the clipping anyway, whatever
+
+				//scalar_t dummy_x0 = pv[0].x;
+				//scalar_t dummy_y0 = pv[0].y;
+
+				//scalar_t dummy_x1 = pv[1].x;
+				//scalar_t dummy_y1 = pv[1].y;
+
+				//ClipWall(&dummy_x0, &dummy_y0, &neighbor_z0, pv[1].x, pv[1].y, neighbor_z1);
+				//ClipWall(&dummy_x1, &dummy_y0, &neighbor_z1, pv[0].x, pv[0].y, neighbor_z0);
+
+				neighbor_sy0 = ScalarToInteger(DIV(MUL(neighbor_z0, SCALAR(150)), pv[0].y)) + (dst->height / 2);
+				neighbor_sy1 = ScalarToInteger(DIV(MUL(neighbor_z1, SCALAR(150)), pv[1].y)) + (dst->height / 2);
+
+				neighbor_sy2 = ScalarToInteger(DIV(MUL(neighbor_z2, SCALAR(150)), pv[2].y)) + (dst->height / 2);
+				neighbor_sy3 = ScalarToInteger(DIV(MUL(neighbor_z3, SCALAR(150)), pv[3].y)) + (dst->height / 2);
+
+				// If our floor height is lower than theirs, draw a wall
+				if (sectors[portal_sector_id]->floor_height > sector->floor_height)
+					RenderWall(dst, dst_area, sector, wall, sv[0].x, sv[1].x, sv[0].y, sv[1].y, neighbor_sy0, neighbor_sy1, true, false, true);
+
+				// If their ceiling is lower than ours, draw a wall
+				if (sectors[portal_sector_id]->ceiling_height < sector->ceiling_height)
+					RenderWall(dst, dst_area, sector, wall, sv[0].x, sv[1].x, neighbor_sy2, neighbor_sy3, sv[2].y, sv[3].y, false, true, true);
+			}
 			else
-				Picture::DrawVerticalLine(dst, x, y1, y2, wall->color);
-
-			// Ceiling trim
-			Picture::DrawPixel(dst, x, y2, 0);
-
-			// Floor trim
-			Picture::DrawPixel(dst, x, y1, 0);
+			{
+				RenderWall(dst, dst_area, sector, wall, sv[0].x, sv[1].x, sv[0].y, sv[1].y, sv[2].y, sv[3].y, true, true, false);
+			}
 		}
-
-		if (is_portal == true) RenderSector(dst, wall_area, portal_sector_id);
+		else
+		{
+			RenderWall(dst, dst_area, sector, wall, sv[0].x, sv[1].x, sv[0].y, sv[1].y, sv[2].y, sv[3].y, true, true, true);
+		}
 	}
 
 	// Now that we're at the end of the frame, mark this sector as un-rendered
@@ -795,6 +861,48 @@ void SectorsShutdown()
 	for (i = 0; i < MAX_WALLS; i++) FreePortal(i);
 }
 
+// Generate portals from a given list of sectors and walls
+void GeneratePortals()
+{
+	// loopers & wall id
+	int i, x, w;
+
+	// testing array (initialized to -1)
+	int tester[MAX_WALLS];
+
+	for (i = 0; i < MAX_WALLS; i++)
+	{
+		tester[i] = -1;
+	}
+
+	// loop through all sectors
+	for (i = 0; i < MAX_SECTORS; i++)
+	{
+		// check if the sector exists
+		if (sectors[i] != NULL && sectors[i]->walls != NULL)
+		{
+			// loop through all the walls in the sector
+			for (x = 0; x < sectors[i]->num_walls; x++)
+			{
+				// get the id of this wall
+				w = sectors[i]->walls[x];
+
+				// if the wall id already has an attached sector id, create a portal
+				// otherwise, add the current sector id to the array
+				if (tester[w] != -1 && tester[w] != i)
+				{
+					AddPortal(w, i, tester[w]);
+					tester[w] = -1;
+				}
+				else
+				{
+					tester[w] = i;
+				}
+			}
+		}
+	}
+}
+
 // Make some world data
 void SectorsInit()
 {
@@ -824,10 +932,55 @@ void SectorsInit()
 	AddSector(0, 6, walls0, 0, 256, 143, 143);
 
 	int16_t walls1[4] = {2, 6, 7, 8};
-	AddSector(1, 4, walls1, 0, 256, 143, 143);
+	AddSector(1, 4, walls1, 32, 224, 63, 47);
 
-	// Add a portal connecting the two spaces
-	AddPortal(2, 0, 1);
+	// Generate the portals
+	GeneratePortals();
+
+	/* old rooms
+
+	// Add some vertices
+	AddVertex(0, SCALAR(-256), SCALAR(256));
+	AddVertex(1, SCALAR(0), SCALAR(256));
+	AddVertex(2, SCALAR(256), SCALAR(256));
+	AddVertex(3, SCALAR(256), SCALAR(0));
+	AddVertex(4, SCALAR(256), SCALAR(-256));
+	AddVertex(5, SCALAR(0), SCALAR(-256));
+	AddVertex(6, SCALAR(-256), SCALAR(-256));
+	AddVertex(7, SCALAR(-256), SCALAR(0));
+	AddVertex(8, SCALAR(0), SCALAR(0));
+
+	// Add some walls
+	AddWall(0, 0, 1, 150); // outer walls
+	AddWall(1, 1, 2, 159);
+	AddWall(2, 2, 3, 150);
+	AddWall(3, 3, 4, 159);
+	AddWall(4, 4, 5, 150);
+	AddWall(5, 5, 6, 159);
+	AddWall(6, 6, 7, 150);
+	AddWall(7, 7, 0, 159);
+	AddWall(8, 1, 8, 150); // inner walls
+	AddWall(9, 8, 3, 159);
+	AddWall(10, 8, 5, 150);
+	AddWall(11, 8, 7, 159);
+
+	// Add some sectors
+	int16_t walls0[4] = {0, 8, 11, 7};
+	AddSector(0, 4, walls0, 0, 192, 143, 138);
+
+	int16_t walls1[4] = {1, 2, 9, 8};
+	AddSector(1, 4, walls1, 0, 192, 143, 138);
+
+	int16_t walls2[4] = {9, 3, 4, 10};
+	AddSector(2, 4, walls2, 0, 192, 143, 138);
+
+	int16_t walls3[4] = {11, 10, 5, 6};
+	AddSector(3, 4, walls3, 32, 160, 63, 138);
+
+	// Generate the portals
+	GeneratePortals();
+
+	*/
 }
 
 #endif
@@ -933,7 +1086,7 @@ int main(int argc, char *argv[])
 		#ifdef PORTREND
 		// Sector rendering
 		{
-			RenderSector(&pic_bbuffer, RECT(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT), player.sector_id);
+			RenderSector(&pic_bbuffer, RECT(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT), player.sector_id, -1);
 		}
 		#endif
 
