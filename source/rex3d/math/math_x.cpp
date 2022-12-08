@@ -43,6 +43,8 @@ int fixdot3(int a1, int b1, int a2, int b2, int a3, int b3)
 	return ((int64_t)a1 * b1 + (int64_t)a2 * b2 + (int64_t)a3 * b3) >> 16;
 }
 
+#ifdef UNDONE
+
 //
 // Fixed sin, cos, tan, cot
 //
@@ -128,3 +130,5 @@ fix32_t cotFixed(uint8_t brads)
 		default: return 0;
 	}
 }
+
+#endif

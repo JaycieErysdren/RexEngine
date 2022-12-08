@@ -112,11 +112,8 @@ using namespace std;
 // Fixed-point math
 #include "math/math_x.hpp"
 
-// Matrix
-#include "math/matrix.hpp"
-
-// Fixed-point sin table
-#include "math/sintable.hpp"
+// MathTable class
+#include "math/mathtabl.hpp"
 
 //
 // Hardware drivers
@@ -131,6 +128,16 @@ using namespace std;
 
 // VGA
 #include "viddrv/vga.hpp"
+
+//
+// Renderers
+//
+
+// Raycast renderer
+#include "rend/raycastr.hpp"
+
+// Sector/Portal renderer
+#include "rend/portrend.hpp"
 
 //
 // Thirdparty I/O 

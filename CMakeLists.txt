@@ -59,10 +59,8 @@ set(REX3D_HWDRV_SRC
 set(REX3D_MATH_SRC
 	${CMAKE_SOURCE_DIR}/source/rex3d/math/math_i.cpp
 	${CMAKE_SOURCE_DIR}/source/rex3d/math/math_x.cpp
-	${CMAKE_SOURCE_DIR}/source/rex3d/math/matrix.cpp
+	${CMAKE_SOURCE_DIR}/source/rex3d/math/mathtabl.cpp
 	${CMAKE_SOURCE_DIR}/source/rex3d/math/sintable.cpp
-	${CMAKE_SOURCE_DIR}/source/rex3d/math/sintable2.cpp
-	${CMAKE_SOURCE_DIR}/source/rex3d/math/tables.cpp
 )
 
 set(REX3D_THRDPRTY_SRC
