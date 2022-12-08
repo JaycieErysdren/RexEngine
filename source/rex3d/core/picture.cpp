@@ -23,8 +23,58 @@ namespace Picture
 
 //
 //
+// Globals
+//
+//
+
+pic_t front_buffer_13h;
+VESA::VidInfo vidinfo;
+
+//
+//
 // Functions
 //
+//
+
+//
+// Working with the front buffer
+//
+
+// Create a picture that points directly to the current video buffer
+void InitializeFrontBuffer()
+{
+	vidinfo = VESA::GetVidInfo();
+
+	//if (vidinfo.width == 320 && vidinfo.height == 200 && vidinfo.bpp == 8)
+	//{
+	//	Create(&front_buffer_13h, vidinfo.width, vidinfo.height, vidinfo.bpp, 0, (void *)VGA_VIDMEM_PTR);
+	//}
+}
+
+void ShutdownFrontBuffer()
+{
+	//if (vidinfo.width == 320 && vidinfo.height == 200 && vidinfo.bpp == 8)
+	//{
+	//	Destroy(&front_buffer_13h);
+	//}
+}
+
+void CopyToFrontBuffer(pic_t *src)
+{
+	VESA::PlaceBuffer((int8_t *)src->buffer, vidinfo.width * vidinfo.height * (vidinfo.bpp / 8));
+
+	//if (vidinfo.width == 320 && vidinfo.height == 200 && vidinfo.bpp == 8)
+	//{
+	//	Copy(&front_buffer_13h, src);
+	//}
+	//else
+	//{
+	//	VESA::PlaceBuffer((int8_t *)src->buffer, vidinfo.width * vidinfo.height * (vidinfo.bpp / 8));
+	//}
+}
+
+//
+// Picture creation / destruction
 //
 
 // creates a picture. allocates required pixel buffer and pre-calculates scanline pointers.

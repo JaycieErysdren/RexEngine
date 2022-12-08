@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		VGA namespace implementation
 //
-// LAST EDITED:		November 30th, 2022
+// LAST EDITED:		December 7th, 2022
 //
 // ========================================================
 
@@ -57,13 +57,20 @@ uint8_t *buffer_front;
 // Bootstrap
 //
 
-// Initialize
-void Initialize()
+// Initialize the VGA driver with the specified width, height and bpp
+bool Initialize(int w, int h, int bpp)
 {
+	int16_t mode;
+
+	if (w == 320 && h == 200 && bpp == 8)
+		mode = 0x13;
+	else
+		return false;
+
 	// Set VGA mode 0x13
 	union REGS r;
 	r.h.ah = 0x00;
-	r.h.al = 0x13;
+	r.h.al = mode;
 	int86(0x10, &r, &r);
 
 	#ifdef OLD_VGA
@@ -75,6 +82,8 @@ void Initialize()
 	buffer_front = (uint8_t *)(0xa0000 + __djgpp_conventional_base);
 	memset(buffer_front, 0, 64000);
 	#endif
+
+	return true;
 }
 
 // Shutdown

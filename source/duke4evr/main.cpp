@@ -94,31 +94,6 @@ uint8_t map[MAP_X][MAP_Y] = {
 uint8_t textures[1][TEXTURE_Y * TEXTURE_X];
 
 //
-// Dithering functions
-//
-// https://www.youtube.com/watch?v=N8elxpSu9pw
-//
-
-unsigned Dither8x8[8][8];
-unsigned DitherCandCount = 64;
-
-void InitDither()
-{
-	// Create bayer dithering matrix, adjusted for candidate count
-	for(unsigned y=0; y<8; ++y)
-	{
-		for(unsigned x=0; x<8; ++x)
-		{
-			unsigned i = x ^ y, j;
-			j = (x & 4)/4u + (x & 2)*2u + (x & 1)*16u;
-			i = (i & 4)/2u + (i & 2)*4u + (i & 1)*32u;
-			Dither8x8[y][x] = (j+i)*DitherCandCount/64u;
-		}
-	}
-}
-
-
-//
 // Raycast rendering functions
 //
 
@@ -559,26 +534,24 @@ int main(int argc, char *argv[])
 	// Initialize texture data
 	GenerateTextures();
 
-	// Initialize dithering
-	InitDither();
-
 	// Initialize DOS
 	DOS::Initialize();
 
-	// Initialize VGA
-	VGA::Initialize();
-	VGA::SetPalette("gfx/duke3d.pal");
+	// Initialize VESA
+	if (VESA::Initialize(320, 200, 8) == false) return EXIT_FAILURE;
+	VESA::SetPalette("gfx/duke3d.pal");
+	VESA::VidInfo vidinfo = VESA::GetVidInfo();
 
 	// Initialize colormap
 	Colormap::Load("gfx/duke3d.tab");
 
 	// Create pictures
 	Console::Initialize();
+	Picture::InitializeFrontBuffer();
 	Picture::LoadBMP(&pic_font, "gfx/font8x8.bmp");
 	Picture::LoadBMP(&pic_shotgun, "gfx/shot001a.bmp");
 	Picture::LoadBMP(&pic_wall, "tex_bmp/duke3d/wall001.bmp");
-	Picture::Create(&pic_fbuffer, SCREEN_WIDTH, SCREEN_HEIGHT, 8, 0, (void *)VGA_VIDMEM_PTR);
-	Picture::Create(&pic_bbuffer, SCREEN_WIDTH, SCREEN_HEIGHT, 8, 0, 0);
+	Picture::Create(&pic_bbuffer, vidinfo.width, vidinfo.height, vidinfo.bpp, 0, 0);
 
 	// Start counting time
 	frame_end = DOS::TimerGet64();
@@ -615,29 +588,29 @@ int main(int argc, char *argv[])
 
 		// Raycaster rendering
 		{
-			RenderRays(&pic_bbuffer, RECT(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
+			RenderRays(&pic_bbuffer, RECT(0, 0, vidinfo.width, vidinfo.height));
 		}
 
 		// HUD elements
 		{
-			Picture::Draw8(&pic_bbuffer, &pic_shotgun, 200, 116, Picture::COLORKEY);
+			Picture::Draw8(&pic_bbuffer, &pic_shotgun, vidinfo.width / 2, vidinfo.height - 84, Picture::COLORKEY);
 
-			DrawMap(&pic_bbuffer, SCREEN_WIDTH - (2 * MAP_X) - 1, 0, 2, 2);
+			DrawMap(&pic_bbuffer, vidinfo.width - (2 * MAP_X) - 1, 0, 2, 2);
 		}
 
 		// Render the console text
 		//Picture::DrawRectangle(&pic_bbuffer, 0, 0, 256, 16, 0, true);
-		Console::Render(&pic_bbuffer, &pic_font);
+		Console::Render(&pic_bbuffer, &pic_font, 8);
 
 		// Flip the rendering buffers
-		Picture::Copy(&pic_fbuffer, &pic_bbuffer);
+		Picture::CopyToFrontBuffer(&pic_bbuffer);
 
 		// Get end of frame time
 		frame_end = frame_end + cycles * UCLOCKS_PER_SEC / CYCLES;
 	}
 
-	// Shutdown VGA
-	VGA::Shutdown();
+	// Shutdown VESA
+	VESA::Shutdown();
 
 	// Shutdown DOS
 	DOS::Shutdown();
@@ -645,10 +618,10 @@ int main(int argc, char *argv[])
 	// Cleanup memory
 	Console::Shutdown();
 	Picture::Destroy(&pic_font);
-	Picture::Destroy(&pic_fbuffer);
 	Picture::Destroy(&pic_bbuffer);
 	Picture::Destroy(&pic_shotgun);
 	Picture::Destroy(&pic_wall);
+	Picture::ShutdownFrontBuffer();
 
 	// Exit gracefully
 	return EXIT_SUCCESS;

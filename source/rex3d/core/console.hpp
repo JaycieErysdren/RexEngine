@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Console namespace header
 //
-// LAST EDITED:		December 1st, 2022
+// LAST EDITED:		December 7th, 2022
 //
 // ========================================================
 
@@ -30,5 +30,5 @@ namespace Console
 	void AddTextF(int x, int y, const char *fmt, ...);
 
 	// Render the console to the given buffer
-	void Render(Picture::pic_t *dst, Picture::pic_t *font);
+	void Render(Picture::pic_t *dst, Picture::pic_t *font, int font_size);
 }

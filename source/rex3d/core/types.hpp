@@ -22,6 +22,12 @@
 #define SCREEN_HEIGHT 200
 
 //
+// Struct packing
+//
+
+#define ATTR_PACKED					__attribute__ ((packed))
+
+//
 // Shortcut macros
 //
 

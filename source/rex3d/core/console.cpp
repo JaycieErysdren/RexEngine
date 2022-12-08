@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Console namespace implementation
 //
-// LAST EDITED:		December 1st, 2022
+// LAST EDITED:		December 7th, 2022
 //
 // ========================================================
 
@@ -69,7 +69,7 @@ void AddTextF(int x, int y, const char *fmt, ...)
 }
 
 // Render the console to the given buffer
-void Render(Picture::pic_t *dst, Picture::pic_t *font)
+void Render(Picture::pic_t *dst, Picture::pic_t *font, int font_size)
 {
 	int x, y;
 
@@ -77,11 +77,11 @@ void Render(Picture::pic_t *dst, Picture::pic_t *font)
 	{
 		for (x = pic_console.width; x--;)
 		{
-			int xx = x << 3, yy = y << 3;
+			int xx = x * font_size, yy = y * font_size;
 
 			int c = pic_console.scanlines.b[y][x] << 3;
 
-			Picture::Blit8(dst, xx, yy, xx + 8, yy + 8, font, c, 0, c + 8, 8, Picture::COLORKEY);
+			Picture::Blit8(dst, xx, yy, xx + font_size, yy + font_size, font, c, 0, c + 8, 8, Picture::COLORKEY);
 		}
 	}
 }

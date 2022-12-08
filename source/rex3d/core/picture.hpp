@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Picture namespace header
 //
-// LAST EDITED:		December 1st, 2022
+// LAST EDITED:		December 7th, 2022
 //
 // ========================================================
 
@@ -63,6 +63,18 @@ namespace Picture
 	//
 	// Functions
 	//
+	//
+
+	//
+	// Front buffer
+	//
+
+	void InitializeFrontBuffer();
+	void ShutdownFrontBuffer();
+	void CopyToFrontBuffer(pic_t *src);
+
+	//
+	// Creation, destruction, etc
 	//
 
 	void Create(pic_t *picture, int width, int height, int bpp, int bytes_per_row, void* buffer);

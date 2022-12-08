@@ -129,6 +129,9 @@ using namespace std;
 // VGA
 #include "viddrv/vga.hpp"
 
+// VESA
+#include "viddrv/vesa.hpp"
+
 //
 // Renderers
 //

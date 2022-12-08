@@ -32,6 +32,7 @@ set(CMAKE_BUILD_TYPE Release)
 ##
 
 add_compile_options("-O3")
+add_compile_options("-Wno-attributes")
 
 ##
 ## Project Thirdparty Libraries
@@ -70,6 +71,7 @@ set(REX3D_THRDPRTY_SRC
 
 set(REX3D_VIDDRV_SRC
 	${CMAKE_SOURCE_DIR}/source/rex3d/viddrv/vga.cpp
+	${CMAKE_SOURCE_DIR}/source/rex3d/viddrv/vesa.cpp
 )
 
 add_library(rex3d STATIC

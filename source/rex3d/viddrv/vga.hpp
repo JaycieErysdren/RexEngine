@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		VGA namespace header
 //
-// LAST EDITED:		November 30th, 2022
+// LAST EDITED:		December 7th, 2022
 //
 // ========================================================
 
@@ -42,7 +42,7 @@ namespace VGA
 	//
 
 	// Set mode 13h
-	void Initialize();
+	bool Initialize(int w, int h, int bpp);
 
 	// Return to text mode
 	void Shutdown();
