@@ -332,7 +332,7 @@ void PlayerController()
 	delta_my = my_prev - my;
 
 	// Mouse look
-	if (mb == 1 && delta_mx != 0) player.angles.y -= delta_mx;
+	if (mb == 1 && delta_mx != 0) player.angles.y += delta_mx;
 	if (mb == 2 && delta_my != 0) player.angles.x += delta_my;
 
 	// Reset pitch
