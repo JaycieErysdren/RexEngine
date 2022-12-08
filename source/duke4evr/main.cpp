@@ -51,7 +51,7 @@ math_t math;
 char console_buffer[256];
 
 Picture::pic_t pic_wall;
-bool texturemapping = false;
+bool texturemapping = true;
 
 //
 // Raycaster globals
@@ -210,23 +210,27 @@ void RenderRays(Picture::pic_t *dst, rect_t area)
 				if (side == false) wall_x = player.origin.y + MUL(perp_wall_dist, raydir.y);
 				else wall_x = player.origin.x + MUL(perp_wall_dist, raydir.x);
 
+				wall_x -= FLOOR(wall_x);
+
 				//x coordinate on the texture
 				int tex_x = ScalarToInteger(MUL(wall_x, SCALAR(TEXTURE_X)));
 				if (side == false && raydir.x > 0) tex_x = TEXTURE_X - tex_x - 1;
 				if (side == true && raydir.y < 0) tex_x = TEXTURE_X - tex_x - 1;
 
 				// How much to increase the texture coordinate per screen pixel
-				scalar_t step = DIV(MUL(SCALAR(1.0f), SCALAR(TEXTURE_X)), SCALAR(line_height));
+				scalar_t step = SAFEDIV(MUL(SCALAR(1.0f), SCALAR(TEXTURE_X)), SCALAR(line_height));
 
 				// Starting texture coordinate
 				scalar_t texcoord = MUL(SCALAR(drawStart - (draw_h / 2) + (line_height / 2)), step);
+
+				// it turns out this isn't really any faster...
+				//Picture::Blit8(dst, x, drawStart, x + 1, drawEnd, &pic_wall, tex_x, 0, 1, pic_wall.height, Picture::COPY);
 
 				for (int y = drawStart; y < drawEnd; y++)
 				{
 					// Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
 					int tex_y = ScalarToInteger(texcoord) & (TEXTURE_Y - 1);
 					texcoord += step;
-					//uint8_t color = textures[0][TEXTURE_Y * tex_y + tex_x];
 					uint8_t color = Picture::GetPixel(&pic_wall, tex_x, tex_y);
 
 					// Lookup in colormap for brightness

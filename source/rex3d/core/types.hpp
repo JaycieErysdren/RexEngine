@@ -87,6 +87,16 @@ typedef fixed_32uf_t				ufraction_t;
 #define X_ONE_16U					(1 << 8)
 #define X_ONE_16UF					(1 << 8) 
 
+#define X_MASK_32S					(0xFFFF << 16)
+#define X_MASK_32SF					(0xFFFF >> 16)
+#define X_MASK_32U					(0xFFFF << 16)
+#define X_MASK_32UF					(0xFFFF >> 16)
+
+#define X_MASK_16S					(0xFFFF << 8)
+#define X_MASK_16SF					(0xFFFF >> 8)
+#define X_MASK_16U					(0xFFFF << 8)
+#define X_MASK_16UF					(0xFFFF >> 8)
+
 //
 // Macros for static initialization
 //
@@ -152,12 +162,13 @@ typedef fixed_32uf_t				ufraction_t;
 
 #define MUL(a, b)					(((int64_t)(a) * (b)) >> 16)
 #define DIV(a, b)					(((int64_t)(a) << 16) / (b))
-
-// result: (a * b) / c
 #define MULDIV(a, b, c)				(DIV(MUL((a), (b)), (c)))
-#define SAFEMULDIV(a, b, c)			(SAFEDIV(MUL((a), (b)), (c)))
 
 #define SAFEDIV(a, b)				((((a) == 0) || (b) == 0) ? SCALAR_MIN : DIV((a), (b)))
+#define SAFEMULDIV(a, b, c)			(SAFEDIV(MUL((a), (b)), (c)))
+
+#define FLOOR(a)					((a) & X_MASK_32S)
+#define CEIL(a)						(((a) & X_MASK_32SF == 0) ? (a) : ((a) + X_ONE_32S) & X_MASK_32S)
 
 //
 // Vector types & macros
