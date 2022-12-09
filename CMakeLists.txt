@@ -31,7 +31,7 @@ set(CMAKE_BUILD_TYPE Release)
 ## Project Compile Options
 ##
 
-add_compile_options("-O3")
+add_compile_options("-Ofast")
 add_compile_options("-Wno-attributes")
 
 ##
