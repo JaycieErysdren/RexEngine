@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		DOS namespace header
 //
-// LAST EDITED:		December 3rd, 2022
+// LAST EDITED:		December 9th, 2022
 //
 // ========================================================
 
@@ -86,7 +86,10 @@ namespace DOS
 	void MouseShutdown();
 
 	// Read mouse position (returns mouse buttons mask)
-	int MouseRead(int16_t *x, int16_t *y);
+	int16_t MouseRead(int16_t *x, int16_t *y);
+
+	// Set mouse position
+	void MouseSet(int16_t x, int16_t y);
 
 	//
 	// Keyboard

@@ -29,6 +29,10 @@ int main(int argc, char *argv[])
 	int i;
 	char console_buffer[256];
 
+	// Mouse variables
+	vec2i_t mpos;
+	int16_t mx, my, mb, mxprev, myprev;
+
 	// Picture buffers
 	Picture::pic_t pic_font;
 	Picture::pic_t pic_bbuffer;
@@ -58,14 +62,17 @@ int main(int argc, char *argv[])
 		//
 
 		// Read mouse
-		int16_t mx, my, mb;
 		mb = DOS::MouseRead(&mx, &my);
+		DOS::MouseSet(160, 100);
+
+		mpos.x += mx - 160;
+		mpos.y += my - 100;
 
 		// Clip mouse
-		if (mx < 0) mx = 0;
-		if (mx > pic_bbuffer.width - pic_cursor.width) mx = pic_bbuffer.width - pic_cursor.width;
-		if (my < 0) my = 0;
-		if (my > pic_bbuffer.height - pic_cursor.height) my = pic_bbuffer.height - pic_cursor.height;
+		if (mpos.x < 0) mpos.x = 0;
+		if (mpos.x > pic_bbuffer.width - pic_cursor.width) mpos.x = pic_bbuffer.width - pic_cursor.width;
+		if (mpos.y < 0) mpos.y = 0;
+		if (mpos.y > pic_bbuffer.height - pic_cursor.height) mpos.y = pic_bbuffer.height - pic_cursor.height;
 
 		//
 		// Rendering
@@ -78,9 +85,9 @@ int main(int argc, char *argv[])
 		Picture::Blit8(&pic_bbuffer, 0, 0, pic_bbuffer.width, pic_bbuffer.height, &pic_background, 0, 0, pic_background.width, pic_background.height, Picture::COPY);
 
 		// Blit the mouse
-		Picture::Blit8(&pic_bbuffer, mx, my, mx + pic_cursor.width, my + pic_cursor.height, &pic_cursor, 0, 0, pic_cursor.width, pic_cursor.height, Picture::COLORKEY);
+		Picture::Blit8(&pic_bbuffer, mpos.x, mpos.y, mpos.x + pic_cursor.width, mpos.y + pic_cursor.height, &pic_cursor, 0, 0, pic_cursor.width, pic_cursor.height, Picture::COLORKEY);
 
-		sprintf(console_buffer, "mx: %d my: %d", mx, my);
+		sprintf(console_buffer, "mx: %d my: %d", mpos.x, mpos.y);
 		Console::AddText(0, 0, console_buffer);
 
 		// Render the console text

@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		DOS namespace implementation
 //
-// LAST EDITED:		December 1st, 2022
+// LAST EDITED:		December 9th, 2022
 //
 // ========================================================
 
@@ -119,7 +119,7 @@ void DOS::MouseShutdown()
 }
 
 // Read mouse position (returns mouse buttons mask)
-int DOS::MouseRead(int16_t *x, int16_t *y)
+int16_t DOS::MouseRead(int16_t *x, int16_t *y)
 {
 	union REGS r;
 	r.x.ax = 0x03;
@@ -127,6 +127,16 @@ int DOS::MouseRead(int16_t *x, int16_t *y)
 	if (x) *x = r.x.cx;
 	if (y) *y = r.x.dx;
 	return r.x.bx;
+}
+
+// Set mouse position
+void DOS::MouseSet(int16_t x, int16_t y)
+{
+	union REGS r;
+	r.x.ax = 0x04;
+	r.x.cx = x;
+	r.x.dx = y;
+	int86(0x33, &r, &r);
 }
 
 //
