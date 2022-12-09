@@ -10,7 +10,7 @@
 ##
 ## DESCRIPTION:		Duke4Ever CMake project definition
 ##
-## LAST EDITED:		December 7th, 2022
+## LAST EDITED:		December 8th, 2022
 ##
 ## ========================================================
 
@@ -103,3 +103,18 @@ set_target_properties(duke4evr
 	LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/builddos"
 	RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/builddos"
 )
+
+set(TESTBED_SRC
+	${CMAKE_SOURCE_DIR}/source/testbed/main.cpp
+)
+
+add_executable(testbed ${TESTBED_SRC})
+target_link_libraries(testbed rex3d)
+target_include_directories(testbed PUBLIC ${CMAKE_SOURCE_DIR}/source)
+set_target_properties(testbed
+	PROPERTIES
+	ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/builddos"
+	LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/builddos"
+	RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/builddos"
+)
+
