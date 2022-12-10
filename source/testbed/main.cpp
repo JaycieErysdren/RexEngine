@@ -41,7 +41,7 @@ typedef struct
 // Globals
 //
 
-scalar_t heightmap[64][64];
+int32_t heightmap[64][64];
 uint8_t colormap[64][64];
 vec3s_t pos;
 vec3i_t ang;
@@ -98,12 +98,12 @@ void VoxelGenerate()
 
 			if (d > 0 && ((x ^ y) & 32))
 			{
-				heightmap[y][x] = SCALAR(0 + sqrt(d));
+				heightmap[y][x] = (0 + sqrt(d));
 				colormap[y][x] = ((x + y) * 0.5f) + 64;
 			}
 			else
 			{
-				heightmap[y][x] = SCALAR(0);
+				heightmap[y][x] = (0);
 				colormap[y][x] = ((cos(x * 0.2f) + sin(y * 0.3f)) * 3 + 88) + 64;
 			}
 		}
@@ -143,24 +143,19 @@ void VoxelRender(Picture::pic_t *dst, rect_t area)
 	scalar_t cs = math.cos[camera.angles.y];
 
 	// r160
-	scalar_t r160 = DIV(SCALAR(1), SCALAR(draw_w / 2));
-	scalar_t r100 = DIV(SCALAR(1), SCALAR(draw_h / 2));
-
-	scalar_t draw_distance = MUL(r160, camera.draw_distance);
-
-	// Horizon
-	int horizon = -(draw_h / 4);
+	vec2s_t r;
+	r.x = DIV(SCALAR(2), SCALAR(draw_w));
+	r.y = DIV(SCALAR(2), SCALAR(draw_h));
 
 	// View direction
 	vec3s_t raydir;
 	raydir.x = cs - sn;
 	raydir.y = sn + cs;
-	raydir.z = r100;
 
 	vec3s_t rayinc;
-	rayinc.x = MUL(-sn, r160);
-	rayinc.y = MUL(cs, r160);
-	rayinc.z = -r100;
+	rayinc.x = MUL(-sn, r.x);
+	rayinc.y = MUL(cs, r.x);
+	rayinc.z = r.y;
 
 	// Ray position
 	vec3s_t raypos;
@@ -169,43 +164,43 @@ void VoxelRender(Picture::pic_t *dst, rect_t area)
 	for (int sx = area.x1; sx < area.x2; sx++)
 	{
 		raypos = camera.origin;
-		raydir.z = MUL(SCALAR((draw_h / 2) - horizon), r100);
-
-		int sy = area.y2;
+		raydir.z = MUL(SCALAR((draw_h / 2) - -(draw_h / 4)), r.y);
 
 		uint8_t c;
 		scalar_t h;
 
-		// Ray marching loop
-		for (scalar_t scan = 0; scan < camera.draw_distance; scan += SCALAR(1))
+		// Vertical scan loop
+		for (int sy = area.y1; sy < area.y2; sy++)
 		{
-			raypos.x += raydir.x;
-			raypos.y += raydir.y;
-			raypos.z += raydir.z;
-
-			if (raypos.x > SCALAR(63) || raypos.x < SCALAR(0) || raypos.y > SCALAR(63) || raypos.y < SCALAR(0)) break;
-
-			c = colormap[ScalarToInteger(raypos.y)][ScalarToInteger(raypos.x)];
-			h = heightmap[ScalarToInteger(raypos.y)][ScalarToInteger(raypos.x)];
-
-			if (scan > 0)
+			// Ray marching loop
+			for (scalar_t scan = 0; scan < camera.draw_distance; scan += SCALAR(1))
 			{
-				for (scalar_t z = raypos.z; z > 0; z -= scan)
+				raypos.x += raydir.x;
+				raypos.y += raydir.y;
+				raypos.z += raydir.z;
+
+				vec3i_t pos;
+				pos.x = ScalarToInteger(raypos.x);
+				pos.y = ScalarToInteger(raypos.y);
+				pos.z = ScalarToInteger(raypos.z);
+
+				if (pos.x > 63 || pos.x < 0 || pos.y > 63 || pos.y < 0) break;
+
+				uint8_t c = colormap[pos.y][pos.x];
+				int32_t h = heightmap[pos.y][pos.x];
+
+				if (SCALAR(h) <= raypos.z)
 				{
-					if (h > z)
-					{
-						Picture::DrawPixel(dst, sx, sy, c);
-						sy -= 1;
-					}
+					Picture::DrawPixel(dst, sx, sy, c);
+					break;
 				}
 			}
+
+			raydir.z -= rayinc.z;
 		}
 
 		raydir.x += rayinc.x;
 		raydir.y += rayinc.y;
-		raydir.z += rayinc.z;
-
-		//Picture::DrawVerticalLine(dst, sx, area.y1, draw_h / 3, 0);
 	}
 
 	bool draw_map = true;
@@ -221,7 +216,7 @@ void VoxelRender(Picture::pic_t *dst, rect_t area)
 				Picture::DrawPixel(dst, x, y, colormap[y][x]);
 
 				// Height map
-				Picture::DrawPixel(dst, x + 64, y, ScalarToInteger(heightmap[y][x]));
+				Picture::DrawPixel(dst, x + 64, y, heightmap[y][x]);
 			}
 		}
 
