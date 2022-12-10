@@ -121,7 +121,7 @@ void VoxelInit()
 	// Position (scalar units)
 	camera.origin.x = SCALAR(32);
 	camera.origin.y = SCALAR(32);
-	camera.origin.z = SCALAR(32);
+	camera.origin.z = SCALAR(16);
 
 	// Angle (degrees)
 	camera.angles.x = 0; // pitch
@@ -129,7 +129,7 @@ void VoxelInit()
 	camera.angles.z = 0; // roll
 
 	// Draw distance (scalar units)
-	camera.draw_distance = SCALAR(8);
+	camera.draw_distance = SCALAR(128);
 }
 
 void VoxelRender(Picture::pic_t *dst, rect_t area)
@@ -142,70 +142,74 @@ void VoxelRender(Picture::pic_t *dst, rect_t area)
 	scalar_t sn = math.sin[camera.angles.y];
 	scalar_t cs = math.cos[camera.angles.y];
 
-	// r160
-	vec2s_t r;
-	r.x = DIV(SCALAR(2), SCALAR(draw_w));
-	r.y = DIV(SCALAR(2), SCALAR(draw_h));
+	// Current color and height
+	uint8_t c;
+	int32_t h;
 
-	// View direction
-	vec3s_t raydir;
-	raydir.x = cs - sn;
-	raydir.y = sn + cs;
-
-	vec3s_t rayinc;
-	rayinc.x = MUL(-sn, r.x);
-	rayinc.y = MUL(cs, r.x);
-	rayinc.z = r.y;
-
-	// Ray position
+	// Curerent Ray position
 	vec3s_t raypos;
-	
-	// Horizontal scan loop 
-	for (int sx = area.x1; sx < area.x2; sx++)
+	vec3i_t raypos_i;
+
+	// Ray starting direction
+	vec3s_t raydir;
+
+	// Ray horizontal increment value
+	vec2s_t rayinc;
+	rayinc.x = DIV(SCALAR(2.0f), SCALAR(draw_w));
+	rayinc.y = DIV(SCALAR(2.0f), SCALAR(draw_h));
+
+	// screen pixel coordinates
+	vec2i_t sc;
+
+	for (sc.x = area.x1; sc.x < area.x2; sc.x++)
 	{
+		// Ray starting position
 		raypos = camera.origin;
-		raydir.z = MUL(SCALAR((draw_h / 2) - -(draw_h / 4)), r.y);
 
-		uint8_t c;
-		scalar_t h;
+		// Calculate ray starting direction
+		raydir.x = MUL(rayinc.x, SCALAR(sc.x)) - SCALAR(1.0f);
+		raydir.y = SCALAR(1.0f);
 
-		// Vertical scan loop
-		for (int sy = area.y1; sy < area.y2; sy++)
+		// rotate around 0,0 by player.angles.y
+		vec3s_t temp = raydir;
+
+		raydir.x = MUL(temp.x, cs) - MUL(temp.y, sn);
+		raydir.y = MUL(temp.x, sn) + MUL(temp.y, cs);
+
+		// min and max draw distance
+		for (scalar_t scan = SCALAR(1); scan < camera.draw_distance; scan += SCALAR(1))
 		{
-			// Ray marching loop
-			for (scalar_t scan = 0; scan < camera.draw_distance; scan += SCALAR(1))
-			{
-				raypos.x += raydir.x;
-				raypos.y += raydir.y;
-				raypos.z += raydir.z;
+			// march the ray
+			raypos.x += raydir.x;
+			raypos.y += raydir.y;
+			raypos.z += raydir.z;
 
-				vec3i_t pos;
-				pos.x = ScalarToInteger(raypos.x);
-				pos.y = ScalarToInteger(raypos.y);
-				pos.z = ScalarToInteger(raypos.z);
+			// round it
+			raypos_i.x = ScalarToInteger(raypos.x);
+			raypos_i.y = ScalarToInteger(raypos.y);
+			raypos_i.z = ScalarToInteger(raypos.z);
 
-				if (pos.x > 63 || pos.x < 0 || pos.y > 63 || pos.y < 0) break;
+			// distance
+			scalar_t dist = SCALAR(sqrt(pow(ScalarToFloat(camera.origin.x - raypos.x), 2) + pow(ScalarToFloat(camera.origin.y - raypos.y), 2)));
 
-				uint8_t c = colormap[pos.y][pos.x];
-				int32_t h = heightmap[pos.y][pos.x];
+			// dont cast past the world boundaries
+			if (raypos_i.x > 63 || raypos_i.x < 0 || raypos_i.y > 63 || raypos_i.y < 0) break;
 
-				if (SCALAR(h) <= raypos.z)
-				{
-					Picture::DrawPixel(dst, sx, sy, c);
-					break;
-				}
-			}
+			// get current color and height
+			c = colormap[raypos_i.y][raypos_i.x];
+			h = heightmap[raypos_i.y][raypos_i.x];
 
-			raydir.z -= rayinc.z;
+			// project it
+			sc.y = ScalarToInteger(DIV(MUL((SCALAR(h) - camera.origin.z), SCALAR(-100)), scan * 2)) + (draw_w / 2);
+
+			// draw it
+			Picture::DrawPixel(dst, sc.x, sc.y, c);
 		}
-
-		raydir.x += rayinc.x;
-		raydir.y += rayinc.y;
 	}
 
+	// Draw map
 	bool draw_map = true;
 
-	// Draw maps
 	if (draw_map == true)
 	{
 		for (int y = 0; y < 64; y++)
@@ -234,6 +238,7 @@ void VoxelRender(Picture::pic_t *dst, rect_t area)
 		Picture::DrawPixel(dst, ScalarToInteger(camera.origin.x) + 64, ScalarToInteger(camera.origin.y), 31);
 	}
 
+	// Idly rotate the camera
 	camera.angles.y += 1;
 	if (camera.angles.y > 359) camera.angles.y -= 360;
 	if (camera.angles.y < 0) camera.angles.y += 360;
