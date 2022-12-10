@@ -30,6 +30,13 @@ typedef struct
 	scalar_t tan[360];
 } math_t;
 
+typedef struct
+{
+	vec3s_t origin;				// X, Y, Z
+	vec3i_t angles;				// Pitch, yaw, roll
+	scalar_t draw_distance;		// Draw distance (scalar units)
+} camera_t;
+
 //
 // Globals
 //
@@ -39,6 +46,8 @@ uint8_t colormap[64][64];
 vec3s_t pos;
 vec3i_t ang;
 
+camera_t camera;
+
 math_t math;
 char console_buffer[256];
 
@@ -46,27 +55,56 @@ char console_buffer[256];
 // Voxels
 //
 
+void VoxelPalette()
+{
+	outp(0x3c8, 0);
+
+	int z;
+
+	// grayscale
+	for (z = 0; z < 64; z++)
+	{
+		outp(0x3c9, z);
+		outp(0x3c9, z);
+		outp(0x3c9, z);
+	}
+
+	// yellow
+	for (z = 0; z < 64; z++)
+	{
+		outp(0x3c9, z);
+		outp(0x3c9, z);
+		outp(0x3c9, z / 2);
+	}
+
+	// purple
+	for (z = 0; z < 64; z++)
+	{
+		outp(0x3c9, z);
+		outp(0x3c9, z / 2);
+		outp(0x3c9, z);
+	}
+}
+
 void VoxelGenerate()
 {
-	int p = 0;
-
 	for (int y = 0; y < 64; y++)
 	{
 		for (int x = 0; x < 64; x++)
 		{
-			int x1 = ((x ^ 31) - 16);
+			int x1 = ((x & 31) - 16);
 			int y1 = ((y & 31) - 16);
 			int d = (15 * 15) - (x1 * x1) - (y1 * y1);
 
 			if (d > 0 && ((x ^ y) & 32))
 			{
-				heightmap[y][x] = SCALAR(64 - sqrt(d));
-				colormap[y][x] = (x + y) * 0.5f;
+				heightmap[y][x] = SCALAR(0 + sqrt(d));
+				colormap[y][x] = ((x + y) * 0.5f) + 64;
 			}
 			else
 			{
-				heightmap[y][x] = SCALAR(64);
-				colormap[y][x] = (cos(x * 0.2f) + sin(y * 0.3f)) * 3 + 88;
+				heightmap[y][x] = SCALAR(0);
+				colormap[y][x] = ((cos(x * 0.2f) + sin(y * 0.3f)) * 3 + 88) + 64;
 			}
 		}
 	}
@@ -74,18 +112,24 @@ void VoxelGenerate()
 
 void VoxelInit()
 {
-	// Generat height and color map
+	// Set Ken's palette
+	VoxelPalette();
+
+	// Generate height and color map
 	VoxelGenerate();
 
-	// Position
-	pos.x = SCALAR(0);
-	pos.y = SCALAR(0);
-	pos.z = SCALAR(40);
+	// Position (scalar units)
+	camera.origin.x = SCALAR(32);
+	camera.origin.y = SCALAR(32);
+	camera.origin.z = SCALAR(32);
 
 	// Angle (degrees)
-	ang.x = 0;
-	ang.y = 0;
-	ang.z = 0;
+	camera.angles.x = 0; // pitch
+	camera.angles.y = 0; // yaw
+	camera.angles.z = 0; // roll
+
+	// Draw distance (scalar units)
+	camera.draw_distance = SCALAR(8);
 }
 
 void VoxelRender(Picture::pic_t *dst, rect_t area)
@@ -95,71 +139,109 @@ void VoxelRender(Picture::pic_t *dst, rect_t area)
 	int draw_h = area.y2 - area.y1;
 
 	// sin and cos of player yaw
-	scalar_t sn = math.sin[ang.y];
-	scalar_t cs = math.cos[ang.y];
+	scalar_t sn = math.sin[camera.angles.y];
+	scalar_t cs = math.cos[camera.angles.y];
 
 	// r160
 	scalar_t r160 = DIV(SCALAR(1), SCALAR(draw_w / 2));
+	scalar_t r100 = DIV(SCALAR(1), SCALAR(draw_h / 2));
 
-	// Ray dir (x, z)
-	vec3s_t d;
-	d.x = sn + cs;
-	d.y = sn - cs;
+	scalar_t draw_distance = MUL(r160, camera.draw_distance);
 
-	// Ray dir increment value
-	vec2s_t di;
-	di.x = MUL(-sn, r160);
-	di.y = MUL(cs, r160);
+	// Horizon
+	int horizon = -(draw_h / 4);
 
-	// Ray distance increment value
-	scalar_t dd = r160;
+	// View direction
+	vec3s_t raydir;
+	raydir.x = cs - sn;
+	raydir.y = sn + cs;
+	raydir.z = r100;
 
-	// Max ray scan distance
-	scalar_t de = MUL(dd, SCALAR(128));
+	vec3s_t rayinc;
+	rayinc.x = MUL(-sn, r160);
+	rayinc.y = MUL(cs, r160);
+	rayinc.z = -r100;
 
-	scalar_t horizon = SCALAR(-50);
-
-	// d.z starting position
-	scalar_t sdz = MUL(SCALAR(100) - horizon, r160);
-
-	// Ray marching loop
+	// Ray position
+	vec3s_t raypos;
+	
+	// Horizontal scan loop 
 	for (int sx = area.x1; sx < area.x2; sx++)
 	{
-		// Starting position of ray
-		vec3s_t raypos = pos;
+		raypos = camera.origin;
+		raydir.z = MUL(SCALAR((draw_h / 2) - horizon), r100);
 
-		// Ray dir (z)
-		d.z = sdz;
-		int sy = draw_h - 1;
+		int sy = area.y2;
 
-		// Vertical marching loop
-		for (scalar_t scan; scan > de; scan += dd)
+		uint8_t c;
+		scalar_t h;
+
+		// Ray marching loop
+		for (scalar_t scan = 0; scan < camera.draw_distance; scan += SCALAR(1))
 		{
-			raypos.x += d.x;
-			raypos.y += d.y;
-			raypos.z += d.z;
+			raypos.x += raydir.x;
+			raypos.y += raydir.y;
+			raypos.z += raydir.z;
 
-			scalar_t h = heightmap[ScalarToInteger(raypos.y)][ScalarToInteger(raypos.x)];
-			uint8_t c = colormap[ScalarToInteger(raypos.y)][ScalarToInteger(raypos.x)];
+			if (raypos.x > SCALAR(63) || raypos.x < SCALAR(0) || raypos.y > SCALAR(63) || raypos.y < SCALAR(0)) break;
 
-			while (h < raypos.z)
+			c = colormap[ScalarToInteger(raypos.y)][ScalarToInteger(raypos.x)];
+			h = heightmap[ScalarToInteger(raypos.y)][ScalarToInteger(raypos.x)];
+
+			if (scan > 0)
 			{
-				Picture::DrawPixel(dst, sx, sy, c);
-				raypos.z -= scan;
-				d.z -= dd;
-				sy -= 1;
+				for (scalar_t z = raypos.z; z > 0; z -= scan)
+				{
+					if (h > z)
+					{
+						Picture::DrawPixel(dst, sx, sy, c);
+						sy -= 1;
+					}
+				}
 			}
 		}
 
-		// Move the ray forward by the dir increment value
-		d.x += di.x;
-		d.y += di.y;
+		raydir.x += rayinc.x;
+		raydir.y += rayinc.y;
+		raydir.z += rayinc.z;
+
+		//Picture::DrawVerticalLine(dst, sx, area.y1, draw_h / 3, 0);
 	}
 
-	pos.x += MUL(cs, SCALAR(4));
-	pos.y += MUL(sn, SCALAR(4));
+	bool draw_map = true;
 
-	ang.y += 1;
+	// Draw maps
+	if (draw_map == true)
+	{
+		for (int y = 0; y < 64; y++)
+		{
+			for (int x = 0; x < 64; x++)
+			{
+				// Color map
+				Picture::DrawPixel(dst, x, y, colormap[y][x]);
+
+				// Height map
+				Picture::DrawPixel(dst, x + 64, y, ScalarToInteger(heightmap[y][x]));
+			}
+		}
+
+		// Camera ray direction
+		vec2i_t ray_screen_pos;
+		ray_screen_pos.x = ScalarToInteger(camera.origin.x + MUL(raydir.x, SCALAR(8)));
+		ray_screen_pos.y = ScalarToInteger(camera.origin.y + MUL(raydir.y, SCALAR(8)));
+
+		// Camera ray position
+		Picture::DrawLine(dst, ScalarToInteger(camera.origin.x), ScalarToInteger(camera.origin.y), ray_screen_pos.x, ray_screen_pos.y, 63);
+		Picture::DrawLine(dst, ScalarToInteger(camera.origin.x) + 64, ScalarToInteger(camera.origin.y), ray_screen_pos.x + 64, ray_screen_pos.y, 63);
+
+		// Camera position
+		Picture::DrawPixel(dst, ScalarToInteger(camera.origin.x), ScalarToInteger(camera.origin.y), 31);
+		Picture::DrawPixel(dst, ScalarToInteger(camera.origin.x) + 64, ScalarToInteger(camera.origin.y), 31);
+	}
+
+	camera.angles.y += 1;
+	if (camera.angles.y > 359) camera.angles.y -= 360;
+	if (camera.angles.y < 0) camera.angles.y += 360;
 }
 
 
@@ -245,7 +327,7 @@ int main(int argc, char *argv[])
 	}
 
 	// Initialize voxel stuff
-	//VoxelInit();
+	VoxelInit();
 
 	// Start counting time
 	frame_end = DOS::TimerGet64();
@@ -264,7 +346,7 @@ int main(int argc, char *argv[])
 			// User inputs
 			//
 
-			ReadMouse(&mouse_buttons, &mouse_pos, mouse_speed, mouse_area);
+			//ReadMouse(&mouse_buttons, &mouse_pos, mouse_speed, mouse_area);
 
 			//
 			// Rendering
@@ -273,16 +355,23 @@ int main(int argc, char *argv[])
 			// Clear back buffer
 			Picture::Clear(&pic_bbuffer, 0);
 
-			//VoxelRender(&pic_bbuffer, RECT(0, 0, pic_bbuffer.width, pic_bbuffer.height));
+			// Voxel renderer
+			VoxelRender(&pic_bbuffer, RECT(0, 0, pic_bbuffer.width, pic_bbuffer.height));
 
-			// Blit the background
-			//Picture::Blit8(&pic_bbuffer, 0, 0, pic_bbuffer.width, pic_bbuffer.height, &pic_background, 0, 0, pic_background.width, pic_background.height, Picture::COPY);
+			Console::AddText(0, 8, "colors");
+			Console::AddText(8, 8, "height");
 
-			// Blit the mouse
-			Picture::Blit8(&pic_bbuffer, mouse_pos.x, mouse_pos.y, mouse_pos.x + pic_cursor.width, mouse_pos.y + pic_cursor.height, &pic_cursor, 0, 0, pic_cursor.width, pic_cursor.height, Picture::COLORKEY);
+			// Mouse render
+			{
+				// Blit the background
+				//Picture::Blit8(&pic_bbuffer, 0, 0, pic_bbuffer.width, pic_bbuffer.height, &pic_background, 0, 0, pic_background.width, pic_background.height, Picture::COPY);
 
-			sprintf(console_buffer, "mx: %d my: %d", mouse_pos.x, mouse_pos.y);
-			Console::AddText(0, 0, console_buffer);
+				// Blit the mouse
+				//Picture::Blit8(&pic_bbuffer, mouse_pos.x, mouse_pos.y, mouse_pos.x + pic_cursor.width, mouse_pos.y + pic_cursor.height, &pic_cursor, 0, 0, pic_cursor.width, pic_cursor.height, Picture::COLORKEY);
+
+				//sprintf(console_buffer, "mx: %d my: %d", mouse_pos.x, mouse_pos.y);
+				//Console::AddText(0, 0, console_buffer);
+			}
 
 			// Render the console text
 			Console::Render(&pic_bbuffer, &pic_font, 8);

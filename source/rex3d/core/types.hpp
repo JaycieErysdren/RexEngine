@@ -216,6 +216,11 @@ typedef struct
 #define VEC3S(a, b, c)				((vec3s_t){SCALAR((a)), SCALAR((b)), SCALAR((c))})
 #define VEC3I(a, b, c)				((vec3i_t){(a), (b), (c)})
 
+// Lerp
+#define LERP(a, b, c)				((scalar_t)(MUL((a), (c)) + MUL((b), SCALAR(1.0f) - (c))))
+
+#define LERP_VEC2S(a, b, c)			((vec2s_t){LERP((a.x), (b.x), (c)), LERP((a.y), (b.y), (c))})
+
 //
 // Rect
 //
