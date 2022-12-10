@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex3D engine types
 //
-// LAST EDITED:		December 7th, 2022
+// LAST EDITED:		December 9th, 2022
 //
 // ========================================================
 
@@ -197,6 +197,18 @@ typedef struct
 {
 	int32_t x, y, z;
 } vec3i_t;
+
+// 2-point float vector
+typedef struct
+{
+	float x, y;
+} vec2f_t;
+
+// 3-point float vector
+typedef struct
+{
+	float x, y, z;
+} vec3f_t;
 
 // Macros for static initialization
 #define VEC2S(a, b)					((vec2s_t){SCALAR((a)), SCALAR((b))})
