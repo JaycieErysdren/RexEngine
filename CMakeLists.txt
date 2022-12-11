@@ -38,8 +38,21 @@ add_compile_options("-Wno-attributes")
 ## Rex Engine
 ##
 
+## Set our target and compiler
 set(REX_TARGET "DOS")
 set(REX_COMPILER "DJGPP")
+
+## Set the modules we want
+set(MODULE_COLORMAP TRUE)
+set(MODULE_CONSOLE TRUE)
+set(MODULE_MATH TRUE)
+set(MODULE_PALETTE TRUE)
+set(MODULE_SURFACE TRUE)
+set(MODULE_UTILS TRUE)
+set(MODULE_DOS TRUE)
+set(MODULE_VESA TRUE)
+set(MODULE_VGA TRUE)
+set(MODULE_RAYCAST TRUE)
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/source/rex)
 

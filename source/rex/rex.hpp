@@ -90,13 +90,13 @@ using namespace std;
 //
 
 //
-// Handle math type (fixed or floating point)
+// Math type (fixed or floating point)
 //
 
-// Default to fixed point math if not defined
-#if !defined(BASED_FIXED) && !defined(BASED_FLOAT)
-#define BASED_FIXED true
-#define BASED_FLOAT false
+// Default to fixed point if not defined
+#if !defined(MATH_FIXED) && !defined(MATH_FLOAT)
+#define MATH_FIXED 1
+#define MATH_FLOAT 0
 #endif
 
 //
@@ -113,44 +113,66 @@ using namespace std;
 //
 
 // Colormaps
+#if MODULE_COLORMAP
 #include "modules/core/colormap/colormap.hpp"
+#endif
 
-// Palettes
+// Palette
+#if MODULE_PALETTE
 #include "modules/core/palette/palette.hpp"
+#endif
 
 // Surface
+#if MODULE_SURFACE
 #include "modules/core/surface/picture.hpp"
+#endif
 
 // Console
+#if MODULE_CONSOLE
 #include "modules/core/console/console.hpp"
+#endif
 
 // Utils
+#if MODULE_UTILS
 #include "modules/core/utils/utils.hpp"
+#endif
 
 // Math
+#if MODULE_MATH
 #include "modules/core/math/math.hpp"
+#endif
 
 //
-// Hardware i/o modules
+// Hardware I/O modules
 //
 
 // DOS
+#if MODULE_DOS
 #include "modules/hwio/dos/dos.hpp"
+#endif
 
 // VGA
+#if MODULE_VGA
 #include "modules/hwio/vga/vga.hpp"
+#endif
 
 // VESA
+#if MODULE_VESA
 #include "modules/hwio/vesa/vesa.hpp"
+#endif
 
 //
 // Renderers
 //
 
-// Raycaster
+// Raycast
+#if MODULE_RAYCAST
 #include "modules/render/raycast/raycast.hpp"
+#endif
 
-// Portals (2D)
+// Portal2D
+#if MODULE_PORTAL2D
 #include "modules/render/portal2d/portal2d.hpp"
+#endif
 
 #endif // __REX_ENGINE_H__
