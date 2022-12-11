@@ -41,9 +41,9 @@ bool MouseRead(int *btns, int *x, int *y)
 
 		mb = DOS::MouseRead(&mx, &my);
 
-		*btns = (int)btns;
-		*x = (int)mx;
-		*y = (int)my;
+		*btns = mb;
+		*x = mx;
+		*y = my;
 
 		return true;
 
