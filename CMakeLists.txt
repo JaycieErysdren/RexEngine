@@ -10,93 +10,51 @@
 ##
 ## DESCRIPTION:		Duke4Ever CMake project definition
 ##
-## LAST EDITED:		December 8th, 2022
+## LAST EDITED:		December 11th, 2022
 ##
 ## ========================================================
 
 ##
-## Project Definitions
+## Duke4Ever definitions
 ##
 
 ## CMake version gate
 cmake_minimum_required(VERSION 3.13)
 
-## Project
+## Project definition
 project(Duke4Ever LANGUAGES C CXX)
 
 ## Build type
 set(CMAKE_BUILD_TYPE Release)
 
 ##
-## Project Compile Options
+## Duke4Ever compile options
 ##
 
 add_compile_options("-Ofast")
 add_compile_options("-Wno-attributes")
 
 ##
-## Project Thirdparty Libraries
+## Rex Engine
 ##
 
-add_library(cjson STATIC ${CMAKE_SOURCE_DIR}/source/thirdparty/cjson/cJSON.c)
-target_include_directories(cjson PUBLIC ${CMAKE_SOURCE_DIR}/source/thirdparty/cjson)
+set(REX_TARGET "DOS")
+set(REX_COMPILER "DJGPP")
+
+add_subdirectory(${CMAKE_SOURCE_DIR}/source/rex)
 
 ##
-## Project Libraries
+## Applications
 ##
 
-set(REX3D_CORE_SRC
-	${CMAKE_SOURCE_DIR}/source/rex3d/core/colormap.cpp
-	${CMAKE_SOURCE_DIR}/source/rex3d/core/console.cpp
-	${CMAKE_SOURCE_DIR}/source/rex3d/core/palette.cpp
-	${CMAKE_SOURCE_DIR}/source/rex3d/core/picture.cpp
-	${CMAKE_SOURCE_DIR}/source/rex3d/core/utils.cpp
-)
-
-set(REX3D_HWDRV_SRC
-	${CMAKE_SOURCE_DIR}/source/rex3d/hwdrv/dos.cpp
-)
-
-set(REX3D_MATH_SRC
-	${CMAKE_SOURCE_DIR}/source/rex3d/math/math_i.cpp
-	${CMAKE_SOURCE_DIR}/source/rex3d/math/math_x.cpp
-	${CMAKE_SOURCE_DIR}/source/rex3d/math/mathtabl.cpp
-	${CMAKE_SOURCE_DIR}/source/rex3d/math/sintable.cpp
-)
-
-set(REX3D_THRDPRTY_SRC
-	${CMAKE_SOURCE_DIR}/source/rex3d/thrdprty/rcl.cpp
-	${CMAKE_SOURCE_DIR}/source/rex3d/thrdprty/tiled.cpp
-)
-
-set(REX3D_VIDDRV_SRC
-	${CMAKE_SOURCE_DIR}/source/rex3d/viddrv/vga.cpp
-	${CMAKE_SOURCE_DIR}/source/rex3d/viddrv/vesa.cpp
-)
-
-add_library(rex3d STATIC
-	${REX3D_CORE_SRC}
-	${REX3D_HWDRV_SRC}
-	${REX3D_MATH_SRC}
-	${REX3D_THRDPRTY_SRC}
-	${REX3D_VIDDRV_SRC}
-)
-
-target_include_directories(rex3d PUBLIC ${CMAKE_SOURCE_DIR}/source)
-target_include_directories(rex3d PUBLIC ${CMAKE_SOURCE_DIR}/source/rex3d)
-target_link_libraries(rex3d PUBLIC cjson)
-
-##
-## Project Applications
-##
-
+## Duke4Ever
 set(DUKE4EVER_SRC
 	${CMAKE_SOURCE_DIR}/source/duke4evr/main.cpp
 )
 
 add_executable(duke4evr ${DUKE4EVER_SRC})
-target_link_libraries(duke4evr rex3d)
-target_include_directories(duke4evr PUBLIC ${CMAKE_SOURCE_DIR}/source)
+target_link_libraries(duke4evr rex)
+target_include_directories(duke4evr PUBLIC ${CMAKE_SOURCE_DIR}/source/rex)
 set_target_properties(duke4evr
 	PROPERTIES
 	ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/builddos"
@@ -104,17 +62,17 @@ set_target_properties(duke4evr
 	RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/builddos"
 )
 
+## Testbed
 set(TESTBED_SRC
 	${CMAKE_SOURCE_DIR}/source/testbed/main.cpp
 )
 
 add_executable(testbed ${TESTBED_SRC})
-target_link_libraries(testbed rex3d)
-target_include_directories(testbed PUBLIC ${CMAKE_SOURCE_DIR}/source)
+target_link_libraries(testbed rex)
+target_include_directories(testbed PUBLIC ${CMAKE_SOURCE_DIR}/source/rex)
 set_target_properties(testbed
 	PROPERTIES
 	ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/builddos"
 	LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/builddos"
 	RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/builddos"
 )
-

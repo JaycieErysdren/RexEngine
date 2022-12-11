@@ -10,15 +10,15 @@
 //
 // DESCRIPTION:		Testbed main program header
 //
-// LAST EDITED:		November 29th, 2022
+// LAST EDITED:		December 11th, 2022
 //
 // ========================================================
 
 #ifndef __TESTBED_H__
 #define __TESTBED_H__
 
-// Rex3D headers
-#include "rex3d/rex3d.hpp"
+// Rex Engine headers
+#include "rex.hpp"
 
 // Testbed headers
 

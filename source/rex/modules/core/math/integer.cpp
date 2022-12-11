@@ -1,25 +1,30 @@
 // ========================================================
 //
-// FILE:			/source/duke4evr/duke4evr.hpp
+// FILE:			/source/rex/modules/core/math/integer.cpp
 //
 // AUTHORS:			Jaycie Ewald
 //
-// PROJECT:			Duke4Ever
+// PROJECT:			Rex Engine
 //
-// LICENSE:			TBD
+// LICENSE:			ACSL v1.4
 //
-// DESCRIPTION:		Duke4Ever main program header
+// DESCRIPTION:		Integer math header
 //
 // LAST EDITED:		December 11th, 2022
 //
 // ========================================================
 
-#ifndef __DUKE4EVER_H__
-#define __DUKE4EVER_H__
-
 // Rex Engine headers
 #include "rex.hpp"
 
-// Duke4Ever headers
+//
+//
+// Functions
+//
+//
 
-#endif // __DUKE4EVER_H__
+// Integer square root
+int32_t isqr(int32_t value)
+{
+	return value * value;
+}
