@@ -28,13 +28,6 @@ project(Duke4Ever LANGUAGES C CXX)
 set(CMAKE_BUILD_TYPE Release)
 
 ##
-## Duke4Ever compile options
-##
-
-## add_compile_options("-Ofast")
-## add_compile_options("-Wno-attributes")
-
-##
 ## Rex Engine
 ##
 
@@ -64,10 +57,12 @@ set(DUKE4EVER_SRC
 	${CMAKE_SOURCE_DIR}/source/duke4evr/main.cpp
 )
 
-add_executable(duke4evr ${DUKE4EVER_SRC})
-target_link_libraries(duke4evr rex)
-target_include_directories(duke4evr PUBLIC ${CMAKE_SOURCE_DIR}/source/rex)
-set_target_properties(duke4evr
+set(DUKE4EVER duke4${REX_EXECUTABLE_SUFFIX})
+
+add_executable(${DUKE4EVER} ${DUKE4EVER_SRC})
+target_link_libraries(${DUKE4EVER} rex)
+target_include_directories(${DUKE4EVER} PUBLIC ${CMAKE_SOURCE_DIR}/source/rex)
+set_target_properties(${DUKE4EVER}
 	PROPERTIES
 	ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/builddos"
 	LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/builddos"
@@ -79,10 +74,12 @@ set(TESTBED_SRC
 	${CMAKE_SOURCE_DIR}/source/testbed/main.cpp
 )
 
-add_executable(testbed ${TESTBED_SRC})
-target_link_libraries(testbed rex)
-target_include_directories(testbed PUBLIC ${CMAKE_SOURCE_DIR}/source/rex)
-set_target_properties(testbed
+set(TESTBED testbed${REX_EXECUTABLE_SUFFIX})
+
+add_executable(${TESTBED} ${TESTBED_SRC})
+target_link_libraries(${TESTBED} rex)
+target_include_directories(${TESTBED} PUBLIC ${CMAKE_SOURCE_DIR}/source/rex)
+set_target_properties(${TESTBED}
 	PROPERTIES
 	ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/builddos"
 	LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/builddos"

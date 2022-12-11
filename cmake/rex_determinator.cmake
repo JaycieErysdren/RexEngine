@@ -38,6 +38,7 @@ if(REX_TARGET STREQUAL "LINUX")
 	if(REX_COMPILER STREQUAL "GCC")
 
 		add_compile_definitions("REX_COMPILER=0")
+		set(REX_EXECUTABLE_SUFFIX "g")
 
 	endif()
 
@@ -52,6 +53,7 @@ if(REX_TARGET STREQUAL "WINDOWS")
 	if(REX_COMPILER STREQUAL "MINGW")
 
 		add_compile_definitions("REX_COMPILER=1")
+		set(REX_EXECUTABLE_SUFFIX "m")
 
 	endif()
 
@@ -66,7 +68,9 @@ if(REX_TARGET STREQUAL "DOS")
 	if(REX_COMPILER STREQUAL "DJGPP")
 
 		add_compile_definitions("REX_COMPILER=2")
+		## really, i'm just tired of seeing those warnings when packing structs
 		add_compile_options("-Wno-attributes")
+		set(REX_EXECUTABLE_SUFFIX "d")
 
 	endif()
 
@@ -74,7 +78,33 @@ if(REX_TARGET STREQUAL "DOS")
 	if(REX_COMPILER STREQUAL "WATCOM")
 
 		add_compile_definitions("REX_COMPILER=3")
+		set(REX_EXECUTABLE_SUFFIX "w")
 
 	endif()
 
 endif()
+
+##
+##
+## Build-type specific flags
+##
+##
+
+## Debug mode
+if(CMAKE_BUILD_TYPE STREQUAL Debug)
+
+	## Set mode
+	add_compile_definitions("REX_DEBUG=1")
+	add_compile_definitions("REX_RELEASE=0")
+
+endif()
+
+## Release mode
+if(CMAKE_BUILD_TYPE STREQUAL Release)
+
+	## Set mode
+	add_compile_definitions("REX_DEBUG=0")
+	add_compile_definitions("REX_RELEASE=1")
+
+endif()
+
