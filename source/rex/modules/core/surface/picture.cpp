@@ -91,7 +91,7 @@ void Create(pic_t *picture, int width, int height, int bpp, int bytes_per_row, v
 	picture->shared				= buffer != 0;
 	picture->scanlines.b		= (uint8_t **)malloc(height * sizeof(void *));
 
-	while (height--) picture->scanlines.b[height] = (uint8_t *)((uint32_t *)picture->buffer + bytes_per_row * height);
+	while (height--) picture->scanlines.b[height] = (uint8_t *)((uint32_t)picture->buffer + bytes_per_row * height);
 }
 
 void CreateMip(pic_t *dst, pic_t *src, clut_t blender)
