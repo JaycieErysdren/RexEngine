@@ -31,16 +31,12 @@ set(CMAKE_BUILD_TYPE Release)
 ## Duke4Ever compile options
 ##
 
-add_compile_options("-Ofast")
-add_compile_options("-Wno-attributes")
+## add_compile_options("-Ofast")
+## add_compile_options("-Wno-attributes")
 
 ##
 ## Rex Engine
 ##
-
-## Set our target and compiler
-set(REX_TARGET "DOS")
-set(REX_COMPILER "DJGPP")
 
 ## Set the modules we want
 set(MODULE_COLORMAP TRUE)

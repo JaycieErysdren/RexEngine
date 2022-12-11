@@ -22,8 +22,8 @@ MathTable::MathTable()
 {
 	for (int i = 0; i < 360; i++)
 	{
-		sin[i] = SCALAR(sinf(i / 180.0f * M_PI));
-		cos[i] = SCALAR(cosf(i / 180.0f * M_PI));
-		tan[i] = SCALAR(tanf(i / 180.0f * M_PI));
+		sin[i] = SCALAR(std::sin(i / 180 * PI));
+		cos[i] = SCALAR(std::cos(i / 180 * PI));
+		tan[i] = SCALAR(std::tan(i / 180 * PI));
 	}	
 }

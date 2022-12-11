@@ -21,14 +21,8 @@
 // http://www.delorie.com/djgpp/doc/ug/graphics/vesa.html.en
 
 //
+// These need to be outside of the namespace cuz watcom.
 //
-// VESA namespace
-//
-//
-
-// VESA namespace definition (private)
-namespace VESA
-{
 
 //
 //
@@ -99,8 +93,60 @@ typedef struct
 // Information blocks
 //
 
-vesa_info_t vesa_info;
-vesa_mode_info_t vesa_mode_info;
+vesa_info_t vib;
+vesa_mode_info_t mib;
+
+//
+//
+// ASM functions
+//
+//
+
+#if (REX_COMPILER == COMPILER_WATCOM)
+
+int get_vesa_info(void);
+int get_vesa_mode_info(int);
+
+#pragma aux get_vesa_info =			\
+	"mov	ax, 4F00h"				\
+	"mov	edi, offset vib"		\
+	"int	10h"					\
+	"cmp	ax, 004Fh"				\
+	"mov	eax, 1"					\
+	"jnz	@@done"					\
+	"mov	eax, 0"					\
+	"@@done:"						\
+	modify [eax ecx esi edi]		\
+	value [eax]						\
+
+#ifdef THIS_IS_BROKEN_PLZ_HELP
+
+#pragma aux get_vesa_mode_info =		\
+	"mov	ax, 4F01h"					\
+	"mov	edi, offset mib"			\
+	"int	10h"						\
+	"cmp	ax, 004Fh"					\
+	"mov	eax, 1"						\
+	"jnz	@@done"						\
+	"mov	eax, 0"						\
+	"@@done:"							\
+	modify [eax ecx esi edi]			\
+	value [eax]							\
+	parm [ecx]							\
+
+#endif
+
+#endif
+
+//
+//
+// VESA namespace
+//
+//
+
+// VESA namespace definition (private)
+namespace VESA
+{
 
 //
 //
@@ -115,133 +161,159 @@ vesa_mode_info_t vesa_mode_info;
 // Get VESA driver info
 bool GetInfo()
 {
-	__dpmi_regs r;
-	long dosbuf;
-	int c;
+	#if (REX_COMPILER == COMPILER_DJGPP)
 
-	/* use the conventional memory transfer buffer */
-	dosbuf = __tb & 0xFFFFF;
+		__dpmi_regs r;
+		long dosbuf;
+		int c;
 
-	/* initialize the buffer to zero */
-	for (c = 0; c < sizeof(vesa_info_t); c++)
-	_farpokeb(_dos_ds, dosbuf+c, 0);
+		// use the conventional memory transfer buffer
+		dosbuf = __tb & 0xFFFFF;
 
-	dosmemput("VBE2", 4, dosbuf);
+		// initialize the buffer to zero
+		for (c = 0; c < sizeof(vesa_info_t); c++)
+		_farpokeb(_dos_ds, dosbuf+c, 0);
 
-	/* call the VESA function */
-	r.x.ax = 0x4F00;
-	r.x.di = dosbuf & 0xF;
-	r.x.es = (dosbuf>>4) & 0xFFFF;
-	__dpmi_int(0x10, &r);
+		dosmemput("VBE2", 4, dosbuf);
 
-	/* quit if there was an error */
-	if (r.h.ah)
+		// call the VESA function
+		r.x.ax = 0x4F00;
+		r.x.di = dosbuf & 0xF;
+		r.x.es = (dosbuf>>4) & 0xFFFF;
+		__dpmi_int(0x10, &r);
+
+		// quit if there was an error
+		if (r.h.ah)
+			return false;
+
+		// copy the resulting data into our structure
+		dosmemget(dosbuf, sizeof(vesa_info_t), &vib);
+
+	#endif
+
+	#if (REX_COMPILER == COMPILER_WATCOM)
+
+		if (get_vesa_info())
+			return false;
+
+	#endif
+
+	// check that we got the right magic marker value
+	if (strncmp((char *)vib.VESASignature, "VESA", 4) != 0)
 		return false;
 
-	/* copy the resulting data into our structure */
-	dosmemget(dosbuf, sizeof(vesa_info_t), &vesa_info);
-
-	/* check that we got the right magic marker value */
-	if (strncmp((char *)vesa_info.VESASignature, "VESA", 4) != 0)
-		return false;
-
-	/* it worked! */
+	// it worked!
 	return true;
 }
 
 // Get info about a specific VESA mode
 bool GetModeInfo(int mode)
 {
-	__dpmi_regs r;
-	long dosbuf;
-	int c;
+	#if (REX_COMPILER == COMPILER_DJGPP)
 
-	/* use the conventional memory transfer buffer */
-	dosbuf = __tb & 0xFFFFF;
+		__dpmi_regs r;
+		long dosbuf;
+		int c;
 
-	/* initialize the buffer to zero */
-	for (c = 0; c < sizeof(vesa_mode_info_t); c++)
-	{
-		_farpokeb(_dos_ds, dosbuf + c, 0);
-	}
+		// use the conventional memory transfer buffer
+		dosbuf = __tb & 0xFFFFF;
 
-	/* call the VESA function */
-	r.x.ax = 0x4F01;
-	r.x.di = dosbuf & 0xF;
-	r.x.es = (dosbuf>>4) & 0xFFFF;
-	r.x.cx = mode;
-	__dpmi_int(0x10, &r);
+		// initialize the buffer to zero
+		for (c = 0; c < sizeof(vesa_mode_info_t); c++)
+		{
+			_farpokeb(_dos_ds, dosbuf + c, 0);
+		}
 
-	/* quit if there was an error */
-	if (r.h.ah)
-		return false;
+		// call the VESA function
+		r.x.ax = 0x4F01;
+		r.x.di = dosbuf & 0xF;
+		r.x.es = (dosbuf>>4) & 0xFFFF;
+		r.x.cx = mode;
+		__dpmi_int(0x10, &r);
 
-	/* copy the resulting data into our structure */
-	dosmemget(dosbuf, sizeof(vesa_mode_info_t), &vesa_mode_info);
+		// quit if there was an error
+		if (r.h.ah)
+			return false;
 
-	/* it worked! */
-	return true;
+		// copy the resulting data into our structure
+		dosmemget(dosbuf, sizeof(vesa_mode_info_t), &mib);
+
+		// it worked!
+		return true;
+
+	#endif
+
+	#if (REX_COMPILER == COMPILER_WATCOM)
+
+		//if (get_vesa_mode_info(mode) != 0)
+			return false;
+
+	#endif
 }
 
 // Find a specified VESA mode number
 int FindMode(int w, int h, int bpp)
 {
-	int mode_list[256];
-	int number_of_modes;
-	long mode_ptr;
-	int c;
+	#if (REX_COMPILER == COMPILER_DJGPP)
 
-	/* check that the VESA driver exists, and get information about it */
-	if (GetInfo() == false)
-		return 0;
+		int mode_list[256];
+		int number_of_modes;
+		long mode_ptr;
+		int c;
 
-	/* convert the mode list pointer from seg:offset to a linear address */
-	mode_ptr = ((vesa_info.VideoModePtr & 0xFFFF0000) >> 12) + (vesa_info.VideoModePtr & 0xFFFF);
+		// check that the VESA driver exists, and get information about it
+		if (GetInfo() == false)
+			return 0;
 
-	number_of_modes = 0;
+		// convert the mode list pointer from seg:offset to a linear address
+		mode_ptr = ((vib.VideoModePtr & 0xFFFF0000) >> 12) + (vib.VideoModePtr & 0xFFFF);
 
-	/* read the list of available modes */
-	while (_farpeekw(_dos_ds, mode_ptr) != 0xFFFF)
-	{
-		mode_list[number_of_modes] = _farpeekw(_dos_ds, mode_ptr);
-		number_of_modes++;
-		mode_ptr += 2;
-	}
+		number_of_modes = 0;
 
-	/* scan through the list of modes looking for the one that we want */
-	for (c = 0; c < number_of_modes; c++)
-	{
-		/* get information about this mode */
-		if (GetModeInfo(mode_list[c]) == false)
-			continue;
+		// read the list of available modes
+		while (_farpeekw(_dos_ds, mode_ptr) != 0xFFFF)
+		{
+			mode_list[number_of_modes] = _farpeekw(_dos_ds, mode_ptr);
+			number_of_modes++;
+			mode_ptr += 2;
+		}
 
-		/* check the flags field to make sure this is a color graphics mode,
-		* and that it is supported by the current hardware */
-		if ((vesa_mode_info.ModeAttributes & 0x19) != 0x19)
-			continue;
+		// scan through the list of modes looking for the one that we want
+		for (c = 0; c < number_of_modes; c++)
+		{
+			// get information about this mode
+			if (GetModeInfo(mode_list[c]) == false)
+				continue;
 
-		/* check that this mode is the right size */
-		if ((vesa_mode_info.XResolution != w) || (vesa_mode_info.YResolution != h))
-			continue;
+			// check the flags field to make sure this is a color graphics mode,
+			// * and that it is supported by the current hardware
+			if ((mib.ModeAttributes & 0x19) != 0x19)
+				continue;
 
-		/* check that there is only one color plane */
-		if (vesa_mode_info.NumberOfPlanes != 1)
-			continue;
+			// check that this mode is the right size
+			if ((mib.XResolution != w) || (mib.YResolution != h))
+				continue;
 
-		/* check that it is a packed-pixel mode (other values are used for
-		* different memory layouts, eg. 6 for a truecolor resolution) */
-		if (vesa_mode_info.MemoryModel != 4)
-			continue;
+			// check that there is only one color plane
+			if (mib.NumberOfPlanes != 1)
+				continue;
 
-		/* check that this is an 8-bit (256 color) mode */
-		if (vesa_mode_info.BitsPerPixel != bpp)
-			continue;
+			// check that it is a packed-pixel mode (other values are used for
+			// * different memory layouts, eg. 6 for a truecolor resolution)
+			if (mib.MemoryModel != 4)
+				continue;
 
-		/* if it passed all those checks, this must be the mode we want! */
-		return mode_list[c];
-	}
+			// check that this is an 8-bit (256 color) mode
+			if (mib.BitsPerPixel != bpp)
+				continue;
 
-	/* oh dear, there was no mode matching the one we wanted! */
+			// if it passed all those checks, this must be the mode we want!
+			return mode_list[c];
+		}
+
+	#endif
+
+	// oh dear, there was no mode matching the one we wanted!
 	return 0; 
 }
 
@@ -252,84 +324,118 @@ int FindMode(int w, int h, int bpp)
 // Set the vesa mode from a set of variables
 bool SetMode(int w, int h, int bpp)
 {
-	__dpmi_regs r;
-	int mode_number;
+	#if (REX_COMPILER == COMPILER_DJGPP)
 
-	/* find the number for this mode */
-	mode_number = FindMode(w, h, bpp);
+		__dpmi_regs r;
+		int mode_number;
 
-	if (!mode_number)
+		// find the number for this mode
+		mode_number = FindMode(w, h, bpp);
+
+		if (!mode_number)
+			return false;
+
+		// call the VESA mode set function
+		r.x.ax = 0x4F02;
+		r.x.bx = mode_number;
+
+		__dpmi_int(0x10, &r);
+
+		if (r.h.ah)
+			return false;
+
+		// it worked!
+		return true;
+
+	#endif
+
+	#if (REX_COMPILER == COMPILER_WATCOM)
+
 		return false;
 
-	/* call the VESA mode set function */
-	r.x.ax = 0x4F02;
-	r.x.bx = mode_number;
-
-	__dpmi_int(0x10, &r);
-
-	if (r.h.ah)
-		return false;
-
-	/* it worked! */
-	return true;
+	#endif
 }
 
 // Set the bank that the pixel functions are currently writing to
 void SetBank(int bank_number)
 {
-	__dpmi_regs r;
+	#if (REX_COMPILER == COMPILER_DJGPP)
 
-	r.x.ax = 0x4F05;
-	r.x.bx = 0;
-	r.x.dx = bank_number;
+		__dpmi_regs r;
 
-	__dpmi_int(0x10, &r);
+		r.x.ax = 0x4F05;
+		r.x.bx = 0;
+		r.x.dx = bank_number;
+
+		__dpmi_int(0x10, &r);
+
+	#endif
+
+	#if (REX_COMPILER == COMPILER_WATCOM)
+
+		union REGS r;
+
+		r.w.ax = 0x4F05;
+		r.w.bx = 0;
+		r.w.dx = (int16_t)bank_number;
+
+		int386(0x10, &r, &r);
+
+	#endif
 }
 
 // Place a pixel on the screen (SLOW!!)
 void PutPixel(int x, int y, int color)
 {
-	int address = y * 640 + x;
-	int bank_size = vesa_mode_info.WinGranularity * 1024;
-	int bank_number = address / bank_size;
-	int bank_offset = address % bank_size;
+	#if (REX_COMPILER == COMPILER_DJGPP)
 
-	SetBank(bank_number);
+		int address = y * 640 + x;
+		int bank_size = mib.WinGranularity * 1024;
+		int bank_number = address / bank_size;
+		int bank_offset = address % bank_size;
 
-	_farpokeb(_dos_ds, 0xA0000 + bank_offset, color);
+		SetBank(bank_number);
+
+		_farpokeb(_dos_ds, 0xA0000 + bank_offset, color);
+
+	#endif
 }
 
 // Place a pixel buffer into the video memory
 void PlaceBuffer(int8_t *buffer, int buffer_size)
 {
-	int bank_size = vesa_mode_info.WinSize * 1024;
-	int bank_granularity = vesa_mode_info.WinGranularity * 1024;
-	int bank_number = 0;
-	int todo = buffer_size;
-	int copy_size = 0;
-	int buffer_pos = 0;
+	#if (REX_COMPILER == COMPILER_DJGPP)
 
-	void *fuck = buffer;
+		int bank_size = mib.WinSize * 1024;
+		int bank_granularity = mib.WinGranularity * 1024;
+		int bank_number = 0;
+		int todo = buffer_size;
+		int copy_size = 0;
+		int buffer_pos = 0;
 
-	while (todo > 0)
-	{
-		/* select the appropriate bank */
-		SetBank(bank_number);
+		void *fuck = buffer;
 
-		/* how much can we copy in one go? */
-		if (todo > bank_size)
-			copy_size = bank_size;
-		else
-			copy_size = todo;
+		while (todo > 0)
+		{
+			// select the appropriate bank
+			SetBank(bank_number);
 
-		/* copy a bank of data to the screen */
-		dosmemput(buffer, copy_size, 0xA0000);
+			// how much can we copy in one go?
+			if (todo > bank_size)
+				copy_size = bank_size;
+			else
+				copy_size = todo;
 
-		/* move on to the next bank of data */
-		todo -= copy_size;
-		buffer += copy_size;
-		bank_number += bank_size / bank_granularity;
-	}
+			// copy a bank of data to the screen
+			dosmemput(buffer, copy_size, 0xA0000);
+
+			// move on to the next bank of data
+			todo -= copy_size;
+			buffer += copy_size;
+			bank_number += bank_size / bank_granularity;
+		}
+
+	#endif
 }
 
 //
@@ -344,10 +450,23 @@ bool Initialize(int w, int h, int bpp)
 
 void Shutdown()
 {
-	// Set mode 0x03 (text mode)
-	__dpmi_regs r;
-	r.x.ax = 0x03;
-	__dpmi_int(0x10, &r);
+	#if (REX_COMPILER == COMPILER_DJGPP)
+
+		// Set mode 0x03 (text mode)
+		__dpmi_regs r;
+		r.x.ax = 0x03;
+		__dpmi_int(0x10, &r);
+
+	#endif
+
+	#if (REX_COMPILER == COMPILER_WATCOM)
+
+		// Set mode 0x03 (text mode)
+		union REGS r;
+		r.w.ax = 0x03;
+		int386(0x10, &r, &r);
+
+	#endif
 }
 
 //
@@ -358,10 +477,10 @@ VidInfo GetVidInfo()
 {
 	VidInfo v;
 
-	v.width = vesa_mode_info.XResolution;
-	v.height = vesa_mode_info.YResolution;
-	v.bpp = vesa_mode_info.BitsPerPixel;
-	v.bytes_per_row = vesa_mode_info.BitsPerPixel * vesa_mode_info.XResolution;
+	v.width = mib.XResolution;
+	v.height = mib.YResolution;
+	v.bpp = mib.BitsPerPixel;
+	v.bytes_per_row = mib.BitsPerPixel * mib.XResolution;
 
 	return v;
 }

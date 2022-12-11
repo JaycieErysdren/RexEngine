@@ -62,7 +62,7 @@ if(REX_TARGET STREQUAL "LINUX")
 endif()
 
 ## Windows target
-if(REX_TARGET STREQUAL "LINUX")
+if(REX_TARGET STREQUAL "WINDOWS")
 
 	add_compile_definitions("REX_TARGET=1")
 
@@ -84,6 +84,7 @@ if(REX_TARGET STREQUAL "DOS")
 	if(REX_COMPILER STREQUAL "DJGPP")
 
 		add_compile_definitions("REX_COMPILER=2")
+		add_compile_options("-Wno-attributes")
 
 	endif()
 
@@ -140,19 +141,24 @@ endif()
 ## Hardware I/O modules
 ##
 
-## DOS
-if(${MODULE_DOS})
-	add_compile_definitions("MODULE_DOS=1")
-endif()
+## DOS target modules
+if(REX_TARGET STREQUAL "DOS")
 
-## VESA
-if(${MODULE_VESA})
-	add_compile_definitions("MODULE_VESA=1")
-endif()
+	## DOS
+	if(${MODULE_DOS})
+		add_compile_definitions("MODULE_DOS=1")
+	endif()
 
-## VGA
-if(${MODULE_VGA})
-	add_compile_definitions("MODULE_VGA=1")
+	## VESA
+	if(${MODULE_VESA})
+		add_compile_definitions("MODULE_VESA=1")
+	endif()
+
+	## VGA
+	if(${MODULE_VGA})
+		add_compile_definitions("MODULE_VGA=1")
+	endif()
+
 endif()
 
 ##
@@ -266,36 +272,41 @@ endif()
 ## Hardware I/O modules
 ##
 
-## DOS
-if(${MODULE_DOS})
+## DOS target modules
+if(REX_TARGET STREQUAL "DOS")
 
-	set(REX_DOS_SRC
-		modules/hwio/dos/dos.cpp
-	)
+	## DOS
+	if(${MODULE_DOS})
 
-	add_library(dos STATIC ${REX_DOS_SRC})
+		set(REX_DOS_SRC
+			modules/hwio/dos/dos.cpp
+		)
 
-endif()
+		add_library(dos STATIC ${REX_DOS_SRC})
 
-## VESA
-if(${MODULE_VESA})
+	endif()
 
-	set(REX_VESA_SRC
-		modules/hwio/vesa/vesa.cpp
-	)
+	## VESA
+	if(${MODULE_VESA})
 
-	add_library(vesa STATIC ${REX_VESA_SRC})
+		set(REX_VESA_SRC
+			modules/hwio/vesa/vesa.cpp
+		)
 
-endif()
+		add_library(vesa STATIC ${REX_VESA_SRC})
 
-## VGA
-if(${MODULE_VGA})
+	endif()
 
-	set(REX_VGA_SRC
-		modules/hwio/vga/vga.cpp
-	)
+	## VGA
+	if(${MODULE_VGA})
 
-	add_library(vga STATIC ${REX_VGA_SRC})
+		set(REX_VGA_SRC
+			modules/hwio/vga/vga.cpp
+		)
+
+		add_library(vga STATIC ${REX_VGA_SRC})
+
+	endif()
 
 endif()
 
@@ -363,16 +374,21 @@ endif()
 ## Hardware I/O modules
 ##
 
-if(${MODULE_DOS})
-	target_link_libraries(rex INTERFACE dos)
-endif()
+## DOS target modules
+if(REX_TARGET STREQUAL "DOS")
 
-if(${MODULE_VESA})
-	target_link_libraries(rex INTERFACE vesa)
-endif()
+	if(${MODULE_DOS})
+		target_link_libraries(rex INTERFACE dos)
+	endif()
 
-if(${MODULE_VGA})
-	target_link_libraries(rex INTERFACE vga)
+	if(${MODULE_VESA})
+		target_link_libraries(rex INTERFACE vesa)
+	endif()
+
+	if(${MODULE_VGA})
+		target_link_libraries(rex INTERFACE vga)
+	endif()
+
 endif()
 
 ##

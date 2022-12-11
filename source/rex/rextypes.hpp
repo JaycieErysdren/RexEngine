@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/core/types.hpp
+// FILE:			/source/rex/rextypes.hpp
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -10,22 +10,25 @@
 //
 // DESCRIPTION:		Rex3D engine types
 //
-// LAST EDITED:		December 9th, 2022
+// LAST EDITED:		December 11th, 2022
 //
 // ========================================================
-
-//
-// Graphics definitions
-//
-
-#define SCREEN_WIDTH 320
-#define SCREEN_HEIGHT 200
 
 //
 // Struct packing
 //
 
+#if (REX_COMPILER == COMPILER_DJGPP)
+
 #define ATTR_PACKED					__attribute__ ((packed))
+
+#endif
+
+#if (REX_COMPILER == COMPILER_WATCOM)
+
+#define ATTR_PACKED
+
+#endif
 
 //
 // Shortcut macros

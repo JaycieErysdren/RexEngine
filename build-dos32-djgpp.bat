@@ -4,13 +4,13 @@
 ::
 :: AUTHORS:			Jaycie Ewald
 ::
-:: PROJECT:			Duke4Ever
+:: PROJECT:			Rex Engine
 ::
-:: LICENSE:			TBD
+:: LICENSE:			ACSL v1.4
 ::
-:: DESCRIPTION:		Batch compile script (DJGPP)
+:: DESCRIPTION:		Batch compile script (DOS32, DJGPP)
 ::
-:: LAST EDITED:		November 29th, 2022
+:: LAST EDITED:		December 11th, 2022
 ::
 :: ========================================================
 
@@ -19,5 +19,5 @@ if not exist cmake-build-dos32-djgpp\ (
 )
 
 cd cmake-build-dos32-djgpp
-cmake -D CMAKE_TOOLCHAIN_FILE=../cmake/i586-pc-msdosdjgpp.cmake ..
+cmake -D CMAKE_TOOLCHAIN_FILE=../cmake/i586-pc-msdosdjgpp.cmake -D REX_TARGET=DOS -D REX_COMPILER=DJGPP ..
 make

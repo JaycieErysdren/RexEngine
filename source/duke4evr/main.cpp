@@ -104,7 +104,7 @@ void RenderRays(Picture::pic_t *dst, rect_t area)
 	int draw_h = area.y2 - area.y1;
 
 	// The positions of the pixels we'll be drawing
-	int x, y;
+	int x;
 
 	// Current sin, cos and tan of player's yaw
 	scalar_t sn = math.sin[player.angles.y];
@@ -515,9 +515,8 @@ int main(int argc, char *argv[])
 
 	// Picture buffers
 	Picture::pic_t pic_font;
-	Picture::pic_t pic_fbuffer;
 	Picture::pic_t pic_bbuffer;
-	Picture::pic_t pic_gun;
+	//Picture::pic_t pic_gun;
 
 	// Cycles
 	int64_t frame_start, frame_end;
@@ -526,9 +525,9 @@ int main(int argc, char *argv[])
 	// Generate math table
 	for (i = 0; i < 360; i++)
 	{
-		math.sin[i] = SCALAR(sin(i / 180.0f * M_PI));
-		math.cos[i] = SCALAR(cos(i / 180.0f * M_PI));
-		math.tan[i] = SCALAR(tan(i / 180.0f * M_PI));
+		math.sin[i] = SCALAR(sin(i / 180.0f * PI));
+		math.cos[i] = SCALAR(cos(i / 180.0f * PI));
+		math.tan[i] = SCALAR(tan(i / 180.0f * PI));
 	}
 
 	// Initialize player data
@@ -564,7 +563,14 @@ int main(int argc, char *argv[])
 	{
 		// Get start of frame time
 		frame_start = DOS::TimerGet64();
-		cycles = CYCLES * (frame_start - frame_end) / UCLOCKS_PER_SEC;
+
+		#if (REX_COMPILER == COMPILER_DJGPP)
+			cycles = CYCLES * (frame_start - frame_end) / UCLOCKS_PER_SEC;
+		#endif
+
+		#if (REX_COMPILER == COMPILER_WATCOM)
+			cycles = CYCLES * (frame_start - frame_end) / CLOCKS_PER_SEC;
+		#endif
 
 		// Cycles
 		for (c = 0; c < cycles; c++)
@@ -591,7 +597,9 @@ int main(int argc, char *argv[])
 
 		// Raycaster rendering
 		{
-			RenderRays(&pic_bbuffer, RECT(0, 0, vidinfo.width, vidinfo.height));
+			// watcom...
+			rect_t screen_area = {0, 0, vidinfo.width, vidinfo.height};
+			RenderRays(&pic_bbuffer, screen_area);
 		}
 
 		// HUD elements
@@ -608,8 +616,15 @@ int main(int argc, char *argv[])
 		// Flip the rendering buffers
 		Picture::CopyToFrontBuffer(&pic_bbuffer);
 
+
 		// Get end of frame time
-		frame_end = frame_end + cycles * UCLOCKS_PER_SEC / CYCLES;
+		#if (REX_COMPILER == COMPILER_DJGPP)
+			frame_end = frame_end + cycles * UCLOCKS_PER_SEC / CYCLES;
+		#endif
+
+		#if (REX_COMPILER == COMPILER_WATCOM)
+			frame_end = frame_end + cycles * CLOCKS_PER_SEC / CYCLES;
+		#endif
 	}
 
 	// Shutdown VESA

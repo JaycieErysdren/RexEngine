@@ -18,6 +18,23 @@
 #define __REX_ENGINE_H__
 
 //
+//
+// Host, target, and compiler options
+//
+//
+
+// Potential compilers (Sorry clang)
+#define COMPILER_GCC 0		// GCC
+#define COMPILER_MINGW 1	// MINGW
+#define COMPILER_DJGPP 2	// DJGPP
+#define COMPILER_WATCOM 3	// Open Watcom
+
+// Potential target & host platforms
+#define PLATFORM_NIX 0		// Linux
+#define PLATFORM_WIN 1		// Windows
+#define PLATFORM_DOS 2		// DOS
+
+//
 // External headers
 //
 
@@ -39,21 +56,12 @@
 #include <stdio.h>
 #include <time.h>
 
-// Potential compilers
-#define COMPILER_GCC 0
-#define COMPILER_MINGW 1
-#define COMPILER_DJGPP 2
-#define COMPILER_WATCOM 3
-
-// Potential target & host platforms
-#define PLATFORM_NIX 0	// Linux
-#define PLATFORM_WIN 1	// Windows
-#define PLATFORM_DOS 2	// DOS
-
 #if (REX_TARGET == PLATFORM_DOS)
 
 	// Standard DOS headers
 	#include <dos.h>
+	#include <io.h>
+	#include <conio.h>
 
 	// DJGPP headers
 	#if (REX_COMPILER == COMPILER_DJGPP)
@@ -68,7 +76,8 @@
 	// Open Watcom headers
 	#if (REX_COMPILER == COMPILER_WATCOM)
 
-		// add me
+		#include <i86.h>
+		#include <graph.h>
 
 	#endif
 
@@ -79,15 +88,17 @@ using namespace std;
 
 //
 //
-// Thirdparty headers
+// Rex3D forward definitions
 //
 //
 
 //
+// Make sure PI is defined
 //
-// Rex3D forward definitions
-//
-//
+
+#if !defined(PI)
+#define PI 3.14159265358979323846
+#endif
 
 //
 // Math type (fixed or floating point)
@@ -146,19 +157,24 @@ using namespace std;
 // Hardware I/O modules
 //
 
-// DOS
-#if MODULE_DOS
-#include "modules/hwio/dos/dos.hpp"
-#endif
+// DOS hardware
+#if (REX_TARGET == PLATFORM_DOS)
 
-// VGA
-#if MODULE_VGA
-#include "modules/hwio/vga/vga.hpp"
-#endif
+	// DOS
+	#if MODULE_DOS
+	#include "modules/hwio/dos/dos.hpp"
+	#endif
 
-// VESA
-#if MODULE_VESA
-#include "modules/hwio/vesa/vesa.hpp"
+	// VGA
+	#if MODULE_VGA
+	#include "modules/hwio/vga/vga.hpp"
+	#endif
+
+	// VESA
+	#if MODULE_VESA
+	#include "modules/hwio/vesa/vesa.hpp"
+	#endif
+
 #endif
 
 //

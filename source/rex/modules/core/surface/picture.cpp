@@ -28,7 +28,12 @@ namespace Picture
 //
 
 pic_t front_buffer_13h;
-VESA::VidInfo vidinfo;
+
+#if (REX_TARGET == PLATFORM_DOS)
+
+	VESA::VidInfo vidinfo;
+
+#endif
 
 //
 //
@@ -43,34 +48,25 @@ VESA::VidInfo vidinfo;
 // Create a picture that points directly to the current video buffer
 void InitializeFrontBuffer()
 {
-	vidinfo = VESA::GetVidInfo();
+	#if (REX_TARGET == PLATFORM_DOS)
 
-	//if (vidinfo.width == 320 && vidinfo.height == 200 && vidinfo.bpp == 8)
-	//{
-	//	Create(&front_buffer_13h, vidinfo.width, vidinfo.height, vidinfo.bpp, 0, (void *)VGA_VIDMEM_PTR);
-	//}
+		vidinfo = VESA::GetVidInfo();
+
+	#endif
 }
 
 void ShutdownFrontBuffer()
 {
-	//if (vidinfo.width == 320 && vidinfo.height == 200 && vidinfo.bpp == 8)
-	//{
-	//	Destroy(&front_buffer_13h);
-	//}
+
 }
 
 void CopyToFrontBuffer(pic_t *src)
 {
-	VESA::PlaceBuffer((int8_t *)src->buffer, vidinfo.width * vidinfo.height * (vidinfo.bpp / 8));
+	#if (REX_TARGET == PLATFORM_DOS)
 
-	//if (vidinfo.width == 320 && vidinfo.height == 200 && vidinfo.bpp == 8)
-	//{
-	//	Copy(&front_buffer_13h, src);
-	//}
-	//else
-	//{
-	//	VESA::PlaceBuffer((int8_t *)src->buffer, vidinfo.width * vidinfo.height * (vidinfo.bpp / 8));
-	//}
+		VESA::PlaceBuffer((int8_t *)src->buffer, vidinfo.width * vidinfo.height * (vidinfo.bpp / 8));
+
+	#endif
 }
 
 //
@@ -95,7 +91,7 @@ void Create(pic_t *picture, int width, int height, int bpp, int bytes_per_row, v
 	picture->shared				= buffer != 0;
 	picture->scanlines.b		= (uint8_t **)malloc(height * sizeof(void *));
 
-	while (height--) picture->scanlines.b[height] = (uint8_t *)((uint32_t)picture->buffer + bytes_per_row * height);
+	while (height--) picture->scanlines.b[height] = (uint8_t *)((uint32_t *)picture->buffer + bytes_per_row * height);
 }
 
 void CreateMip(pic_t *dst, pic_t *src, clut_t blender)
@@ -347,7 +343,7 @@ void DrawLine(pic_t *dst, int x1, int y1, int x2, int y2, uint8_t color)
 	px = x1;
 	py = y1;
 
-	if (px > -1 && px < SCREEN_WIDTH && py > -1 && py < SCREEN_HEIGHT)
+	if (px > -1 && px < dst->width && py > -1 && py < dst->height)
 		DrawPixel(dst, px, py, color);
 
 	if (dxabs >= dyabs) // the line is more horizontal than vertical
@@ -364,7 +360,7 @@ void DrawLine(pic_t *dst, int x1, int y1, int x2, int y2, uint8_t color)
 
 			px += sdx;
 
-			if (px > -1 && px < SCREEN_WIDTH && py > -1 && py < SCREEN_HEIGHT)
+			if (px > -1 && px < dst->width && py > -1 && py < dst->height)
 				DrawPixel(dst, px, py, color);
 		}
 	}
@@ -382,7 +378,7 @@ void DrawLine(pic_t *dst, int x1, int y1, int x2, int y2, uint8_t color)
 
 			py += sdy;
 
-			if (px > -1 && px < SCREEN_WIDTH && py > -1 && py < SCREEN_HEIGHT)
+			if (px > -1 && px < dst->width && py > -1 && py < dst->height)
 				DrawPixel(dst, px, py, color);
 		}
 	}

@@ -18,7 +18,7 @@
 #include "rex.hpp"
 
 // VGA text macros
-#define SLOWPOS(x, y)		(((y) * SCREEN_HEIGHT) + (x))
+#define SLOWPOS(x, y)		(((y) * VGA_MODE13H_WIDTH) + (x))
 #define FASTPOS(x, y)		(((y) << 8) + ((y) << 6) + (x))
 
 //
@@ -37,15 +37,7 @@ namespace VGA
 //
 //
 
-//
-// Buffers
-//
-
-// Back buffer
-uint8_t *buffer_back;
-
-// Front buffer (pointer to video memory)
-uint8_t *buffer_front;
+uint8_t *buffer_front = (uint8_t *)VGA_VIDMEM_PTR;
 
 //
 //
@@ -60,7 +52,7 @@ uint8_t *buffer_front;
 // Initialize the VGA driver with the specified width, height and bpp
 bool Initialize(int w, int h, int bpp)
 {
-	int16_t mode;
+	int8_t mode;
 
 	if (w == 320 && h == 200 && bpp == 8)
 		mode = 0x13;
@@ -71,16 +63,17 @@ bool Initialize(int w, int h, int bpp)
 	union REGS r;
 	r.h.ah = 0x00;
 	r.h.al = mode;
-	int86(0x10, &r, &r);
 
-	#ifdef OLD_VGA
-	// Allocate & clear back buffer
-	buffer_back = new uint8_t [64000];
-	memset(buffer_back, 0, 64000);
+	#if (REX_COMPILER == COMPILER_DJGPP)
 
-	// Set & clear video memory
-	buffer_front = (uint8_t *)(0xa0000 + __djgpp_conventional_base);
-	memset(buffer_front, 0, 64000);
+		int86(0x10, &r, &r);
+
+	#endif
+
+	#if (REX_COMPILER == COMPILER_WATCOM)
+
+		int386(0x10, &r, &r);
+
 	#endif
 
 	return true;
@@ -89,15 +82,44 @@ bool Initialize(int w, int h, int bpp)
 // Shutdown
 void Shutdown()
 {
-	// Set mode 0x03
 	union REGS r;
-	r.x.ax = 0x03;
-	int86(0x10, &r, &r);
 
-	#ifdef OLD_VGA
-	// Free memory
-	if (buffer_back != NULL) delete [] (buffer_back);
-	if (buffer_font != NULL) delete [] (buffer_font);
+	#if (REX_COMPILER == COMPILER_DJGPP)
+
+		// Set mode 0x03
+		r.x.ax = 0x03;
+		int86(0x10, &r, &r);
+
+	#endif
+
+	#if (REX_COMPILER == COMPILER_WATCOM)
+
+		// Set mode 0x03
+		r.w.ax = 0x03;
+		int386(0x10, &r, &r);
+
+	#endif
+}
+
+//
+// Utilities
+//
+
+// Wait for vertical retrace ("vsync")
+void WaitForRetrace()
+{
+	#if (REX_COMPILER == COMPILER_DJGPP)
+
+		while (inportb(0x3da) & 0x08);
+		while (!(inportb(0x3da) & 0x08));
+
+	#endif
+
+	#if (REX_COMPILER == COMPILER_WATCOM)
+
+		while (inp(0x3da) & 0x08);
+		while (!(inp(0x3da) & 0x08));
+
 	#endif
 }
 
@@ -164,24 +186,12 @@ void DrawPalette()
 // Pixel
 //
 
-// Place a pixel in the back buffer
+// Place a pixel in the front buffer
 void SetPixel(int16_t x, int16_t y, uint8_t color)
 {
-	#ifdef NOPE
-	asm("pushl	%ax\n\t"
-		"pushl	%bx\n\t"
-		"pushl	%cl\n\t"
-		"mov	$0, ax\n\t"
-		"mov	$1, bx\n\t"
-		"mov	$2, cl\n\t");
-	#endif
-
-	//if (color < 255) buffer_back[(y << 8) + (y << 6) + x] = color;
-	//buffer_back[(y << 8) + (y << 6) + x] = color;
-
 	// set the memory
 	// same as y*320+x, but slightly quicker
-	memset(&buffer_back[FASTPOS(x, y)], color, sizeof(uint8_t));
+	memset(&buffer_front[FASTPOS(x, y)], color, sizeof(uint8_t));
 }
 
 // Draw a vertical line
@@ -203,9 +213,9 @@ void DrawVerticalLine(int x, int y1, int y2, uint8_t color)
 void DrawHorizontalLine(int x1, int x2, int y, uint8_t color)
 {
 	if (x1 > x2)
-		memset(&buffer_back[FASTPOS(x2, y)], color, x1 - x2);
+		memset(&buffer_front[FASTPOS(x2, y)], color, x1 - x2);
 	else
-		memset(&buffer_back[FASTPOS(x1, y)], color, x2 - x1);
+		memset(&buffer_front[FASTPOS(x1, y)], color, x2 - x1);
 }
 
 // Draw a filled rectangle
@@ -214,31 +224,10 @@ void DrawRectangleFilled(int x, int y, int w, int h, uint8_t color)
 	int top = FASTPOS(x, y);
 	int bottom = FASTPOS(x + w, y + h);
 
-	for (int i = top; i <= bottom; i += SCREEN_WIDTH)
+	for (int i = top; i <= bottom; i += VGA_MODE13H_WIDTH)
 	{
-		memset(&buffer_back[i], color, w);
+		memset(&buffer_front[i], color, w);
 	}
-}
-
-//
-// Rendering
-//
-
-// Clear the back buffer
-void Clear(uint8_t color)
-{
-	memset(buffer_back, color, 64000);
-}
-
-// Copy the back buffer to the front buffer
-void Flip()
-{
-	// Wait for vertical retrace
-	while (inportb(0x3da) & 0x08);
-	while (!(inportb(0x3da) & 0x08));
-
-	// Copy the back buffer to the front buffer
-	memcpy(buffer_front, buffer_back, 64000);
 }
 
 } // namespace VGA

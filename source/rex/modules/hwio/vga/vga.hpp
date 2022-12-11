@@ -20,7 +20,20 @@
 //
 //
 
-#define VGA_VIDMEM_PTR (0xa0000 + __djgpp_conventional_base)
+#if (REX_COMPILER == COMPILER_DJGPP)
+
+	#define VGA_VIDMEM_PTR (0xA0000 + __djgpp_conventional_base)
+
+#endif
+
+#if (REX_COMPILER == COMPILER_WATCOM)
+
+	#define VGA_VIDMEM_PTR (0xA0000L)
+
+#endif
+
+#define VGA_MODE13H_WIDTH 320
+#define VGA_MODE13H_HEIGHT 200
 
 //
 //
@@ -46,6 +59,13 @@ namespace VGA
 
 	// Return to text mode
 	void Shutdown();
+
+	//
+	// Utilities
+	//
+
+	// Wait for vertical retrace ("vsync")
+	void WaitForRetrace();
 
 	//
 	// Palette
@@ -75,14 +95,4 @@ namespace VGA
 
 	// Draw a filled rectangle
 	void DrawRectangleFilled(int x, int y, int w, int h, uint8_t color);
-
-	//
-	// Rendering
-	//
-
-	// Clear the back buffer
-	void Clear(uint8_t color);
-
-	// Copy the back buffer to the front buffer
-	void Flip();
 }

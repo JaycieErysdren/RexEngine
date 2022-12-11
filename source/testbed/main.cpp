@@ -467,6 +467,7 @@ void VoxelRenderWrapper(Picture::pic_t *dst, rect_t area)
 	scalar_t minh = SCALAR(32);
 	if (camera.origin.z < minh) camera.origin.z = minh;
 
+
 	// map 1 floor
 	//VoxelRender(dst, area, camera.origin, camera.angles.y, camera.angles.x, SCALAR(64), camera.draw_distance, false, VEC2I(1024, 1024), f_colormap, f_heightmap);
 
@@ -480,7 +481,8 @@ void VoxelRenderWrapper(Picture::pic_t *dst, rect_t area)
 	//VoxelRender(dst, area, camera.origin, camera.angles.y, 100, SCALAR(16), camera.draw_distance, false, VEC2I(150, 150), f_colormap, f_heightmap);
 
 	// casino floor
-	VoxelRender(dst, area, camera.origin, camera.angles.y, 100, SCALAR(128), camera.draw_distance, false, VEC2I(512, 512), f_colormap, f_heightmap);
+	vec2i_t map_size = {512, 512};
+	VoxelRender(dst, area, camera.origin, camera.angles.y, 100, SCALAR(128), camera.draw_distance, false, map_size, f_colormap, f_heightmap);
 }
 
 //
@@ -490,7 +492,7 @@ void VoxelRenderWrapper(Picture::pic_t *dst, rect_t area)
 // Mouse helper function
 void ReadMouse(int16_t *buttons, vec2i_t *pos, int16_t speedlimit, rect_t area)
 {
-	int16_t mx, my, mb, dmx, dmy;
+	int16_t mx, my, dmx, dmy;
 	int16_t halfx = 160, halfy = 100;
 
 	*buttons = DOS::MouseRead(&mx, &my);
@@ -521,12 +523,6 @@ int main(int argc, char *argv[])
 	// General variables
 	int i;
 
-	// Mouse variables
-	vec2i_t mouse_pos;
-	int16_t mouse_buttons;
-	int16_t mouse_speed;
-	rect_t mouse_area;
-
 	// Cycle variables
 	int64_t frame_start, frame_end;
 	int cycles, c;
@@ -556,16 +552,12 @@ int main(int argc, char *argv[])
 	//Picture::LoadBMP(&pic_background, "local/forest.bmp");
 	Picture::Create(&pic_bbuffer, vidinfo.width, vidinfo.height, vidinfo.bpp, 0, 0);
 
-	// Setup mouse variables
-	mouse_area = RECT(0, 0, pic_bbuffer.width - pic_cursor.width, pic_bbuffer.height - pic_cursor.height);
-	mouse_speed = pic_bbuffer.width / 20;
-
 	// Generate math tables
 	for (i = 0; i < 360; i++)
 	{
-		math.sin[i] = SCALAR(sin(i / 180.0f * M_PI));
-		math.cos[i] = SCALAR(cos(i / 180.0f * M_PI));
-		math.tan[i] = SCALAR(tan(i / 180.0f * M_PI));
+		math.sin[i] = SCALAR(sin(i / 180.0f * PI));
+		math.cos[i] = SCALAR(cos(i / 180.0f * PI));
+		math.tan[i] = SCALAR(tan(i / 180.0f * PI));
 	}
 
 	// Initialize voxel stuff
@@ -582,7 +574,14 @@ int main(int argc, char *argv[])
 	{
 		// Get start of frame time
 		frame_start = DOS::TimerGet64();
-		cycles = CYCLES * (frame_start - frame_end) / UCLOCKS_PER_SEC;
+
+		#if (REX_COMPILER == COMPILER_DJGPP)
+			cycles = CYCLES * (frame_start - frame_end) / UCLOCKS_PER_SEC;
+		#endif
+
+		#if (REX_COMPILER == COMPILER_WATCOM)
+			cycles = CYCLES * (frame_start - frame_end) / CLOCKS_PER_SEC;
+		#endif
 
 		// Cycles
 		for (c = 0; c < cycles; c++)
@@ -601,11 +600,17 @@ int main(int argc, char *argv[])
 		// Clear back buffer
 		Picture::Clear(&pic_bbuffer, 0);
 
-		// VoxCave renderer
-		//VoxCave_Render(&pic_bbuffer, RECT(0, 0, pic_bbuffer.width, pic_bbuffer.height));
+		// Voxels
+		{
+			// watcom...
+			rect_t screen_area = {0, 0, pic_bbuffer.width, pic_bbuffer.height};
 
-		// Voxel renderer
-		VoxelRenderWrapper(&pic_bbuffer, RECT(0, 0, pic_bbuffer.width, pic_bbuffer.height));
+			// VoxCave renderer
+			//VoxCave_Render(&pic_bbuffer, screen_area);
+
+			// Voxel renderer
+			VoxelRenderWrapper(&pic_bbuffer, screen_area);
+		}
 
 		// Render the console text
 		Console::Render(&pic_bbuffer, &pic_font, 8);
@@ -614,7 +619,13 @@ int main(int argc, char *argv[])
 		Picture::CopyToFrontBuffer(&pic_bbuffer);
 
 		// Get end of frame time
-		frame_end += cycles * UCLOCKS_PER_SEC / CYCLES;
+		#if (REX_COMPILER == COMPILER_DJGPP)
+			frame_end = frame_end + cycles * UCLOCKS_PER_SEC / CYCLES;
+		#endif
+
+		#if (REX_COMPILER == COMPILER_WATCOM)
+			frame_end = frame_end + cycles * CLOCKS_PER_SEC / CYCLES;
+		#endif
 	}
 
 	// Shutdown VESA

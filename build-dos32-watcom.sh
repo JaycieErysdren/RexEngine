@@ -4,11 +4,11 @@
 ##
 ## AUTHORS:			Jaycie Ewald
 ##
-## PROJECT:			Duke4Ever
+## PROJECT:			Rex Engine
 ##
-## LICENSE:			TBD
+## LICENSE:			ACSL v1.4
 ##
-## DESCRIPTION:		Bash compile script (Watcom)
+## DESCRIPTION:		Bash compile script (DOS32, Watcom)
 ##
 ## LAST EDITED:		December 11th, 2022
 ##
@@ -22,5 +22,5 @@ then
 fi
 
 cd cmake-build-dos32-watcom
-cmake -G "Watcom WMake" -D CMAKE_SYSTEM_NAME=DOS ..
+cmake -G "Watcom WMake" -D CMAKE_SYSTEM_NAME=DOS -D REX_TARGET=DOS -D REX_COMPILER=WATCOM ..
 wmake
