@@ -330,12 +330,34 @@ void VoxelLoadMap3()
 	fclose(col);
 }
 
+void VoxelLoadCasino()
+{
+	f_heightmap = (uint8_t *)calloc(512 * 512, sizeof(uint8_t));
+	f_colormap = (uint8_t *)calloc(512 * 512, sizeof(uint8_t));
+
+	// Load heightmap
+	FILE *hei = fopen("voxel/casino1h.dat", "rb");
+
+	fread(f_heightmap, sizeof(uint8_t), 512 * 512, hei);
+
+	fclose(hei);
+
+	// Load colormap
+	FILE *col = fopen("voxel/casino1c.dat", "rb");
+
+	fread(f_colormap, sizeof(uint8_t), 512 * 512, col);
+
+	fclose(col);
+}
+
 void VoxelInit(int screen_width)
 {
 	// Load the map from heightmap and colors
 	//VoxelLoadMap1();
-	VoxelLoadMap2();
+	//VoxelLoadMap2();
 	//VoxelLoadMap3();
+
+	VoxelLoadCasino();
 
 	// Build y-buffer
 	ybuffer = (int32_t *)calloc(screen_width, sizeof(int32_t));
@@ -425,7 +447,7 @@ void VoxelRender(Picture::pic_t *dst, rect_t area, vec3s_t p, int yaw, int horiz
 
 			if ((ceiling == true && line_height > ybuffer[sx]) || (ceiling == false && line_height < ybuffer[sx]))
 			{
-				c = Colormap::Lookup(c, ScalarToInteger(z));
+				//c = Colormap::Lookup(c, ScalarToInteger(z));
 				Picture::DrawVerticalLine(dst, sx, line_height, ybuffer[sx], c);
 				ybuffer[sx] = line_height;
 			}
@@ -449,13 +471,16 @@ void VoxelRenderWrapper(Picture::pic_t *dst, rect_t area)
 	//VoxelRender(dst, area, camera.origin, camera.angles.y, camera.angles.x, SCALAR(64), camera.draw_distance, false, VEC2I(1024, 1024), f_colormap, f_heightmap);
 
 	// map 2 floor
-	VoxelRender(dst, area, camera.origin, camera.angles.y, 100, SCALAR(32), camera.draw_distance, false, VEC2I(64, 64), f_colormap, f_heightmap);
+	//VoxelRender(dst, area, camera.origin, camera.angles.y, 100, SCALAR(32), camera.draw_distance, false, VEC2I(64, 64), f_colormap, f_heightmap);
 
 	// map 2 ceiling
-	VoxelRender(dst, area, camera.origin, camera.angles.y, 100, SCALAR(32), camera.draw_distance, true, VEC2I(64, 64), c_colormap, c_heightmap);
+	//VoxelRender(dst, area, camera.origin, camera.angles.y, 100, SCALAR(32), camera.draw_distance, true, VEC2I(64, 64), c_colormap, c_heightmap);
 
 	// map 3 floor
 	//VoxelRender(dst, area, camera.origin, camera.angles.y, 100, SCALAR(16), camera.draw_distance, false, VEC2I(150, 150), f_colormap, f_heightmap);
+
+	// casino floor
+	VoxelRender(dst, area, camera.origin, camera.angles.y, 100, SCALAR(128), camera.draw_distance, false, VEC2I(512, 512), f_colormap, f_heightmap);
 }
 
 //
@@ -520,7 +545,8 @@ int main(int argc, char *argv[])
 	VESA::VidInfo vidinfo = VESA::GetVidInfo();
 
 	// Load colormap
-	Colormap::Load("gfx/vga.tab");
+	VESA::SetPalette("gfx/portal2d.pal");
+	Colormap::Load("gfx/portal2d.tab");
 
 	// Create picture buffers
 	Console::Initialize();
