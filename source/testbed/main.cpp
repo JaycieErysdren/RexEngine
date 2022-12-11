@@ -34,15 +34,18 @@ typedef struct
 {
 	vec3s_t origin;				// X, Y, Z
 	vec3i_t angles;				// Pitch, yaw, roll
-	scalar_t draw_distance;		// Draw distance (scalar units)
+	int draw_distance;			// Draw distance
 } camera_t;
 
 //
 // Globals
 //
 
-int32_t heightmap[64][64];
-uint8_t colormap[64][64];
+#define MAP_X 1024
+#define MAP_Y 1024
+
+uint8_t *heightmap;
+uint8_t *colormap;
 vec3s_t pos;
 vec3i_t ang;
 
@@ -54,6 +57,8 @@ char console_buffer[256];
 //
 // Voxels
 //
+
+#ifdef FUCKYOUKEN
 
 void VoxelPalette()
 {
@@ -88,9 +93,9 @@ void VoxelPalette()
 
 void VoxelGenerate()
 {
-	for (int y = 0; y < 64; y++)
+	for (int y = 0; y < MAP_Y; y++)
 	{
-		for (int x = 0; x < 64; x++)
+		for (int x = 0; x < MAP_X; x++)
 		{
 			int x1 = ((x & 31) - 16);
 			int y1 = ((y & 31) - 16);
@@ -110,26 +115,55 @@ void VoxelGenerate()
 	}
 }
 
+#endif
+
+void VoxelLoadMap()
+{
+	int y, x;
+	VESA::SetPalette("voxel/m1.pal");
+
+	// Load heightmap
+	FILE *hei = fopen("voxel/m1h.dat", "rb");
+
+	heightmap = (uint8_t *)calloc(MAP_X * MAP_Y, sizeof(uint8_t));
+
+	fread(heightmap, sizeof(uint8_t), MAP_X * MAP_Y, hei);
+
+	fclose(hei);
+
+	// Load colormap
+	FILE *col = fopen("voxel/m1c.dat", "rb");
+
+	colormap = (uint8_t *)calloc(MAP_X * MAP_Y, sizeof(uint8_t));
+
+	fread(colormap, sizeof(uint8_t), MAP_X * MAP_Y, col);
+
+	fclose(col);
+}
+
 void VoxelInit()
 {
 	// Set Ken's palette
-	VoxelPalette();
+	//VoxelPalette();
 
 	// Generate height and color map
-	VoxelGenerate();
+	//VoxelGenerate();
+
+	// Load the map from heightmap and colors
+	VoxelLoadMap();
 
 	// Position (scalar units)
 	camera.origin.x = SCALAR(32);
 	camera.origin.y = SCALAR(32);
-	camera.origin.z = SCALAR(16);
+	camera.origin.z = SCALAR(96);
 
 	// Angle (degrees)
 	camera.angles.x = 0; // pitch
 	camera.angles.y = 0; // yaw
-	camera.angles.z = 0; // roll
+	camera.angles.z = 0; // roll`
 
 	// Draw distance (scalar units)
-	camera.draw_distance = SCALAR(128);
+	camera.draw_distance = 128;
 }
 
 void VoxelRender(Picture::pic_t *dst, rect_t area)
@@ -141,6 +175,62 @@ void VoxelRender(Picture::pic_t *dst, rect_t area)
 	// sin and cos of player yaw
 	scalar_t sn = math.sin[camera.angles.y];
 	scalar_t cs = math.cos[camera.angles.y];
+
+	// Rendering position
+	vec3s_t p = camera.origin;
+
+	// Horizon line
+	int horizon = 64;
+
+	// Line height scale
+	int height_scale = 128;
+
+	// Render back to front
+	for (int z = camera.draw_distance; z > 0; z--)
+	{
+		vec2s_t pleft, pright;
+
+		scalar_t z_s = SCALAR(z);
+
+		pleft.x = (MUL(-cs, z_s) - MUL(sn, z_s)) + p.x;
+		pleft.y = (MUL(sn, z_s) - MUL(cs, z_s)) + p.y;
+
+		pright.x = (MUL(cs, z_s) - MUL(sn, z_s)) + p.x;
+		pright.y = (MUL(-sn, z_s) - MUL(cs, z_s)) + p.y;
+
+		scalar_t dx = DIV(pright.x - pleft.x, SCALAR(draw_w));
+		scalar_t dy = DIV(pright.y - pleft.y, SCALAR(draw_w));
+
+		for (int sx = 0; sx < draw_w; sx++)
+		{
+			vec2i_t pi;
+			pi.x = ScalarToInteger(pleft.x);
+			pi.y = ScalarToInteger(pleft.y);
+
+			if (pi.x > (MAP_X - 1)) pi.x -= MAP_X;
+			if (pi.x < 0) pi.x += MAP_X;
+
+			if (pi.y > (MAP_Y - 1)) pi.y -= MAP_Y;
+			if (pi.y < 0) pi.y += MAP_Y;
+
+			scalar_t height_scale_s = SCALAR(height_scale);
+			scalar_t h = SCALAR(heightmap[(pi.y * MAP_Y) + pi.x]);
+			scalar_t horizon_s = SCALAR(horizon);
+
+			int line_height = ScalarToInteger(MUL(DIV(p.z - h, z_s), height_scale_s) + horizon_s);
+
+			if (line_height > draw_h) continue;
+
+			line_height = CLAMP(line_height, area.y1, area.y2);
+
+			Picture::DrawVerticalLine(dst, sx, line_height, draw_h, colormap[(pi.y * MAP_Y) + pi.x]);
+
+			pleft.x += dx;
+			pleft.y += dy;
+		}
+	}
+
+	#ifdef FUCKFUCKFUCK
 
 	// Current color and height
 	uint8_t c;
@@ -237,6 +327,8 @@ void VoxelRender(Picture::pic_t *dst, rect_t area)
 		Picture::DrawPixel(dst, ScalarToInteger(camera.origin.x), ScalarToInteger(camera.origin.y), 31);
 		Picture::DrawPixel(dst, ScalarToInteger(camera.origin.x) + 64, ScalarToInteger(camera.origin.y), 31);
 	}
+
+	#endif
 
 	// Idly rotate the camera
 	camera.angles.y += 1;
@@ -357,9 +449,6 @@ int main(int argc, char *argv[])
 
 			// Voxel renderer
 			VoxelRender(&pic_bbuffer, RECT(0, 0, pic_bbuffer.width, pic_bbuffer.height));
-
-			Console::AddText(0, 8, "colors");
-			Console::AddText(8, 8, "height");
 
 			// Mouse render
 			{
