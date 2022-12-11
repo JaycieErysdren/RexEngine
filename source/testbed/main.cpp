@@ -19,13 +19,11 @@
 
 #define CYCLES 30
 
-//#define KEN
-#define CONTROLLABLE
-
 //
 // Types
 //
 
+// Math table
 typedef struct
 {
 	scalar_t cos[360];
@@ -33,6 +31,7 @@ typedef struct
 	scalar_t tan[360];
 } math_t;
 
+// Camera
 typedef struct
 {
 	vec3s_t origin;				// X, Y, Z
@@ -43,20 +42,44 @@ typedef struct
 	int anglespeedkey;
 } camera_t;
 
+// Voxel
+typedef struct
+{
+	uint8_t height;
+	uint8_t color;
+} voxel_t;
+
+// VoxCave game state
+typedef struct
+{
+	int32_t horizon;
+} voxcave_t;
+
 //
 // Globals
 //
 
-int32_t *ybuffer;
+// VoxCave
+voxel_t map1[256][256]; // cave map 1
+voxel_t map2[256][256]; // cave map 2
+int16_t *startumost; // ??
+int16_t *startdmost; // ??
+voxcave_t voxcave; // voxcave game state
 
+// Voxels
+int32_t *ybuffer;
 uint8_t *f_heightmap;
 uint8_t *f_colormap;
 uint8_t *c_heightmap;
 uint8_t *c_colormap;
 
+// Camera
 camera_t camera;
 
+// Math tables
 math_t math;
+
+// Console buffer
 char console_buffer[256];
 
 //
@@ -154,6 +177,66 @@ void CameraController()
 
 	mx_prev = mx;
 	my_prev = my;
+}
+
+//
+// VoxCave
+//
+
+void VoxCave_Init(vec2i_t screen_dimensions)
+{
+	// Set starter values
+	camera.origin.x = SCALAR(128);
+	camera.origin.y = SCALAR(128);
+	camera.origin.z = SCALAR(128);
+
+	voxcave.horizon = screen_dimensions.y / 2;
+
+	// Generate a cave
+	for (int y = 0; y < 256; y++)
+	{
+		for (int x = 0; x < 256; x++)
+		{
+			map1[y][x].height = 255;
+			map1[y][x].color = 128;
+
+			map2[y][x].height = 0;
+			map2[y][x].color = 128;
+		}
+	}
+
+	// Setup view buffers
+	startumost = (int16_t *)calloc(screen_dimensions.x, sizeof(int16_t));
+	startdmost = (int16_t *)calloc(screen_dimensions.x, sizeof(int16_t));
+
+	// Initialize startdmost to the screen height
+	for (int i = 0; i < screen_dimensions.x; i++)
+	{
+		startdmost[i] = screen_dimensions.y;
+	}
+}
+
+void VoxCave_RenderColumn(Picture::pic_t *dst, rect_t area, int column, scalar_t draw_distance)
+{
+	// sanity check
+	if (startumost[column] > startdmost[column]) return;
+
+	// drawable area
+	int draw_w = area.x2 - area.x1;
+	int draw_h = area.y2 - area.y1;
+
+	// sin and cos of camera yaw
+	scalar_t sn = math.sin[camera.angles.y];
+	scalar_t cs = math.cos[camera.angles.y];
+}
+
+void VoxCave_Render(Picture::pic_t *dst, rect_t area)
+{
+	// Draw loop
+	for (int sx = area.x1; sx < area.x1; sx++)
+	{
+		VoxCave_RenderColumn(dst, area, sx, camera.draw_distance);
+	}	
 }
 
 //
@@ -436,12 +519,8 @@ int main(int argc, char *argv[])
 	if (VESA::Initialize(320, 200, 8) == false) return EXIT_FAILURE;
 	VESA::VidInfo vidinfo = VESA::GetVidInfo();
 
-	// Load palette and colormap
-	VESA::SetPalette("gfx/vga.pal");
+	// Load colormap
 	Colormap::Load("gfx/vga.tab");
-
-	//VESA::SetPalette("gfx/portal2d.pal");
-	//Colormap::Load("gfx/portal2d.tab");
 
 	// Create picture buffers
 	Console::Initialize();
@@ -466,6 +545,9 @@ int main(int argc, char *argv[])
 	// Initialize voxel stuff
 	VoxelInit(vidinfo.width);
 
+	// Initialize VoxCave
+	//VoxCave_Init(VEC2I(vidinfo.width, vidinfo.height));
+
 	// Start counting time
 	frame_end = DOS::TimerGet64();
 
@@ -483,32 +565,7 @@ int main(int argc, char *argv[])
 			// User inputs
 			//
 
-			#ifdef CONTROLLABLE
-
 			CameraController();
-
-			#else
-
-			// Idly rotate the camera
-			camera.angles.y += 1;
-			if (camera.angles.y > 359) camera.angles.y -= 360;
-			if (camera.angles.y < 0) camera.angles.y += 360;
-
-			#endif
-
-			//ReadMouse(&mouse_buttons, &mouse_pos, mouse_speed, mouse_area);
-
-			// Mouse render
-			{
-				// Blit the background
-				//Picture::Blit8(&pic_bbuffer, 0, 0, pic_bbuffer.width, pic_bbuffer.height, &pic_background, 0, 0, pic_background.width, pic_background.height, Picture::COPY);
-
-				// Blit the mouse
-				//Picture::Blit8(&pic_bbuffer, mouse_pos.x, mouse_pos.y, mouse_pos.x + pic_cursor.width, mouse_pos.y + pic_cursor.height, &pic_cursor, 0, 0, pic_cursor.width, pic_cursor.height, Picture::COLORKEY);
-
-				//sprintf(console_buffer, "mx: %d my: %d", mouse_pos.x, mouse_pos.y);
-				//Console::AddText(0, 0, console_buffer);
-			}
 		}
 
 		//
@@ -517,6 +574,9 @@ int main(int argc, char *argv[])
 
 		// Clear back buffer
 		Picture::Clear(&pic_bbuffer, 0);
+
+		// VoxCave renderer
+		//VoxCave_Render(&pic_bbuffer, RECT(0, 0, pic_bbuffer.width, pic_bbuffer.height));
 
 		// Voxel renderer
 		VoxelRenderWrapper(&pic_bbuffer, RECT(0, 0, pic_bbuffer.width, pic_bbuffer.height));
