@@ -50,6 +50,9 @@ set(MODULE_VESA TRUE)
 set(MODULE_VGA TRUE)
 set(MODULE_RAYCAST TRUE)
 
+## Rex Engine platform & compiler determinator
+include(cmake/rex_determinator.cmake)
+
 add_subdirectory(${CMAKE_SOURCE_DIR}/source/rex)
 
 ##
