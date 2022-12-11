@@ -34,7 +34,7 @@ typedef struct
 {
 	vec3s_t origin;				// X, Y, Z
 	vec3i_t angles;				// Pitch, yaw, roll
-	int draw_distance;			// Draw distance
+	scalar_t draw_distance;		// Draw distance (scalar units)
 } camera_t;
 
 //
@@ -46,6 +46,7 @@ typedef struct
 
 uint8_t *heightmap;
 uint8_t *colormap;
+int32_t *ybuffer;
 vec3s_t pos;
 vec3i_t ang;
 
@@ -141,16 +142,21 @@ void VoxelLoadMap()
 	fclose(col);
 }
 
-void VoxelInit()
+void VoxelInit(int screen_width)
 {
+	#ifdef FUCKYOUKEN
 	// Set Ken's palette
-	//VoxelPalette();
+	VoxelPalette();
 
 	// Generate height and color map
-	//VoxelGenerate();
+	VoxelGenerate();
+	#endif
 
 	// Load the map from heightmap and colors
 	VoxelLoadMap();
+
+	// Build y-buffer
+	ybuffer = (int32_t *)calloc(screen_width, sizeof(int32_t));
 
 	// Position (scalar units)
 	camera.origin.x = SCALAR(32);
@@ -163,7 +169,7 @@ void VoxelInit()
 	camera.angles.z = 0; // roll`
 
 	// Draw distance (scalar units)
-	camera.draw_distance = 128;
+	camera.draw_distance = SCALAR(256);
 }
 
 void VoxelRender(Picture::pic_t *dst, rect_t area)
@@ -180,23 +186,29 @@ void VoxelRender(Picture::pic_t *dst, rect_t area)
 	vec3s_t p = camera.origin;
 
 	// Horizon line
-	int horizon = 64;
+	scalar_t horizon = SCALAR(64);
 
 	// Line height scale
-	int height_scale = 128;
+	scalar_t height_scale = SCALAR(64);
+
+	// Z, and current change in Z
+	scalar_t z = SCALAR(1);
+	scalar_t dz = SCALAR(1);
+
+	// Initialize y-buffer
+	for (int i = 0; i < draw_w; i++)
+		ybuffer[i] = draw_h;
 
 	// Render back to front
-	for (int z = camera.draw_distance; z > 0; z--)
+	while (z < camera.draw_distance)
 	{
 		vec2s_t pleft, pright;
 
-		scalar_t z_s = SCALAR(z);
+		pleft.x = (MUL(-cs, z) - MUL(sn, z)) + p.x;
+		pleft.y = (MUL(sn, z) - MUL(cs, z)) + p.y;
 
-		pleft.x = (MUL(-cs, z_s) - MUL(sn, z_s)) + p.x;
-		pleft.y = (MUL(sn, z_s) - MUL(cs, z_s)) + p.y;
-
-		pright.x = (MUL(cs, z_s) - MUL(sn, z_s)) + p.x;
-		pright.y = (MUL(-sn, z_s) - MUL(cs, z_s)) + p.y;
+		pright.x = (MUL(cs, z) - MUL(sn, z)) + p.x;
+		pright.y = (MUL(-sn, z) - MUL(cs, z)) + p.y;
 
 		scalar_t dx = DIV(pright.x - pleft.x, SCALAR(draw_w));
 		scalar_t dy = DIV(pright.y - pleft.y, SCALAR(draw_w));
@@ -213,89 +225,26 @@ void VoxelRender(Picture::pic_t *dst, rect_t area)
 			if (pi.y > (MAP_Y - 1)) pi.y -= MAP_Y;
 			if (pi.y < 0) pi.y += MAP_Y;
 
-			scalar_t height_scale_s = SCALAR(height_scale);
 			scalar_t h = SCALAR(heightmap[(pi.y * MAP_Y) + pi.x]);
-			scalar_t horizon_s = SCALAR(horizon);
 
-			int line_height = ScalarToInteger(MUL(DIV(p.z - h, z_s), height_scale_s) + horizon_s);
+			int line_height = ScalarToInteger(MUL(DIV(p.z - h, z), height_scale) + horizon);
 
-			if (line_height > draw_h) continue;
-
+			if (line_height > draw_h) break;
 			line_height = CLAMP(line_height, area.y1, area.y2);
 
-			Picture::DrawVerticalLine(dst, sx, line_height, draw_h, colormap[(pi.y * MAP_Y) + pi.x]);
+			Picture::DrawVerticalLine(dst, sx, line_height, ybuffer[sx], colormap[(pi.y * MAP_Y) + pi.x]);
+
+			if (line_height < ybuffer[sx]) ybuffer[sx] = line_height;
 
 			pleft.x += dx;
 			pleft.y += dy;
 		}
+
+		z += dz;
+		dz += SCALAR(0.01f);
 	}
 
-	#ifdef FUCKFUCKFUCK
-
-	// Current color and height
-	uint8_t c;
-	int32_t h;
-
-	// Curerent Ray position
-	vec3s_t raypos;
-	vec3i_t raypos_i;
-
-	// Ray starting direction
-	vec3s_t raydir;
-
-	// Ray horizontal increment value
-	vec2s_t rayinc;
-	rayinc.x = DIV(SCALAR(2.0f), SCALAR(draw_w));
-	rayinc.y = DIV(SCALAR(2.0f), SCALAR(draw_h));
-
-	// screen pixel coordinates
-	vec2i_t sc;
-
-	for (sc.x = area.x1; sc.x < area.x2; sc.x++)
-	{
-		// Ray starting position
-		raypos = camera.origin;
-
-		// Calculate ray starting direction
-		raydir.x = MUL(rayinc.x, SCALAR(sc.x)) - SCALAR(1.0f);
-		raydir.y = SCALAR(1.0f);
-
-		// rotate around 0,0 by player.angles.y
-		vec3s_t temp = raydir;
-
-		raydir.x = MUL(temp.x, cs) - MUL(temp.y, sn);
-		raydir.y = MUL(temp.x, sn) + MUL(temp.y, cs);
-
-		// min and max draw distance
-		for (scalar_t scan = SCALAR(1); scan < camera.draw_distance; scan += SCALAR(1))
-		{
-			// march the ray
-			raypos.x += raydir.x;
-			raypos.y += raydir.y;
-			raypos.z += raydir.z;
-
-			// round it
-			raypos_i.x = ScalarToInteger(raypos.x);
-			raypos_i.y = ScalarToInteger(raypos.y);
-			raypos_i.z = ScalarToInteger(raypos.z);
-
-			// distance
-			scalar_t dist = SCALAR(sqrt(pow(ScalarToFloat(camera.origin.x - raypos.x), 2) + pow(ScalarToFloat(camera.origin.y - raypos.y), 2)));
-
-			// dont cast past the world boundaries
-			if (raypos_i.x > 63 || raypos_i.x < 0 || raypos_i.y > 63 || raypos_i.y < 0) break;
-
-			// get current color and height
-			c = colormap[raypos_i.y][raypos_i.x];
-			h = heightmap[raypos_i.y][raypos_i.x];
-
-			// project it
-			sc.y = ScalarToInteger(DIV(MUL((SCALAR(h) - camera.origin.z), SCALAR(-100)), scan * 2)) + (draw_w / 2);
-
-			// draw it
-			Picture::DrawPixel(dst, sc.x, sc.y, c);
-		}
-	}
+	#ifdef OLD_MAP_2D
 
 	// Draw map
 	bool draw_map = true;
@@ -330,10 +279,6 @@ void VoxelRender(Picture::pic_t *dst, rect_t area)
 
 	#endif
 
-	// Idly rotate the camera
-	camera.angles.y += 1;
-	if (camera.angles.y > 359) camera.angles.y -= 360;
-	if (camera.angles.y < 0) camera.angles.y += 360;
 }
 
 
@@ -419,7 +364,7 @@ int main(int argc, char *argv[])
 	}
 
 	// Initialize voxel stuff
-	VoxelInit();
+	VoxelInit(vidinfo.width);
 
 	// Start counting time
 	frame_end = DOS::TimerGet64();
@@ -440,16 +385,6 @@ int main(int argc, char *argv[])
 
 			//ReadMouse(&mouse_buttons, &mouse_pos, mouse_speed, mouse_area);
 
-			//
-			// Rendering
-			//
-
-			// Clear back buffer
-			Picture::Clear(&pic_bbuffer, 0);
-
-			// Voxel renderer
-			VoxelRender(&pic_bbuffer, RECT(0, 0, pic_bbuffer.width, pic_bbuffer.height));
-
 			// Mouse render
 			{
 				// Blit the background
@@ -462,12 +397,27 @@ int main(int argc, char *argv[])
 				//Console::AddText(0, 0, console_buffer);
 			}
 
-			// Render the console text
-			Console::Render(&pic_bbuffer, &pic_font, 8);
-
-			// Flip the rendering buffers
-			Picture::CopyToFrontBuffer(&pic_bbuffer);
+			// Idly rotate the camera
+			camera.angles.y += 1;
+			if (camera.angles.y > 359) camera.angles.y -= 360;
+			if (camera.angles.y < 0) camera.angles.y += 360;
 		}
+
+		//
+		// Rendering
+		//
+
+		// Clear back buffer
+		Picture::Clear(&pic_bbuffer, 0);
+
+		// Voxel renderer
+		VoxelRender(&pic_bbuffer, RECT(0, 0, pic_bbuffer.width, pic_bbuffer.height));
+
+		// Render the console text
+		Console::Render(&pic_bbuffer, &pic_font, 8);
+
+		// Flip the rendering buffers
+		Picture::CopyToFrontBuffer(&pic_bbuffer);
 
 		// Get end of frame time
 		frame_end += cycles * UCLOCKS_PER_SEC / CYCLES;
