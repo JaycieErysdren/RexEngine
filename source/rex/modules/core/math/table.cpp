@@ -23,10 +23,10 @@
 // Class initializer
 MathTable::MathTable()
 {
-	for (int i = 0; i < 360; i++)
+	for (rex_int32 i = 0; i < 360; i++)
 	{
-		sin[i] = SCALAR(std::sin(i / 180 * PI));
-		cos[i] = SCALAR(std::cos(i / 180 * PI));
-		tan[i] = SCALAR(std::tan(i / 180 * PI));
+		sin[i] = REX_SCALAR(std::sin(i / 180 * PI));
+		cos[i] = REX_SCALAR(std::cos(i / 180 * PI));
+		tan[i] = REX_SCALAR(std::tan(i / 180 * PI));
 	}	
 }

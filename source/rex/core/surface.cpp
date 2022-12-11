@@ -40,7 +40,7 @@ void SurfaceToFrontBuffer(Surface *src)
 {
 	#if (REX_TARGET == PLATFORM_DOS) && (MODULE_VESA)
 
-		VESA::PlaceBuffer((int8_t *)src->buffer, vid_info.width * vid_info.height * (vid_info.bpp / 8));
+		VESA::PlaceBuffer((rex_uint8 *)src->buffer, vid_info.width * vid_info.height * (vid_info.bpp / 8));
 
 	#endif
 }
@@ -65,9 +65,9 @@ void SurfaceCreate(Surface *picture, int width, int height, int bpp, int bytes_p
 	picture->bytes_per_row		= bytes_per_row;
 	picture->buffer				= buffer ? buffer : calloc(height, bytes_per_row);
 	picture->shared				= buffer != 0;
-	picture->scanlines.b		= (uint8_t **)malloc(height * sizeof(void *));
+	picture->scanlines.b		= (rex_uint8 **)malloc(height * sizeof(void *));
 
-	while (height--) picture->scanlines.b[height] = (uint8_t *)((uint32_t)picture->buffer + bytes_per_row * height);
+	while (height--) picture->scanlines.b[height] = (rex_uint8 *)((uint32_t)picture->buffer + bytes_per_row * height);
 }
 
 void SurfaceCreateMip(Surface *dst, Surface *src, clut_t blender)
@@ -112,7 +112,7 @@ void SurfaceResize(Surface *picture, int width, int height)
 }
 
 // A fast picture content clear.
-void SurfaceClear(Surface *picture, uint8_t color)
+void SurfaceClear(Surface *picture, rex_uint8 color)
 {
 	memset(picture->buffer, color, picture->bytes_per_row * picture->height);
 }
@@ -179,14 +179,14 @@ void SurfaceFlip8(Surface *dst, Surface *src)
 
 	for (y1 = 0, y2 = dst->height - 1; y1 < y2; y1++, y2--)
 	{
-		uint8_t *s1 = src->scanlines.b[y1];
-		uint8_t *s2 = src->scanlines.b[y2];
-		uint8_t *d1 = dst->scanlines.b[y1];
-		uint8_t *d2 = dst->scanlines.b[y2];
+		rex_uint8 *s1 = src->scanlines.b[y1];
+		rex_uint8 *s2 = src->scanlines.b[y2];
+		rex_uint8 *d1 = dst->scanlines.b[y1];
+		rex_uint8 *d2 = dst->scanlines.b[y2];
 
 		for (x = dst->width; x--;)
 		{
-			uint8_t tmp = *s1++;
+			rex_uint8 tmp = *s1++;
 			*d1++ = *s2++;
 			*d2++ = tmp;
 		}
@@ -222,8 +222,8 @@ void SurfaceBlit8(Surface *dst, int x1, int y1, int x2, int y2, Surface *src, in
 	#define INNER_LOOP \
 	for (;y1 < y2; y1++, v1 += vv) \
 	{ \
-		uint8_t *I = src->scanlines.b[f2i(v1)]; \
-		uint8_t *O = &dst->scanlines.b[y1][x1]; \
+		rex_uint8 *I = src->scanlines.b[f2i(v1)]; \
+		rex_uint8 *O = &dst->scanlines.b[y1][x1]; \
 		for(w = x2 - x1, u = u1; w--; u += uu, O++) {AFFINE} \
 	}
 
@@ -248,7 +248,7 @@ void SurfaceBlit8(Surface *dst, int x1, int y1, int x2, int y2, Surface *src, in
 		}
 		case COLORKEY:
 		{
-			uint8_t pen;
+			rex_uint8 pen;
 			#define AFFINE if (pen = I[f2i(u)]) *O = pen;
 			INNER_LOOP
 			#undef AFFINE
@@ -275,9 +275,9 @@ void SurfaceBlend8(Surface *dst, Surface *src1, Surface *src2, clut_t blender)
 
 	for (y = dst->height; y--;)
 	{
-		uint8_t *a = dst ->scanlines.b[y];
-		uint8_t *b = src1->scanlines.b[y];
-		uint8_t *c = src2->scanlines.b[y];
+		rex_uint8 *a = dst ->scanlines.b[y];
+		rex_uint8 *b = src1->scanlines.b[y];
+		rex_uint8 *c = src2->scanlines.b[y];
 
 		for (x = dst->width; x--;)
 		{
@@ -287,7 +287,7 @@ void SurfaceBlend8(Surface *dst, Surface *src1, Surface *src2, clut_t blender)
 }
 
 // Get the color of a pixel from the specified x and y coordinate
-uint8_t SurfaceGetPixel(Surface *pic, int x, int y)
+rex_uint8 SurfaceGetPixel(Surface *pic, int x, int y)
 {
 	if (x < 0 || y < 0 || x > pic->width || y > pic->height)
 	{
@@ -313,15 +313,15 @@ uint8_t SurfaceGetPixel(Surface *pic, int x, int y)
 }
 
 // Plot a pixel at the specificed x and y coordinate
-void SurfaceDrawPixel(Surface *dst, int x, int y, uint8_t color)
+void SurfaceDrawPixel(Surface *dst, int x, int y, rex_uint8 color)
 {
 	if (x >= dst->width || x < 0 || y >= dst->height || y < 0)
 		return;
 
-	memset(&dst->scanlines.b[y][x], color, sizeof(uint8_t));
+	memset(&dst->scanlines.b[y][x], color, sizeof(rex_uint8));
 }
 
-void SurfaceDrawLine(Surface *dst, int x1, int y1, int x2, int y2, uint8_t color)
+void SurfaceDrawLine(Surface *dst, int x1, int y1, int x2, int y2, rex_uint8 color)
 {
 	int i, dx, dy, sdx, sdy, dxabs, dyabs, x, y, px, py;
 
@@ -378,7 +378,7 @@ void SurfaceDrawLine(Surface *dst, int x1, int y1, int x2, int y2, uint8_t color
 }
 
 // Draw a horizontal line
-void SurfaceDrawHorizontalLine(Surface *dst, int x1, int x2, int y, uint8_t color)
+void SurfaceDrawHorizontalLine(Surface *dst, int x1, int x2, int y, rex_uint8 color)
 {
 	if (x1 > x2)
 		memset(&dst->scanlines.b[y][x2], color, x1 - x2);
@@ -387,27 +387,27 @@ void SurfaceDrawHorizontalLine(Surface *dst, int x1, int x2, int y, uint8_t colo
 }
 
 // Draw a vertical line
-void SurfaceDrawVerticalLine(Surface *dst, int x, int y1, int y2, uint8_t color)
+void SurfaceDrawVerticalLine(Surface *dst, int x, int y1, int y2, rex_uint8 color)
 {
 	int i;
 	if (y1 > y2)
 	{
 		for (i = y2; i < y1; i++)
 		{
-			memset(&dst->scanlines.b[i][x], color, sizeof(uint8_t));
+			memset(&dst->scanlines.b[i][x], color, sizeof(rex_uint8));
 		}
 	}
 	else
 	{
 		for (i = y1; i < y2; i++)
 		{
-			memset(&dst->scanlines.b[i][x], color, sizeof(uint8_t));
+			memset(&dst->scanlines.b[i][x], color, sizeof(rex_uint8));
 		}
 	}
 }
 
 // Draw a filled or outlined rectangle
-void SurfaceDrawRectangle(Surface *dst, int x, int y, int w, int h, uint8_t color, bool filled)
+void SurfaceDrawRectangle(Surface *dst, int x, int y, int w, int h, rex_uint8 color, bool filled)
 {
 	// Sanity check
 	if (x < 0 || y < 0 || x >= dst->width || y >= dst->height || (x + w) >= dst->width || (y + h) >= dst->height)
@@ -430,14 +430,14 @@ void SurfaceDrawRectangle(Surface *dst, int x, int y, int w, int h, uint8_t colo
 		// draw vertical lines
 		for (int i = 0; i < h; i++)
 		{
-			memset(&dst->scanlines.b[y + i][x], color, sizeof(uint8_t));
-			memset(&dst->scanlines.b[y + i][x + w - 1], color, sizeof(uint8_t));
+			memset(&dst->scanlines.b[y + i][x], color, sizeof(rex_uint8));
+			memset(&dst->scanlines.b[y + i][x + w - 1], color, sizeof(rex_uint8));
 		}
 	}
 }
 
 // Flood fill from the specified point
-void SurfaceFloodFill(Surface *dst, int x, int y, uint8_t color)
+void SurfaceFloodFill(Surface *dst, int x, int y, rex_uint8 color)
 {
 	if (SurfaceGetPixel(dst, x, y) != color)
 	{
@@ -450,7 +450,7 @@ void SurfaceFloodFill(Surface *dst, int x, int y, uint8_t color)
 }
 
 // Draw a polygon with n sides
-void SurfaceDrawPolygon(Surface *dst, int n, int *v, uint8_t color, bool filled)
+void SurfaceDrawPolygon(Surface *dst, int n, int *v, rex_uint8 color, bool filled)
 {
 	if (filled == true)
 	{

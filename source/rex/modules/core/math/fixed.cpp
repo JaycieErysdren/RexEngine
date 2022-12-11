@@ -33,15 +33,15 @@ int fixinv(int a)
 
 int fixmul(int a, int b)
 {
-	return ((int64_t)a * b) >> 16;
+	return ((rex_int64)a * b) >> 16;
 }
 
 int fixdiv(int a, int b)
 {
-	return ((int64_t)a << 16) / b;
+	return ((rex_int64)a << 16) / b;
 }
 
 int fixdot3(int a1, int b1, int a2, int b2, int a3, int b3)
 {
-	return ((int64_t)a1 * b1 + (int64_t)a2 * b2 + (int64_t)a3 * b3) >> 16;
+	return ((rex_int64)a1 * b1 + (rex_int64)a2 * b2 + (rex_int64)a3 * b3) >> 16;
 }

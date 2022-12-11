@@ -40,7 +40,7 @@ namespace Rex
 //
 //
 
-uint8_t colormap[64 * 256];
+rex_uint8 colormap[64 * 256];
 
 //
 //
@@ -53,7 +53,7 @@ uint8_t colormap[64 * 256];
 //
 
 // Initialize graphics
-bool InitializeGraphics(int w, int h, int bpp)
+bool InitializeGraphics(rex_int32 w, rex_int32 h, rex_int32 bpp)
 {
 	#if (REX_TARGET == PLATFORM_DOS)
 
@@ -166,11 +166,11 @@ VidInfo GetVidInfo()
 //
 
 // Load a colormap into memory
-void ColormapLoad(string filename)
+void ColormapLoad(rex_string filename)
 {
 	FILE *file = fopen(filename.c_str(), "rb");
 
-	fread(&colormap, sizeof(uint8_t), 64 * 256, file);
+	fread(&colormap, sizeof(rex_uint8), 64 * 256, file);
 
 	fclose(file);
 }
@@ -180,33 +180,40 @@ void ColormapSave(string filename)
 {
 	FILE *file = fopen(filename.c_str(), "wb");
 
-	fwrite(&colormap, sizeof(uint8_t), 64 * 256, file);
+	fwrite(&colormap, sizeof(rex_uint8), 64 * 256, file);
 
 	fclose(file);
 }
 
 // Lookup a value with a given light level
-uint8_t ColormapLookup(uint8_t index, int light)
+rex_color ColormapLookup(rex_color color, int light)
 {
-	return colormap[((CLAMP(light, -32, 31) + 32) * 256) + index];
+	return (rex_color)colormap[((CLAMP(light, -32, 31) + 32) * 256) + CLAMP(color, 0, 255)];
 }
 
 // https://quakewiki.org/wiki/Quake_palette#Generating_the_colormap
 // sample a 24-bit RGB value to one of the colours on the existing 8-bit palette
-uint8_t RGB24_To_Index8(const uint8_t palette[768], const int rgb[3])
+rex_uint8 RGB24_To_Index8(rex_uint8 palette[768], rex_color col)
 {
-	int i, j;
-	int best_index = -1;
-	int best_dist = 0;
+	rex_int32 i, j;
+	rex_int32 best_index = -1;
+	rex_int32 best_dist = 0;
+
+	rex_int32 rgb[3];
+
+	rgb[0] = REX_COLOR_RED(col);
+	rgb[1] = REX_COLOR_GRN(col);
+	rgb[2] = REX_COLOR_BLU(col);
 
 	for (i = 0; i < 256; i++)
 	{
-		int dist = 0;
+		rex_int32 dist = 0;
 
 		for (j = 0; j < 3; j++)
 		{
 			/* note that we could use RGB luminosity bias for greater accuracy, but quake's colormap apparently didn't do this */
-			int d = ABS(rgb[j] - palette[i * 3 + j]);
+			rex_int32 d = ABS(rgb[j] - palette[i * 3 + j]);
+
 			dist += d * d;
 		}
 
@@ -217,20 +224,20 @@ uint8_t RGB24_To_Index8(const uint8_t palette[768], const int rgb[3])
 		}
 	}
 
-	return (uint8_t)best_index;
+	return (rex_uint8)best_index;
 }
 
 // Generate a colormap from a given palette and load it into memory
-void ColormapGenerate(string palette_filename, int num_fullbrights)
+void ColormapGenerate(rex_string palette_filename, rex_int32 num_fullbrights)
 {
 	//int num_fullbrights = 32; /* the last 32 colours will be full bright */
-	int x, y, i;
+	rex_int32 x, y, i;
 
-	uint8_t palette[768];
+	rex_uint8 palette[768];
 
 	FILE *file = fopen(palette_filename.c_str(), "rb");
 
-	fread(&palette, sizeof(uint8_t), 768, file);
+	fread(&palette, sizeof(rex_uint8), 768, file);
 
 	fclose(file);
 
@@ -240,7 +247,8 @@ void ColormapGenerate(string palette_filename, int num_fullbrights)
 		{
 			if (x < 256 - num_fullbrights)
 			{
-				int rgb[3];
+				rex_int32 rgb[3];
+				rex_color col;
 
 				for (i = 0; i < 3; i++)
 				{
@@ -248,7 +256,9 @@ void ColormapGenerate(string palette_filename, int num_fullbrights)
 					if (rgb[i] > 255) rgb[i] = 255;
 				}
 
-				colormap[y * 256 + x] = RGB24_To_Index8(palette, rgb);
+				col = REX_COLOR_RGB(rgb[0], rgb[1], rgb[2]);
+
+				colormap[y * 256 + x] = RGB24_To_Index8(palette, col);
 			}
 			else
 			{

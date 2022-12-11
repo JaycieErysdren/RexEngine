@@ -26,20 +26,20 @@
 
 typedef struct
 {
-	scalar_t cos[360];
-	scalar_t sin[360];
-	scalar_t tan[360];
+	rex_scalar cos[360];
+	rex_scalar sin[360];
+	rex_scalar tan[360];
 } math_t;
 
 typedef struct
 {
-	vec3s_t origin;		// X, Y, Z
-	vec3s_t velocity;	// X, Y, Z
-	vec3i_t angles;		// Pitch, Yaw, Roll (degrees)
-	int movespeedkey;	// Movement speed multiplier
-	int anglespeedkey;	// Turn speed multiplier
-	int sector_id;		// Current sector the player is in
-	int fov;			// Field of view (degrees)
+	rex_vec3s origin;		// X, Y, Z
+	rex_vec3s velocity;	// X, Y, Z
+	rex_vec3i angles;		// Pitch, Yaw, Roll (degrees)
+	rex_int32 movespeedkey;	// Movement speed multiplier
+	rex_int32 anglespeedkey;	// Turn speed multiplier
+	rex_int32 sector_id;		// Current sector the player is in
+	rex_int32 fov;			// Field of view (degrees)
 } player_t;
 
 //
@@ -97,66 +97,66 @@ uint8_t textures[1][TEXTURE_Y * TEXTURE_X];
 // Raycast rendering functions
 //
 
-void RenderRays(Rex::Surface *dst, rect_t area)
+void RenderRays(Rex::Surface *dst, rex_rect area)
 {
 	// Draw bounds
-	int draw_w = area.x2 - area.x1;
-	int draw_h = area.y2 - area.y1;
+	rex_int32 draw_w = area.x2 - area.x1;
+	rex_int32 draw_h = area.y2 - area.y1;
 
 	// The positions of the pixels we'll be drawing
-	int x;
+	rex_int32 x;
 
 	// Current sin, cos and tan of player's yaw
-	scalar_t sn = math.sin[player.angles.y];
-	scalar_t cs = math.cos[player.angles.y];
+	rex_scalar sn = math.sin[player.angles.y];
+	rex_scalar cs = math.cos[player.angles.y];
 
 	// Ray sweep loop
 	for (x = area.x1; x < area.x2; x++)
 	{
-		vec2s_t raydir;
-		vec2s_t delta_dist;
-		vec2s_t side_dist;
-		int map_x = ScalarToInteger(player.origin.x);
-		int map_y = ScalarToInteger(player.origin.y);
-		int step_x, step_y;
+		rex_vec2s raydir;
+		rex_vec2s delta_dist;
+		rex_vec2s side_dist;
+		rex_int32 map_x = RexScalarToInteger(player.origin.x);
+		rex_int32 map_y = RexScalarToInteger(player.origin.y);
+		rex_int32 step_x, step_y;
 		bool hit = false, side = false;
 		bool oob = false;
 
 		// calculate ray direction
-		raydir.x = MUL(DIV(SCALAR(2.0f), SCALAR(draw_w)), SCALAR(x)) - SCALAR(1.0f);
-		raydir.y = SCALAR(1.0f);
+		raydir.x = REX_MUL(REX_DIV(REX_SCALAR(2.0f), REX_SCALAR(draw_w)), REX_SCALAR(x)) - REX_SCALAR(1.0f);
+		raydir.y = REX_SCALAR(1.0f);
 
 		// rotate around 0,0 by player.angles.y
-		vec2s_t temp = raydir;
+		rex_vec2s temp = raydir;
 
-		raydir.x = MUL(-temp.x, cs) - MUL(-temp.y, sn);
-		raydir.y = MUL(temp.x, sn) + MUL(temp.y, cs);
+		raydir.x = REX_MUL(-temp.x, cs) - REX_MUL(-temp.y, sn);
+		raydir.y = REX_MUL(temp.x, sn) + REX_MUL(temp.y, cs);
 
 		// prevent div by 0
-		delta_dist.x = (raydir.x == 0) ? SCALAR_MAX : ABS(DIV(SCALAR(1.0f), raydir.x));
-		delta_dist.y = (raydir.y == 0) ? SCALAR_MAX : ABS(DIV(SCALAR(1.0f), raydir.y));
+		delta_dist.x = (raydir.x == 0) ? REX_SCALAR_MAX : ABS(REX_DIV(REX_SCALAR(1.0f), raydir.x));
+		delta_dist.y = (raydir.y == 0) ? REX_SCALAR_MAX : ABS(REX_DIV(REX_SCALAR(1.0f), raydir.y));
 
 		// calculate step and initial side_dist
 		if (raydir.x < 0)
 		{
 			step_x = -1;
-			side_dist.x = MUL((player.origin.x - SCALAR(map_x)), delta_dist.x);
+			side_dist.x = REX_MUL((player.origin.x - REX_SCALAR(map_x)), delta_dist.x);
 		}
 		else
 		{
 			step_x = 1;
-			side_dist.x = MUL((SCALAR(map_x) + SCALAR(1) - player.origin.x), delta_dist.x);
+			side_dist.x = REX_MUL((REX_SCALAR(map_x) + REX_SCALAR(1) - player.origin.x), delta_dist.x);
 		}
 
 		if (raydir.y < 0)
 		{
 			step_y = -1;
-			side_dist.y = MUL((player.origin.y - SCALAR(map_y)), delta_dist.y);
+			side_dist.y = REX_MUL((player.origin.y - REX_SCALAR(map_y)), delta_dist.y);
 		}
 		else
 		{
 			step_y = 1;
-			side_dist.y = MUL((SCALAR(map_y) + SCALAR(1) - player.origin.y), delta_dist.y);
+			side_dist.y = REX_MUL((REX_SCALAR(map_y) + REX_SCALAR(1) - player.origin.y), delta_dist.y);
 		}
 
 		//perform DDA
@@ -183,7 +183,7 @@ void RenderRays(Rex::Surface *dst, rect_t area)
 
 		if (oob == true) continue;
 
-		scalar_t perp_wall_dist;
+		rex_scalar perp_wall_dist;
 
 		if (side == false) perp_wall_dist = (side_dist.x - delta_dist.x);
 		else perp_wall_dist = (side_dist.y - delta_dist.y);
@@ -191,50 +191,50 @@ void RenderRays(Rex::Surface *dst, rect_t area)
 		if (perp_wall_dist != 0)
 		{
 			//Calculate height of line to draw on screen
-			int line_height = ScalarToInteger(DIV(SCALAR(draw_h), perp_wall_dist));
+			rex_int32 line_height = RexScalarToInteger(REX_DIV(REX_SCALAR(draw_h), perp_wall_dist));
 
 			//calculate lowest and highest pixel to fill in current stripe
-			int drawStart = -line_height / 2 + draw_h / 2;
+			rex_int32 drawStart = -line_height / 2 + draw_h / 2;
 			if (drawStart < 0) drawStart = 0;
-			int drawEnd = line_height / 2 + draw_h / 2;
+			rex_int32 drawEnd = line_height / 2 + draw_h / 2;
 			if (drawEnd >= draw_h) drawEnd = draw_h;
 
 			//texturing calculations
 			if (texturemapping == true)
 			{
-				int tex_num = map[map_y][map_x] - 1; //1 subtracted from it so that texture 0 can be used!
+				rex_int32 tex_num = map[map_y][map_x] - 1; //1 subtracted from it so that texture 0 can be used!
 
 				//calculate value of wallX
-				scalar_t wall_x; //where exactly the wall was hit
-				if (side == false) wall_x = player.origin.y + MUL(perp_wall_dist, raydir.y);
-				else wall_x = player.origin.x + MUL(perp_wall_dist, raydir.x);
+				rex_scalar wall_x; //where exactly the wall was hit
+				if (side == false) wall_x = player.origin.y + REX_MUL(perp_wall_dist, raydir.y);
+				else wall_x = player.origin.x + REX_MUL(perp_wall_dist, raydir.x);
 
 				wall_x -= FLOOR(wall_x);
 
 				//x coordinate on the texture
-				int tex_x = ScalarToInteger(MUL(wall_x, SCALAR(TEXTURE_X)));
+				rex_int32 tex_x = RexScalarToInteger(REX_MUL(wall_x, REX_SCALAR(TEXTURE_X)));
 				if (side == false && raydir.x > 0) tex_x = TEXTURE_X - tex_x - 1;
 				if (side == true && raydir.y < 0) tex_x = TEXTURE_X - tex_x - 1;
 
 				// How much to increase the texture coordinate per screen pixel
-				scalar_t step = SAFEDIV(MUL(SCALAR(1.0f), SCALAR(TEXTURE_X)), SCALAR(line_height));
+				rex_scalar step = REX_SAFEDIV(REX_MUL(REX_SCALAR(1.0f), REX_SCALAR(TEXTURE_X)), REX_SCALAR(line_height));
 
 				// Starting texture coordinate
-				scalar_t texcoord = MUL(SCALAR(drawStart - (draw_h / 2) + (line_height / 2)), step);
+				rex_scalar texcoord = REX_MUL(REX_SCALAR(drawStart - (draw_h / 2) + (line_height / 2)), step);
 
 				// it turns out this isn't really any faster...
 				//Rex::SurfaceBlit8(dst, x, drawStart, x + 1, drawEnd, &pic_wall, tex_x, 0, 1, pic_wall.height, Rex::SurfaceCOPY);
 
-				for (int y = drawStart; y < drawEnd; y++)
+				for (rex_int32 y = drawStart; y < drawEnd; y++)
 				{
 					// Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
-					int tex_y = ScalarToInteger(texcoord) & (TEXTURE_Y - 1);
+					rex_int32 tex_y = RexScalarToInteger(texcoord) & (TEXTURE_Y - 1);
 					texcoord += step;
 					uint8_t color = Rex::SurfaceGetPixel(&pic_wall, tex_x, tex_y);
 
 					// Lookup in colormap for brightness
-					if (side == true) color = Rex::ColormapLookup(color, ScalarToInteger(MUL(perp_wall_dist, SCALAR(2))) - 2);
-					else color = Rex::ColormapLookup(color, ScalarToInteger(MUL(perp_wall_dist, SCALAR(2))));
+					if (side == true) color = Rex::ColormapLookup(color, RexScalarToInteger(REX_MUL(perp_wall_dist, REX_SCALAR(2))) - 2);
+					else color = Rex::ColormapLookup(color, RexScalarToInteger(REX_MUL(perp_wall_dist, REX_SCALAR(2))));
 
 					Rex::SurfaceDrawPixel(dst, x, y, color);
 				}
@@ -254,8 +254,8 @@ void RenderRays(Rex::Surface *dst, rect_t area)
 				}
 
 				// Lookup in colormap for brightness
-				if (side == true) color = Rex::ColormapLookup(color, ScalarToInteger(MUL(perp_wall_dist, SCALAR(2))) - 4);
-				else color = Rex::ColormapLookup(color, ScalarToInteger(MUL(perp_wall_dist, SCALAR(2))));
+				if (side == true) color = Rex::ColormapLookup(color, RexScalarToInteger(REX_MUL(perp_wall_dist, REX_SCALAR(2))) - 4);
+				else color = Rex::ColormapLookup(color, RexScalarToInteger(REX_MUL(perp_wall_dist, REX_SCALAR(2))));
 
 				//draw the pixels of the stripe as a vertical line
 				Rex::SurfaceDrawVerticalLine(dst, x, drawStart, drawEnd, color);
@@ -264,12 +264,12 @@ void RenderRays(Rex::Surface *dst, rect_t area)
 	}
 }
 
-void DrawMap(Rex::Surface *dst, int x, int y, int cell_width, int cell_height)
+void DrawMap(Rex::Surface *dst, rex_int32 x, rex_int32 y, rex_int32 cell_width, rex_int32 cell_height)
 {
 	// Draw a map
-	for (int my = 0; my < MAP_Y; my++)
+	for (rex_int32 my = 0; my < MAP_Y; my++)
 	{
-		for (int mx = 0; mx < MAP_X; mx++)
+		for (rex_int32 mx = 0; mx < MAP_X; mx++)
 		{
 			uint8_t color;
 			switch (map[my][mx])
@@ -287,15 +287,15 @@ void DrawMap(Rex::Surface *dst, int x, int y, int cell_width, int cell_height)
 	}
 
 	// Draw the player on the map
-	Rex::SurfaceDrawPixel(dst, x + ScalarToInteger(MUL((player.origin.x), SCALAR(cell_width))), y + ScalarToInteger(MUL((player.origin.y), SCALAR(cell_height))), 254);
+	Rex::SurfaceDrawPixel(dst, x + RexScalarToInteger(REX_MUL((player.origin.x), REX_SCALAR(cell_width))), y + RexScalarToInteger(REX_MUL((player.origin.y), REX_SCALAR(cell_height))), 254);
 }
 
 void GenerateTextures()
 {
 	// generate a texture
-	for(int x = 0; x < TEXTURE_X; x++)
+	for(rex_int32 x = 0; x < TEXTURE_X; x++)
 	{
-		for(int y = 0; y < TEXTURE_Y; y++)
+		for(rex_int32 y = 0; y < TEXTURE_Y; y++)
 		{
 			textures[0][TEXTURE_X * y + x] = 32 - ((y + 1) / 2);
 		}
@@ -308,9 +308,9 @@ void GenerateTextures()
 
 void PlayerInit()
 {
-	player.origin.x = SCALAR(8.5f);
-	player.origin.y = SCALAR(2.5f);
-	player.origin.z = SCALAR(0.5f);
+	player.origin.x = REX_SCALAR(8.5f);
+	player.origin.y = REX_SCALAR(2.5f);
+	player.origin.z = REX_SCALAR(0.5f);
 
 	player.angles.x = 0;
 	player.angles.y = 0;
@@ -326,9 +326,9 @@ void PlayerInit()
 void PlayerController()
 {
 	// Mouse read
-	static int mx_prev, my_prev;
-	int delta_mx, delta_my;
-	int mb, mx, my;
+	static rex_int32 mx_prev, my_prev;
+	rex_int32 delta_mx, delta_my;
+	rex_int32 mb, mx, my;
 	Rex::MouseRead(&mb, &mx, &my);
 
 	delta_mx = mx_prev - mx;
@@ -372,9 +372,9 @@ void PlayerController()
 		player.movespeedkey = 4;
 
 	// Set velocity
-	player.velocity.x = MUL(math.sin[player.angles.y], SCALAR(0.1f)) * player.movespeedkey;
-	player.velocity.y = MUL(math.cos[player.angles.y], SCALAR(0.1f)) * player.movespeedkey;
-	player.velocity.z = SCALAR(1.0f) * player.movespeedkey;
+	player.velocity.x = REX_MUL(math.sin[player.angles.y], REX_SCALAR(0.1f)) * player.movespeedkey;
+	player.velocity.y = REX_MUL(math.cos[player.angles.y], REX_SCALAR(0.1f)) * player.movespeedkey;
+	player.velocity.z = REX_SCALAR(1.0f) * player.movespeedkey;
 
 	// Move forwards
 	if (Rex::KeyTest(REX_KB_W))
@@ -426,14 +426,14 @@ void PlayerController()
 void SectorsInit()
 {
 	// Add some vertices
-	Portrend::AddVertex(0, SCALAR(-256), SCALAR(0));
-	Portrend::AddVertex(1, SCALAR(-128), SCALAR(256));
-	Portrend::AddVertex(2, SCALAR(128), SCALAR(256));
-	Portrend::AddVertex(3, SCALAR(256), SCALAR(0));
-	Portrend::AddVertex(4, SCALAR(128), SCALAR(-256));
-	Portrend::AddVertex(5, SCALAR(-128), SCALAR(-256));
-	Portrend::AddVertex(6, SCALAR(256), SCALAR(512));
-	Portrend::AddVertex(7, SCALAR(512), SCALAR(128));
+	Portrend::AddVertex(0, REX_SCALAR(-256), REX_SCALAR(0));
+	Portrend::AddVertex(1, REX_SCALAR(-128), REX_SCALAR(256));
+	Portrend::AddVertex(2, REX_SCALAR(128), REX_SCALAR(256));
+	Portrend::AddVertex(3, REX_SCALAR(256), REX_SCALAR(0));
+	Portrend::AddVertex(4, REX_SCALAR(128), REX_SCALAR(-256));
+	Portrend::AddVertex(5, REX_SCALAR(-128), REX_SCALAR(-256));
+	Portrend::AddVertex(6, REX_SCALAR(256), REX_SCALAR(512));
+	Portrend::AddVertex(7, REX_SCALAR(512), REX_SCALAR(128));
 
 	// Add some walls
 	Portrend::AddWall(0, 0, 1, 150);
@@ -459,15 +459,15 @@ void SectorsInit()
 	/* old rooms
 
 	// Add some vertices
-	AddVertex(0, SCALAR(-256), SCALAR(256));
-	AddVertex(1, SCALAR(0), SCALAR(256));
-	AddVertex(2, SCALAR(256), SCALAR(256));
-	AddVertex(3, SCALAR(256), SCALAR(0));
-	AddVertex(4, SCALAR(256), SCALAR(-256));
-	AddVertex(5, SCALAR(0), SCALAR(-256));
-	AddVertex(6, SCALAR(-256), SCALAR(-256));
-	AddVertex(7, SCALAR(-256), SCALAR(0));
-	AddVertex(8, SCALAR(0), SCALAR(0));
+	AddVertex(0, REX_SCALAR(-256), REX_SCALAR(256));
+	AddVertex(1, REX_SCALAR(0), REX_SCALAR(256));
+	AddVertex(2, REX_SCALAR(256), REX_SCALAR(256));
+	AddVertex(3, REX_SCALAR(256), REX_SCALAR(0));
+	AddVertex(4, REX_SCALAR(256), REX_SCALAR(-256));
+	AddVertex(5, REX_SCALAR(0), REX_SCALAR(-256));
+	AddVertex(6, REX_SCALAR(-256), REX_SCALAR(-256));
+	AddVertex(7, REX_SCALAR(-256), REX_SCALAR(0));
+	AddVertex(8, REX_SCALAR(0), REX_SCALAR(0));
 
 	// Add some walls
 	AddWall(0, 0, 1, 150); // outer walls
@@ -511,7 +511,7 @@ void SectorsInit()
 int main(int argc, char *argv[])
 {
 	// General variables
-	int i;
+	rex_int32 i;
 
 	// Picture buffers
 	Rex::Surface pic_font;
@@ -520,14 +520,14 @@ int main(int argc, char *argv[])
 
 	// Cycles
 	int64_t frame_start, frame_end;
-	int cycles, c;
+	rex_int32 cycles, c;
 
 	// Generate math table
 	for (i = 0; i < 360; i++)
 	{
-		math.sin[i] = SCALAR(sin(i / 180.0f * PI));
-		math.cos[i] = SCALAR(cos(i / 180.0f * PI));
-		math.tan[i] = SCALAR(tan(i / 180.0f * PI));
+		math.sin[i] = REX_SCALAR(sin(i / 180.0f * PI));
+		math.cos[i] = REX_SCALAR(cos(i / 180.0f * PI));
+		math.tan[i] = REX_SCALAR(tan(i / 180.0f * PI));
 	}
 
 	// Initialize player data
@@ -579,8 +579,8 @@ int main(int argc, char *argv[])
 
 			PlayerController();
 
-			// Print some player info
-			sprintf(console_buffer, "x: %d y: %d z %d", ScalarToInteger(player.origin.x), ScalarToInteger(player.origin.y), ScalarToInteger(player.origin.z));
+			// Prrex_int32 some player info
+			sprintf(console_buffer, "x: %d y: %d z %d", RexScalarToInteger(player.origin.x), RexScalarToInteger(player.origin.y), RexScalarToInteger(player.origin.z));
 			Rex::ConsoleAddText(0, 0, console_buffer);
 			sprintf(console_buffer, "pitch: %d yaw: %d roll %d", player.angles.x, player.angles.y, player.angles.z);
 			Rex::ConsoleAddText(0, 1, console_buffer);
@@ -596,7 +596,7 @@ int main(int argc, char *argv[])
 		// Raycaster rendering
 		{
 			// watcom...
-			rect_t screen_area = {0, 0, vidinfo.width, vidinfo.height};
+			rex_rect screen_area = {0, 0, vidinfo.width, vidinfo.height};
 			RenderRays(&pic_bbuffer, screen_area);
 		}
 

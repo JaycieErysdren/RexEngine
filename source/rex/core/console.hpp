@@ -39,13 +39,13 @@ void ConsoleInitialize();
 void ConsoleShutdown();
 
 // Add text to the console buffer
-void ConsoleAddText(int x, int y, const char *text);
+void ConsoleAddText(rex_int32 x, rex_int32 y, const char *text);
 
 // Add formatted text to the console buffer (doesn't work)
-void ConsoleAddTextF(int x, int y, const char *fmt, ...);
+void ConsoleAddTextF(rex_int32 x, rex_int32 y, const char *fmt, ...);
 
 // Render the console to the given buffer
-void ConsoleRender(Surface *dst, Surface *font, int font_size);
+void ConsoleRender(Surface *dst, Surface *font, rex_int32 font_size);
 
 } // namespace Rex
 

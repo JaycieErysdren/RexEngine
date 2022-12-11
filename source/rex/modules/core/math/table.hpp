@@ -23,9 +23,9 @@
 class MathTable
 {
 	public:
-		scalar_t cos[360];
-		scalar_t sin[360];
-		scalar_t tan[360];
+		rex_scalar cos[360];
+		rex_scalar sin[360];
+		rex_scalar tan[360];
 
 		// Constructor
 		MathTable();

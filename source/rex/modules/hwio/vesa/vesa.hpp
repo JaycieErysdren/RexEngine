@@ -39,7 +39,7 @@ namespace VESA
 	// Bootstrap
 	//
 
-	bool Initialize(int w, int h, int bpp);
+	bool Initialize(rex_int32 w, rex_int32 h, rex_int32 bpp);
 	void Shutdown();
 
 	//
@@ -47,7 +47,7 @@ namespace VESA
 	//
 
 	void SetPalette(string filename);
-	void GetVidInfo(int *w, int *h, int *bpp, int *bytes_per_row);
-	void PlaceBuffer(int8_t *buffer, int buffer_size);
+	void GetVidInfo(rex_int32 *w, rex_int32 *h, rex_int32 *bpp, rex_int32 *bytes_per_row);
+	void PlaceBuffer(rex_uint8 *buffer, rex_int32 buffer_size);
 
 }

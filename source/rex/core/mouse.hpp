@@ -71,10 +71,10 @@ namespace Rex
 //
 
 // Returns true if the mouse was successfully able to be read
-bool MouseRead(int *btns, int *x, int *y);
+bool MouseRead(rex_int32 *btns, rex_int32 *x, rex_int32 *y);
 
 // Set the current mouse position
-void MouseSet(int x, int y);
+void MouseSet(rex_int32 x, rex_int32 y);
 
 } // namespace Rex
 

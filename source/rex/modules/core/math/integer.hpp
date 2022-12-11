@@ -21,4 +21,4 @@
 //
 
 // Integer square root
-int32_t isqr(int32_t value);
+rex_int32 isqr(rex_int32 value);

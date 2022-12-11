@@ -35,10 +35,10 @@ namespace Rex
 class VidInfo
 {
 	public:
-		int width;
-		int height;
-		int bpp;
-		int bytes_per_row;
+		rex_int32 width;
+		rex_int32 height;
+		rex_int32 bpp;
+		rex_int32 bytes_per_row;
 };
 
 //
@@ -52,13 +52,13 @@ class VidInfo
 //
 
 // Initialize graphics
-bool InitializeGraphics(int w, int h, int bpp);
+bool InitializeGraphics(rex_int32 w, rex_int32 h, rex_int32 bpp);
 
 // Shutdown graphics
 bool ShutdownGraphics();
 
 // Set the 256-color palette for 8-bit indexed color rendering
-bool SetGraphicsPalette(string filename);
+bool SetGraphicsPalette(rex_string filename);
 
 // Return a VidInfo object with details about the current video state
 VidInfo GetVidInfo();
@@ -67,10 +67,10 @@ VidInfo GetVidInfo();
 // Colormap
 //
 
-uint8_t ColormapLookup(uint8_t index, int light);
-void ColormapGenerate(string palette_filename, int num_fullbrights);
-void ColormapSave(string filename);
-void ColormapLoad(string filename);
+rex_color ColormapLookup(rex_color color, int light);
+void ColormapGenerate(rex_string palette_filename, rex_int32 num_fullbrights);
+void ColormapSave(rex_string filename);
+void ColormapLoad(rex_string filename);
 
 } // namespace Rex
 

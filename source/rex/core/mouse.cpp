@@ -33,7 +33,7 @@ namespace Rex
 //
 
 // Returns true if the mouse was successfully able to be read
-bool MouseRead(int *btns, int *x, int *y)
+bool MouseRead(rex_int32 *btns, rex_int32 *x, rex_int32 *y)
 {
 	#if (REX_TARGET == PLATFORM_DOS) && (MODULE_DOS)
 
@@ -41,9 +41,9 @@ bool MouseRead(int *btns, int *x, int *y)
 
 		mb = DOS::MouseRead(&mx, &my);
 
-		*btns = mb;
-		*x = mx;
-		*y = my;
+		*btns = (rex_int32)mb;
+		*x = (rex_int32)mx;
+		*y = (rex_int32)my;
 
 		return true;
 
@@ -55,7 +55,7 @@ bool MouseRead(int *btns, int *x, int *y)
 }
 
 // Set the current mouse position
-void MouseSet(int x, int y)
+void MouseSet(rex_int32 x, rex_int32 y)
 {
 	#if (REX_TARGET == PLATFORM_DOS) && (MODULE_DOS)
 

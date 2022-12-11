@@ -59,17 +59,17 @@ void ConsoleShutdown()
 }
 
 // Add text to the console buffer
-void ConsoleAddText(int x, int y, const char *text)
+void ConsoleAddText(rex_int32 x, rex_int32 y, const char *text)
 {
-	uint8_t *p;
+	rex_uint8 *p;
 	for (p = &pic_console.scanlines.b[y][x]; (*p++ = *text++) != 0;);
 }
 
 // Add formatted text to the console buffer (doesn't work)
-void ConsoleAddTextF(int x, int y, const char *fmt, ...)
+void ConsoleAddTextF(rex_int32 x, rex_int32 y, const char *fmt, ...)
 {
 	va_list args;
-	uint8_t *p;
+	rex_uint8 *p;
 	char text[256];
 
 	va_start(args, fmt);
@@ -80,17 +80,17 @@ void ConsoleAddTextF(int x, int y, const char *fmt, ...)
 }
 
 // Render the console to the given buffer
-void ConsoleRender(Surface *dst, Surface *font, int font_size)
+void ConsoleRender(Surface *dst, Surface *font, rex_int32 font_size)
 {
-	int x, y;
+	rex_int32 x, y;
 
 	for (y = pic_console.height; y--;)
 	{
 		for (x = pic_console.width; x--;)
 		{
-			int xx = x * font_size, yy = y * font_size;
+			rex_int32 xx = x * font_size, yy = y * font_size;
 
-			int c = pic_console.scanlines.b[y][x] << 3;
+			rex_int32 c = pic_console.scanlines.b[y][x] << 3;
 
 			SurfaceBlit8(dst, xx, yy, xx + font_size, yy + font_size, font, c, 0, c + 8, 8, COLORKEY);
 		}

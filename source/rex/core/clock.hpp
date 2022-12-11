@@ -33,7 +33,7 @@ namespace Rex
 //
 
 // Returns the number of ticks since the program started running
-int64_t GetTicks64();
+rex_int64 GetTicks64();
 
 } // namespace Rex
 

@@ -26,20 +26,20 @@
 // Math table
 typedef struct
 {
-	scalar_t cos[360];
-	scalar_t sin[360];
-	scalar_t tan[360];
+	rex_scalar cos[360];
+	rex_scalar sin[360];
+	rex_scalar tan[360];
 } math_t;
 
 // Camera
 typedef struct
 {
-	vec3s_t origin;				// X, Y, Z
-	vec3s_t velocity;			// X, Y, Z
-	vec3i_t angles;				// Pitch, yaw, roll
-	scalar_t draw_distance;		// Draw distance (scalar units)
-	int movespeedkey;
-	int anglespeedkey;
+	rex_vec3s origin;				// X, Y, Z
+	rex_vec3s velocity;			// X, Y, Z
+	rex_vec3i angles;				// Pitch, yaw, roll
+	rex_scalar draw_distance;		// Draw distance (scalar units)
+	rex_int32 movespeedkey;
+	rex_int32 anglespeedkey;
 } camera_t;
 
 // Voxel
@@ -89,9 +89,9 @@ char console_buffer[256];
 void CameraController()
 {
 	// Mouse read
-	static int mx_prev, my_prev;
-	int delta_mx, delta_my;
-	int mb, mx, my;
+	static rex_int32 mx_prev, my_prev;
+	rex_int32 delta_mx, delta_my;
+	rex_int32 mb, mx, my;
 	Rex::MouseRead(&mb, &mx, &my);
 
 	delta_mx = mx_prev - mx;
@@ -137,7 +137,7 @@ void CameraController()
 	// Set velocity
 	camera.velocity.x = math.sin[camera.angles.y] * camera.movespeedkey;
 	camera.velocity.y = math.cos[camera.angles.y] * camera.movespeedkey;
-	camera.velocity.z = SCALAR(1.0f) * camera.movespeedkey;
+	camera.velocity.z = REX_SCALAR(1.0f) * camera.movespeedkey;
 
 	// Move forwards
 	if (Rex::KeyTest(REX_KB_W))
@@ -183,19 +183,19 @@ void CameraController()
 // VoxCave
 //
 
-void VoxCave_Init(vec2i_t screen_dimensions)
+void VoxCave_Init(rex_vec2i screen_dimensions)
 {
 	// Set starter values
-	camera.origin.x = SCALAR(128);
-	camera.origin.y = SCALAR(128);
-	camera.origin.z = SCALAR(128);
+	camera.origin.x = REX_SCALAR(128);
+	camera.origin.y = REX_SCALAR(128);
+	camera.origin.z = REX_SCALAR(128);
 
 	voxcave.horizon = screen_dimensions.y / 2;
 
 	// Generate a cave
-	for (int y = 0; y < 256; y++)
+	for (rex_int32 y = 0; y < 256; y++)
 	{
-		for (int x = 0; x < 256; x++)
+		for (rex_int32 x = 0; x < 256; x++)
 		{
 			map1[y][x].height = 255;
 			map1[y][x].color = 128;
@@ -210,30 +210,30 @@ void VoxCave_Init(vec2i_t screen_dimensions)
 	startdmost = (int16_t *)calloc(screen_dimensions.x, sizeof(int16_t));
 
 	// Initialize startdmost to the screen height
-	for (int i = 0; i < screen_dimensions.x; i++)
+	for (rex_int32 i = 0; i < screen_dimensions.x; i++)
 	{
 		startdmost[i] = screen_dimensions.y;
 	}
 }
 
-void VoxCave_RenderColumn(Rex::Surface *dst, rect_t area, int column, scalar_t draw_distance)
+void VoxCave_RenderColumn(Rex::Surface *dst, rex_rect area, rex_int32 column, rex_scalar draw_distance)
 {
 	// sanity check
 	if (startumost[column] > startdmost[column]) return;
 
 	// drawable area
-	int draw_w = area.x2 - area.x1;
-	int draw_h = area.y2 - area.y1;
+	rex_int32 draw_w = area.x2 - area.x1;
+	rex_int32 draw_h = area.y2 - area.y1;
 
 	// sin and cos of camera yaw
-	scalar_t sn = math.sin[camera.angles.y];
-	scalar_t cs = math.cos[camera.angles.y];
+	rex_scalar sn = math.sin[camera.angles.y];
+	rex_scalar cs = math.cos[camera.angles.y];
 }
 
-void VoxCave_Render(Rex::Surface *dst, rect_t area)
+void VoxCave_Render(Rex::Surface *dst, rex_rect area)
 {
 	// Draw loop
-	for (int sx = area.x1; sx < area.x1; sx++)
+	for (rex_int32 sx = area.x1; sx < area.x1; sx++)
 	{
 		VoxCave_RenderColumn(dst, area, sx, camera.draw_distance);
 	}	
@@ -350,7 +350,7 @@ void VoxelLoadCasino()
 	fclose(col);
 }
 
-void VoxelInit(int screen_width)
+void VoxelInit(rex_int32 screen_width)
 {
 	// Load the map from heightmap and colors
 	//VoxelLoadMap1();
@@ -363,9 +363,9 @@ void VoxelInit(int screen_width)
 	ybuffer = (int32_t *)calloc(screen_width, sizeof(int32_t));
 
 	// Position (scalar units)
-	camera.origin.x = SCALAR(32);
-	camera.origin.y = SCALAR(32);
-	camera.origin.z = SCALAR(32);
+	camera.origin.x = REX_SCALAR(32);
+	camera.origin.y = REX_SCALAR(32);
+	camera.origin.z = REX_SCALAR(32);
 
 	// Angle (degrees)
 	camera.angles.x = 100; // pitch
@@ -373,7 +373,7 @@ void VoxelInit(int screen_width)
 	camera.angles.z = 0; // roll
 
 	// Draw distance (scalar units)
-	camera.draw_distance = SCALAR(256);
+	camera.draw_distance = REX_SCALAR(256);
 }
 
 void VoxelShutdown()
@@ -385,43 +385,43 @@ void VoxelShutdown()
 	free(ybuffer);
 }
 
-void VoxelRender(Rex::Surface *dst, rect_t area, vec3s_t p, int yaw, int horizon, scalar_t height_scale, scalar_t draw_distance, bool ceiling, vec2i_t map_size, uint8_t *colormap, uint8_t *heightmap)
+void VoxelRender(Rex::Surface *dst, rex_rect area, rex_vec3s p, rex_int32 yaw, rex_int32 horizon, rex_scalar height_scale, rex_scalar draw_distance, bool ceiling, rex_vec2i map_size, uint8_t *colormap, uint8_t *heightmap)
 {
 	// Drawable area
-	int draw_w = area.x2 - area.x1;
-	int draw_h = area.y2 - area.y1;
+	rex_int32 draw_w = area.x2 - area.x1;
+	rex_int32 draw_h = area.y2 - area.y1;
 
 	// sin and cos of yaw
-	scalar_t sn = math.sin[yaw];
-	scalar_t cs = math.cos[yaw];
+	rex_scalar sn = math.sin[yaw];
+	rex_scalar cs = math.cos[yaw];
 
 	// Z, and current change in Z
-	scalar_t z = SCALAR(0.05f);
-	scalar_t dz = SCALAR(0.5f);
+	rex_scalar z = REX_SCALAR(0.05f);
+	rex_scalar dz = REX_SCALAR(0.5f);
 
 	// Initialize y-buffer
-	for (int i = 0; i < draw_w; i++)
+	for (rex_int32 i = 0; i < draw_w; i++)
 		ybuffer[i] = ceiling == true ? 0 : draw_h;
 
 	// Render front to back
 	while (z < draw_distance)
 	{
-		vec2s_t pleft, pright;
+		rex_vec2s pleft, pright;
 
-		pleft.x = (MUL(-cs, z) - MUL(sn, z)) + p.x;
-		pleft.y = (MUL(sn, z) - MUL(cs, z)) + p.y;
+		pleft.x = (REX_MUL(-cs, z) - REX_MUL(sn, z)) + p.x;
+		pleft.y = (REX_MUL(sn, z) - REX_MUL(cs, z)) + p.y;
 
-		pright.x = (MUL(cs, z) - MUL(sn, z)) + p.x;
-		pright.y = (MUL(-sn, z) - MUL(cs, z)) + p.y;
+		pright.x = (REX_MUL(cs, z) - REX_MUL(sn, z)) + p.x;
+		pright.y = (REX_MUL(-sn, z) - REX_MUL(cs, z)) + p.y;
 
-		scalar_t dx = DIV(pright.x - pleft.x, SCALAR(draw_w));
-		scalar_t dy = DIV(pright.y - pleft.y, SCALAR(draw_w));
+		rex_scalar dx = REX_DIV(pright.x - pleft.x, REX_SCALAR(draw_w));
+		rex_scalar dy = REX_DIV(pright.y - pleft.y, REX_SCALAR(draw_w));
 
-		for (int sx = 0; sx < draw_w; sx++)
+		for (rex_int32 sx = 0; sx < draw_w; sx++)
 		{
-			vec2i_t pi;
-			pi.x = ScalarToInteger(pleft.x);
-			pi.y = ScalarToInteger(pleft.y);
+			rex_vec2i pi;
+			pi.x = RexScalarToInteger(pleft.x);
+			pi.y = RexScalarToInteger(pleft.y);
 
 			if (pi.x > (map_size.x - 1) || pi.x < 0 || pi.y > (map_size.y - 1) || pi.y < 0)
 			{
@@ -435,19 +435,19 @@ void VoxelRender(Rex::Surface *dst, rect_t area, vec3s_t p, int yaw, int horizon
 			//if (pi.y > (map_size.y - 1)) pi.y -= map_size.y;
 			//if (pi.y < 0) pi.y += map_size.y;
 
-			scalar_t h = SCALAR(heightmap[(pi.y * map_size.y) + pi.x]);
-			scalar_t dh = ceiling == true ? h - p.z : p.z - h;
+			rex_scalar h = REX_SCALAR(heightmap[(pi.y * map_size.y) + pi.x]);
+			rex_scalar dh = ceiling == true ? h - p.z : p.z - h;
 
 			uint8_t c = colormap[(pi.y * map_size.y) + pi.x];
 
-			int line_height = ScalarToInteger(MUL(DIV(dh, z), height_scale)) + horizon;
+			rex_int32 line_height = RexScalarToInteger(REX_MUL(REX_DIV(dh, z), height_scale)) + horizon;
 
 			if (line_height > draw_h) break;
 			line_height = CLAMP(line_height, area.y1, area.y2);
 
 			if ((ceiling == true && line_height > ybuffer[sx]) || (ceiling == false && line_height < ybuffer[sx]))
 			{
-				//c = Colormap::Lookup(c, ScalarToInteger(z));
+				//c = Colormap::Lookup(c, RexScalarToInteger(z));
 				Rex::SurfaceDrawVerticalLine(dst, sx, line_height, ybuffer[sx], c);
 				ybuffer[sx] = line_height;
 			}
@@ -457,32 +457,32 @@ void VoxelRender(Rex::Surface *dst, rect_t area, vec3s_t p, int yaw, int horizon
 		}
 
 		z += dz;
-		//dz += SCALAR(0.02f);
+		//dz += REX_SCALAR(0.02f);
 	}
 }
 
-void VoxelRenderWrapper(Rex::Surface *dst, rect_t area)
+void VoxelRenderWrapper(Rex::Surface *dst, rex_rect area)
 {
 	// Throw in some collision detection while we're at it
-	scalar_t minh = SCALAR(32);
+	rex_scalar minh = REX_SCALAR(32);
 	if (camera.origin.z < minh) camera.origin.z = minh;
 
 
 	// map 1 floor
-	//VoxelRender(dst, area, camera.origin, camera.angles.y, camera.angles.x, SCALAR(64), camera.draw_distance, false, VEC2I(1024, 1024), f_colormap, f_heightmap);
+	//VoxelRender(dst, area, camera.origin, camera.angles.y, camera.angles.x, REX_SCALAR(64), camera.draw_distance, false, VEC2I(1024, 1024), f_colormap, f_heightmap);
 
 	// map 2 floor
-	//VoxelRender(dst, area, camera.origin, camera.angles.y, 100, SCALAR(32), camera.draw_distance, false, VEC2I(64, 64), f_colormap, f_heightmap);
+	//VoxelRender(dst, area, camera.origin, camera.angles.y, 100, REX_SCALAR(32), camera.draw_distance, false, VEC2I(64, 64), f_colormap, f_heightmap);
 
 	// map 2 ceiling
-	//VoxelRender(dst, area, camera.origin, camera.angles.y, 100, SCALAR(32), camera.draw_distance, true, VEC2I(64, 64), c_colormap, c_heightmap);
+	//VoxelRender(dst, area, camera.origin, camera.angles.y, 100, REX_SCALAR(32), camera.draw_distance, true, VEC2I(64, 64), c_colormap, c_heightmap);
 
 	// map 3 floor
-	//VoxelRender(dst, area, camera.origin, camera.angles.y, 100, SCALAR(16), camera.draw_distance, false, VEC2I(150, 150), f_colormap, f_heightmap);
+	//VoxelRender(dst, area, camera.origin, camera.angles.y, 100, REX_SCALAR(16), camera.draw_distance, false, VEC2I(150, 150), f_colormap, f_heightmap);
 
 	// casino floor
-	vec2i_t map_size = {512, 512};
-	VoxelRender(dst, area, camera.origin, camera.angles.y, 100, SCALAR(128), camera.draw_distance, false, map_size, f_colormap, f_heightmap);
+	rex_vec2i map_size = {512, 512};
+	VoxelRender(dst, area, camera.origin, camera.angles.y, 100, REX_SCALAR(128), camera.draw_distance, false, map_size, f_colormap, f_heightmap);
 }
 
 //
@@ -490,10 +490,10 @@ void VoxelRenderWrapper(Rex::Surface *dst, rect_t area)
 //
 
 // Mouse helper function
-void ReadMouse(int *buttons, vec2i_t *pos, int speedlimit, rect_t area)
+void ReadMouse(rex_int32 *buttons, rex_vec2i *pos, rex_int32 speedlimit, rex_rect area)
 {
-	int mb, mx, my, dmx, dmy;
-	int halfx = 160, halfy = 100;
+	rex_int32 mb, mx, my, dmx, dmy;
+	rex_int32 halfx = 160, halfy = 100;
 
 	Rex::MouseRead(&mb, &mx, &my);
 	
@@ -523,11 +523,11 @@ void ReadMouse(int *buttons, vec2i_t *pos, int speedlimit, rect_t area)
 int main(int argc, char *argv[])
 {
 	// General variables
-	int i;
+	rex_int32 i;
 
 	// Cycle variables
-	int64_t frame_start, frame_end;
-	int cycles, c;
+	rex_int64 frame_start, frame_end;
+	rex_int32 cycles, c;
 
 	// Picture buffers
 	Rex::Surface pic_font;
@@ -555,9 +555,9 @@ int main(int argc, char *argv[])
 	// Generate math tables
 	for (i = 0; i < 360; i++)
 	{
-		math.sin[i] = SCALAR(sin(i / 180.0f * PI));
-		math.cos[i] = SCALAR(cos(i / 180.0f * PI));
-		math.tan[i] = SCALAR(tan(i / 180.0f * PI));
+		math.sin[i] = REX_SCALAR(sin(i / 180.0f * PI));
+		math.cos[i] = REX_SCALAR(cos(i / 180.0f * PI));
+		math.tan[i] = REX_SCALAR(tan(i / 180.0f * PI));
 	}
 
 	// Initialize voxel stuff
@@ -603,7 +603,7 @@ int main(int argc, char *argv[])
 		// Voxels
 		{
 			// watcom...
-			rect_t screen_area = {0, 0, pic_bbuffer.width, pic_bbuffer.height};
+			rex_rect screen_area = {0, 0, pic_bbuffer.width, pic_bbuffer.height};
 
 			// VoxCave renderer
 			//VoxCave_Render(&pic_bbuffer, screen_area);

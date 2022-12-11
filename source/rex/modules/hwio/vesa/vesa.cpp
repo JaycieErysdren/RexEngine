@@ -207,7 +207,7 @@ bool GetInfo()
 }
 
 // Get info about a specific VESA mode
-bool GetModeInfo(int mode)
+bool GetModeInfo(rex_int32 mode)
 {
 	#if (REX_COMPILER == COMPILER_DJGPP)
 
@@ -252,7 +252,7 @@ bool GetModeInfo(int mode)
 }
 
 // Find a specified VESA mode number
-int FindMode(int w, int h, int bpp)
+int FindMode(rex_int32 w, rex_int32 h, rex_int32 bpp)
 {
 	#if (REX_COMPILER == COMPILER_DJGPP)
 
@@ -322,7 +322,7 @@ int FindMode(int w, int h, int bpp)
 //
 
 // Set the vesa mode from a set of variables
-bool SetMode(int w, int h, int bpp)
+bool SetMode(rex_int32 w, rex_int32 h, rex_int32 bpp)
 {
 	#if (REX_COMPILER == COMPILER_DJGPP)
 
@@ -357,7 +357,7 @@ bool SetMode(int w, int h, int bpp)
 }
 
 // Set the bank that the pixel functions are currently writing to
-void SetBank(int bank_number)
+void SetBank(rex_int32 bank_number)
 {
 	#if (REX_COMPILER == COMPILER_DJGPP)
 
@@ -385,7 +385,7 @@ void SetBank(int bank_number)
 }
 
 // Place a pixel on the screen (SLOW!!)
-void PutPixel(int x, int y, int color)
+void PutPixel(rex_int32 x, rex_int32 y, rex_color color)
 {
 	#if (REX_COMPILER == COMPILER_DJGPP)
 
@@ -402,7 +402,7 @@ void PutPixel(int x, int y, int color)
 }
 
 // Place a pixel buffer into the video memory
-void PlaceBuffer(int8_t *buffer, int buffer_size)
+void PlaceBuffer(rex_uint8 *buffer, rex_int32 buffer_size)
 {
 	#if (REX_COMPILER == COMPILER_DJGPP)
 
@@ -443,7 +443,7 @@ void PlaceBuffer(int8_t *buffer, int buffer_size)
 //
 
 // Initialize the VESA driver with the given width, height and bpp
-bool Initialize(int w, int h, int bpp)
+bool Initialize(rex_int32 w, rex_int32 h, rex_int32 bpp)
 {
 	return SetMode(w, h, bpp);
 }
@@ -473,16 +473,16 @@ void Shutdown()
 // Helpers
 //
 
-void GetVidInfo(int *w, int *h, int *bpp, int *bytes_per_row)
+void GetVidInfo(rex_int32 *w, rex_int32 *h, rex_int32 *bpp, rex_int32 *bytes_per_row)
 {
-	*w = (int)mib.XResolution;
-	*h = (int)mib.YResolution;
-	*bpp = (int)mib.BitsPerPixel;
-	*bytes_per_row = (int)(mib.BitsPerPixel * mib.XResolution);
+	*w = (rex_int32)mib.XResolution;
+	*h = (rex_int32)mib.YResolution;
+	*bpp = (rex_int32)mib.BitsPerPixel;
+	*bytes_per_row = (rex_int32)(mib.BitsPerPixel * mib.XResolution);
 }
 
 // Set the palette from a file
-void SetPalette(string filename)
+void SetPalette(rex_string filename)
 {
 	int i;
 	FILE *file;

@@ -21,7 +21,7 @@
 #include "math.hpp"
 
 // look upon ye mighty and despair
-int sintable[] =
+rex_int32 sintable[] =
 {
 	0, 201, 402, 603, 804, 1005, 1206, 1407,
 	1608, 1809, 2010, 2211, 2412, 2613, 2814, 3014,

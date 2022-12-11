@@ -20,12 +20,12 @@
 //
 //
 
-int fixinv(int a);
-int fixmul(int a, int b);
-int fixdiv(int a, int b);
-int fixdot3(int a1, int b1, int a2, int b2, int a3, int b3);
+rex_int32 fixinv(rex_int32 a);
+rex_int32 fixmul(rex_int32 a, rex_int32 b);
+rex_int32 fixdiv(rex_int32 a, rex_int32 b);
+rex_int32 fixdot3(rex_int32 a1, rex_int32 b1, rex_int32 a2, rex_int32 b2, rex_int32 a3, rex_int32 b3);
 
-extern int sintable[2048];
+extern rex_int32 sintable[2048];
 
 #define fixsin(a) sintable[(a) & 2047]
 #define fixcos(a) sintable[((a) + 512) & 2047]
