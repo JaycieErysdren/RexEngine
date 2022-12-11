@@ -47,23 +47,12 @@ typedef struct
 // Globals
 //
 
-#ifdef KEN
-
-#define MAP_X 64
-#define MAP_Y 64
-
-#else
-
-#define MAP_X 1024
-#define MAP_Y 1024
-
-#endif
-
-uint8_t *heightmap;
-uint8_t *colormap;
 int32_t *ybuffer;
-vec3s_t pos;
-vec3i_t ang;
+
+uint8_t *f_heightmap;
+uint8_t *f_colormap;
+uint8_t *c_heightmap;
+uint8_t *c_colormap;
 
 camera_t camera;
 
@@ -91,7 +80,7 @@ void CameraController()
 
 	// Reset pitch
 	if (mb == 3)
-		camera.angles.x = 0;
+		camera.angles.x = 100;
 
 	// Keyboard look
 	{
@@ -109,8 +98,8 @@ void CameraController()
 	}
 
 	// Pitch angle sanity checks
-	if (camera.angles.x >= 30) camera.angles.x = 30;
-	if (camera.angles.x <= -30) camera.angles.x = -30;
+	if (camera.angles.x < 0) camera.angles.x = 0;
+	if (camera.angles.x > 200) camera.angles.x = 200;
 
 	// Yaw angle sanity checks
 	if (camera.angles.y < 0) camera.angles.y += 360;
@@ -118,9 +107,9 @@ void CameraController()
 
 	// Check if sprinting
 	if (DOS::KeyTest(KB_LTSHIFT))
-		camera.movespeedkey = 6;
-	else
 		camera.movespeedkey = 4;
+	else
+		camera.movespeedkey = 2;
 
 	// Set velocity
 	camera.velocity.x = math.sin[camera.angles.y] * camera.movespeedkey;
@@ -171,108 +160,77 @@ void CameraController()
 // Voxels
 //
 
-#ifdef KEN
-
-void VoxelPalette()
+void VoxelLoadMap1()
 {
-	outp(0x3c8, 0);
-
-	int z;
-
-	// grayscale
-	for (z = 0; z < 64; z++)
-	{
-		outp(0x3c9, z);
-		outp(0x3c9, z);
-		outp(0x3c9, z);
-	}
-
-	// yellow
-	for (z = 0; z < 64; z++)
-	{
-		outp(0x3c9, z);
-		outp(0x3c9, z);
-		outp(0x3c9, z / 2);
-	}
-
-	// purple
-	for (z = 0; z < 64; z++)
-	{
-		outp(0x3c9, z);
-		outp(0x3c9, z / 2);
-		outp(0x3c9, z);
-	}
-}
-
-void VoxelGenerate()
-{
-	heightmap = (uint8_t *)calloc(MAP_X * MAP_Y, sizeof(uint8_t));
-	colormap = (uint8_t *)calloc(MAP_X * MAP_Y, sizeof(uint8_t));
-
-	for (int y = 0; y < MAP_Y; y++)
-	{
-		for (int x = 0; x < MAP_X; x++)
-		{
-			int x1 = ((x & 31) - 16);
-			int y1 = ((y & 31) - 16);
-			int d = (15 * 15) - (x1 * x1) - (y1 * y1);
-
-			if (d > 0 && ((x ^ y) & 32))
-			{
-				heightmap[y * MAP_Y + x] = (0 + sqrt(d));
-				colormap[y * MAP_Y + x] = ((x + y) * 0.5f) + 64;
-			}
-			else
-			{
-				heightmap[y * MAP_Y + x] = (0);
-				colormap[y * MAP_Y + x] = ((cos(x * 0.2f) + sin(y * 0.3f)) * 3 + 88) + 64;
-			}
-		}
-	}
-}
-
-#endif
-
-void VoxelLoadMap()
-{
-	int y, x;
-	VESA::SetPalette("voxel/m1.pal");
+	f_heightmap = (uint8_t *)calloc(1024 * 1024, sizeof(uint8_t));
+	f_colormap = (uint8_t *)calloc(1024 * 1024, sizeof(uint8_t));
 
 	// Load heightmap
 	FILE *hei = fopen("voxel/m1h.dat", "rb");
 
-	heightmap = (uint8_t *)calloc(MAP_X * MAP_Y, sizeof(uint8_t));
-
-	fread(heightmap, sizeof(uint8_t), MAP_X * MAP_Y, hei);
+	fread(f_heightmap, sizeof(uint8_t), 1024 * 1024, hei);
 
 	fclose(hei);
 
 	// Load colormap
-	FILE *col = fopen("voxel/m1c.dat", "rb");
+	FILE *col = fopen("voxel/m1c_vga.dat", "rb");
 
-	colormap = (uint8_t *)calloc(MAP_X * MAP_Y, sizeof(uint8_t));
-
-	fread(colormap, sizeof(uint8_t), MAP_X * MAP_Y, col);
+	fread(f_colormap, sizeof(uint8_t), 1024 * 1024, col);
 
 	fclose(col);
 }
 
+void VoxelLoadMap2()
+{
+	//
+	// Floor
+	//
+
+	// Load heightmap
+	f_heightmap = (uint8_t *)calloc(4096, sizeof(uint8_t));
+
+	FILE *f_hei = fopen("voxel/m2fh.dat", "rb");
+
+	fread(f_heightmap, sizeof(uint8_t), 4096, f_hei);
+
+	fclose(f_hei);
+
+	// Load colormap
+	f_colormap = (uint8_t *)calloc(4096, sizeof(uint8_t));
+
+	FILE *f_col = fopen("voxel/m2fc.dat", "rb");
+
+	fread(f_colormap, sizeof(uint8_t), 4096, f_col);
+
+	fclose(f_col);
+
+	//
+	// Ceiling
+	//
+
+	// Load heightmap
+	c_heightmap = (uint8_t *)calloc(4096, sizeof(uint8_t));
+
+	FILE *c_hei = fopen("voxel/m2ch.dat", "rb");
+
+	fread(c_heightmap, sizeof(uint8_t), 4096, c_hei);
+
+	fclose(c_hei);
+
+	// Load colormap
+	c_colormap = (uint8_t *)calloc(4096, sizeof(uint8_t));
+
+	FILE *c_col = fopen("voxel/m2cc.dat", "rb");
+
+	fread(c_colormap, sizeof(uint8_t), 4096, c_col);
+
+	fclose(c_col);
+}
+
 void VoxelInit(int screen_width)
 {
-	#ifdef KEN
-
-	// Set Ken's palette
-	VoxelPalette();
-
-	// Generate height and color map
-	VoxelGenerate();
-
-	#else
-
 	// Load the map from heightmap and colors
-	VoxelLoadMap();
-
-	#endif
+	VoxelLoadMap2();
 
 	// Build y-buffer
 	ybuffer = (int32_t *)calloc(screen_width, sizeof(int32_t));
@@ -280,50 +238,46 @@ void VoxelInit(int screen_width)
 	// Position (scalar units)
 	camera.origin.x = SCALAR(32);
 	camera.origin.y = SCALAR(32);
-	camera.origin.z = SCALAR(96);
+	camera.origin.z = SCALAR(32);
 
 	// Angle (degrees)
-	camera.angles.x = 0; // pitch
+	camera.angles.x = 100; // pitch
 	camera.angles.y = 0; // yaw
-	camera.angles.z = 0; // roll`
+	camera.angles.z = 0; // roll
 
 	// Draw distance (scalar units)
-	camera.draw_distance = SCALAR(512);
+	camera.draw_distance = SCALAR(32);
 }
 
-void VoxelRender(Picture::pic_t *dst, rect_t area)
+void VoxelShutdown()
+{
+	free(c_heightmap);
+	free(c_colormap);
+	free(f_heightmap);
+	free(f_colormap);
+	free(ybuffer);
+}
+
+void VoxelRender(Picture::pic_t *dst, rect_t area, vec3s_t p, int yaw, int horizon, scalar_t height_scale, scalar_t draw_distance, bool ceiling, vec2i_t map_size, uint8_t *colormap, uint8_t *heightmap)
 {
 	// Drawable area
 	int draw_w = area.x2 - area.x1;
 	int draw_h = area.y2 - area.y1;
 
-	// sin and cos of player yaw
-	scalar_t sn = math.sin[camera.angles.y];
-	scalar_t cs = math.cos[camera.angles.y];
-
-	// Throw in some collision detection while we're at it
-	scalar_t minh = SCALAR(192);
-	if (camera.origin.z < minh) camera.origin.z = minh;
-
-	// Rendering position
-	vec3s_t p = camera.origin;
-
-	// Horizon line
-	scalar_t horizon = SCALAR(64);
-
-	// Line height scale
-	scalar_t height_scale = SCALAR(64);
+	// sin and cos of yaw
+	scalar_t sn = math.sin[yaw];
+	scalar_t cs = math.cos[yaw];
 
 	// Z, and current change in Z
-	scalar_t z = SCALAR(1);
-	scalar_t dz = SCALAR(1);
+	scalar_t z = SCALAR(0.1f);
+	scalar_t dz = SCALAR(0.5f);
 
 	// Initialize y-buffer
 	for (int i = 0; i < draw_w; i++)
-		ybuffer[i] = draw_h;
+		ybuffer[i] = ceiling == true ? 0 : draw_h;
 
 	// Render front to back
-	while (z < camera.draw_distance)
+	while (z < draw_distance)
 	{
 		vec2s_t pleft, pright;
 
@@ -342,22 +296,26 @@ void VoxelRender(Picture::pic_t *dst, rect_t area)
 			pi.x = ScalarToInteger(pleft.x);
 			pi.y = ScalarToInteger(pleft.y);
 
-			if (pi.x > (MAP_X - 1)) pi.x -= MAP_X;
-			if (pi.x < 0) pi.x += MAP_X;
+			if (pi.x > (map_size.x - 1)) pi.x -= map_size.x;
+			if (pi.x < 0) pi.x += map_size.x;
 
-			if (pi.y > (MAP_Y - 1)) pi.y -= MAP_Y;
-			if (pi.y < 0) pi.y += MAP_Y;
+			if (pi.y > (map_size.y - 1)) pi.y -= map_size.y;
+			if (pi.y < 0) pi.y += map_size.y;
 
-			scalar_t h = SCALAR(heightmap[(pi.y * MAP_Y) + pi.x]);
+			scalar_t h = SCALAR(heightmap[(pi.y * map_size.y) + pi.x]);
+			scalar_t dh = ceiling == true ? h - p.z : p.z - h;
 
-			int line_height = ScalarToInteger(MUL(DIV(p.z - h, z), height_scale) + horizon);
+			uint8_t c = colormap[(pi.y * map_size.y) + pi.x];
+
+			int line_height = ScalarToInteger(MUL(DIV(dh, z), height_scale)) + horizon;
 
 			if (line_height > draw_h) break;
 			line_height = CLAMP(line_height, area.y1, area.y2);
 
-			if (line_height < ybuffer[sx])
+			if ((ceiling == true && line_height > ybuffer[sx]) || (ceiling == false && line_height < ybuffer[sx]))
 			{
-				Picture::DrawVerticalLine(dst, sx, line_height, ybuffer[sx], colormap[(pi.y * MAP_Y) + pi.x]);
+				c = Colormap::Lookup(c, ScalarToInteger(z));
+				Picture::DrawVerticalLine(dst, sx, line_height, ybuffer[sx], c);
 				ybuffer[sx] = line_height;
 			}
 
@@ -366,46 +324,25 @@ void VoxelRender(Picture::pic_t *dst, rect_t area)
 		}
 
 		z += dz;
-		dz += SCALAR(0.01f);
+		//dz += SCALAR(0.02f);
 	}
-
-	#ifdef OLD_MAP_2D
-
-	// Draw map
-	bool draw_map = true;
-
-	if (draw_map == true)
-	{
-		for (int y = 0; y < 64; y++)
-		{
-			for (int x = 0; x < 64; x++)
-			{
-				// Color map
-				Picture::DrawPixel(dst, x, y, colormap[y][x]);
-
-				// Height map
-				Picture::DrawPixel(dst, x + 64, y, heightmap[y][x]);
-			}
-		}
-
-		// Camera ray direction
-		vec2i_t ray_screen_pos;
-		ray_screen_pos.x = ScalarToInteger(camera.origin.x + MUL(raydir.x, SCALAR(8)));
-		ray_screen_pos.y = ScalarToInteger(camera.origin.y + MUL(raydir.y, SCALAR(8)));
-
-		// Camera ray position
-		Picture::DrawLine(dst, ScalarToInteger(camera.origin.x), ScalarToInteger(camera.origin.y), ray_screen_pos.x, ray_screen_pos.y, 63);
-		Picture::DrawLine(dst, ScalarToInteger(camera.origin.x) + 64, ScalarToInteger(camera.origin.y), ray_screen_pos.x + 64, ray_screen_pos.y, 63);
-
-		// Camera position
-		Picture::DrawPixel(dst, ScalarToInteger(camera.origin.x), ScalarToInteger(camera.origin.y), 31);
-		Picture::DrawPixel(dst, ScalarToInteger(camera.origin.x) + 64, ScalarToInteger(camera.origin.y), 31);
-	}
-
-	#endif
-
 }
 
+void VoxelRenderWrapper(Picture::pic_t *dst, rect_t area)
+{
+	// Throw in some collision detection while we're at it
+	scalar_t minh = SCALAR(16);
+	if (camera.origin.z < minh) camera.origin.z = minh;
+
+	// map 1 floor
+	//VoxelRender(dst, area, camera.origin, camera.angles.y, camera.angles.x, SCALAR(64), camera.draw_distance, false, VEC2I(1024, 1024), f_colormap, f_heightmap);
+
+	// map 2 floor
+	VoxelRender(dst, area, camera.origin, camera.angles.y, camera.angles.x, SCALAR(64), camera.draw_distance, false, VEC2I(64, 64), f_colormap, f_heightmap);
+
+	// map 2 ceiling
+	VoxelRender(dst, area, camera.origin, camera.angles.y, camera.angles.x, SCALAR(64), camera.draw_distance, true, VEC2I(64, 64), c_colormap, c_heightmap);
+}
 
 //
 // Misc
@@ -467,6 +404,9 @@ int main(int argc, char *argv[])
 	// Initialize VESA
 	if (VESA::Initialize(320, 200, 8) == false) return EXIT_FAILURE;
 	VESA::VidInfo vidinfo = VESA::GetVidInfo();
+
+	// Load colormap
+	Colormap::Load("gfx/vga.tab");
 
 	// Create picture buffers
 	Console::Initialize();
@@ -544,7 +484,7 @@ int main(int argc, char *argv[])
 		Picture::Clear(&pic_bbuffer, 0);
 
 		// Voxel renderer
-		VoxelRender(&pic_bbuffer, RECT(0, 0, pic_bbuffer.width, pic_bbuffer.height));
+		VoxelRenderWrapper(&pic_bbuffer, RECT(0, 0, pic_bbuffer.width, pic_bbuffer.height));
 
 		// Render the console text
 		Console::Render(&pic_bbuffer, &pic_font, 8);
