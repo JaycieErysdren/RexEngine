@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Colormap namespace header
 //
-// LAST EDITED:		December 7th, 2022
+// LAST EDITED:		December 11th, 2022
 //
 // ========================================================
 
@@ -37,7 +37,7 @@ namespace Colormap
 	//
 
 	uint8_t Lookup(uint8_t index, int light);
-	void Generate(string palette_filename);
+	void Generate(string palette_filename, int num_fullbrights);
 	void Save(string filename);
 	void Load(string filename);
 }

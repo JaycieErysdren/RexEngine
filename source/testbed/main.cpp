@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Testbed program entry point
 //
-// LAST EDITED:		December 8th, 2022
+// LAST EDITED:		December 11th, 2022
 //
 // ========================================================
 
@@ -227,10 +227,32 @@ void VoxelLoadMap2()
 	fclose(c_col);
 }
 
+void VoxelLoadMap3()
+{
+	f_heightmap = (uint8_t *)calloc(150 * 150, sizeof(uint8_t));
+	f_colormap = (uint8_t *)calloc(150 * 150, sizeof(uint8_t));
+
+	// Load heightmap
+	FILE *hei = fopen("voxel/m3fh.dat", "rb");
+
+	fread(f_heightmap, sizeof(uint8_t), 150 * 150, hei);
+
+	fclose(hei);
+
+	// Load colormap
+	FILE *col = fopen("voxel/m3fc.dat", "rb");
+
+	fread(f_colormap, sizeof(uint8_t), 150 * 150, col);
+
+	fclose(col);
+}
+
 void VoxelInit(int screen_width)
 {
 	// Load the map from heightmap and colors
+	//VoxelLoadMap1();
 	VoxelLoadMap2();
+	//VoxelLoadMap3();
 
 	// Build y-buffer
 	ybuffer = (int32_t *)calloc(screen_width, sizeof(int32_t));
@@ -246,7 +268,7 @@ void VoxelInit(int screen_width)
 	camera.angles.z = 0; // roll
 
 	// Draw distance (scalar units)
-	camera.draw_distance = SCALAR(32);
+	camera.draw_distance = SCALAR(256);
 }
 
 void VoxelShutdown()
@@ -269,7 +291,7 @@ void VoxelRender(Picture::pic_t *dst, rect_t area, vec3s_t p, int yaw, int horiz
 	scalar_t cs = math.cos[yaw];
 
 	// Z, and current change in Z
-	scalar_t z = SCALAR(0.1f);
+	scalar_t z = SCALAR(0.05f);
 	scalar_t dz = SCALAR(0.5f);
 
 	// Initialize y-buffer
@@ -296,11 +318,17 @@ void VoxelRender(Picture::pic_t *dst, rect_t area, vec3s_t p, int yaw, int horiz
 			pi.x = ScalarToInteger(pleft.x);
 			pi.y = ScalarToInteger(pleft.y);
 
-			if (pi.x > (map_size.x - 1)) pi.x -= map_size.x;
-			if (pi.x < 0) pi.x += map_size.x;
+			if (pi.x > (map_size.x - 1) || pi.x < 0 || pi.y > (map_size.y - 1) || pi.y < 0)
+			{
+				pleft.x += dx;
+				pleft.y += dy;
+				continue;
+			}
 
-			if (pi.y > (map_size.y - 1)) pi.y -= map_size.y;
-			if (pi.y < 0) pi.y += map_size.y;
+			//if (pi.x > (map_size.x - 1)) pi.x -= map_size.x;
+			//if (pi.x < 0) pi.x += map_size.x;
+			//if (pi.y > (map_size.y - 1)) pi.y -= map_size.y;
+			//if (pi.y < 0) pi.y += map_size.y;
 
 			scalar_t h = SCALAR(heightmap[(pi.y * map_size.y) + pi.x]);
 			scalar_t dh = ceiling == true ? h - p.z : p.z - h;
@@ -331,17 +359,20 @@ void VoxelRender(Picture::pic_t *dst, rect_t area, vec3s_t p, int yaw, int horiz
 void VoxelRenderWrapper(Picture::pic_t *dst, rect_t area)
 {
 	// Throw in some collision detection while we're at it
-	scalar_t minh = SCALAR(16);
+	scalar_t minh = SCALAR(32);
 	if (camera.origin.z < minh) camera.origin.z = minh;
 
 	// map 1 floor
 	//VoxelRender(dst, area, camera.origin, camera.angles.y, camera.angles.x, SCALAR(64), camera.draw_distance, false, VEC2I(1024, 1024), f_colormap, f_heightmap);
 
 	// map 2 floor
-	VoxelRender(dst, area, camera.origin, camera.angles.y, camera.angles.x, SCALAR(64), camera.draw_distance, false, VEC2I(64, 64), f_colormap, f_heightmap);
+	VoxelRender(dst, area, camera.origin, camera.angles.y, 100, SCALAR(32), camera.draw_distance, false, VEC2I(64, 64), f_colormap, f_heightmap);
 
 	// map 2 ceiling
-	VoxelRender(dst, area, camera.origin, camera.angles.y, camera.angles.x, SCALAR(64), camera.draw_distance, true, VEC2I(64, 64), c_colormap, c_heightmap);
+	VoxelRender(dst, area, camera.origin, camera.angles.y, 100, SCALAR(32), camera.draw_distance, true, VEC2I(64, 64), c_colormap, c_heightmap);
+
+	// map 3 floor
+	//VoxelRender(dst, area, camera.origin, camera.angles.y, 100, SCALAR(16), camera.draw_distance, false, VEC2I(150, 150), f_colormap, f_heightmap);
 }
 
 //
@@ -405,8 +436,12 @@ int main(int argc, char *argv[])
 	if (VESA::Initialize(320, 200, 8) == false) return EXIT_FAILURE;
 	VESA::VidInfo vidinfo = VESA::GetVidInfo();
 
-	// Load colormap
+	// Load palette and colormap
+	VESA::SetPalette("gfx/vga.pal");
 	Colormap::Load("gfx/vga.tab");
+
+	//VESA::SetPalette("gfx/portal2d.pal");
+	//Colormap::Load("gfx/portal2d.tab");
 
 	// Create picture buffers
 	Console::Initialize();

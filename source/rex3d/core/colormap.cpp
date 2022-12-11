@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Colormap namespace implementation
 //
-// LAST EDITED:		December 7th, 2022
+// LAST EDITED:		December 11th, 2022
 //
 // ========================================================
 
@@ -92,9 +92,9 @@ uint8_t RGB24_To_Index8(const uint8_t palette[768], const int rgb[3])
 }
 
 // Generate a colormap from a given palette and load it into memory
-void Generate(string palette_filename)
+void Generate(string palette_filename, int num_fullbrights)
 {
-	int num_fullbrights = 32; /* the last 32 colours will be full bright */
+	//int num_fullbrights = 32; /* the last 32 colours will be full bright */
 	int x, y, i;
 
 	uint8_t palette[768];
