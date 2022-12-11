@@ -19,6 +19,9 @@
 
 #define CYCLES 30
 
+//#define KEN
+#define CONTROLLABLE
+
 //
 // Types
 //
@@ -33,16 +36,28 @@ typedef struct
 typedef struct
 {
 	vec3s_t origin;				// X, Y, Z
+	vec3s_t velocity;			// X, Y, Z
 	vec3i_t angles;				// Pitch, yaw, roll
 	scalar_t draw_distance;		// Draw distance (scalar units)
+	int movespeedkey;
+	int anglespeedkey;
 } camera_t;
 
 //
 // Globals
 //
 
+#ifdef KEN
+
+#define MAP_X 64
+#define MAP_Y 64
+
+#else
+
 #define MAP_X 1024
 #define MAP_Y 1024
+
+#endif
 
 uint8_t *heightmap;
 uint8_t *colormap;
@@ -56,10 +71,107 @@ math_t math;
 char console_buffer[256];
 
 //
+// Camera
+//
+
+void CameraController()
+{
+	// Mouse read
+	static int16_t mx_prev, my_prev;
+	int16_t delta_mx, delta_my;
+	int16_t mb, mx, my;
+	mb = DOS::MouseRead(&mx, &my);
+
+	delta_mx = mx_prev - mx;
+	delta_my = my_prev - my;
+
+	// Mouse look
+	if (mb == 1 && delta_mx != 0) camera.angles.y += delta_mx;
+	if (mb == 2 && delta_my != 0) camera.angles.x += delta_my;
+
+	// Reset pitch
+	if (mb == 3)
+		camera.angles.x = 0;
+
+	// Keyboard look
+	{
+		// Rotate leftwards
+		if (DOS::KeyTest(KB_LTARROW)) camera.angles.y += camera.anglespeedkey;
+
+		// Rotate rightwards
+		if (DOS::KeyTest(KB_RTARROW)) camera.angles.y -= camera.anglespeedkey;
+
+		// Look upwards
+		if (DOS::KeyTest(KB_UPARROW)) camera.angles.x += camera.anglespeedkey;
+
+		// Look downwards
+		if (DOS::KeyTest(KB_DNARROW)) camera.angles.x -= camera.anglespeedkey;
+	}
+
+	// Pitch angle sanity checks
+	if (camera.angles.x >= 30) camera.angles.x = 30;
+	if (camera.angles.x <= -30) camera.angles.x = -30;
+
+	// Yaw angle sanity checks
+	if (camera.angles.y < 0) camera.angles.y += 360;
+	if (camera.angles.y > 359) camera.angles.y -= 360;
+
+	// Check if sprinting
+	if (DOS::KeyTest(KB_LTSHIFT))
+		camera.movespeedkey = 6;
+	else
+		camera.movespeedkey = 4;
+
+	// Set velocity
+	camera.velocity.x = math.sin[camera.angles.y] * camera.movespeedkey;
+	camera.velocity.y = math.cos[camera.angles.y] * camera.movespeedkey;
+	camera.velocity.z = SCALAR(1.0f) * camera.movespeedkey;
+
+	// Move forwards
+	if (DOS::KeyTest(KB_W))
+	{
+		camera.origin.x -= camera.velocity.x;
+		camera.origin.y -= camera.velocity.y;
+	}
+
+	// Move backwards
+	if (DOS::KeyTest(KB_S))
+	{
+		camera.origin.x += camera.velocity.x;
+		camera.origin.y += camera.velocity.y;
+	}
+
+	// Move leftwards
+	if (DOS::KeyTest(KB_A))
+	{
+		camera.origin.x -= camera.velocity.y;
+		camera.origin.y += camera.velocity.x;
+	}
+
+	// Move rightwards
+	if (DOS::KeyTest(KB_D))
+	{
+		camera.origin.x += camera.velocity.y;
+		camera.origin.y -= camera.velocity.x;
+	}
+
+	// Move upwards
+	if (DOS::KeyTest(KB_Q))
+		camera.origin.z += camera.velocity.z;
+
+	// Move downwards
+	if (DOS::KeyTest(KB_E))
+		camera.origin.z -= camera.velocity.z;
+
+	mx_prev = mx;
+	my_prev = my;
+}
+
+//
 // Voxels
 //
 
-#ifdef FUCKYOUKEN
+#ifdef KEN
 
 void VoxelPalette()
 {
@@ -94,6 +206,9 @@ void VoxelPalette()
 
 void VoxelGenerate()
 {
+	heightmap = (uint8_t *)calloc(MAP_X * MAP_Y, sizeof(uint8_t));
+	colormap = (uint8_t *)calloc(MAP_X * MAP_Y, sizeof(uint8_t));
+
 	for (int y = 0; y < MAP_Y; y++)
 	{
 		for (int x = 0; x < MAP_X; x++)
@@ -104,13 +219,13 @@ void VoxelGenerate()
 
 			if (d > 0 && ((x ^ y) & 32))
 			{
-				heightmap[y][x] = (0 + sqrt(d));
-				colormap[y][x] = ((x + y) * 0.5f) + 64;
+				heightmap[y * MAP_Y + x] = (0 + sqrt(d));
+				colormap[y * MAP_Y + x] = ((x + y) * 0.5f) + 64;
 			}
 			else
 			{
-				heightmap[y][x] = (0);
-				colormap[y][x] = ((cos(x * 0.2f) + sin(y * 0.3f)) * 3 + 88) + 64;
+				heightmap[y * MAP_Y + x] = (0);
+				colormap[y * MAP_Y + x] = ((cos(x * 0.2f) + sin(y * 0.3f)) * 3 + 88) + 64;
 			}
 		}
 	}
@@ -144,16 +259,20 @@ void VoxelLoadMap()
 
 void VoxelInit(int screen_width)
 {
-	#ifdef FUCKYOUKEN
+	#ifdef KEN
+
 	// Set Ken's palette
 	VoxelPalette();
 
 	// Generate height and color map
 	VoxelGenerate();
-	#endif
+
+	#else
 
 	// Load the map from heightmap and colors
 	VoxelLoadMap();
+
+	#endif
 
 	// Build y-buffer
 	ybuffer = (int32_t *)calloc(screen_width, sizeof(int32_t));
@@ -169,7 +288,7 @@ void VoxelInit(int screen_width)
 	camera.angles.z = 0; // roll`
 
 	// Draw distance (scalar units)
-	camera.draw_distance = SCALAR(256);
+	camera.draw_distance = SCALAR(512);
 }
 
 void VoxelRender(Picture::pic_t *dst, rect_t area)
@@ -199,7 +318,7 @@ void VoxelRender(Picture::pic_t *dst, rect_t area)
 	for (int i = 0; i < draw_w; i++)
 		ybuffer[i] = draw_h;
 
-	// Render back to front
+	// Render front to back
 	while (z < camera.draw_distance)
 	{
 		vec2s_t pleft, pright;
@@ -232,9 +351,11 @@ void VoxelRender(Picture::pic_t *dst, rect_t area)
 			if (line_height > draw_h) break;
 			line_height = CLAMP(line_height, area.y1, area.y2);
 
-			Picture::DrawVerticalLine(dst, sx, line_height, ybuffer[sx], colormap[(pi.y * MAP_Y) + pi.x]);
-
-			if (line_height < ybuffer[sx]) ybuffer[sx] = line_height;
+			if (line_height < ybuffer[sx])
+			{
+				Picture::DrawVerticalLine(dst, sx, line_height, ybuffer[sx], colormap[(pi.y * MAP_Y) + pi.x]);
+				ybuffer[sx] = line_height;
+			}
 
 			pleft.x += dx;
 			pleft.y += dy;
@@ -383,6 +504,19 @@ int main(int argc, char *argv[])
 			// User inputs
 			//
 
+			#ifdef CONTROLLABLE
+
+			CameraController();
+
+			#else
+
+			// Idly rotate the camera
+			camera.angles.y += 1;
+			if (camera.angles.y > 359) camera.angles.y -= 360;
+			if (camera.angles.y < 0) camera.angles.y += 360;
+
+			#endif
+
 			//ReadMouse(&mouse_buttons, &mouse_pos, mouse_speed, mouse_area);
 
 			// Mouse render
@@ -396,11 +530,6 @@ int main(int argc, char *argv[])
 				//sprintf(console_buffer, "mx: %d my: %d", mouse_pos.x, mouse_pos.y);
 				//Console::AddText(0, 0, console_buffer);
 			}
-
-			// Idly rotate the camera
-			camera.angles.y += 1;
-			if (camera.angles.y > 359) camera.angles.y -= 360;
-			if (camera.angles.y < 0) camera.angles.y += 360;
 		}
 
 		//
