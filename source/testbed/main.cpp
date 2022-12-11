@@ -301,6 +301,10 @@ void VoxelRender(Picture::pic_t *dst, rect_t area)
 	scalar_t sn = math.sin[camera.angles.y];
 	scalar_t cs = math.cos[camera.angles.y];
 
+	// Throw in some collision detection while we're at it
+	scalar_t minh = SCALAR(192);
+	if (camera.origin.z < minh) camera.origin.z = minh;
+
 	// Rendering position
 	vec3s_t p = camera.origin;
 
