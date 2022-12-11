@@ -14,8 +14,8 @@
 //
 // ========================================================
 
-// Rex Engine header
-#include "rex.hpp"
+// Rex Engine private header
+#include "rex_priv.hpp"
 
 //
 //
@@ -26,56 +26,50 @@
 // DOS namespace definition (private)
 namespace DOS
 {
- 	//
-	//
-	// Variables
-	//
-	//
 
-	//
-	// Keyboard
-	//
+//
+//
+// Global variables
+//
+//
 
-	#if (REX_COMPILER == COMPILER_DJGPP)
+//
+// Keyboard
+//
 
-	// DPMI segments
-	_go32_dpmi_seginfo KeyboardHandlerOld;
-	_go32_dpmi_seginfo KeyboardHandlerNew;
+#if (REX_COMPILER == COMPILER_DJGPP)
 
-	#endif
+// DPMI segments
+_go32_dpmi_seginfo KeyboardHandlerOld;
+_go32_dpmi_seginfo KeyboardHandlerNew;
 
-	// Booleans
-	bool keyboard_enabled;
+#endif
 
-	// Array of currently pressed keys
-	char keys[256];
-	char key_last_pressed;
+// Booleans
+bool keyboard_enabled;
 
-	//
-	// Timer
-	//
+// Array of currently pressed keys
+char keys[256];
+char key_last_pressed;
 
-	int64_t start_time;
+//
+// Timer
+//
 
-	//
-	//
-	// Functions
-	//
-	//
+int64_t start_time;
 
-	//
-	// Keyboard
-	//
-
-	void KeyboardHandler();
-}
+//
+//
+// Functions
+//
+//
 
 //
 // Bootstrap
 //
 
 // Initialize all interrupts
-void DOS::Initialize()
+void Initialize()
 {
 	#if (REX_COMPILER == COMPILER_DJGPP)
 
@@ -91,7 +85,7 @@ void DOS::Initialize()
 }
 
 // Free all interrupts
-void DOS::Shutdown()
+void Shutdown()
 {
 	// Shutdown mouse & kb
 	MouseShutdown();
@@ -110,7 +104,7 @@ void DOS::Shutdown()
 //
 
 // Initialize mouse
-void DOS::MouseInitialize()
+void MouseInitialize()
 {
 	// Variables
 	union REGS r;
@@ -141,13 +135,13 @@ void DOS::MouseInitialize()
 }
 
 // Shutdown mouse
-void DOS::MouseShutdown()
+void MouseShutdown()
 {
 
 }
 
 // Read mouse position (returns mouse buttons mask)
-int16_t DOS::MouseRead(int16_t *x, int16_t *y)
+int16_t MouseRead(int16_t *x, int16_t *y)
 {
 	union REGS r;
 	
@@ -179,7 +173,7 @@ int16_t DOS::MouseRead(int16_t *x, int16_t *y)
 }
 
 // Set mouse position
-void DOS::MouseSet(int16_t x, int16_t y)
+void MouseSet(int16_t x, int16_t y)
 {
 	union REGS r;
 
@@ -200,7 +194,6 @@ void DOS::MouseSet(int16_t x, int16_t y)
 		int386(0x33, &r, &r);
 
 	#endif
-
 }
 
 //
@@ -208,7 +201,7 @@ void DOS::MouseSet(int16_t x, int16_t y)
 //
 
 // called by the system if a key is pressed, stores the key in the last_keys array and the keyb array
-void DOS::KeyboardHandler()
+void KeyboardHandler()
 {
 	#if (REX_COMPILER == COMPILER_DJGPP)
 
@@ -233,7 +226,7 @@ void DOS::KeyboardHandler()
 }
 
 // Initialize keyboard
-void DOS::KeyboardInitialize()
+void KeyboardInitialize()
 {
 	if (keyboard_enabled == false)
 	{
@@ -255,7 +248,7 @@ void DOS::KeyboardInitialize()
 }
 
 // Shutdown keyboard
-void DOS::KeyboardShutdown()
+void KeyboardShutdown()
 {
 	if (keyboard_enabled == true)
 	{
@@ -274,7 +267,7 @@ void DOS::KeyboardShutdown()
 }
 
 // Get key press
-char DOS::KeyTest(int scancode)
+char KeyTest(int scancode)
 {
 	return keys[scancode];
 }
@@ -284,7 +277,7 @@ char DOS::KeyTest(int scancode)
 //
 
 // Initialize uclock timer
-void DOS::TimerInitialize()
+void TimerInitialize()
 {
 	#if (REX_COMPILER == COMPILER_DJGPP)
 
@@ -300,7 +293,7 @@ void DOS::TimerInitialize()
 }
 
 // Fetch the current time since initialization
-int64_t DOS::TimerGet64()
+int64_t TimerGet64()
 {
 	#if (REX_COMPILER == COMPILER_DJGPP)
 
@@ -314,3 +307,5 @@ int64_t DOS::TimerGet64()
 
 	#endif
 }
+
+} // namespace DOS

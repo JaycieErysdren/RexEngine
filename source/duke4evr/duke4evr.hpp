@@ -29,7 +29,7 @@
 #define MODULE_VESA 1
 #define MODULE_RAYCAST 1
 
-// Rex Engine headers
+// Rex Engine header
 #include "rex.hpp"
 
 // Duke4Ever headers

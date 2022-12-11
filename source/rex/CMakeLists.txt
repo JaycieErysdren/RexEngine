@@ -39,24 +39,9 @@ include(../../cmake/rex_determinator.cmake)
 ## Core modules
 ##
 
-## Colormap
-if(${MODULE_COLORMAP})
-	add_compile_definitions("MODULE_COLORMAP=1")
-endif()
-
-## Console
-if(${MODULE_CONSOLE})
-	add_compile_definitions("MODULE_CONSOLE=1")
-endif()
-
 ## Math
 if(${MODULE_MATH})
 	add_compile_definitions("MODULE_MATH=1")
-endif()
-
-## Palette
-if(${MODULE_PALETTE})
-	add_compile_definitions("MODULE_PALETTE=1")
 endif()
 
 ## Surface
@@ -123,6 +108,24 @@ include_directories(.)
 
 ##
 ##
+## Rex Engine core
+##
+##
+
+set(REX_CORE_SRC
+	core/bootstrap.cpp
+	core/clock.cpp
+	core/console.cpp
+	core/graphics.cpp
+	core/keyboard.cpp
+	core/mouse.cpp
+	core/surface.cpp
+)
+
+add_library(rex_core STATIC ${REX_CORE_SRC})
+
+##
+##
 ## Rex Engine modules
 ##
 ##
@@ -130,28 +133,6 @@ include_directories(.)
 ##
 ## Core modules
 ##
-
-## Colormap
-if(${MODULE_COLORMAP})
-
-	set(REX_COLORMAP_SRC
-		modules/core/colormap/colormap.cpp
-	)
-
-	add_library(colormap STATIC ${REX_COLORMAP_SRC})
-
-endif()
-
-## Console
-if(${MODULE_CONSOLE})
-
-	set(REX_CONSOLE_SRC
-		modules/core/console/console.cpp
-	)
-
-	add_library(console STATIC ${REX_CONSOLE_SRC})
-
-endif()
 
 ## Math
 if(${MODULE_MATH})
@@ -164,28 +145,6 @@ if(${MODULE_MATH})
 	)
 
 	add_library(math STATIC ${REX_MATH_SRC})
-
-endif()
-
-## Palette
-if(${MODULE_PALETTE})
-
-	set(REX_PALETTE_SRC
-		modules/core/palette/palette.cpp
-	)
-
-	add_library(palette STATIC ${REX_PALETTE_SRC})
-
-endif()
-
-## Surface
-if(${MODULE_SURFACE})
-
-	set(REX_SURFACE_SRC
-		modules/core/surface/picture.cpp
-	)
-
-	add_library(surface STATIC ${REX_SURFACE_SRC})
 
 endif()
 
@@ -274,25 +233,11 @@ endif()
 
 add_library(rex INTERFACE)
 
+target_link_libraries(rex INTERFACE rex_core)
+
 ##
 ## Core modules
 ##
-
-if(${MODULE_COLORMAP})
-	target_link_libraries(rex INTERFACE colormap)
-endif()
-
-if(${MODULE_CONSOLE})
-	target_link_libraries(rex INTERFACE console)
-endif()
-
-if(${MODULE_PALETTE})
-	target_link_libraries(rex INTERFACE palette)
-endif()
-
-if(${MODULE_SURFACE})
-	target_link_libraries(rex INTERFACE surface)
-endif()
 
 if(${MODULE_UTILS})
 	target_link_libraries(rex INTERFACE utils)

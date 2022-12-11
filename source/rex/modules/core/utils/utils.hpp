@@ -14,6 +14,9 @@
 //
 // ========================================================
 
+#ifndef __REX_UTILS_H__
+#define __REX_UTILS_H__
+
 //
 //
 // Utils namespace
@@ -32,3 +35,5 @@ namespace Utils
 
 	void FileSkip(FILE *fp, int num_bytes);
 }
+
+#endif // __REX_UTILS_H__

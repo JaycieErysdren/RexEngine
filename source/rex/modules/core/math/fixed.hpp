@@ -29,16 +29,3 @@ extern int sintable[2048];
 
 #define fixsin(a) sintable[(a) & 2047]
 #define fixcos(a) sintable[((a) + 512) & 2047]
-
-#ifdef UNDONE
-
-//
-// Fixed sin, cos, tan, cot
-//
-
-fix32_t sinFixed(uint8_t brads);
-fix32_t cosFixed(uint8_t brads);
-fix32_t tanFixed(uint8_t brads);
-fix32_t cotFixed(uint8_t brads);
-
-#endif

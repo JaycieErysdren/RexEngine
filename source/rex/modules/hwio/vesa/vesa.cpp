@@ -14,8 +14,8 @@
 //
 // ========================================================
 
-// Rex Engine header
-#include "rex.hpp"
+// Rex Engine private header
+#include "rex_priv.hpp"
 
 // Ref:
 // http://www.delorie.com/djgpp/doc/ug/graphics/vesa.html.en
@@ -473,16 +473,12 @@ void Shutdown()
 // Helpers
 //
 
-VidInfo GetVidInfo()
+void GetVidInfo(int *w, int *h, int *bpp, int *bytes_per_row)
 {
-	VidInfo v;
-
-	v.width = mib.XResolution;
-	v.height = mib.YResolution;
-	v.bpp = mib.BitsPerPixel;
-	v.bytes_per_row = mib.BitsPerPixel * mib.XResolution;
-
-	return v;
+	*w = (int)mib.XResolution;
+	*h = (int)mib.YResolution;
+	*bpp = (int)mib.BitsPerPixel;
+	*bytes_per_row = (int)(mib.BitsPerPixel * mib.XResolution);
 }
 
 // Set the palette from a file

@@ -89,10 +89,10 @@ char console_buffer[256];
 void CameraController()
 {
 	// Mouse read
-	static int16_t mx_prev, my_prev;
-	int16_t delta_mx, delta_my;
-	int16_t mb, mx, my;
-	mb = DOS::MouseRead(&mx, &my);
+	static int mx_prev, my_prev;
+	int delta_mx, delta_my;
+	int mb, mx, my;
+	Rex::MouseRead(&mb, &mx, &my);
 
 	delta_mx = mx_prev - mx;
 	delta_my = my_prev - my;
@@ -108,16 +108,16 @@ void CameraController()
 	// Keyboard look
 	{
 		// Rotate leftwards
-		if (DOS::KeyTest(KB_LTARROW)) camera.angles.y += camera.anglespeedkey;
+		if (Rex::KeyTest(REX_KB_LTARROW)) camera.angles.y += camera.anglespeedkey;
 
 		// Rotate rightwards
-		if (DOS::KeyTest(KB_RTARROW)) camera.angles.y -= camera.anglespeedkey;
+		if (Rex::KeyTest(REX_KB_RTARROW)) camera.angles.y -= camera.anglespeedkey;
 
 		// Look upwards
-		if (DOS::KeyTest(KB_UPARROW)) camera.angles.x += camera.anglespeedkey;
+		if (Rex::KeyTest(REX_KB_UPARROW)) camera.angles.x += camera.anglespeedkey;
 
 		// Look downwards
-		if (DOS::KeyTest(KB_DNARROW)) camera.angles.x -= camera.anglespeedkey;
+		if (Rex::KeyTest(REX_KB_DNARROW)) camera.angles.x -= camera.anglespeedkey;
 	}
 
 	// Pitch angle sanity checks
@@ -129,7 +129,7 @@ void CameraController()
 	if (camera.angles.y > 359) camera.angles.y -= 360;
 
 	// Check if sprinting
-	if (DOS::KeyTest(KB_LTSHIFT))
+	if (Rex::KeyTest(REX_KB_LTSHIFT))
 		camera.movespeedkey = 4;
 	else
 		camera.movespeedkey = 2;
@@ -140,39 +140,39 @@ void CameraController()
 	camera.velocity.z = SCALAR(1.0f) * camera.movespeedkey;
 
 	// Move forwards
-	if (DOS::KeyTest(KB_W))
+	if (Rex::KeyTest(REX_KB_W))
 	{
 		camera.origin.x -= camera.velocity.x;
 		camera.origin.y -= camera.velocity.y;
 	}
 
 	// Move backwards
-	if (DOS::KeyTest(KB_S))
+	if (Rex::KeyTest(REX_KB_S))
 	{
 		camera.origin.x += camera.velocity.x;
 		camera.origin.y += camera.velocity.y;
 	}
 
 	// Move leftwards
-	if (DOS::KeyTest(KB_A))
+	if (Rex::KeyTest(REX_KB_A))
 	{
 		camera.origin.x -= camera.velocity.y;
 		camera.origin.y += camera.velocity.x;
 	}
 
 	// Move rightwards
-	if (DOS::KeyTest(KB_D))
+	if (Rex::KeyTest(REX_KB_D))
 	{
 		camera.origin.x += camera.velocity.y;
 		camera.origin.y -= camera.velocity.x;
 	}
 
 	// Move upwards
-	if (DOS::KeyTest(KB_Q))
+	if (Rex::KeyTest(REX_KB_Q))
 		camera.origin.z += camera.velocity.z;
 
 	// Move downwards
-	if (DOS::KeyTest(KB_E))
+	if (Rex::KeyTest(REX_KB_E))
 		camera.origin.z -= camera.velocity.z;
 
 	mx_prev = mx;
@@ -216,7 +216,7 @@ void VoxCave_Init(vec2i_t screen_dimensions)
 	}
 }
 
-void VoxCave_RenderColumn(Picture::pic_t *dst, rect_t area, int column, scalar_t draw_distance)
+void VoxCave_RenderColumn(Rex::Surface *dst, rect_t area, int column, scalar_t draw_distance)
 {
 	// sanity check
 	if (startumost[column] > startdmost[column]) return;
@@ -230,7 +230,7 @@ void VoxCave_RenderColumn(Picture::pic_t *dst, rect_t area, int column, scalar_t
 	scalar_t cs = math.cos[camera.angles.y];
 }
 
-void VoxCave_Render(Picture::pic_t *dst, rect_t area)
+void VoxCave_Render(Rex::Surface *dst, rect_t area)
 {
 	// Draw loop
 	for (int sx = area.x1; sx < area.x1; sx++)
@@ -385,7 +385,7 @@ void VoxelShutdown()
 	free(ybuffer);
 }
 
-void VoxelRender(Picture::pic_t *dst, rect_t area, vec3s_t p, int yaw, int horizon, scalar_t height_scale, scalar_t draw_distance, bool ceiling, vec2i_t map_size, uint8_t *colormap, uint8_t *heightmap)
+void VoxelRender(Rex::Surface *dst, rect_t area, vec3s_t p, int yaw, int horizon, scalar_t height_scale, scalar_t draw_distance, bool ceiling, vec2i_t map_size, uint8_t *colormap, uint8_t *heightmap)
 {
 	// Drawable area
 	int draw_w = area.x2 - area.x1;
@@ -448,7 +448,7 @@ void VoxelRender(Picture::pic_t *dst, rect_t area, vec3s_t p, int yaw, int horiz
 			if ((ceiling == true && line_height > ybuffer[sx]) || (ceiling == false && line_height < ybuffer[sx]))
 			{
 				//c = Colormap::Lookup(c, ScalarToInteger(z));
-				Picture::DrawVerticalLine(dst, sx, line_height, ybuffer[sx], c);
+				Rex::SurfaceDrawVerticalLine(dst, sx, line_height, ybuffer[sx], c);
 				ybuffer[sx] = line_height;
 			}
 
@@ -461,7 +461,7 @@ void VoxelRender(Picture::pic_t *dst, rect_t area, vec3s_t p, int yaw, int horiz
 	}
 }
 
-void VoxelRenderWrapper(Picture::pic_t *dst, rect_t area)
+void VoxelRenderWrapper(Rex::Surface *dst, rect_t area)
 {
 	// Throw in some collision detection while we're at it
 	scalar_t minh = SCALAR(32);
@@ -490,12 +490,12 @@ void VoxelRenderWrapper(Picture::pic_t *dst, rect_t area)
 //
 
 // Mouse helper function
-void ReadMouse(int16_t *buttons, vec2i_t *pos, int16_t speedlimit, rect_t area)
+void ReadMouse(int *buttons, vec2i_t *pos, int speedlimit, rect_t area)
 {
-	int16_t mx, my, dmx, dmy;
-	int16_t halfx = 160, halfy = 100;
+	int mb, mx, my, dmx, dmy;
+	int halfx = 160, halfy = 100;
 
-	*buttons = DOS::MouseRead(&mx, &my);
+	Rex::MouseRead(&mb, &mx, &my);
 	
 	dmx = mx - halfx;
 	dmy = my - halfy;
@@ -509,9 +509,11 @@ void ReadMouse(int16_t *buttons, vec2i_t *pos, int16_t speedlimit, rect_t area)
 	if (pos->y < area.y1) pos->y = area.y1;
 	if (pos->y > area.y2) pos->y = area.y2;
 
+	*buttons = mb;
+
 	// 160x100 is the the middle of the 320x200 screen
 	// (use this regardless of actual screen resolution)
-	DOS::MouseSet(halfx, halfy);
+	Rex::MouseSet(halfx, halfy);
 }
 
 //
@@ -528,29 +530,27 @@ int main(int argc, char *argv[])
 	int cycles, c;
 
 	// Picture buffers
-	Picture::pic_t pic_font;
-	Picture::pic_t pic_bbuffer;
-	//Picture::pic_t pic_background;
-	Picture::pic_t pic_cursor;
+	Rex::Surface pic_font;
+	Rex::Surface pic_bbuffer;
+	//Rex::Surface pic_background;
+	Rex::Surface pic_cursor;
 
-	// Initialize DOS
-	DOS::Initialize();
+	// Initialize Rex Engine
+	Rex::Initialize();
 
-	// Initialize VESA
-	if (VESA::Initialize(320, 200, 8) == false) return EXIT_FAILURE;
-	VESA::VidInfo vidinfo = VESA::GetVidInfo();
+	// Initialize Graphics
+	if (Rex::InitializeGraphics(320, 200, 8) == false) return EXIT_FAILURE;
+	Rex::VidInfo vidinfo = Rex::GetVidInfo();
 
 	// Load colormap
-	VESA::SetPalette("gfx/portal2d.pal");
-	Colormap::Load("gfx/portal2d.tab");
+	Rex::SetGraphicsPalette("gfx/portal2d.pal");
+	Rex::ColormapLoad("gfx/portal2d.tab");
 
 	// Create picture buffers
-	Console::Initialize();
-	Picture::InitializeFrontBuffer();
-	Picture::LoadBMP(&pic_font, "gfx/font8x8.bmp");
-	Picture::LoadBMP(&pic_cursor, "local/cursor.bmp");
-	//Picture::LoadBMP(&pic_background, "local/forest.bmp");
-	Picture::Create(&pic_bbuffer, vidinfo.width, vidinfo.height, vidinfo.bpp, 0, 0);
+	Rex::SurfaceLoadBMP(&pic_font, "gfx/font8x8.bmp");
+	Rex::SurfaceLoadBMP(&pic_cursor, "local/cursor.bmp");
+	//Rex::SurfaceLoadBMP(&pic_background, "local/forest.bmp");
+	Rex::SurfaceCreate(&pic_bbuffer, vidinfo.width, vidinfo.height, vidinfo.bpp, 0, 0);
 
 	// Generate math tables
 	for (i = 0; i < 360; i++)
@@ -567,13 +567,13 @@ int main(int argc, char *argv[])
 	//VoxCave_Init(VEC2I(vidinfo.width, vidinfo.height));
 
 	// Start counting time
-	frame_end = DOS::TimerGet64();
+	frame_end = Rex::GetTicks64();
 
 	// Main loop
-	while (!DOS::KeyTest(KB_ESC))
+	while (!Rex::KeyTest(REX_KB_ESC))
 	{
 		// Get start of frame time
-		frame_start = DOS::TimerGet64();
+		frame_start = Rex::GetTicks64();
 
 		#if (REX_COMPILER == COMPILER_DJGPP)
 			cycles = CYCLES * (frame_start - frame_end) / UCLOCKS_PER_SEC;
@@ -598,7 +598,7 @@ int main(int argc, char *argv[])
 		//
 
 		// Clear back buffer
-		Picture::Clear(&pic_bbuffer, 0);
+		Rex::SurfaceClear(&pic_bbuffer, 0);
 
 		// Voxels
 		{
@@ -613,10 +613,10 @@ int main(int argc, char *argv[])
 		}
 
 		// Render the console text
-		Console::Render(&pic_bbuffer, &pic_font, 8);
+		Rex::ConsoleRender(&pic_bbuffer, &pic_font, 8);
 
 		// Flip the rendering buffers
-		Picture::CopyToFrontBuffer(&pic_bbuffer);
+		Rex::SurfaceToFrontBuffer(&pic_bbuffer);
 
 		// Get end of frame time
 		#if (REX_COMPILER == COMPILER_DJGPP)
@@ -628,19 +628,17 @@ int main(int argc, char *argv[])
 		#endif
 	}
 
-	// Shutdown VESA
-	VESA::Shutdown();
+	// Shutdown Graphics
+	Rex::ShutdownGraphics();
 
-	// Shutdown DOS
-	DOS::Shutdown();
+	// Shutdown Rex Engine
+	Rex::Shutdown();
 
 	// Cleanup memory
-	Console::Shutdown();
-	Picture::Destroy(&pic_font);
-	Picture::Destroy(&pic_bbuffer);
-	//Picture::Destroy(&pic_background);
-	Picture::Destroy(&pic_cursor);
-	Picture::ShutdownFrontBuffer();
+	Rex::SurfaceDestroy(&pic_font);
+	Rex::SurfaceDestroy(&pic_bbuffer);
+	//Rex::SurfaceDestroy(&pic_background);
+	Rex::SurfaceDestroy(&pic_cursor);
 
 	// Exit gracefully
 	return EXIT_SUCCESS;

@@ -50,7 +50,7 @@ player_t player;
 math_t math;
 char console_buffer[256];
 
-Picture::pic_t pic_wall;
+Rex::Surface pic_wall;
 bool texturemapping = false;
 
 //
@@ -97,7 +97,7 @@ uint8_t textures[1][TEXTURE_Y * TEXTURE_X];
 // Raycast rendering functions
 //
 
-void RenderRays(Picture::pic_t *dst, rect_t area)
+void RenderRays(Rex::Surface *dst, rect_t area)
 {
 	// Draw bounds
 	int draw_w = area.x2 - area.x1;
@@ -223,20 +223,20 @@ void RenderRays(Picture::pic_t *dst, rect_t area)
 				scalar_t texcoord = MUL(SCALAR(drawStart - (draw_h / 2) + (line_height / 2)), step);
 
 				// it turns out this isn't really any faster...
-				//Picture::Blit8(dst, x, drawStart, x + 1, drawEnd, &pic_wall, tex_x, 0, 1, pic_wall.height, Picture::COPY);
+				//Rex::SurfaceBlit8(dst, x, drawStart, x + 1, drawEnd, &pic_wall, tex_x, 0, 1, pic_wall.height, Rex::SurfaceCOPY);
 
 				for (int y = drawStart; y < drawEnd; y++)
 				{
 					// Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
 					int tex_y = ScalarToInteger(texcoord) & (TEXTURE_Y - 1);
 					texcoord += step;
-					uint8_t color = Picture::GetPixel(&pic_wall, tex_x, tex_y);
+					uint8_t color = Rex::SurfaceGetPixel(&pic_wall, tex_x, tex_y);
 
 					// Lookup in colormap for brightness
-					if (side == true) color = Colormap::Lookup(color, ScalarToInteger(MUL(perp_wall_dist, SCALAR(2))) - 2);
-					else color = Colormap::Lookup(color, ScalarToInteger(MUL(perp_wall_dist, SCALAR(2))));
+					if (side == true) color = Rex::ColormapLookup(color, ScalarToInteger(MUL(perp_wall_dist, SCALAR(2))) - 2);
+					else color = Rex::ColormapLookup(color, ScalarToInteger(MUL(perp_wall_dist, SCALAR(2))));
 
-					Picture::DrawPixel(dst, x, y, color);
+					Rex::SurfaceDrawPixel(dst, x, y, color);
 				}
 			}
 			else
@@ -254,17 +254,17 @@ void RenderRays(Picture::pic_t *dst, rect_t area)
 				}
 
 				// Lookup in colormap for brightness
-				if (side == true) color = Colormap::Lookup(color, ScalarToInteger(MUL(perp_wall_dist, SCALAR(2))) - 4);
-				else color = Colormap::Lookup(color, ScalarToInteger(MUL(perp_wall_dist, SCALAR(2))));
+				if (side == true) color = Rex::ColormapLookup(color, ScalarToInteger(MUL(perp_wall_dist, SCALAR(2))) - 4);
+				else color = Rex::ColormapLookup(color, ScalarToInteger(MUL(perp_wall_dist, SCALAR(2))));
 
 				//draw the pixels of the stripe as a vertical line
-				Picture::DrawVerticalLine(dst, x, drawStart, drawEnd, color);
+				Rex::SurfaceDrawVerticalLine(dst, x, drawStart, drawEnd, color);
 			}
 		}
 	}
 }
 
-void DrawMap(Picture::pic_t *dst, int x, int y, int cell_width, int cell_height)
+void DrawMap(Rex::Surface *dst, int x, int y, int cell_width, int cell_height)
 {
 	// Draw a map
 	for (int my = 0; my < MAP_Y; my++)
@@ -282,12 +282,12 @@ void DrawMap(Picture::pic_t *dst, int x, int y, int cell_width, int cell_height)
 				default: color = 0; break;
 			}
 
-			Picture::DrawRectangle(dst, x + (mx * cell_width), y + (my * cell_height), cell_width, cell_height, color, true);
+			Rex::SurfaceDrawRectangle(dst, x + (mx * cell_width), y + (my * cell_height), cell_width, cell_height, color, true);
 		}
 	}
 
 	// Draw the player on the map
-	Picture::DrawPixel(dst, x + ScalarToInteger(MUL((player.origin.x), SCALAR(cell_width))), y + ScalarToInteger(MUL((player.origin.y), SCALAR(cell_height))), 254);
+	Rex::SurfaceDrawPixel(dst, x + ScalarToInteger(MUL((player.origin.x), SCALAR(cell_width))), y + ScalarToInteger(MUL((player.origin.y), SCALAR(cell_height))), 254);
 }
 
 void GenerateTextures()
@@ -326,10 +326,10 @@ void PlayerInit()
 void PlayerController()
 {
 	// Mouse read
-	static int16_t mx_prev, my_prev;
-	int16_t delta_mx, delta_my;
-	int16_t mb, mx, my;
-	mb = DOS::MouseRead(&mx, &my);
+	static int mx_prev, my_prev;
+	int delta_mx, delta_my;
+	int mb, mx, my;
+	Rex::MouseRead(&mb, &mx, &my);
 
 	delta_mx = mx_prev - mx;
 	delta_my = my_prev - my;
@@ -345,16 +345,16 @@ void PlayerController()
 	// Keyboard look
 	{
 		// Rotate leftwards
-		if (DOS::KeyTest(KB_LTARROW)) player.angles.y += player.anglespeedkey;
+		if (Rex::KeyTest(REX_KB_LTARROW)) player.angles.y += player.anglespeedkey;
 
 		// Rotate rightwards
-		if (DOS::KeyTest(KB_RTARROW)) player.angles.y -= player.anglespeedkey;
+		if (Rex::KeyTest(REX_KB_RTARROW)) player.angles.y -= player.anglespeedkey;
 
 		// Look upwards
-		if (DOS::KeyTest(KB_UPARROW)) player.angles.x += player.anglespeedkey;
+		if (Rex::KeyTest(REX_KB_UPARROW)) player.angles.x += player.anglespeedkey;
 
 		// Look downwards
-		if (DOS::KeyTest(KB_DNARROW)) player.angles.x -= player.anglespeedkey;
+		if (Rex::KeyTest(REX_KB_DNARROW)) player.angles.x -= player.anglespeedkey;
 	}
 
 	// Pitch angle sanity checks
@@ -366,7 +366,7 @@ void PlayerController()
 	if (player.angles.y > 359) player.angles.y -= 360;
 
 	// Check if sprinting
-	if (DOS::KeyTest(KB_LTSHIFT))
+	if (Rex::KeyTest(REX_KB_LTSHIFT))
 		player.movespeedkey = 6;
 	else
 		player.movespeedkey = 4;
@@ -377,39 +377,39 @@ void PlayerController()
 	player.velocity.z = SCALAR(1.0f) * player.movespeedkey;
 
 	// Move forwards
-	if (DOS::KeyTest(KB_W))
+	if (Rex::KeyTest(REX_KB_W))
 	{
 		player.origin.x += player.velocity.x;
 		player.origin.y += player.velocity.y;
 	}
 
 	// Move backwards
-	if (DOS::KeyTest(KB_S))
+	if (Rex::KeyTest(REX_KB_S))
 	{
 		player.origin.x -= player.velocity.x;
 		player.origin.y -= player.velocity.y;
 	}
 
 	// Move leftwards
-	if (DOS::KeyTest(KB_A))
+	if (Rex::KeyTest(REX_KB_A))
 	{
 		player.origin.x += player.velocity.y;
 		player.origin.y -= player.velocity.x;
 	}
 
 	// Move rightwards
-	if (DOS::KeyTest(KB_D))
+	if (Rex::KeyTest(REX_KB_D))
 	{
 		player.origin.x -= player.velocity.y;
 		player.origin.y += player.velocity.x;
 	}
 
 	// Move upwards
-	if (DOS::KeyTest(KB_Q))
+	if (Rex::KeyTest(REX_KB_Q))
 		player.origin.z += player.velocity.z;
 
 	// Move downwards
-	if (DOS::KeyTest(KB_E))
+	if (Rex::KeyTest(REX_KB_E))
 		player.origin.z -= player.velocity.z;
 
 	mx_prev = mx;
@@ -514,9 +514,9 @@ int main(int argc, char *argv[])
 	int i;
 
 	// Picture buffers
-	Picture::pic_t pic_font;
-	Picture::pic_t pic_bbuffer;
-	//Picture::pic_t pic_gun;
+	Rex::Surface pic_font;
+	Rex::Surface pic_bbuffer;
+	//Rex::Surface pic_gun;
 
 	// Cycles
 	int64_t frame_start, frame_end;
@@ -536,33 +536,31 @@ int main(int argc, char *argv[])
 	// Initialize texture data
 	GenerateTextures();
 
-	// Initialize DOS
-	DOS::Initialize();
+	// Initialize Rex Engine
+	Rex::Initialize();
 
-	// Initialize VESA
-	if (VESA::Initialize(320, 200, 8) == false) return EXIT_FAILURE;
-	VESA::SetPalette("gfx/duke3d.pal");
-	VESA::VidInfo vidinfo = VESA::GetVidInfo();
+	// Initialize Graphics
+	if (Rex::InitializeGraphics(320, 200, 8) == false) return EXIT_FAILURE;
+	Rex::SetGraphicsPalette("gfx/duke3d.pal");
+	Rex::VidInfo vidinfo = Rex::GetVidInfo();
 
 	// Initialize colormap
-	Colormap::Load("gfx/duke3d.tab");
+	Rex::ColormapLoad("gfx/duke3d.tab");
 
 	// Create pictures
-	Console::Initialize();
-	Picture::InitializeFrontBuffer();
-	Picture::LoadBMP(&pic_font, "gfx/font8x8.bmp");
-	//Picture::LoadBMP(&pic_gun, "gfx/gun.bmp");
-	Picture::LoadBMP(&pic_wall, "tex_bmp/duke3d/wall001.bmp");
-	Picture::Create(&pic_bbuffer, vidinfo.width, vidinfo.height, vidinfo.bpp, 0, 0);
+	Rex::SurfaceLoadBMP(&pic_font, "gfx/font8x8.bmp");
+	//Rex::SurfaceLoadBMP(&pic_gun, "gfx/gun.bmp");
+	Rex::SurfaceLoadBMP(&pic_wall, "tex_bmp/duke3d/wall001.bmp");
+	Rex::SurfaceCreate(&pic_bbuffer, vidinfo.width, vidinfo.height, vidinfo.bpp, 0, 0);
 
 	// Start counting time
-	frame_end = DOS::TimerGet64();
+	frame_end = Rex::GetTicks64();
 
 	// Main loop
-	while (!DOS::KeyTest(KB_ESC))
+	while (!Rex::KeyTest(REX_KB_ESC))
 	{
 		// Get start of frame time
-		frame_start = DOS::TimerGet64();
+		frame_start = Rex::GetTicks64();
 
 		#if (REX_COMPILER == COMPILER_DJGPP)
 			cycles = CYCLES * (frame_start - frame_end) / UCLOCKS_PER_SEC;
@@ -583,9 +581,9 @@ int main(int argc, char *argv[])
 
 			// Print some player info
 			sprintf(console_buffer, "x: %d y: %d z %d", ScalarToInteger(player.origin.x), ScalarToInteger(player.origin.y), ScalarToInteger(player.origin.z));
-			Console::AddText(0, 0, console_buffer);
+			Rex::ConsoleAddText(0, 0, console_buffer);
 			sprintf(console_buffer, "pitch: %d yaw: %d roll %d", player.angles.x, player.angles.y, player.angles.z);
-			Console::AddText(0, 1, console_buffer);
+			Rex::ConsoleAddText(0, 1, console_buffer);
 		}
 
 		//
@@ -593,7 +591,7 @@ int main(int argc, char *argv[])
 		//
 
 		// Clear back buffer
-		Picture::Clear(&pic_bbuffer, 0);
+		Rex::SurfaceClear(&pic_bbuffer, 0);
 
 		// Raycaster rendering
 		{
@@ -604,18 +602,17 @@ int main(int argc, char *argv[])
 
 		// HUD elements
 		{
-			//Picture::Draw8(&pic_bbuffer, &pic_gun, vidinfo.width / 2 + 64, vidinfo.height - 64, Picture::COLORKEY);
+			//Rex::SurfaceDraw8(&pic_bbuffer, &pic_gun, vidinfo.width / 2 + 64, vidinfo.height - 64, Rex::SurfaceCOLORKEY);
 
 			DrawMap(&pic_bbuffer, vidinfo.width - (2 * MAP_X) - 1, 0, 2, 2);
 		}
 
 		// Render the console text
-		//Picture::DrawRectangle(&pic_bbuffer, 0, 0, 256, 16, 0, true);
-		Console::Render(&pic_bbuffer, &pic_font, 8);
+		//Rex::SurfaceDrawRectangle(&pic_bbuffer, 0, 0, 256, 16, 0, true);
+		Rex::ConsoleRender(&pic_bbuffer, &pic_font, 8);
 
 		// Flip the rendering buffers
-		Picture::CopyToFrontBuffer(&pic_bbuffer);
-
+		Rex::SurfaceToFrontBuffer(&pic_bbuffer);
 
 		// Get end of frame time
 		#if (REX_COMPILER == COMPILER_DJGPP)
@@ -627,19 +624,17 @@ int main(int argc, char *argv[])
 		#endif
 	}
 
-	// Shutdown VESA
-	VESA::Shutdown();
+	// Shutdown Graphics
+	Rex::ShutdownGraphics();
 
-	// Shutdown DOS
-	DOS::Shutdown();
+	// Shutdown Rex
+	Rex::Shutdown();
 
 	// Cleanup memory
-	Console::Shutdown();
-	Picture::Destroy(&pic_font);
-	Picture::Destroy(&pic_bbuffer);
-	//Picture::Destroy(&pic_gun);
-	Picture::Destroy(&pic_wall);
-	Picture::ShutdownFrontBuffer();
+	Rex::SurfaceDestroy(&pic_font);
+	Rex::SurfaceDestroy(&pic_bbuffer);
+	//Rex::SurfaceDestroy(&pic_gun);
+	Rex::SurfaceDestroy(&pic_wall);
 
 	// Exit gracefully
 	return EXIT_SUCCESS;

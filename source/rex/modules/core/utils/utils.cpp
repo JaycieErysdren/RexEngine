@@ -14,8 +14,11 @@
 //
 // ========================================================
 
-// Rex ENgine headers
-#include "rex.hpp"
+// Rex Engine private header
+#include "rex_priv.hpp"
+
+// This module's headers
+#include "utils.hpp"
 
 // Utils namespace (private)
 namespace Utils

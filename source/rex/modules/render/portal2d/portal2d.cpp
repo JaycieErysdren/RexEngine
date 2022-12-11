@@ -14,8 +14,8 @@
 //
 // ========================================================
 
-// Rex3D header
-#include "rex3d.hpp"
+// Rex Engine private header
+#include "rex_priv.hpp"
 
 //
 //

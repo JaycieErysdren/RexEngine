@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/rex/modules/core/colormap/colormap.cpp
+// FILE:			/source/rex/modules/core/io/graphics.cpp
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -8,17 +8,30 @@
 //
 // LICENSE:			ACSL v1.4
 //
-// DESCRIPTION:		Colormap namespace implementation
+// DESCRIPTION:		Rex namespace: Graphics implementation
 //
 // LAST EDITED:		December 11th, 2022
 //
 // ========================================================
 
-// Rex Engine headers
-#include "rex.hpp"
+// Rex Engine private header
+#include "rex_priv.hpp"
 
-// Colormap namespace (private)
-namespace Colormap
+//
+//
+// Globals (ew)
+//
+//
+
+Rex::VidInfo vid_info;
+
+//
+//
+// Rex namespace: Graphics
+//
+//
+
+namespace Rex
 {
 
 //
@@ -35,8 +48,125 @@ uint8_t colormap[64 * 256];
 //
 //
 
+//
+// Bootstrap
+//
+
+// Initialize graphics
+bool InitializeGraphics(int w, int h, int bpp)
+{
+	#if (REX_TARGET == PLATFORM_DOS)
+
+		#if (MODULE_VESA) && (MODULE_VGA)
+
+			// If VESA fails, try VGA
+			if (VESA::Initialize(w, h, bpp) == true)
+			{
+				vid_info = GetVidInfo();
+				return true;
+			}
+			else
+			{
+				if (VGA::Initialize(w, h, bpp) == true)
+				{
+					vid_info = GetVidInfo();
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+
+		#elif (MODULE_VGA)
+
+			if (VGA::Initialize(w, h, bpp) == true)
+			{
+				vid_info = GetVidInfo();
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+
+		#endif
+
+	#else
+
+	return false;
+
+	#endif
+}
+
+// Shutdown graphics
+bool ShutdownGraphics()
+{
+	#if (REX_TARGET == PLATFORM_DOS)
+
+		#if (MODULE_VESA)
+
+			VESA::Shutdown();
+
+		#elif (MODULE_VGA)
+
+			VGA::Shutdown();
+
+		#endif
+
+	#endif
+
+	return true;
+}
+
+// Set the 256-color palette for 8-bit indexed color rendering
+bool SetGraphicsPalette(string filename)
+{
+	#if (REX_TARGET == PLATFORM_DOS)
+
+		#if (MODULE_VESA)
+
+			VESA::SetPalette(filename);
+			return true;
+
+		#elif (MODULE_VGA)
+
+			VGA::SetPalette(filename);
+			return true;
+
+		#endif
+
+	#else
+
+	return false;
+
+	#endif
+}
+
+// Return a VidInfo object with details about the current video state
+VidInfo GetVidInfo()
+{
+	VidInfo v;
+
+	#if (REX_TARGET == PLATFORM_DOS) && (MODULE_VESA)
+
+	VESA::GetVidInfo(&v.width, &v.height, &v.bpp, &v.bytes_per_row);
+
+	return v;
+
+	#else
+
+	return NULL;
+
+	#endif
+}
+
+//
+// Colormap
+//
+
 // Load a colormap into memory
-void Load(string filename)
+void ColormapLoad(string filename)
 {
 	FILE *file = fopen(filename.c_str(), "rb");
 
@@ -46,7 +176,7 @@ void Load(string filename)
 }
 
 // Save the current colormap to a file
-void Save(string filename)
+void ColormapSave(string filename)
 {
 	FILE *file = fopen(filename.c_str(), "wb");
 
@@ -56,14 +186,13 @@ void Save(string filename)
 }
 
 // Lookup a value with a given light level
-uint8_t Lookup(uint8_t index, int light)
+uint8_t ColormapLookup(uint8_t index, int light)
 {
 	return colormap[((CLAMP(light, -32, 31) + 32) * 256) + index];
 }
 
 // https://quakewiki.org/wiki/Quake_palette#Generating_the_colormap
-
-/* sample a 24-bit RGB value to one of the colours on the existing 8-bit palette */
+// sample a 24-bit RGB value to one of the colours on the existing 8-bit palette
 uint8_t RGB24_To_Index8(const uint8_t palette[768], const int rgb[3])
 {
 	int i, j;
@@ -92,7 +221,7 @@ uint8_t RGB24_To_Index8(const uint8_t palette[768], const int rgb[3])
 }
 
 // Generate a colormap from a given palette and load it into memory
-void Generate(string palette_filename, int num_fullbrights)
+void ColormapGenerate(string palette_filename, int num_fullbrights)
 {
 	//int num_fullbrights = 32; /* the last 32 colours will be full bright */
 	int x, y, i;
@@ -130,4 +259,4 @@ void Generate(string palette_filename, int num_fullbrights)
 	}
 }
 
-} // namespace Colormap
+} // namespace Rex

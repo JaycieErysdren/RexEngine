@@ -8,7 +8,7 @@
 //
 // LICENSE:			TBD
 //
-// DESCRIPTION:		Rex Engine main header
+// DESCRIPTION:		Rex Engine public header
 //
 // LAST EDITED:		December 11th, 2022
 //
@@ -56,6 +56,7 @@
 #include <stdio.h>
 #include <time.h>
 
+// DOS-specific standard headers
 #if (REX_TARGET == PLATFORM_DOS)
 
 	// Standard DOS headers
@@ -83,112 +84,37 @@
 
 #endif
 
-// Use standard namespace
+// Use standard namespace for convenience
 using namespace std;
 
 //
 //
-// Rex3D forward definitions
-//
-//
-
-//
-// Make sure PI is defined
-//
-
-#if !defined(PI)
-#define PI 3.14159265358979323846
-#endif
-
-//
-// Math type (fixed or floating point)
-//
-
-// Default to fixed point if not defined
-#if !defined(MATH_FIXED) && !defined(MATH_FLOAT)
-#define MATH_FIXED 1
-#define MATH_FLOAT 0
-#endif
-
-//
-//
-// Rex3D Headers
+// Rex Engine public headers
 //
 //
 
 // Types
-#include "rextypes.hpp"
+#include "core/types.hpp"
 
-//
-// Core modules
-//
+// Bootstrap
+#include "core/bootstrap.hpp"
 
-// Colormaps
-#if MODULE_COLORMAP
-#include "modules/core/colormap/colormap.hpp"
-#endif
+// Clock
+#include "core/clock.hpp"
 
-// Palette
-#if MODULE_PALETTE
-#include "modules/core/palette/palette.hpp"
-#endif
+// Graphics
+#include "core/graphics.hpp"
 
 // Surface
-#if MODULE_SURFACE
-#include "modules/core/surface/picture.hpp"
-#endif
+#include "core/surface.hpp"
+
+// Keyboard
+#include "core/keyboard.hpp"
+
+// Mouse
+#include "core/mouse.hpp"
 
 // Console
-#if MODULE_CONSOLE
-#include "modules/core/console/console.hpp"
-#endif
-
-// Utils
-#if MODULE_UTILS
-#include "modules/core/utils/utils.hpp"
-#endif
-
-// Math
-#if MODULE_MATH
-#include "modules/core/math/math.hpp"
-#endif
-
-//
-// Hardware I/O modules
-//
-
-// DOS hardware
-#if (REX_TARGET == PLATFORM_DOS)
-
-	// DOS
-	#if MODULE_DOS
-	#include "modules/hwio/dos/dos.hpp"
-	#endif
-
-	// VGA
-	#if MODULE_VGA
-	#include "modules/hwio/vga/vga.hpp"
-	#endif
-
-	// VESA
-	#if MODULE_VESA
-	#include "modules/hwio/vesa/vesa.hpp"
-	#endif
-
-#endif
-
-//
-// Renderers
-//
-
-// Raycast
-#if MODULE_RAYCAST
-#include "modules/render/raycast/raycast.hpp"
-#endif
-
-// Portal2D
-#if MODULE_PORTAL2D
-#include "modules/render/portal2d/portal2d.hpp"
-#endif
+#include "core/console.hpp"
 
 #endif // __REX_ENGINE_H__

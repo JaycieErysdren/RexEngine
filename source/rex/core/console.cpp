@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/rex/modules/core/console/console.cpp
+// FILE:			/source/rex/modules/core/io/console.cpp
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -8,18 +8,29 @@
 //
 // LICENSE:			ACSL v1.4
 //
-// DESCRIPTION:		Console namespace implementation
+// DESCRIPTION:		Rex namespace: Console implementation
 //
 // LAST EDITED:		December 11th, 2022
 //
 // ========================================================
 
-// Rex Engine headers
-#include "rex.hpp"
+// Rex Engine private header
+#include "rex_priv.hpp"
 
-// Console namespace (private)
-namespace Console
+//
+//
+// Rex namespace: Console
+//
+//
+
+namespace Rex
 {
+
+//
+//
+// Functions
+//
+//
 
 //
 //
@@ -27,7 +38,7 @@ namespace Console
 //
 //
 
-Picture::pic_t pic_console;
+Surface pic_console;
 
 //
 //
@@ -36,26 +47,26 @@ Picture::pic_t pic_console;
 //
 
 // Initialize console buffer
-void Initialize()
+void ConsoleInitialize()
 {
-	Picture::Create(&pic_console, 40, 10, 8, 0, 0);
+	SurfaceCreate(&pic_console, 40, 10, 8, 0, 0);
 }
 
 // Destroy console buffer
-void Shutdown()
+void ConsoleShutdown()
 {
-	Picture::Destroy(&pic_console);
+	SurfaceDestroy(&pic_console);
 }
 
 // Add text to the console buffer
-void AddText(int x, int y, const char *text)
+void ConsoleAddText(int x, int y, const char *text)
 {
 	uint8_t *p;
 	for (p = &pic_console.scanlines.b[y][x]; (*p++ = *text++) != 0;);
 }
 
 // Add formatted text to the console buffer (doesn't work)
-void AddTextF(int x, int y, const char *fmt, ...)
+void ConsoleAddTextF(int x, int y, const char *fmt, ...)
 {
 	va_list args;
 	uint8_t *p;
@@ -69,7 +80,7 @@ void AddTextF(int x, int y, const char *fmt, ...)
 }
 
 // Render the console to the given buffer
-void Render(Picture::pic_t *dst, Picture::pic_t *font, int font_size)
+void ConsoleRender(Surface *dst, Surface *font, int font_size)
 {
 	int x, y;
 
@@ -81,9 +92,9 @@ void Render(Picture::pic_t *dst, Picture::pic_t *font, int font_size)
 
 			int c = pic_console.scanlines.b[y][x] << 3;
 
-			Picture::Blit8(dst, xx, yy, xx + font_size, yy + font_size, font, c, 0, c + 8, 8, Picture::COLORKEY);
+			SurfaceBlit8(dst, xx, yy, xx + font_size, yy + font_size, font, c, 0, c + 8, 8, COLORKEY);
 		}
 	}
 }
 
-} // namespace Console
+} // namespace Rex

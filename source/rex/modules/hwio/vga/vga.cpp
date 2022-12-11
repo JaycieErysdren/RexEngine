@@ -14,8 +14,8 @@
 //
 // ========================================================
 
-// Rex Engine header
-#include "rex.hpp"
+// Rex Engine private header
+#include "rex_priv.hpp"
 
 // VGA text macros
 #define SLOWPOS(x, y)		(((y) * VGA_MODE13H_WIDTH) + (x))

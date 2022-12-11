@@ -14,6 +14,9 @@
 //
 // ========================================================
 
+#ifndef __REX_MATH_H__
+#define __REX_MATH_H__
+
 // Fixed-point math
 #include "fixed.hpp"
 
@@ -22,3 +25,5 @@
 
 // MathTable class
 #include "table.hpp"
+
+#endif // __REX_MATH_H__

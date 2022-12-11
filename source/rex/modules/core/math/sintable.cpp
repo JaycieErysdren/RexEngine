@@ -14,8 +14,11 @@
 //
 // ========================================================
 
-// Rex Engine headers
-#include "rex.hpp"
+// Rex Engine private header
+#include "rex_priv.hpp"
+
+// This module's headers
+#include "math.hpp"
 
 // look upon ye mighty and despair
 int sintable[] =

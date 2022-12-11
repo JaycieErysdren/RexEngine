@@ -1,12 +1,12 @@
 // ========================================================
 //
-// FILE:			/source/rex/rextypes.hpp
+// FILE:			/source/rex/core_io/types.hpp
 //
 // AUTHORS:			Jaycie Ewald
 //
-// PROJECT:			Duke4Ever
+// PROJECT:			Rex Engine
 //
-// LICENSE:			TBD
+// LICENSE:			ACSL v1.4
 //
 // DESCRIPTION:		Rex3D engine types
 //
@@ -14,8 +14,37 @@
 //
 // ========================================================
 
+#ifndef __REX_TYPES_H__
+#define __REX_TYPES_H__
+
 //
-// Struct packing
+//
+// Math
+//
+//
+
+//
+// Make sure PI is defined
+//
+
+#if !defined(PI)
+#define PI 3.14159265358979323846
+#endif
+
+//
+// Math type (fixed or floating point)
+//
+
+// Default to fixed point if not defined
+#if !defined(MATH_FIXED) && !defined(MATH_FLOAT)
+#define MATH_FIXED 1
+#define MATH_FLOAT 0
+#endif
+
+//
+//
+// GCC attributes
+//
 //
 
 #if (REX_COMPILER == COMPILER_DJGPP)
@@ -31,7 +60,9 @@
 #endif
 
 //
+//
 // Shortcut macros
+//
 //
 
 #define MIN(a, b)					(((a) < (b)) ? (a) : (b))
@@ -54,7 +85,9 @@
 #define fixceil(a) (((a) + 0xFFFF) >> 16)
 
 //
+//
 // Fixed-point types & macros
+//
 //
 
 // Various fixed-point types
@@ -235,3 +268,5 @@ typedef struct
 } rect_t;
 
 #define RECT(x1, y1, x2, y2)		((rect_t){(x1), (y1), (x2), (y2)})
+
+#endif // __REX_TYPES_H__

@@ -31,21 +31,6 @@ namespace VESA
 {
 	//
 	//
-	// Classes
-	//
-	//
-
-	class VidInfo
-	{
-		public:
-			int width;
-			int height;
-			int bpp;
-			int bytes_per_row;
-	};
-
-	//
-	//
 	// Functions
 	//
 	//
@@ -62,7 +47,7 @@ namespace VESA
 	//
 
 	void SetPalette(string filename);
-	VidInfo GetVidInfo();
+	void GetVidInfo(int *w, int *h, int *bpp, int *bytes_per_row);
 	void PlaceBuffer(int8_t *buffer, int buffer_size);
 
 }

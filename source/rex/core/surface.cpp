@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/rex/modules/core/surface/picture.cpp
+// FILE:			/source/rex/modules/core/io/surface.cpp
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -8,32 +8,23 @@
 //
 // LICENSE:			ACSL v1.4
 //
-// DESCRIPTION:		Picture namespace implementation
+// DESCRIPTION:		Rex namespace: Surface implementation
 //
 // LAST EDITED:		December 11th, 2022
 //
 // ========================================================
 
-// Rex Engine headers
-#include "rex.hpp"
+// Rex Engine private header
+#include "rex_priv.hpp"
 
-// Picture namespace (private)
-namespace Picture
+//
+//
+// Rex namespace: Surface
+//
+//
+
+namespace Rex
 {
-
-//
-//
-// Globals
-//
-//
-
-pic_t front_buffer_13h;
-
-#if (REX_TARGET == PLATFORM_DOS)
-
-	VESA::VidInfo vidinfo;
-
-#endif
 
 //
 //
@@ -42,29 +33,14 @@ pic_t front_buffer_13h;
 //
 
 //
-// Working with the front buffer
+// Front buffer
 //
 
-// Create a picture that points directly to the current video buffer
-void InitializeFrontBuffer()
+void SurfaceToFrontBuffer(Surface *src)
 {
-	#if (REX_TARGET == PLATFORM_DOS)
+	#if (REX_TARGET == PLATFORM_DOS) && (MODULE_VESA)
 
-		vidinfo = VESA::GetVidInfo();
-
-	#endif
-}
-
-void ShutdownFrontBuffer()
-{
-
-}
-
-void CopyToFrontBuffer(pic_t *src)
-{
-	#if (REX_TARGET == PLATFORM_DOS)
-
-		VESA::PlaceBuffer((int8_t *)src->buffer, vidinfo.width * vidinfo.height * (vidinfo.bpp / 8));
+		VESA::PlaceBuffer((int8_t *)src->buffer, vid_info.width * vid_info.height * (vid_info.bpp / 8));
 
 	#endif
 }
@@ -74,9 +50,9 @@ void CopyToFrontBuffer(pic_t *src)
 //
 
 // creates a picture. allocates required pixel buffer and pre-calculates scanline pointers.
-void Create(pic_t *picture, int width, int height, int bpp, int bytes_per_row, void *buffer)
+void SurfaceCreate(Surface *picture, int width, int height, int bpp, int bytes_per_row, void *buffer)
 {
-	memset(picture, 0, sizeof(pic_t));
+	memset(picture, 0, sizeof(Surface));
 
 	if (bpp <= 0) bpp = 8; // default to 8 bpp.
 
@@ -94,11 +70,11 @@ void Create(pic_t *picture, int width, int height, int bpp, int bytes_per_row, v
 	while (height--) picture->scanlines.b[height] = (uint8_t *)((uint32_t)picture->buffer + bytes_per_row * height);
 }
 
-void CreateMip(pic_t *dst, pic_t *src, clut_t blender)
+void SurfaceCreateMip(Surface *dst, Surface *src, clut_t blender)
 {
 	int x, y;
 
-	Create(dst, src->width, src->height, src->bpp, 0, 0);
+	SurfaceCreate(dst, src->width, src->height, src->bpp, 0, 0);
 
 	for (y = 0; y < dst->height; y += 2)
 	{
@@ -117,7 +93,7 @@ void CreateMip(pic_t *dst, pic_t *src, clut_t blender)
 }
 
 // destroys the resources allocated to a picture.
-void Destroy(pic_t *picture)
+void SurfaceDestroy(Surface *picture)
 {
 	assert(picture);
 	if (!picture->shared) free(picture->buffer);
@@ -125,29 +101,29 @@ void Destroy(pic_t *picture)
 }
 
 // resizes a pictures buffer. does not maintain picture contents.
-void Resize(pic_t *picture, int width, int height)
+void SurfaceResize(Surface *picture, int width, int height)
 {
 	if (picture->width != width || picture->height != height)
 	{
 		int bpp = picture->bpp;
-		Destroy(picture);
-		Create(picture, width, height, bpp, 0, 0);
+		SurfaceDestroy(picture);
+		SurfaceCreate(picture, width, height, bpp, 0, 0);
 	}
 }
 
 // A fast picture content clear.
-void Clear(pic_t *picture, uint8_t color)
+void SurfaceClear(Surface *picture, uint8_t color)
 {
 	memset(picture->buffer, color, picture->bytes_per_row * picture->height);
 }
 
 // A fast picture content copy. s must be compatible.
-void Copy(pic_t *dst, pic_t *src)
+void SurfaceCopy(Surface *dst, Surface *src)
 {
 	memcpy(dst->buffer, src->buffer, dst->bytes_per_row * dst->height);
 }
 
-void LoadBMP(pic_t *picture, string filename)
+void SurfaceLoadBMP(Surface *picture, string filename)
 {
 	FILE *fp;
 	uint16_t width, height;
@@ -172,7 +148,7 @@ void LoadBMP(pic_t *picture, string filename)
 	Utils::FileSkip(fp, 22);
 	fread(&num_palette_colors, sizeof(uint16_t), 1, fp);
 
-	Create(picture, width, height, 0, 0, 0);
+	SurfaceCreate(picture, width, height, 0, 0, 0);
 
 	Utils::FileSkip(fp, 6);
 	Utils::FileSkip(fp, num_palette_colors * 4);
@@ -182,12 +158,12 @@ void LoadBMP(pic_t *picture, string filename)
 	fclose(fp);
 }
 
-void Save(pic_t *picture, string filename)
+void SurfaceSave(Surface *picture, string filename)
 {
 	assert(1);
 }
 
-void AssertSame(pic_t *dst, pic_t *src)
+void SurfaceAssertSame(Surface *dst, Surface *src)
 {
 	assert(dst && src);
 	assert(dst->width == src->width);
@@ -195,11 +171,11 @@ void AssertSame(pic_t *dst, pic_t *src)
 	assert(dst->bpp == src->bpp);
 }
 
-void Flip8(pic_t *dst, pic_t *src)
+void SurfaceFlip8(Surface *dst, Surface *src)
 {
 	int x, y1, y2;
 
-	AssertSame(dst, src);
+	SurfaceAssertSame(dst, src);
 
 	for (y1 = 0, y2 = dst->height - 1; y1 < y2; y1++, y2--)
 	{
@@ -217,12 +193,12 @@ void Flip8(pic_t *dst, pic_t *src)
 	}
 }
 
-void Draw8(pic_t *dst, pic_t *src, int x, int y, pic_blit_mode flags)
+void SurfaceDraw8(Surface *dst, Surface *src, int x, int y, blit_mode flags)
 {
-	Blit8(dst, x, y, x + src->width, y + src->height, src, 0, 0, src->width, src->height, flags);
+	SurfaceBlit8(dst, x, y, x + src->width, y + src->height, src, 0, 0, src->width, src->height, flags);
 }
 
-void Blit8(pic_t *dst, int x1, int y1, int x2, int y2, pic_t *src, int u1, int v1, int u2, int v2, pic_blit_mode mode)
+void SurfaceBlit8(Surface *dst, int x1, int y1, int x2, int y2, Surface *src, int u1, int v1, int u2, int v2, blit_mode mode)
 {
 	int w, h, u, uu, vv;
 
@@ -280,20 +256,20 @@ void Blit8(pic_t *dst, int x1, int y1, int x2, int y2, pic_t *src, int u1, int v
 	}
 }
 
-void LiquidEffect8(pic_t *dst, pic_t *src, int tick)
+void SurfaceLiquidEffect8(Surface *dst, Surface *src, int tick)
 {
 	int y;
 	for (y = dst->height; y--;)
 	{
 		int x = fixsin(y * 32 + tick * 5) >> 13;
 
-		Blit8(dst, x, y, x + dst->width, y + 1, src, 0, y, src->width, y + 1, COPY);
-		Blit8(dst, x - dst->width, y, x, y + 1, src, 0, y, src->width, y + 1, COPY);
-		Blit8(dst, x + dst->width, y, x + dst->width + dst->width, y + 1, src, 0, y, src->width, y + 1, COPY);
+		SurfaceBlit8(dst, x, y, x + dst->width, y + 1, src, 0, y, src->width, y + 1, COPY);
+		SurfaceBlit8(dst, x - dst->width, y, x, y + 1, src, 0, y, src->width, y + 1, COPY);
+		SurfaceBlit8(dst, x + dst->width, y, x + dst->width + dst->width, y + 1, src, 0, y, src->width, y + 1, COPY);
 	}
 }
 
-void Blend8(pic_t *dst, pic_t *src1, pic_t *src2, clut_t blender)
+void SurfaceBlend8(Surface *dst, Surface *src1, Surface *src2, clut_t blender)
 {
 	int x, y;
 
@@ -311,7 +287,7 @@ void Blend8(pic_t *dst, pic_t *src1, pic_t *src2, clut_t blender)
 }
 
 // Get the color of a pixel from the specified x and y coordinate
-uint8_t GetPixel(pic_t *pic, int x, int y)
+uint8_t SurfaceGetPixel(Surface *pic, int x, int y)
 {
 	if (x < 0 || y < 0 || x > pic->width || y > pic->height)
 	{
@@ -337,7 +313,7 @@ uint8_t GetPixel(pic_t *pic, int x, int y)
 }
 
 // Plot a pixel at the specificed x and y coordinate
-void DrawPixel(pic_t *dst, int x, int y, uint8_t color)
+void SurfaceDrawPixel(Surface *dst, int x, int y, uint8_t color)
 {
 	if (x >= dst->width || x < 0 || y >= dst->height || y < 0)
 		return;
@@ -345,7 +321,7 @@ void DrawPixel(pic_t *dst, int x, int y, uint8_t color)
 	memset(&dst->scanlines.b[y][x], color, sizeof(uint8_t));
 }
 
-void DrawLine(pic_t *dst, int x1, int y1, int x2, int y2, uint8_t color)
+void SurfaceDrawLine(Surface *dst, int x1, int y1, int x2, int y2, uint8_t color)
 {
 	int i, dx, dy, sdx, sdy, dxabs, dyabs, x, y, px, py;
 
@@ -361,7 +337,7 @@ void DrawLine(pic_t *dst, int x1, int y1, int x2, int y2, uint8_t color)
 	py = y1;
 
 	if (px > -1 && px < dst->width && py > -1 && py < dst->height)
-		DrawPixel(dst, px, py, color);
+		SurfaceDrawPixel(dst, px, py, color);
 
 	if (dxabs >= dyabs) // the line is more horizontal than vertical
 	{
@@ -378,7 +354,7 @@ void DrawLine(pic_t *dst, int x1, int y1, int x2, int y2, uint8_t color)
 			px += sdx;
 
 			if (px > -1 && px < dst->width && py > -1 && py < dst->height)
-				DrawPixel(dst, px, py, color);
+				SurfaceDrawPixel(dst, px, py, color);
 		}
 	}
 	else // the line is more vertical than horizontal
@@ -396,13 +372,13 @@ void DrawLine(pic_t *dst, int x1, int y1, int x2, int y2, uint8_t color)
 			py += sdy;
 
 			if (px > -1 && px < dst->width && py > -1 && py < dst->height)
-				DrawPixel(dst, px, py, color);
+				SurfaceDrawPixel(dst, px, py, color);
 		}
 	}
 }
 
 // Draw a horizontal line
-void DrawHorizontalLine(pic_t *dst, int x1, int x2, int y, uint8_t color)
+void SurfaceDrawHorizontalLine(Surface *dst, int x1, int x2, int y, uint8_t color)
 {
 	if (x1 > x2)
 		memset(&dst->scanlines.b[y][x2], color, x1 - x2);
@@ -411,7 +387,7 @@ void DrawHorizontalLine(pic_t *dst, int x1, int x2, int y, uint8_t color)
 }
 
 // Draw a vertical line
-void DrawVerticalLine(pic_t *dst, int x, int y1, int y2, uint8_t color)
+void SurfaceDrawVerticalLine(Surface *dst, int x, int y1, int y2, uint8_t color)
 {
 	int i;
 	if (y1 > y2)
@@ -431,7 +407,7 @@ void DrawVerticalLine(pic_t *dst, int x, int y1, int y2, uint8_t color)
 }
 
 // Draw a filled or outlined rectangle
-void DrawRectangle(pic_t *dst, int x, int y, int w, int h, uint8_t color, bool filled)
+void SurfaceDrawRectangle(Surface *dst, int x, int y, int w, int h, uint8_t color, bool filled)
 {
 	// Sanity check
 	if (x < 0 || y < 0 || x >= dst->width || y >= dst->height || (x + w) >= dst->width || (y + h) >= dst->height)
@@ -461,20 +437,20 @@ void DrawRectangle(pic_t *dst, int x, int y, int w, int h, uint8_t color, bool f
 }
 
 // Flood fill from the specified point
-void FloodFill(pic_t *dst, int x, int y, uint8_t color)
+void SurfaceFloodFill(Surface *dst, int x, int y, uint8_t color)
 {
-	if (GetPixel(dst, x, y) != color)
+	if (SurfaceGetPixel(dst, x, y) != color)
 	{
-		DrawPixel(dst, x, y, color);
-		FloodFill(dst, x + 1, y, color);
-		FloodFill(dst, x, y + 1, color);
-		FloodFill(dst, x - 1, y, color);
-		FloodFill(dst, x, y - 1, color);
+		SurfaceDrawPixel(dst, x, y, color);
+		SurfaceFloodFill(dst, x + 1, y, color);
+		SurfaceFloodFill(dst, x, y + 1, color);
+		SurfaceFloodFill(dst, x - 1, y, color);
+		SurfaceFloodFill(dst, x, y - 1, color);
 	}
 }
 
 // Draw a polygon with n sides
-void DrawPolygon(pic_t *dst, int n, int *v, uint8_t color, bool filled)
+void SurfaceDrawPolygon(Surface *dst, int n, int *v, uint8_t color, bool filled)
 {
 	if (filled == true)
 	{
@@ -485,12 +461,12 @@ void DrawPolygon(pic_t *dst, int n, int *v, uint8_t color, bool filled)
 		// Draw lines
 		for (int i = 0; i < n - 1; i++)
 		{
-			DrawLine(dst, v[(i << 1) + 0], v[(i << 1) + 1], v[(i << 1) + 2], v[(i << 1) + 3], color);
+			SurfaceDrawLine(dst, v[(i << 1) + 0], v[(i << 1) + 1], v[(i << 1) + 2], v[(i << 1) + 3], color);
 		}
 
 		// Draw last line
-		DrawLine(dst, v[0], v[1], v[(n << 1) - 2], v[(n << 1) - 1], color);
+		SurfaceDrawLine(dst, v[0], v[1], v[(n << 1) - 2], v[(n << 1) - 1], color);
 	}
 }
 
-} // namespace Picture
+} // namespace Rex
