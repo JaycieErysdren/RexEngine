@@ -82,6 +82,9 @@ math_t math;
 // Console buffer
 char console_buffer[256];
 
+// Bools
+bool shading = false;
+
 //
 // Camera
 //
@@ -447,7 +450,7 @@ void VoxelRender(Rex::Surface *dst, rex_rect area, rex_vec3s p, rex_int32 yaw, r
 
 			if ((ceiling == true && line_height > ybuffer[sx]) || (ceiling == false && line_height < ybuffer[sx]))
 			{
-				//c = Colormap::Lookup(c, RexScalarToInteger(z));
+				if (shading == true) c = Rex::ColormapLookup(c, RexScalarToInteger(z) / 8);
 				Rex::SurfaceDrawVerticalLine(dst, sx, line_height, ybuffer[sx], c);
 				ybuffer[sx] = line_height;
 			}
@@ -591,6 +594,8 @@ int main(int argc, char *argv[])
 			//
 
 			CameraController();
+
+			if (Rex::KeyTest(REX_KB_F)) shading = !shading;
 		}
 
 		//
