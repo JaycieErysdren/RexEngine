@@ -190,7 +190,7 @@ void VReXInit()
 {
 	rex_int x, y, z;
 
-	// "Generate" a map
+	// Make a quare
 	for (z = 0; z < VOXMAP_Z; z++)
 	{
 		for (y = 0; y < VOXMAP_Y; y++)
@@ -198,6 +198,7 @@ void VReXInit()
 			for (x = 0; x < VOXMAP_X; x++)
 			{
 				voxmap[z][y][x].color = x + y + z;
+
 				if (x < 12 || x > 20 || y < 12 || y > 20 || z < 12 || z > 20) 
 				{
 					voxmap[z][y][x].density = 0;
@@ -206,9 +207,14 @@ void VReXInit()
 				{
 					voxmap[z][y][x].density = 255;
 				}
+
+				if (z == 0) voxmap[z][y][x].density = 255;
 			}
 		}
 	}
+
+	// Make a floor
+
 
 	#ifdef CRINGE
 
@@ -273,6 +279,9 @@ void VReXRender(Rex::Surface *dst, rex_rect area)
 	// Camera yaw sin and cos
 	rex_scalar sn = math.sin[camera.angles.y];
 	rex_scalar cs = math.cos[camera.angles.y];
+
+	rex_scalar snx = math.sin[camera.angles.x];
+	rex_scalar csx = math.cos[camera.angles.x];
 
 	// The voxel coordinates
 	rex_vec3s vox, pvox;
@@ -406,13 +415,14 @@ void VReXRender(Rex::Surface *dst, rex_rect area)
 			// calculate ray direction
 			ray_dir.x = REX_MUL(REX_DIV(REX_SCALAR(2.0f), REX_SCALAR(draw_w)), REX_SCALAR(s.x)) - REX_SCALAR(1.0f);
 			ray_dir.y = REX_SCALAR(1.0f);
-			ray_dir.z = REX_MUL(REX_DIV(REX_SCALAR(2.0f), REX_SCALAR(draw_h)), REX_SCALAR(s.y)) - REX_SCALAR(1.0f);
+			ray_dir.z = REX_MUL(REX_DIV(REX_SCALAR(2.0f), REX_SCALAR(draw_h)), REX_SCALAR(-s.y)) + REX_SCALAR(1.0f);
 
 			// rotate around (0, 0) by camera yaw
 			rex_vec3s temp = ray_dir;
 
 			ray_dir.x = REX_MUL(-temp.x, cs) - REX_MUL(-temp.y, sn);
 			ray_dir.y = REX_MUL(temp.x, sn) + REX_MUL(temp.y, cs);
+			//ray_dir.z = REX_MUL(ray_dir.z, csx) + REX_MUL(ray_dir.z, snx);
 
 			// get delta of ray
 			delta_dist.x = (ray_dir.x == 0) ? REX_SCALAR_MIN : ABS(REX_DIV(REX_SCALAR(1.0f), ray_dir.x));
