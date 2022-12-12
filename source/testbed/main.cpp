@@ -35,7 +35,7 @@ typedef struct
 typedef struct
 {
 	rex_vec3s origin;				// X, Y, Z
-	rex_vec3s velocity;			// X, Y, Z
+	rex_vec3s velocity;				// X, Y, Z
 	rex_vec3i angles;				// Pitch, yaw, roll
 	rex_scalar draw_distance;		// Draw distance (scalar units)
 	rex_int32 movespeedkey;
@@ -59,6 +59,8 @@ typedef struct
 
 // V-ReX
 voxel_t voxmap[VOXMAP_Z][VOXMAP_Y][VOXMAP_X];
+voxel_t *voxworld;
+rex_vec3i voxworld_dim;
 uint8_t *heightmap;
 uint8_t *colormap;
 
@@ -98,7 +100,7 @@ void CameraController()
 
 	// Mouse look
 	if (mb == 1 && delta_mx != 0) camera.angles.y += delta_mx;
-	if (mb == 2 && delta_my != 0) camera.angles.x += delta_my;
+	if (mb == 2 && delta_my != 0) camera.angles.x -= delta_my;
 
 	// Reset pitch
 	if (mb == 3)
@@ -122,8 +124,8 @@ void CameraController()
 	}
 
 	// Pitch angle sanity checks
-	if (camera.angles.x < -180) camera.angles.x = -180;
-	if (camera.angles.x > 180) camera.angles.x = 180;
+	if (camera.angles.x < -90) camera.angles.x = -90;
+	if (camera.angles.x > 90) camera.angles.x = 90;
 
 	// Yaw angle sanity checks
 	if (camera.angles.y < 0) camera.angles.y += 360;
@@ -186,12 +188,14 @@ void CameraController()
 
 void VReXInit()
 {
+	rex_int x, y, z;
+
 	// "Generate" a map
-	for (rex_int z = 0; z < VOXMAP_Z; z++)
+	for (z = 0; z < VOXMAP_Z; z++)
 	{
-		for (rex_int y = 0; y < VOXMAP_Y; y++)
+		for (y = 0; y < VOXMAP_Y; y++)
 		{
-			for (rex_int x = 0; x < VOXMAP_X; x++)
+			for (x = 0; x < VOXMAP_X; x++)
 			{
 				voxmap[z][y][x].color = x + y + z;
 				if (x < 12 || x > 20 || y < 12 || y > 20 || z < 12 || z > 20) 
@@ -205,6 +209,46 @@ void VReXInit()
 			}
 		}
 	}
+
+	#ifdef CRINGE
+
+	// Load a VOX
+	FILE *vox = fopen("voxel/tank.vox", "rb");
+
+	rex_int32 dx, dy, dz;
+
+	fread(&dx, sizeof(rex_int32), 1, vox);
+	fread(&dy, sizeof(rex_int32), 1, vox);
+	fread(&dz, sizeof(rex_int32), 1, vox);
+
+	uint8_t *voxbuff = (uint8_t *)calloc(dx * dy * dz, sizeof(rex_uint8));
+	voxworld = (voxel_t *)calloc(dx * dy * dz, sizeof(voxel_t));
+
+	voxworld_dim.x = dx;
+	voxworld_dim.y = dy;
+	voxworld_dim.z = dz;
+
+	fread(voxbuff, sizeof(rex_uint8), dx * dy * dz, vox);
+
+	for (rex_int i = 0; i < (dx * dy * dz); i++)
+	{
+		if (voxbuff[i] == 255)
+		{
+			voxworld[i].density = 0;
+			voxworld[i].color = 0;
+		}
+		else
+		{
+			voxworld[i].density = 255;
+			voxworld[i].color = voxbuff[i];
+		}
+	}
+
+	free(voxbuff);
+
+	fclose(vox);
+
+	#endif
 
 	// Position (scalar units)
 	camera.origin.x = REX_SCALAR(16);
@@ -235,6 +279,109 @@ void VReXRender(Rex::Surface *dst, rex_rect area)
 
 	// The screen space coordinates
 	rex_vec2i s;
+
+	#ifdef CRINGE
+
+	// horrible inefficient renderer
+	// but it works
+	for (s.x = area.x1; s.x < area.x2; s.x++)
+	{
+		// variables
+		rex_vec3s ray_dir;
+		rex_vec3s side_dist;
+		rex_vec3s delta_dist;
+		rex_vec3i map_pos;
+		rex_vec3i step;
+
+		bool hit = false;
+
+		rex_scalar rdz = REX_DIV(REX_SCALAR(2.0f), REX_SCALAR(draw_h));
+		rex_scalar rz = REX_MUL(rdz, REX_SCALAR(2.0f));
+
+		// map pos (int)
+		map_pos.x = RexScalarToInteger(camera.origin.x);
+		map_pos.y = RexScalarToInteger(camera.origin.y);
+		map_pos.z = RexScalarToInteger(camera.origin.z);
+
+		// calculate ray direction
+		ray_dir.x = REX_MUL(REX_DIV(REX_SCALAR(2.0f), REX_SCALAR(draw_w)), REX_SCALAR(s.x)) - REX_SCALAR(1.0f);
+		ray_dir.y = REX_SCALAR(1.0f);
+
+		// rotate around (0, 0) by camera yaw
+		rex_vec3s temp = ray_dir;
+
+		ray_dir.x = REX_MUL(-temp.x, cs) - REX_MUL(-temp.y, sn);
+		ray_dir.y = REX_MUL(temp.x, sn) + REX_MUL(temp.y, cs);
+
+		// get delta of ray
+		delta_dist.x = (ray_dir.x == 0) ? REX_SCALAR_MIN : ABS(REX_DIV(REX_SCALAR(1.0f), ray_dir.x));
+		delta_dist.y = (ray_dir.y == 0) ? REX_SCALAR_MIN : ABS(REX_DIV(REX_SCALAR(1.0f), ray_dir.y));
+
+		// calculate step and initial side_dist
+		if (ray_dir.x < 0)
+		{
+			step.x = -1;
+			side_dist.x = REX_MUL((camera.origin.x - REX_SCALAR(map_pos.x)), delta_dist.x);
+		}
+		else
+		{
+			step.x = 1;
+			side_dist.x = REX_MUL((REX_SCALAR(map_pos.x) + REX_SCALAR(1) - camera.origin.x), delta_dist.x);
+		}
+
+		if (ray_dir.y < 0)
+		{
+			step.y = -1;
+			side_dist.y = REX_MUL((camera.origin.y - REX_SCALAR(map_pos.y)), delta_dist.y);
+		}
+		else
+		{
+			step.y = 1;
+			side_dist.y = REX_MUL((REX_SCALAR(map_pos.y) + REX_SCALAR(1) - camera.origin.y), delta_dist.y);
+		}
+
+		// perform flat DDA
+		while (hit == false)
+		{
+			if (side_dist.x < side_dist.y)
+			{
+				side_dist.x += delta_dist.x;
+				map_pos.x += step.x;
+			}
+			else
+			{
+				side_dist.y += delta_dist.y;
+				map_pos.y += step.y;
+			}
+
+			// if out of bounds, stop the ray
+			if (map_pos.x > (VOXMAP_X - 1) || map_pos.x < 0) break;
+			if (map_pos.y > (VOXMAP_Y - 1) || map_pos.y < 0) break;
+
+			// vertical march
+			for (s.y = area.y1; s.y < area.y2; s.y++)
+			{
+				map_pos.z += 1;
+
+				if (map_pos.z > (VOXMAP_Z - 1) || map_pos.z < 0)
+				{
+					hit = true;
+					break;
+				}
+
+				// voxel at this coordinate
+				voxel_t vox = voxmap[map_pos.z][map_pos.y][map_pos.x];
+
+				if (vox.density > 0)
+				{
+					Rex::SurfaceDrawPixel(dst, s.x, s.y, vox.color);
+					hit = true;
+				}
+			}
+		}
+	}
+
+	#endif
 
 	// horrible inefficient renderer
 	// but it works
@@ -342,7 +489,7 @@ void VReXRender(Rex::Surface *dst, rex_rect area)
 				if (map_pos.z > (VOXMAP_Z - 1) || map_pos.z < 0) break;
 
 				// voxel at this coordinate
-				voxel_t vox = voxmap[map_pos.x][map_pos.y][map_pos.z];
+				voxel_t vox = voxmap[map_pos.z][map_pos.y][map_pos.x];
 
 				if (vox.density > 0)
 				{
@@ -719,6 +866,7 @@ int main(int argc, char *argv[])
 		{
 			// watcom...
 			rex_rect screen_area = {0, 0, pic_bbuffer.width, pic_bbuffer.height};
+			rex_vec3i voxmap_dim = {32, 32, 32};
 
 			// V-ReX renderer
 			VReXRender(&pic_bbuffer, screen_area);
@@ -726,6 +874,11 @@ int main(int argc, char *argv[])
 			// Voxel renderer
 			//VoxelRenderWrapper(&pic_bbuffer, screen_area);
 		}
+
+		sprintf(console_buffer, "x: %d y: %d z %d", RexScalarToInteger(camera.origin.x), RexScalarToInteger(camera.origin.y), RexScalarToInteger(camera.origin.z));
+		Rex::ConsoleAddText(0, 0, console_buffer);
+		sprintf(console_buffer, "pitch: %d yaw: %d roll %d", camera.angles.x, camera.angles.y, camera.angles.z);
+		Rex::ConsoleAddText(0, 1, console_buffer);
 
 		// Render the console text
 		Rex::ConsoleRender(&pic_bbuffer, &pic_font, 8);
