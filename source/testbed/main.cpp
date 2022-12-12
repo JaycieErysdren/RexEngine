@@ -96,7 +96,7 @@ void CameraController()
 	delta_my = my_prev - my;
 
 	// Mouse look
-	if (mb == 1 && delta_mx != 0) camera.angles.y -= delta_mx;
+	if (mb == 1 && delta_mx != 0) camera.angles.y += delta_mx;
 	if (mb == 2 && delta_my != 0) camera.angles.x += delta_my;
 
 	// Reset pitch
@@ -108,10 +108,10 @@ void CameraController()
 	// Keyboard look
 	{
 		// Rotate leftwards
-		if (Rex::KeyTest(REX_KB_LTARROW)) camera.angles.y -= camera.anglespeedkey;
+		if (Rex::KeyTest(REX_KB_LTARROW)) camera.angles.y += camera.anglespeedkey;
 
 		// Rotate rightwards
-		if (Rex::KeyTest(REX_KB_RTARROW)) camera.angles.y += camera.anglespeedkey;
+		if (Rex::KeyTest(REX_KB_RTARROW)) camera.angles.y -= camera.anglespeedkey;
 
 		// Look upwards
 		if (Rex::KeyTest(REX_KB_UPARROW)) camera.angles.x += camera.anglespeedkey;
@@ -156,15 +156,15 @@ void CameraController()
 	// Move leftwards
 	if (Rex::KeyTest(REX_KB_A))
 	{
-		camera.origin.x += camera.velocity.y;
-		camera.origin.y -= camera.velocity.x;
+		camera.origin.x -= camera.velocity.y;
+		camera.origin.y += camera.velocity.x;
 	}
 
 	// Move rightwards
 	if (Rex::KeyTest(REX_KB_D))
 	{
-		camera.origin.x -= camera.velocity.y;
-		camera.origin.y += camera.velocity.x;
+		camera.origin.x += camera.velocity.y;
+		camera.origin.y -= camera.velocity.x;
 	}
 
 	// Move upwards
@@ -215,7 +215,24 @@ void VReXInit()
 	camera.angles.z = 0; // roll
 
 	// Draw distance (scalar units)
-	camera.draw_distance = REX_SCALAR(128);
+	camera.draw_distance = REX_SCALAR(256);
+}
+
+// quick inverse sqrt()
+double qInvSqrt(double number)
+{
+	long i;
+	float x2, y;
+
+	x2 = number * 0.5F;
+	y = number;
+	i = *(long *)&y;
+	i = 0x5f3759df - (i >> 1);
+	y = *(float *)&i;
+	y = y * (1.5f - (x2 * y * y));   // 1st iteration
+	y = y * (1.5f - (x2 * y * y));   // 2nd iteration
+
+	return y;
 }
 
 void VReXRender(Rex::Surface *dst, rex_rect area)
@@ -234,7 +251,69 @@ void VReXRender(Rex::Surface *dst, rex_rect area)
 	// The screen space coordinates
 	rex_vec2i s;
 
-	#define LAZY_RENDERER
+	#ifdef STUPIDSTUPID_RENDERER
+
+	// Slow, stupid ray tracer
+	for (s.x = area.x1; s.x < area.x2; s.x++)
+	{
+		for (s.y = area.y1; s.y < area.y2; s.y++)
+		{
+			rex_vec3s ray_dir;
+			rex_vec3s ray_pos = camera.origin;
+			rex_vec3s viewport;
+
+			rex_scalar sn = math.sin[camera.angles.y];
+			rex_scalar cs = math.cos[camera.angles.y];
+
+			viewport.x = camera.origin.x + REX_MUL(REX_SCALAR(s.x), REX_DIV(REX_SCALAR(4.0f), REX_SCALAR(draw_w)));
+			viewport.y = camera.origin.y + REX_MUL(REX_SCALAR(s.y), REX_DIV(REX_SCALAR(4.0f), REX_SCALAR(draw_h)));
+			viewport.z = camera.origin.z + REX_SCALAR(1.0f);
+
+			// Calculate ray direction
+			ray_dir.x = viewport.x - camera.origin.x;
+			ray_dir.y = viewport.y - camera.origin.y;
+			ray_dir.z = viewport.z - camera.origin.z;
+
+			// Rotate around (0, 0) by camera's yaw
+			rex_vec3s temp = ray_dir;
+
+			ray_dir.x = REX_MUL(temp.x, cs) - REX_MUL(temp.y, sn);
+			ray_dir.y = REX_MUL(temp.x, sn) + REX_MUL(temp.y, cs);
+
+			// Ray march loop
+			for (rex_scalar z = REX_SCALAR(0.5f); z < camera.draw_distance; z += REX_SCALAR(0.5f))
+			{
+				ray_pos.x += ray_dir.x;
+				ray_pos.y += ray_dir.y;
+				ray_pos.z += ray_dir.z;
+
+				rex_vec3i map_pos;
+
+				map_pos.x = RexScalarToInteger(ray_pos.x);
+				map_pos.y = RexScalarToInteger(ray_pos.y);
+				map_pos.z = RexScalarToInteger(ray_pos.z);
+
+				// Sanity checks
+				if (map_pos.x > VOXMAP_X - 1 || map_pos.x < 0) break;
+				if (map_pos.y > VOXMAP_Y - 1 || map_pos.y < 0) break;
+				if (map_pos.z > VOXMAP_Z - 1 || map_pos.z < 0) break;
+
+				voxel_t vox = voxmap[map_pos.z][map_pos.y][map_pos.x];
+
+				if (vox.density > 0)
+				{
+					Rex::SurfaceDrawPixel(dst, s.x, s.y, vox.color);
+					break;
+				}
+				else
+				{
+					continue;
+				}
+			}
+		}
+	}
+
+	#endif
 
 	#ifdef STUPID_RENDERER
 
@@ -486,7 +565,7 @@ void VoxelInit(rex_int32 screen_width)
 	camera.angles.z = 0; // roll
 
 	// Draw distance (scalar units)
-	camera.draw_distance = REX_SCALAR(32);
+	camera.draw_distance = REX_SCALAR(256);
 }
 
 void VoxelShutdown()
@@ -672,10 +751,10 @@ int main(int argc, char *argv[])
 	}
 
 	// V-ReX init
-	VReXInit();
+	//VReXInit();
 
 	// Initialize voxel stuff
-	//VoxelInit(vidinfo.width);
+	VoxelInit(vidinfo.width);
 
 	// Start counting time
 	frame_end = Rex::GetTicks64();
@@ -719,10 +798,10 @@ int main(int argc, char *argv[])
 			rex_rect screen_area = {0, 0, pic_bbuffer.width, pic_bbuffer.height};
 
 			// V-ReX renderer
-			VReXRender(&pic_bbuffer, screen_area);
+			//VReXRender(&pic_bbuffer, screen_area);
 
 			// Voxel renderer
-			//VoxelRenderWrapper(&pic_bbuffer, screen_area);
+			VoxelRenderWrapper(&pic_bbuffer, screen_area);
 		}
 
 		// Render the console text
