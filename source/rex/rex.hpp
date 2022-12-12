@@ -96,6 +96,9 @@ using namespace std;
 // Types
 #include "core/types.hpp"
 
+// Math Table
+#include "core/mathtabl.hpp"
+
 // Bootstrap
 #include "core/bootstrap.hpp"
 

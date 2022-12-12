@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/rex/modules/core/math/table.hpp
+// FILE:			/source/rex/core/mathtabl.hpp
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -20,6 +20,9 @@
 //
 //
 
+namespace Rex
+{
+
 class MathTable
 {
 	public:
@@ -30,3 +33,5 @@ class MathTable
 		// Constructor
 		MathTable();
 };
+
+} // namespace Rex

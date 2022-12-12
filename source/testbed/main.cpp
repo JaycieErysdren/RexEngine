@@ -23,7 +23,7 @@
 // Types
 //
 
-// Math table
+// Math tables
 typedef struct
 {
 	rex_scalar cos[360];
@@ -45,26 +45,21 @@ typedef struct
 // Voxel
 typedef struct
 {
-	uint8_t height;
+	int16_t x, y, z;
+	uint8_t density;
 	uint8_t color;
 } voxel_t;
-
-// VoxCave game state
-typedef struct
-{
-	int32_t horizon;
-} voxcave_t;
 
 //
 // Globals
 //
 
-// VoxCave
-voxel_t map1[256][256]; // cave map 1
-voxel_t map2[256][256]; // cave map 2
-int16_t *startumost; // ??
-int16_t *startdmost; // ??
-voxcave_t voxcave; // voxcave game state
+#define VOXMAP_X 32
+#define VOXMAP_Y 32
+#define VOXMAP_Z 32
+
+// V-ReX
+voxel_t voxmap[VOXMAP_Z][VOXMAP_Y][VOXMAP_X];
 
 // Voxels
 int32_t *ybuffer;
@@ -101,20 +96,22 @@ void CameraController()
 	delta_my = my_prev - my;
 
 	// Mouse look
-	if (mb == 1 && delta_mx != 0) camera.angles.y += delta_mx;
+	if (mb == 1 && delta_mx != 0) camera.angles.y -= delta_mx;
 	if (mb == 2 && delta_my != 0) camera.angles.x += delta_my;
 
 	// Reset pitch
 	if (mb == 3)
-		camera.angles.x = 100;
+		camera.angles.x = 0;
+	
+	camera.anglespeedkey = 2;
 
 	// Keyboard look
 	{
 		// Rotate leftwards
-		if (Rex::KeyTest(REX_KB_LTARROW)) camera.angles.y += camera.anglespeedkey;
+		if (Rex::KeyTest(REX_KB_LTARROW)) camera.angles.y -= camera.anglespeedkey;
 
 		// Rotate rightwards
-		if (Rex::KeyTest(REX_KB_RTARROW)) camera.angles.y -= camera.anglespeedkey;
+		if (Rex::KeyTest(REX_KB_RTARROW)) camera.angles.y += camera.anglespeedkey;
 
 		// Look upwards
 		if (Rex::KeyTest(REX_KB_UPARROW)) camera.angles.x += camera.anglespeedkey;
@@ -124,8 +121,8 @@ void CameraController()
 	}
 
 	// Pitch angle sanity checks
-	if (camera.angles.x < 0) camera.angles.x = 0;
-	if (camera.angles.x > 200) camera.angles.x = 200;
+	if (camera.angles.x < -180) camera.angles.x = -180;
+	if (camera.angles.x > 180) camera.angles.x = 180;
 
 	// Yaw angle sanity checks
 	if (camera.angles.y < 0) camera.angles.y += 360;
@@ -133,9 +130,9 @@ void CameraController()
 
 	// Check if sprinting
 	if (Rex::KeyTest(REX_KB_LTSHIFT))
-		camera.movespeedkey = 4;
-	else
 		camera.movespeedkey = 2;
+	else
+		camera.movespeedkey = 1;
 
 	// Set velocity
 	camera.velocity.x = math.sin[camera.angles.y] * camera.movespeedkey;
@@ -159,15 +156,15 @@ void CameraController()
 	// Move leftwards
 	if (Rex::KeyTest(REX_KB_A))
 	{
-		camera.origin.x -= camera.velocity.y;
-		camera.origin.y += camera.velocity.x;
+		camera.origin.x += camera.velocity.y;
+		camera.origin.y -= camera.velocity.x;
 	}
 
 	// Move rightwards
 	if (Rex::KeyTest(REX_KB_D))
 	{
-		camera.origin.x += camera.velocity.y;
-		camera.origin.y -= camera.velocity.x;
+		camera.origin.x -= camera.velocity.y;
+		camera.origin.y += camera.velocity.x;
 	}
 
 	// Move upwards
@@ -183,63 +180,176 @@ void CameraController()
 }
 
 //
-// VoxCave
+// V-ReX
 //
 
-void VoxCave_Init(rex_vec2i screen_dimensions)
+void VReXInit()
 {
-	// Set starter values
-	camera.origin.x = REX_SCALAR(128);
-	camera.origin.y = REX_SCALAR(128);
-	camera.origin.z = REX_SCALAR(128);
+	// load a grayscale palette
+	//Rex::SetGraphicsPalette("gfx/grayscal.pal");
 
-	voxcave.horizon = screen_dimensions.y / 2;
-
-	// Generate a cave
-	for (rex_int32 y = 0; y < 256; y++)
+	// try to generate a world?
+	for (rex_int z = 0; z < VOXMAP_Z; z++)
 	{
-		for (rex_int32 x = 0; x < 256; x++)
+		for (rex_int y = 0; y < VOXMAP_Y; y++)
 		{
-			map1[y][x].height = 255;
-			map1[y][x].color = 128;
-
-			map2[y][x].height = 0;
-			map2[y][x].color = 128;
+			for (rex_int x = 0; x < VOXMAP_X; x++)
+			{
+				voxmap[z][y][x].x = x * 4;
+				voxmap[z][y][x].y = y * 4;
+				voxmap[z][y][x].z = z * 4;
+				voxmap[z][y][x].color = x + y + z;
+				voxmap[z][y][x].density = 1;
+			}
 		}
 	}
 
-	// Setup view buffers
-	startumost = (int16_t *)calloc(screen_dimensions.x, sizeof(int16_t));
-	startdmost = (int16_t *)calloc(screen_dimensions.x, sizeof(int16_t));
+	// Position (scalar units)
+	camera.origin.x = REX_SCALAR(16);
+	camera.origin.y = REX_SCALAR(16);
+	camera.origin.z = REX_SCALAR(16);
 
-	// Initialize startdmost to the screen height
-	for (rex_int32 i = 0; i < screen_dimensions.x; i++)
-	{
-		startdmost[i] = screen_dimensions.y;
-	}
+	// Angle (degrees)
+	camera.angles.x = 0; // pitch
+	camera.angles.y = 0; // yaw
+	camera.angles.z = 0; // roll
+
+	// Draw distance (scalar units)
+	camera.draw_distance = REX_SCALAR(128);
 }
 
-void VoxCave_RenderColumn(Rex::Surface *dst, rex_rect area, rex_int32 column, rex_scalar draw_distance)
+void VReXRender(Rex::Surface *dst, rex_rect area)
 {
-	// sanity check
-	if (startumost[column] > startdmost[column]) return;
+	// Drawable area
+	rex_int draw_w = area.x2 - area.x1;
+	rex_int draw_h = area.y2 - area.y1;
 
-	// drawable area
-	rex_int32 draw_w = area.x2 - area.x1;
-	rex_int32 draw_h = area.y2 - area.y1;
-
-	// sin and cos of camera yaw
+	// Camera yaw sin and cos
 	rex_scalar sn = math.sin[camera.angles.y];
 	rex_scalar cs = math.cos[camera.angles.y];
-}
 
-void VoxCave_Render(Rex::Surface *dst, rex_rect area)
-{
-	// Draw loop
-	for (rex_int32 sx = area.x1; sx < area.x1; sx++)
+	// The voxel coordinates
+	rex_vec3s vox, pvox;
+
+	// The screen space coordinates
+	rex_vec2i s;
+
+	#define LAZY_RENDERER
+
+	#ifdef STUPID_RENDERER
+
+	// Ray direcrion & position
+	rex_vec3s ray_pos, ray_dir;
+
+	// Depth from the camera
+	rex_scalar z;
+
+	rex_scalar dv = REX_DIV(REX_SCALAR(2.0f), REX_SCALAR(draw_h));
+
+	for (s.x = area.x1; s.x < area.x2; s.x++)
 	{
-		VoxCave_RenderColumn(dst, area, sx, camera.draw_distance);
-	}	
+		// Reset ray start position
+		ray_pos = camera.origin;
+
+		// Calculate ray direction
+		ray_dir.x = REX_MUL(REX_DIV(REX_SCALAR(2.0f), REX_SCALAR(draw_w)), REX_SCALAR(s.x)) - REX_SCALAR(1.0f);
+		ray_dir.y = REX_SCALAR(1.0f);
+
+		// Rotate around (0, 0) by camera's yaw
+		rex_vec3s temp = ray_dir;
+
+		ray_dir.x = REX_MUL(-temp.x, cs) - REX_MUL(-temp.y, sn);
+		ray_dir.y = REX_MUL(temp.x, sn) + REX_MUL(temp.y, cs);
+
+		// Ray marching loop
+		for (z = camera.draw_distance; z > REX_SCALAR(1); z -= REX_SCALAR(1))
+		{
+			// March the ray
+			ray_pos.x += ray_dir.x;
+			ray_pos.y += ray_dir.y;
+
+			// Get the integer coordinate (with sanity checks)
+			rex_vec3i ray_pos_i;
+
+			ray_pos_i.x = RexScalarToInteger(ray_pos.x);
+			ray_pos_i.y = RexScalarToInteger(ray_pos.y);
+
+			if (ray_pos_i.x > (VOXMAP_X - 1) || ray_pos_i.x < 0) continue;
+			if (ray_pos_i.y > (VOXMAP_Y - 1) || ray_pos_i.y < 0) continue;
+
+			s.y = area.y1;
+
+			rex_scalar vs = camera.origin.z + REX_SCALAR(32);
+			rex_scalar ve = camera.origin.z - REX_SCALAR(32);
+
+			// Vertical scanning loop
+			for (rex_scalar v = vs; v > ve; v -= REX_SCALAR(1.0f))
+			{
+				// Get the Z integer coordinate (with sanity check)
+				ray_pos_i.z = RexScalarToInteger(v);
+				if (ray_pos_i.z > (VOXMAP_Z - 1) || ray_pos_i.z < 0) continue;
+
+				// Get the voxel at this coordinate
+				voxel_t vox = voxmap[ray_pos_i.z][ray_pos_i.y][ray_pos_i.x];
+
+				if (vox.density < 1) continue;
+
+				rex_scalar height_scale = REX_SCALAR(1000);
+
+				rex_scalar dh = vox.z - camera.origin.z;
+
+				// Calculate some kind of line height
+				rex_int line_height = RexScalarToInteger(REX_MUL(REX_DIV(REX_SCALAR(16), z), height_scale));
+
+				if (line_height > draw_w) continue;
+
+				line_height = CLAMP(line_height, area.y1, area.y2);
+
+				Rex::SurfaceDrawVerticalLine(dst, s.x, area.y2, line_height, vox.color);
+
+				//Rex::SurfaceDrawPixel(dst, s.x, s.y, vox.color);
+				//s.y += 1;
+				//if (s.y > area.y2) break;
+			}
+		}
+	}
+
+	#endif
+
+	#ifdef LAZY_RENDERER
+
+	// the laziest world renderer... in the world
+	for (rex_int z = 0; z < VOXMAP_Z; z++)
+	{
+		for (rex_int y = 0; y < VOXMAP_Y; y++)
+		{
+			for (rex_int x = 0; x < VOXMAP_X; x++)
+			{
+				// If its air, don't go through the trouble
+				if (voxmap[z][y][x].density < 1) continue;
+
+				// Transform the voxel coordinates into the camera view
+				vox.x = REX_SCALAR(voxmap[z][y][x].x) + camera.origin.x;
+				vox.y = REX_SCALAR(voxmap[z][y][x].y) + camera.origin.y;
+				vox.z = REX_SCALAR(voxmap[z][y][x].z) + camera.origin.z;
+
+				// Rotate the voxel coordinates around the camera view
+				pvox.x = REX_MUL(vox.x, cs) - REX_MUL(vox.y, sn);
+				pvox.y = REX_MUL(vox.x, sn) + REX_MUL(vox.y, cs);
+				pvox.z = vox.z + REX_DIV(REX_MUL(REX_SCALAR(camera.angles.x), pvox.y), REX_SCALAR(32));
+
+				if (pvox.y < REX_SCALAR(1)) continue;
+
+				// Standard perspective transform
+				s.x = RexScalarToInteger(REX_DIV(REX_MUL(pvox.x, REX_SCALAR(150)), pvox.y)) + (draw_w / 2);
+				s.y = RexScalarToInteger(REX_DIV(REX_MUL(pvox.z, REX_SCALAR(150)), pvox.y)) + (draw_h / 2);
+
+				Rex::SurfaceDrawPixel(dst, s.x, s.y, voxmap[z][y][x].color);
+			}
+		}
+	}
+
+	#endif
 }
 
 //
@@ -371,12 +481,12 @@ void VoxelInit(rex_int32 screen_width)
 	camera.origin.z = REX_SCALAR(32);
 
 	// Angle (degrees)
-	camera.angles.x = 100; // pitch
+	camera.angles.x = 0; // pitch
 	camera.angles.y = 0; // yaw
 	camera.angles.z = 0; // roll
 
 	// Draw distance (scalar units)
-	camera.draw_distance = REX_SCALAR(256);
+	camera.draw_distance = REX_SCALAR(32);
 }
 
 void VoxelShutdown()
@@ -470,7 +580,6 @@ void VoxelRenderWrapper(Rex::Surface *dst, rex_rect area)
 	rex_scalar minh = REX_SCALAR(32);
 	if (camera.origin.z < minh) camera.origin.z = minh;
 
-
 	// map 1 floor
 	//VoxelRender(dst, area, camera.origin, camera.angles.y, camera.angles.x, REX_SCALAR(64), camera.draw_distance, false, VEC2I(1024, 1024), f_colormap, f_heightmap);
 
@@ -526,7 +635,7 @@ void ReadMouse(rex_int32 *buttons, rex_vec2i *pos, rex_int32 speedlimit, rex_rec
 int main(int argc, char *argv[])
 {
 	// General variables
-	rex_int32 i;
+	rex_int i;
 
 	// Cycle variables
 	rex_int64 frame_start, frame_end;
@@ -552,10 +661,9 @@ int main(int argc, char *argv[])
 	// Create picture buffers
 	Rex::SurfaceLoadBMP(&pic_font, "gfx/font8x8.bmp");
 	Rex::SurfaceLoadBMP(&pic_cursor, "local/cursor.bmp");
-	//Rex::SurfaceLoadBMP(&pic_background, "local/forest.bmp");
 	Rex::SurfaceCreate(&pic_bbuffer, vidinfo.width, vidinfo.height, vidinfo.bpp, 0, 0);
 
-	// Generate math tables
+	// Generate math table
 	for (i = 0; i < 360; i++)
 	{
 		math.sin[i] = REX_SCALAR(sin(i / 180.0f * PI));
@@ -563,11 +671,11 @@ int main(int argc, char *argv[])
 		math.tan[i] = REX_SCALAR(tan(i / 180.0f * PI));
 	}
 
-	// Initialize voxel stuff
-	VoxelInit(vidinfo.width);
+	// V-ReX init
+	VReXInit();
 
-	// Initialize VoxCave
-	//VoxCave_Init(VEC2I(vidinfo.width, vidinfo.height));
+	// Initialize voxel stuff
+	//VoxelInit(vidinfo.width);
 
 	// Start counting time
 	frame_end = Rex::GetTicks64();
@@ -610,11 +718,11 @@ int main(int argc, char *argv[])
 			// watcom...
 			rex_rect screen_area = {0, 0, pic_bbuffer.width, pic_bbuffer.height};
 
-			// VoxCave renderer
-			//VoxCave_Render(&pic_bbuffer, screen_area);
+			// V-ReX renderer
+			VReXRender(&pic_bbuffer, screen_area);
 
 			// Voxel renderer
-			VoxelRenderWrapper(&pic_bbuffer, screen_area);
+			//VoxelRenderWrapper(&pic_bbuffer, screen_area);
 		}
 
 		// Render the console text

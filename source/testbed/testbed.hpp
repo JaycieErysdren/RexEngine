@@ -30,7 +30,7 @@
 #define MODULE_RAYCAST 1
 
 // Rex Engine headers
-#include "rex.hpp"
+#include "rex/rex.hpp"
 
 // Testbed headers
 

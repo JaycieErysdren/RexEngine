@@ -7,3 +7,7 @@ local/
 
 # cmake
 cmake-build-*/
+
+# DJGPP
+CWSDPMI.SWP
+cwsdpmi.swp

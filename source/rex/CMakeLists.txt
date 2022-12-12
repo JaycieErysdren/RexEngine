@@ -118,6 +118,7 @@ set(REX_CORE_SRC
 	core/console.cpp
 	core/graphics.cpp
 	core/keyboard.cpp
+	core/mathtabl.cpp
 	core/mouse.cpp
 	core/surface.cpp
 )
@@ -141,7 +142,6 @@ if(${MODULE_MATH})
 		modules/core/math/fixed.cpp
 		modules/core/math/integer.cpp
 		modules/core/math/sintable.cpp
-		modules/core/math/table.cpp
 	)
 
 	add_library(math STATIC ${REX_MATH_SRC})

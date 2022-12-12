@@ -61,7 +61,7 @@ set(DUKE4EVER duke4${REX_EXECUTABLE_SUFFIX})
 
 add_executable(${DUKE4EVER} ${DUKE4EVER_SRC})
 target_link_libraries(${DUKE4EVER} rex)
-target_include_directories(${DUKE4EVER} PUBLIC ${CMAKE_SOURCE_DIR}/source/rex)
+target_include_directories(${DUKE4EVER} PUBLIC ${CMAKE_SOURCE_DIR}/source)
 set_target_properties(${DUKE4EVER}
 	PROPERTIES
 	ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/builddos"
@@ -78,7 +78,7 @@ set(TESTBED testbed${REX_EXECUTABLE_SUFFIX})
 
 add_executable(${TESTBED} ${TESTBED_SRC})
 target_link_libraries(${TESTBED} rex)
-target_include_directories(${TESTBED} PUBLIC ${CMAKE_SOURCE_DIR}/source/rex)
+target_include_directories(${TESTBED} PUBLIC ${CMAKE_SOURCE_DIR}/source)
 set_target_properties(${TESTBED}
 	PROPERTIES
 	ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/builddos"

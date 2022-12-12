@@ -30,7 +30,7 @@
 #define MODULE_RAYCAST 1
 
 // Rex Engine header
-#include "rex.hpp"
+#include "rex/rex.hpp"
 
 // Duke4Ever headers
 

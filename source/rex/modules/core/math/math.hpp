@@ -23,7 +23,4 @@
 // Integer math
 #include "integer.hpp"
 
-// MathTable class
-#include "table.hpp"
-
 #endif // __REX_MATH_H__
