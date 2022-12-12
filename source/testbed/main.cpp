@@ -394,9 +394,9 @@ void VReXRender(Rex::Surface *dst, rex_rect area)
 
 	// horrible inefficient renderer
 	// but it works
-	for (s.x = area.x1; s.x < area.x2; s.x++)
+	for (s.x = area.x1 + 1; s.x < area.x2; s.x += 2)
 	{
-		for (s.y = area.y1; s.y < area.y2; s.y++)
+		for (s.y = area.y1 + 1; s.y < area.y2; s.y += 2)
 		{
 			// variables
 			rex_vec3s ray_dir;
@@ -503,6 +503,8 @@ void VReXRender(Rex::Surface *dst, rex_rect area)
 
 				if (vox.density > 0)
 				{
+					//Rex::SurfaceDrawRectangle(dst, s.x - 1, s.y - 1, 2, 2, vox.color, false);
+					Rex::SurfaceDrawPixel(dst, s.x - 1, s.y - 1, vox.color);
 					Rex::SurfaceDrawPixel(dst, s.x, s.y, vox.color);
 					hit = true;
 				}
