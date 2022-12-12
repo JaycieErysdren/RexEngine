@@ -189,6 +189,42 @@ void CameraController()
 void VReXInit()
 {
 	rex_int x, y, z;
+	char line[256];
+	char *token;
+	char sep[2] = " ";
+	rex_int num;
+	rex_int vx, vy, vz;
+
+	#ifdef LOADER
+
+	FILE *file = fopen("voxel/goxel1.txt", "rt");
+
+	while (fgets(line, sizeof(line), file))
+	{
+		token = strtok(line, sep);
+
+		for (rex_int i = 0; i < 3; i++)
+		{
+			num = atoi(token);
+
+			switch (i)
+			{
+				case 0: vx = num; break;
+				case 1: vy = num; break;
+				case 2: vz = num; break;
+				default: break;
+			}
+
+			token = strtok(NULL, sep);
+		}
+
+		voxmap[vz][vy][vx].density = 255;
+		voxmap[vz][vy][vx].color = 255;
+	}
+
+	fclose(file);
+
+	#endif
 
 	// Make a quare
 	for (z = 0; z < VOXMAP_Z; z++)
@@ -208,6 +244,7 @@ void VReXInit()
 					voxmap[z][y][x].density = 255;
 				}
 
+				// make a floor
 				if (z == 0) voxmap[z][y][x].density = 255;
 			}
 		}
@@ -523,7 +560,8 @@ void VReXRender(Rex::Surface *dst, rex_rect area)
 
 				if (vox.density > 0)
 				{
-					rex_uint8 c = Rex::ColormapLookup(vox.color, RexScalarToInteger(dist));
+					//rex_uint8 c = Rex::ColormapLookup(vox.color, RexScalarToInteger(dist));
+					rex_uint8 c = vox.color;
 					//Rex::SurfaceDrawRectangle(dst, s.x - 1, s.y - 1, 2, 2, vox.color, false);
 					Rex::SurfaceDrawPixel(dst, s.x - 1, s.y - 1, c);
 					Rex::SurfaceDrawPixel(dst, s.x - 1, s.y, c);
