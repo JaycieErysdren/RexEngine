@@ -60,6 +60,8 @@ typedef struct
 
 // V-ReX
 voxel_t voxmap[VOXMAP_Z][VOXMAP_Y][VOXMAP_X];
+uint8_t *heightmap;
+uint8_t *colormap;
 
 // Voxels
 int32_t *ybuffer;
@@ -142,29 +144,29 @@ void CameraController()
 	// Move forwards
 	if (Rex::KeyTest(REX_KB_W))
 	{
-		camera.origin.x -= camera.velocity.x;
-		camera.origin.y -= camera.velocity.y;
+		camera.origin.x += camera.velocity.x;
+		camera.origin.y += camera.velocity.y;
 	}
 
 	// Move backwards
 	if (Rex::KeyTest(REX_KB_S))
 	{
-		camera.origin.x += camera.velocity.x;
-		camera.origin.y += camera.velocity.y;
+		camera.origin.x -= camera.velocity.x;
+		camera.origin.y -= camera.velocity.y;
 	}
 
 	// Move leftwards
 	if (Rex::KeyTest(REX_KB_A))
 	{
-		camera.origin.x -= camera.velocity.y;
-		camera.origin.y += camera.velocity.x;
+		camera.origin.x += camera.velocity.y;
+		camera.origin.y -= camera.velocity.x;
 	}
 
 	// Move rightwards
 	if (Rex::KeyTest(REX_KB_D))
 	{
-		camera.origin.x += camera.velocity.y;
-		camera.origin.y -= camera.velocity.x;
+		camera.origin.x -= camera.velocity.y;
+		camera.origin.y += camera.velocity.x;
 	}
 
 	// Move upwards
@@ -185,29 +187,22 @@ void CameraController()
 
 void VReXInit()
 {
-	// load a grayscale palette
-	//Rex::SetGraphicsPalette("gfx/grayscal.pal");
+	// Load heightmap
+	heightmap = (uint8_t *)calloc(1024 * 1024, sizeof(uint8_t));
+	FILE *hei = fopen("voxel/m1h.dat", "rb");
+	fread(heightmap, sizeof(uint8_t), 1024 * 1024, hei);
+	fclose(hei);
 
-	// try to generate a world?
-	for (rex_int z = 0; z < VOXMAP_Z; z++)
-	{
-		for (rex_int y = 0; y < VOXMAP_Y; y++)
-		{
-			for (rex_int x = 0; x < VOXMAP_X; x++)
-			{
-				voxmap[z][y][x].x = x * 4;
-				voxmap[z][y][x].y = y * 4;
-				voxmap[z][y][x].z = z * 4;
-				voxmap[z][y][x].color = x + y + z;
-				voxmap[z][y][x].density = 1;
-			}
-		}
-	}
+	// Load colormap
+	colormap = (uint8_t *)calloc(1024 * 1024, sizeof(uint8_t));
+	FILE *col = fopen("voxel/m1c.dat", "rb");
+	fread(colormap, sizeof(uint8_t), 1024 * 1024, col);
+	fclose(col);
 
 	// Position (scalar units)
-	camera.origin.x = REX_SCALAR(16);
-	camera.origin.y = REX_SCALAR(16);
-	camera.origin.z = REX_SCALAR(16);
+	camera.origin.x = REX_SCALAR(512);
+	camera.origin.y = REX_SCALAR(512);
+	camera.origin.z = REX_SCALAR(32);
 
 	// Angle (degrees)
 	camera.angles.x = 0; // pitch
@@ -216,23 +211,6 @@ void VReXInit()
 
 	// Draw distance (scalar units)
 	camera.draw_distance = REX_SCALAR(256);
-}
-
-// quick inverse sqrt()
-double qInvSqrt(double number)
-{
-	long i;
-	float x2, y;
-
-	x2 = number * 0.5F;
-	y = number;
-	i = *(long *)&y;
-	i = 0x5f3759df - (i >> 1);
-	y = *(float *)&i;
-	y = y * (1.5f - (x2 * y * y));   // 1st iteration
-	y = y * (1.5f - (x2 * y * y));   // 2nd iteration
-
-	return y;
 }
 
 void VReXRender(Rex::Surface *dst, rex_rect area)
@@ -250,6 +228,117 @@ void VReXRender(Rex::Surface *dst, rex_rect area)
 
 	// The screen space coordinates
 	rex_vec2i s;
+
+	// Slow, stupid ray tracer
+	for (s.x = area.x1; s.x < area.x2; s.x++)
+	{
+		rex_vec3s ray_dir;
+		rex_vec3s side_dist;
+		rex_vec3s delta_dist;
+		rex_vec3i map_pos;
+		rex_vec3i step;
+
+		bool hit = false;
+		bool side;
+		bool oob = false;
+
+		map_pos.x = RexScalarToInteger(camera.origin.x);
+		map_pos.y = RexScalarToInteger(camera.origin.y);
+		map_pos.z = RexScalarToInteger(camera.origin.z);
+
+		// calculate ray direction
+		ray_dir.x = REX_MUL(REX_DIV(REX_SCALAR(2.0f), REX_SCALAR(draw_w)), REX_SCALAR(s.x)) - REX_SCALAR(1.0f);
+		ray_dir.y = REX_SCALAR(1.0f);
+
+		// rotate around 0,0 by player.angles.y
+		rex_vec3s temp = ray_dir;
+
+		ray_dir.x = REX_MUL(-temp.x, cs) - REX_MUL(-temp.y, sn);
+		ray_dir.y = REX_MUL(temp.x, sn) + REX_MUL(temp.y, cs);
+
+		// prevent div by 0
+		delta_dist.x = (ray_dir.x == 0) ? REX_SCALAR_MAX : ABS(REX_DIV(REX_SCALAR(1.0f), ray_dir.x));
+		delta_dist.y = (ray_dir.y == 0) ? REX_SCALAR_MAX : ABS(REX_DIV(REX_SCALAR(1.0f), ray_dir.y));
+
+		// calculate step and initial side_dist
+		if (ray_dir.x < 0)
+		{
+			step.x = -1;
+			side_dist.x = REX_MUL((camera.origin.x - REX_SCALAR(map_pos.x)), delta_dist.x);
+		}
+		else
+		{
+			step.x = 1;
+			side_dist.x = REX_MUL((REX_SCALAR(map_pos.x) + REX_SCALAR(1) - camera.origin.x), delta_dist.x);
+		}
+
+		if (ray_dir.y < 0)
+		{
+			step.y = -1;
+			side_dist.y = REX_MUL((camera.origin.y - REX_SCALAR(map_pos.y)), delta_dist.y);
+		}
+		else
+		{
+			step.y = 1;
+			side_dist.y = REX_MUL((REX_SCALAR(map_pos.y) + REX_SCALAR(1) - camera.origin.y), delta_dist.y);
+		}
+
+		rex_uint8 c;
+		rex_scalar h;
+		rex_scalar dist;
+
+		// perform DDA
+		while (hit == false)
+		{
+			if (side_dist.x < side_dist.y)
+			{
+				side_dist.x += delta_dist.x;
+				map_pos.x += step.x;
+				side = false;
+			}
+			else
+			{
+				side_dist.y += delta_dist.y;
+				map_pos.y += step.y;
+				side = true;
+			}
+
+			if (map_pos.x > 1023 || map_pos.x < 0 || map_pos.y > 1023 || map_pos.y < 0)
+			{
+				oob = true;
+				break;
+			}
+
+			// height at this coordinate
+			h = REX_SCALAR(heightmap[map_pos.y * 1024 + map_pos.x]);
+			c = colormap[map_pos.y * 1024 + map_pos.x];
+
+			// Check if the ray has hit a column
+			if (h > camera.origin.z) hit = true;
+		}
+
+		if (oob == true) continue;
+
+		if (side == false)
+			dist = (side_dist.x - delta_dist.x);
+		else
+			dist = (side_dist.y - delta_dist.y);
+
+		// hate div by 0
+		if (dist != 0)
+		{
+			//Calculate height of line to draw on screen
+			//rex_int line_height = RexScalarToInteger(REX_DIV(REX_SCALAR(draw_h), dist)) + 100;
+
+			rex_int line_height = RexScalarToInteger(REX_MUL(REX_DIV(camera.origin.z - h, dist), REX_SCALAR(1))) + 100;
+
+			line_height = CLAMP(line_height, area.y1, area.y2);
+
+			c = colormap[map_pos.y * 1024 + map_pos.x];
+
+			Rex::SurfaceDrawVerticalLine(dst, s.x, area.y2, line_height, c);
+		}
+	}
 
 	#ifdef STUPIDSTUPID_RENDERER
 
@@ -545,11 +634,11 @@ void VoxelLoadCasino()
 void VoxelInit(rex_int32 screen_width)
 {
 	// Load the map from heightmap and colors
-	//VoxelLoadMap1();
+	VoxelLoadMap1();
 	//VoxelLoadMap2();
 	//VoxelLoadMap3();
 
-	VoxelLoadCasino();
+	//VoxelLoadCasino();
 
 	// Build y-buffer
 	ybuffer = (int32_t *)calloc(screen_width, sizeof(int32_t));
@@ -751,10 +840,10 @@ int main(int argc, char *argv[])
 	}
 
 	// V-ReX init
-	//VReXInit();
+	VReXInit();
 
 	// Initialize voxel stuff
-	VoxelInit(vidinfo.width);
+	//VoxelInit(vidinfo.width);
 
 	// Start counting time
 	frame_end = Rex::GetTicks64();
@@ -798,10 +887,10 @@ int main(int argc, char *argv[])
 			rex_rect screen_area = {0, 0, pic_bbuffer.width, pic_bbuffer.height};
 
 			// V-ReX renderer
-			//VReXRender(&pic_bbuffer, screen_area);
+			VReXRender(&pic_bbuffer, screen_area);
 
 			// Voxel renderer
-			VoxelRenderWrapper(&pic_bbuffer, screen_area);
+			//VoxelRenderWrapper(&pic_bbuffer, screen_area);
 		}
 
 		// Render the console text
