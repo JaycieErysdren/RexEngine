@@ -53,9 +53,9 @@ typedef struct
 // Globals
 //
 
-#define VOXMAP_X 32
-#define VOXMAP_Y 32
-#define VOXMAP_Z 32
+#define VOXMAP_X 64
+#define VOXMAP_Y 64
+#define VOXMAP_Z 64
 
 // V-ReX
 voxel_t voxmap[VOXMAP_Z][VOXMAP_Y][VOXMAP_X];
@@ -425,9 +425,9 @@ void VReXRender(Rex::Surface *dst, rex_rect area)
 			//ray_dir.z = REX_MUL(ray_dir.z, csx) + REX_MUL(ray_dir.z, snx);
 
 			// get delta of ray
-			delta_dist.x = (ray_dir.x == 0) ? REX_SCALAR_MIN : ABS(REX_DIV(REX_SCALAR(1.0f), ray_dir.x));
-			delta_dist.y = (ray_dir.y == 0) ? REX_SCALAR_MIN : ABS(REX_DIV(REX_SCALAR(1.0f), ray_dir.y));
-			delta_dist.z = (ray_dir.z == 0) ? REX_SCALAR_MIN : ABS(REX_DIV(REX_SCALAR(1.0f), ray_dir.z));
+			delta_dist.x = (ray_dir.x == 0) ? REX_SCALAR_MAX : ABS(REX_DIV(REX_SCALAR(1.0f), ray_dir.x));
+			delta_dist.y = (ray_dir.y == 0) ? REX_SCALAR_MAX : ABS(REX_DIV(REX_SCALAR(1.0f), ray_dir.y));
+			delta_dist.z = (ray_dir.z == 0) ? REX_SCALAR_MAX : ABS(REX_DIV(REX_SCALAR(1.0f), ray_dir.z));
 
 			// calculate step and initial side_dist
 			if (ray_dir.x < 0)
@@ -463,6 +463,8 @@ void VReXRender(Rex::Surface *dst, rex_rect area)
 				side_dist.z = REX_MUL((REX_SCALAR(map_pos.z) + REX_SCALAR(1) - camera.origin.z), delta_dist.z);
 			}
 
+			rex_int side;
+
 			// perform DDA
 			while (hit == false)
 			{
@@ -472,11 +474,13 @@ void VReXRender(Rex::Surface *dst, rex_rect area)
 					{
 						side_dist.x += delta_dist.x;
 						map_pos.x += step.x;
+						side = 1;
 					}
 					else
 					{
 						side_dist.z += delta_dist.z;
 						map_pos.z += step.z;
+						side = 2;
 					}
 				}
 				else
@@ -485,11 +489,13 @@ void VReXRender(Rex::Surface *dst, rex_rect area)
 					{
 						side_dist.y += delta_dist.y;
 						map_pos.y += step.y;
+						side = 3;
 					}
 					else
 					{
 						side_dist.z += delta_dist.z;
 						map_pos.z += step.z;
+						side = 4;
 					}
 				}
 
@@ -498,14 +504,32 @@ void VReXRender(Rex::Surface *dst, rex_rect area)
 				if (map_pos.y > (VOXMAP_Y - 1) || map_pos.y < 0) break;
 				if (map_pos.z > (VOXMAP_Z - 1) || map_pos.z < 0) break;
 
+				rex_scalar dist;
+
+				switch (side)
+				{
+					case 1: dist = (side_dist.x - delta_dist.x); break;
+
+					case 2: dist = (side_dist.z - delta_dist.z); break;
+
+					case 3: dist = (side_dist.y - delta_dist.y); break;
+
+					case 4: dist = (side_dist.z - delta_dist.z); break;
+
+					default: break;
+				}
+
 				// voxel at this coordinate
 				voxel_t vox = voxmap[map_pos.z][map_pos.y][map_pos.x];
 
 				if (vox.density > 0)
 				{
+					rex_uint8 c = Rex::ColormapLookup(vox.color, RexScalarToInteger(dist) - 16);
 					//Rex::SurfaceDrawRectangle(dst, s.x - 1, s.y - 1, 2, 2, vox.color, false);
-					Rex::SurfaceDrawPixel(dst, s.x - 1, s.y - 1, vox.color);
-					Rex::SurfaceDrawPixel(dst, s.x, s.y, vox.color);
+					Rex::SurfaceDrawPixel(dst, s.x - 1, s.y - 1, c);
+					Rex::SurfaceDrawPixel(dst, s.x - 1, s.y, c);
+					Rex::SurfaceDrawPixel(dst, s.x, s.y - 1, c);
+					Rex::SurfaceDrawPixel(dst, s.x, s.y, c);
 					hit = true;
 				}
 			}
