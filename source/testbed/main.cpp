@@ -45,7 +45,6 @@ typedef struct
 // Voxel
 typedef struct
 {
-	int16_t x, y, z;
 	uint8_t density;
 	uint8_t color;
 } voxel_t;
@@ -187,30 +186,38 @@ void CameraController()
 
 void VReXInit()
 {
-	// Load heightmap
-	heightmap = (uint8_t *)calloc(1024 * 1024, sizeof(uint8_t));
-	FILE *hei = fopen("voxel/m1h.dat", "rb");
-	fread(heightmap, sizeof(uint8_t), 1024 * 1024, hei);
-	fclose(hei);
-
-	// Load colormap
-	colormap = (uint8_t *)calloc(1024 * 1024, sizeof(uint8_t));
-	FILE *col = fopen("voxel/m1c.dat", "rb");
-	fread(colormap, sizeof(uint8_t), 1024 * 1024, col);
-	fclose(col);
+	// "Generate" a map
+	for (rex_int z = 0; z < VOXMAP_Z; z++)
+	{
+		for (rex_int y = 0; y < VOXMAP_Y; y++)
+		{
+			for (rex_int x = 0; x < VOXMAP_X; x++)
+			{
+				voxmap[z][y][x].color = x + y + z;
+				if (x < 12 || x > 20 || y < 12 || y > 20 || z < 12 || z > 20) 
+				{
+					voxmap[z][y][x].density = 0;
+				}
+				else
+				{
+					voxmap[z][y][x].density = 255;
+				}
+			}
+		}
+	}
 
 	// Position (scalar units)
-	camera.origin.x = REX_SCALAR(512);
-	camera.origin.y = REX_SCALAR(512);
-	camera.origin.z = REX_SCALAR(32);
+	camera.origin.x = REX_SCALAR(16);
+	camera.origin.y = REX_SCALAR(16);
+	camera.origin.z = REX_SCALAR(16);
 
 	// Angle (degrees)
 	camera.angles.x = 0; // pitch
-	camera.angles.y = 0; // yaw
+	camera.angles.y = 45; // yaw
 	camera.angles.z = 0; // roll
 
 	// Draw distance (scalar units)
-	camera.draw_distance = REX_SCALAR(256);
+	camera.draw_distance = REX_SCALAR(32);
 }
 
 void VReXRender(Rex::Surface *dst, rex_rect area)
@@ -229,295 +236,122 @@ void VReXRender(Rex::Surface *dst, rex_rect area)
 	// The screen space coordinates
 	rex_vec2i s;
 
-	// Slow, stupid ray tracer
-	for (s.x = area.x1; s.x < area.x2; s.x++)
-	{
-		rex_vec3s ray_dir;
-		rex_vec3s side_dist;
-		rex_vec3s delta_dist;
-		rex_vec3i map_pos;
-		rex_vec3i step;
-
-		bool hit = false;
-		bool side;
-		bool oob = false;
-
-		map_pos.x = RexScalarToInteger(camera.origin.x);
-		map_pos.y = RexScalarToInteger(camera.origin.y);
-		map_pos.z = RexScalarToInteger(camera.origin.z);
-
-		// calculate ray direction
-		ray_dir.x = REX_MUL(REX_DIV(REX_SCALAR(2.0f), REX_SCALAR(draw_w)), REX_SCALAR(s.x)) - REX_SCALAR(1.0f);
-		ray_dir.y = REX_SCALAR(1.0f);
-
-		// rotate around 0,0 by player.angles.y
-		rex_vec3s temp = ray_dir;
-
-		ray_dir.x = REX_MUL(-temp.x, cs) - REX_MUL(-temp.y, sn);
-		ray_dir.y = REX_MUL(temp.x, sn) + REX_MUL(temp.y, cs);
-
-		// prevent div by 0
-		delta_dist.x = (ray_dir.x == 0) ? REX_SCALAR_MAX : ABS(REX_DIV(REX_SCALAR(1.0f), ray_dir.x));
-		delta_dist.y = (ray_dir.y == 0) ? REX_SCALAR_MAX : ABS(REX_DIV(REX_SCALAR(1.0f), ray_dir.y));
-
-		// calculate step and initial side_dist
-		if (ray_dir.x < 0)
-		{
-			step.x = -1;
-			side_dist.x = REX_MUL((camera.origin.x - REX_SCALAR(map_pos.x)), delta_dist.x);
-		}
-		else
-		{
-			step.x = 1;
-			side_dist.x = REX_MUL((REX_SCALAR(map_pos.x) + REX_SCALAR(1) - camera.origin.x), delta_dist.x);
-		}
-
-		if (ray_dir.y < 0)
-		{
-			step.y = -1;
-			side_dist.y = REX_MUL((camera.origin.y - REX_SCALAR(map_pos.y)), delta_dist.y);
-		}
-		else
-		{
-			step.y = 1;
-			side_dist.y = REX_MUL((REX_SCALAR(map_pos.y) + REX_SCALAR(1) - camera.origin.y), delta_dist.y);
-		}
-
-		rex_uint8 c;
-		rex_scalar h;
-		rex_scalar dist;
-
-		// perform DDA
-		while (hit == false)
-		{
-			if (side_dist.x < side_dist.y)
-			{
-				side_dist.x += delta_dist.x;
-				map_pos.x += step.x;
-				side = false;
-			}
-			else
-			{
-				side_dist.y += delta_dist.y;
-				map_pos.y += step.y;
-				side = true;
-			}
-
-			if (map_pos.x > 1023 || map_pos.x < 0 || map_pos.y > 1023 || map_pos.y < 0)
-			{
-				oob = true;
-				break;
-			}
-
-			// height at this coordinate
-			h = REX_SCALAR(heightmap[map_pos.y * 1024 + map_pos.x]);
-			c = colormap[map_pos.y * 1024 + map_pos.x];
-
-			// Check if the ray has hit a column
-			if (h > camera.origin.z) hit = true;
-		}
-
-		if (oob == true) continue;
-
-		if (side == false)
-			dist = (side_dist.x - delta_dist.x);
-		else
-			dist = (side_dist.y - delta_dist.y);
-
-		// hate div by 0
-		if (dist != 0)
-		{
-			//Calculate height of line to draw on screen
-			//rex_int line_height = RexScalarToInteger(REX_DIV(REX_SCALAR(draw_h), dist)) + 100;
-
-			rex_int line_height = RexScalarToInteger(REX_MUL(REX_DIV(camera.origin.z - h, dist), REX_SCALAR(1))) + 100;
-
-			line_height = CLAMP(line_height, area.y1, area.y2);
-
-			c = colormap[map_pos.y * 1024 + map_pos.x];
-
-			Rex::SurfaceDrawVerticalLine(dst, s.x, area.y2, line_height, c);
-		}
-	}
-
-	#ifdef STUPIDSTUPID_RENDERER
-
-	// Slow, stupid ray tracer
+	// horrible inefficient renderer
+	// but it works
 	for (s.x = area.x1; s.x < area.x2; s.x++)
 	{
 		for (s.y = area.y1; s.y < area.y2; s.y++)
 		{
+			// variables
 			rex_vec3s ray_dir;
-			rex_vec3s ray_pos = camera.origin;
-			rex_vec3s viewport;
+			rex_vec3s side_dist;
+			rex_vec3s delta_dist;
+			rex_vec3i map_pos;
+			rex_vec3i step;
 
-			rex_scalar sn = math.sin[camera.angles.y];
-			rex_scalar cs = math.cos[camera.angles.y];
+			bool hit = false;
 
-			viewport.x = camera.origin.x + REX_MUL(REX_SCALAR(s.x), REX_DIV(REX_SCALAR(4.0f), REX_SCALAR(draw_w)));
-			viewport.y = camera.origin.y + REX_MUL(REX_SCALAR(s.y), REX_DIV(REX_SCALAR(4.0f), REX_SCALAR(draw_h)));
-			viewport.z = camera.origin.z + REX_SCALAR(1.0f);
+			// map pos (int)
+			map_pos.x = RexScalarToInteger(camera.origin.x);
+			map_pos.y = RexScalarToInteger(camera.origin.y);
+			map_pos.z = RexScalarToInteger(camera.origin.z);
 
-			// Calculate ray direction
-			ray_dir.x = viewport.x - camera.origin.x;
-			ray_dir.y = viewport.y - camera.origin.y;
-			ray_dir.z = viewport.z - camera.origin.z;
+			// calculate ray direction
+			ray_dir.x = REX_MUL(REX_DIV(REX_SCALAR(2.0f), REX_SCALAR(draw_w)), REX_SCALAR(s.x)) - REX_SCALAR(1.0f);
+			ray_dir.y = REX_SCALAR(1.0f);
+			ray_dir.z = REX_MUL(REX_DIV(REX_SCALAR(2.0f), REX_SCALAR(draw_h)), REX_SCALAR(s.y)) - REX_SCALAR(1.0f);
 
-			// Rotate around (0, 0) by camera's yaw
+			// rotate around (0, 0) by camera yaw
 			rex_vec3s temp = ray_dir;
 
-			ray_dir.x = REX_MUL(temp.x, cs) - REX_MUL(temp.y, sn);
+			ray_dir.x = REX_MUL(-temp.x, cs) - REX_MUL(-temp.y, sn);
 			ray_dir.y = REX_MUL(temp.x, sn) + REX_MUL(temp.y, cs);
 
-			// Ray march loop
-			for (rex_scalar z = REX_SCALAR(0.5f); z < camera.draw_distance; z += REX_SCALAR(0.5f))
+			// get delta of ray
+			delta_dist.x = (ray_dir.x == 0) ? REX_SCALAR_MIN : ABS(REX_DIV(REX_SCALAR(1.0f), ray_dir.x));
+			delta_dist.y = (ray_dir.y == 0) ? REX_SCALAR_MIN : ABS(REX_DIV(REX_SCALAR(1.0f), ray_dir.y));
+			delta_dist.z = (ray_dir.z == 0) ? REX_SCALAR_MIN : ABS(REX_DIV(REX_SCALAR(1.0f), ray_dir.z));
+
+			// calculate step and initial side_dist
+			if (ray_dir.x < 0)
 			{
-				ray_pos.x += ray_dir.x;
-				ray_pos.y += ray_dir.y;
-				ray_pos.z += ray_dir.z;
+				step.x = -1;
+				side_dist.x = REX_MUL((camera.origin.x - REX_SCALAR(map_pos.x)), delta_dist.x);
+			}
+			else
+			{
+				step.x = 1;
+				side_dist.x = REX_MUL((REX_SCALAR(map_pos.x) + REX_SCALAR(1) - camera.origin.x), delta_dist.x);
+			}
 
-				rex_vec3i map_pos;
+			if (ray_dir.y < 0)
+			{
+				step.y = -1;
+				side_dist.y = REX_MUL((camera.origin.y - REX_SCALAR(map_pos.y)), delta_dist.y);
+			}
+			else
+			{
+				step.y = 1;
+				side_dist.y = REX_MUL((REX_SCALAR(map_pos.y) + REX_SCALAR(1) - camera.origin.y), delta_dist.y);
+			}
 
-				map_pos.x = RexScalarToInteger(ray_pos.x);
-				map_pos.y = RexScalarToInteger(ray_pos.y);
-				map_pos.z = RexScalarToInteger(ray_pos.z);
+			if (ray_dir.z < 0)
+			{
+				step.z = -1;
+				side_dist.z = REX_MUL((camera.origin.z - REX_SCALAR(map_pos.z)), delta_dist.z);
+			}
+			else
+			{
+				step.z = 1;
+				side_dist.z = REX_MUL((REX_SCALAR(map_pos.z) + REX_SCALAR(1) - camera.origin.z), delta_dist.z);
+			}
 
-				// Sanity checks
-				if (map_pos.x > VOXMAP_X - 1 || map_pos.x < 0) break;
-				if (map_pos.y > VOXMAP_Y - 1 || map_pos.y < 0) break;
-				if (map_pos.z > VOXMAP_Z - 1 || map_pos.z < 0) break;
+			// perform DDA
+			while (hit == false)
+			{
+				if (side_dist.x < side_dist.y)
+				{
+					if (side_dist.x < side_dist.z)
+					{
+						side_dist.x += delta_dist.x;
+						map_pos.x += step.x;
+					}
+					else
+					{
+						side_dist.z += delta_dist.z;
+						map_pos.z += step.z;
+					}
+				}
+				else
+				{
+					if (side_dist.y < side_dist.z)
+					{
+						side_dist.y += delta_dist.y;
+						map_pos.y += step.y;
+					}
+					else
+					{
+						side_dist.z += delta_dist.z;
+						map_pos.z += step.z;
+					}
+				}
 
-				voxel_t vox = voxmap[map_pos.z][map_pos.y][map_pos.x];
+				// if out of bounds, stop the ray
+				if (map_pos.x > (VOXMAP_X - 1) || map_pos.x < 0) break;
+				if (map_pos.y > (VOXMAP_Y - 1) || map_pos.y < 0) break;
+				if (map_pos.z > (VOXMAP_Z - 1) || map_pos.z < 0) break;
+
+				// voxel at this coordinate
+				voxel_t vox = voxmap[map_pos.x][map_pos.y][map_pos.z];
 
 				if (vox.density > 0)
 				{
 					Rex::SurfaceDrawPixel(dst, s.x, s.y, vox.color);
-					break;
-				}
-				else
-				{
-					continue;
+					hit = true;
 				}
 			}
 		}
 	}
-
-	#endif
-
-	#ifdef STUPID_RENDERER
-
-	// Ray direcrion & position
-	rex_vec3s ray_pos, ray_dir;
-
-	// Depth from the camera
-	rex_scalar z;
-
-	rex_scalar dv = REX_DIV(REX_SCALAR(2.0f), REX_SCALAR(draw_h));
-
-	for (s.x = area.x1; s.x < area.x2; s.x++)
-	{
-		// Reset ray start position
-		ray_pos = camera.origin;
-
-		// Calculate ray direction
-		ray_dir.x = REX_MUL(REX_DIV(REX_SCALAR(2.0f), REX_SCALAR(draw_w)), REX_SCALAR(s.x)) - REX_SCALAR(1.0f);
-		ray_dir.y = REX_SCALAR(1.0f);
-
-		// Rotate around (0, 0) by camera's yaw
-		rex_vec3s temp = ray_dir;
-
-		ray_dir.x = REX_MUL(-temp.x, cs) - REX_MUL(-temp.y, sn);
-		ray_dir.y = REX_MUL(temp.x, sn) + REX_MUL(temp.y, cs);
-
-		// Ray marching loop
-		for (z = camera.draw_distance; z > REX_SCALAR(1); z -= REX_SCALAR(1))
-		{
-			// March the ray
-			ray_pos.x += ray_dir.x;
-			ray_pos.y += ray_dir.y;
-
-			// Get the integer coordinate (with sanity checks)
-			rex_vec3i ray_pos_i;
-
-			ray_pos_i.x = RexScalarToInteger(ray_pos.x);
-			ray_pos_i.y = RexScalarToInteger(ray_pos.y);
-
-			if (ray_pos_i.x > (VOXMAP_X - 1) || ray_pos_i.x < 0) continue;
-			if (ray_pos_i.y > (VOXMAP_Y - 1) || ray_pos_i.y < 0) continue;
-
-			s.y = area.y1;
-
-			rex_scalar vs = camera.origin.z + REX_SCALAR(32);
-			rex_scalar ve = camera.origin.z - REX_SCALAR(32);
-
-			// Vertical scanning loop
-			for (rex_scalar v = vs; v > ve; v -= REX_SCALAR(1.0f))
-			{
-				// Get the Z integer coordinate (with sanity check)
-				ray_pos_i.z = RexScalarToInteger(v);
-				if (ray_pos_i.z > (VOXMAP_Z - 1) || ray_pos_i.z < 0) continue;
-
-				// Get the voxel at this coordinate
-				voxel_t vox = voxmap[ray_pos_i.z][ray_pos_i.y][ray_pos_i.x];
-
-				if (vox.density < 1) continue;
-
-				rex_scalar height_scale = REX_SCALAR(1000);
-
-				rex_scalar dh = vox.z - camera.origin.z;
-
-				// Calculate some kind of line height
-				rex_int line_height = RexScalarToInteger(REX_MUL(REX_DIV(REX_SCALAR(16), z), height_scale));
-
-				if (line_height > draw_w) continue;
-
-				line_height = CLAMP(line_height, area.y1, area.y2);
-
-				Rex::SurfaceDrawVerticalLine(dst, s.x, area.y2, line_height, vox.color);
-
-				//Rex::SurfaceDrawPixel(dst, s.x, s.y, vox.color);
-				//s.y += 1;
-				//if (s.y > area.y2) break;
-			}
-		}
-	}
-
-	#endif
-
-	#ifdef LAZY_RENDERER
-
-	// the laziest world renderer... in the world
-	for (rex_int z = 0; z < VOXMAP_Z; z++)
-	{
-		for (rex_int y = 0; y < VOXMAP_Y; y++)
-		{
-			for (rex_int x = 0; x < VOXMAP_X; x++)
-			{
-				// If its air, don't go through the trouble
-				if (voxmap[z][y][x].density < 1) continue;
-
-				// Transform the voxel coordinates into the camera view
-				vox.x = REX_SCALAR(voxmap[z][y][x].x) + camera.origin.x;
-				vox.y = REX_SCALAR(voxmap[z][y][x].y) + camera.origin.y;
-				vox.z = REX_SCALAR(voxmap[z][y][x].z) + camera.origin.z;
-
-				// Rotate the voxel coordinates around the camera view
-				pvox.x = REX_MUL(vox.x, cs) - REX_MUL(vox.y, sn);
-				pvox.y = REX_MUL(vox.x, sn) + REX_MUL(vox.y, cs);
-				pvox.z = vox.z + REX_DIV(REX_MUL(REX_SCALAR(camera.angles.x), pvox.y), REX_SCALAR(32));
-
-				if (pvox.y < REX_SCALAR(1)) continue;
-
-				// Standard perspective transform
-				s.x = RexScalarToInteger(REX_DIV(REX_MUL(pvox.x, REX_SCALAR(150)), pvox.y)) + (draw_w / 2);
-				s.y = RexScalarToInteger(REX_DIV(REX_MUL(pvox.z, REX_SCALAR(150)), pvox.y)) + (draw_h / 2);
-
-				Rex::SurfaceDrawPixel(dst, s.x, s.y, voxmap[z][y][x].color);
-			}
-		}
-	}
-
-	#endif
 }
 
 //
