@@ -213,9 +213,6 @@ void VReXInit()
 		}
 	}
 
-	// Make a floor
-
-
 	#ifdef CRINGE
 
 	// Load a VOX
@@ -263,11 +260,11 @@ void VReXInit()
 
 	// Angle (degrees)
 	camera.angles.x = 0; // pitch
-	camera.angles.y = 45; // yaw
+	camera.angles.y = 0; // yaw
 	camera.angles.z = 0; // roll
 
 	// Draw distance (scalar units)
-	camera.draw_distance = REX_SCALAR(32);
+	camera.draw_distance = REX_SCALAR(64);
 }
 
 void VReXRender(Rex::Surface *dst, rex_rect area)
@@ -499,11 +496,6 @@ void VReXRender(Rex::Surface *dst, rex_rect area)
 					}
 				}
 
-				// if out of bounds, stop the ray
-				if (map_pos.x > (VOXMAP_X - 1) || map_pos.x < 0) break;
-				if (map_pos.y > (VOXMAP_Y - 1) || map_pos.y < 0) break;
-				if (map_pos.z > (VOXMAP_Z - 1) || map_pos.z < 0) break;
-
 				rex_scalar dist;
 
 				switch (side)
@@ -519,12 +511,19 @@ void VReXRender(Rex::Surface *dst, rex_rect area)
 					default: break;
 				}
 
+				if (dist > camera.draw_distance) break;
+
+				// if out of bounds, keep going
+				if (map_pos.x > (VOXMAP_X - 1) || map_pos.x < 0) continue;
+				if (map_pos.y > (VOXMAP_Y - 1) || map_pos.y < 0) continue;
+				if (map_pos.z > (VOXMAP_Z - 1) || map_pos.z < 0) continue;
+
 				// voxel at this coordinate
 				voxel_t vox = voxmap[map_pos.z][map_pos.y][map_pos.x];
 
 				if (vox.density > 0)
 				{
-					rex_uint8 c = Rex::ColormapLookup(vox.color, RexScalarToInteger(dist) - 16);
+					rex_uint8 c = Rex::ColormapLookup(vox.color, RexScalarToInteger(dist));
 					//Rex::SurfaceDrawRectangle(dst, s.x - 1, s.y - 1, 2, 2, vox.color, false);
 					Rex::SurfaceDrawPixel(dst, s.x - 1, s.y - 1, c);
 					Rex::SurfaceDrawPixel(dst, s.x - 1, s.y, c);
