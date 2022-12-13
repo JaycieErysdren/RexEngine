@@ -604,7 +604,8 @@ void VReXRender(Rex::Surface *dst, rex_rect area)
 
 void VoxelLoadMap1()
 {
-	Rex::SetGraphicsPalette("voxel/m1.pal");
+	Rex::SetGraphicsPalette("gfx/mindgrdn.pal");
+	Rex::ColormapLoad("gfx/mindgrdn.tab");
 	f_heightmap = (uint8_t *)calloc(1024 * 1024, sizeof(uint8_t));
 	f_colormap = (uint8_t *)calloc(1024 * 1024, sizeof(uint8_t));
 
@@ -616,7 +617,7 @@ void VoxelLoadMap1()
 	fclose(hei);
 
 	// Load colormap
-	FILE *col = fopen("voxel/m1c.dat", "rb");
+	FILE *col = fopen("voxel/m1c_mg.dat", "rb");
 
 	fread(f_colormap, sizeof(uint8_t), 1024 * 1024, col);
 
@@ -713,11 +714,11 @@ void VoxelLoadCasino()
 void VoxelInit(rex_int32 screen_width)
 {
 	// Load the map from heightmap and colors
-	//VoxelLoadMap1();
+	VoxelLoadMap1();
 	//VoxelLoadMap2();
 	//VoxelLoadMap3();
 
-	VoxelLoadCasino();
+	//VoxelLoadCasino();
 
 	// Build y-buffer
 	ybuffer = (int32_t *)calloc(screen_width, sizeof(int32_t));
@@ -733,7 +734,7 @@ void VoxelInit(rex_int32 screen_width)
 	camera.angles.z = 0; // roll
 
 	// Draw distance (scalar units)
-	camera.draw_distance = REX_SCALAR(256);
+	camera.draw_distance = REX_SCALAR(1024);
 }
 
 void VoxelShutdown()
@@ -861,7 +862,7 @@ void VoxelRender(Rex::Surface *dst, rex_rect area, rex_vec3s p, rex_int32 yaw, r
 
 				if (line_height < ybuffer[s.x])
 				{
-					//c = Rex::ColormapLookup(c, RexScalarToInteger(dist));
+					//c = Rex::ColormapLookup(c, RexScalarToInteger(dist) / 4);
 					Rex::SurfaceDrawVerticalLine(dst, s.x, line_height, ybuffer[s.x], c);
 					 ybuffer[s.x] = line_height;
 				}
@@ -959,8 +960,8 @@ void VoxelRenderWrapper(Rex::Surface *dst, rex_rect area)
 	if (camera.origin.z < minh) camera.origin.z = minh;
 
 	// map 1 floor
-	//rex_vec2i map_size = {1024, 1024};
-	//VoxelRender(dst, area, camera.origin, camera.angles.y, camera.angles.x, REX_SCALAR(64), camera.draw_distance, false, map_size, f_colormap, f_heightmap);
+	rex_vec2i map_size = {1024, 1024};
+	VoxelRender(dst, area, camera.origin, camera.angles.y, camera.angles.x, REX_SCALAR(64), camera.draw_distance, false, map_size, f_colormap, f_heightmap);
 
 	// map 2 floor
 	//VoxelRender(dst, area, camera.origin, camera.angles.y, 100, REX_SCALAR(32), camera.draw_distance, false, VEC2I(64, 64), f_colormap, f_heightmap);
@@ -972,8 +973,8 @@ void VoxelRenderWrapper(Rex::Surface *dst, rex_rect area)
 	//VoxelRender(dst, area, camera.origin, camera.angles.y, 100, REX_SCALAR(16), camera.draw_distance, false, VEC2I(150, 150), f_colormap, f_heightmap);
 
 	// casino floor
-	rex_vec2i map_size = {512, 512};
-	VoxelRender(dst, area, camera.origin, camera.angles.y, 100, REX_SCALAR(128), camera.draw_distance, false, map_size, f_colormap, f_heightmap);
+	//rex_vec2i map_size = {512, 512};
+	//VoxelRender(dst, area, camera.origin, camera.angles.y, 100, REX_SCALAR(128), camera.draw_distance, false, map_size, f_colormap, f_heightmap);
 }
 
 //
@@ -1034,8 +1035,8 @@ int main(int argc, char *argv[])
 	Rex::VidInfo vidinfo = Rex::GetVidInfo();
 
 	// Load colormap
-	Rex::SetGraphicsPalette("gfx/portal2d.pal");
-	Rex::ColormapLoad("gfx/portal2d.tab");
+	//Rex::SetGraphicsPalette("gfx/portal2d.pal");
+	//Rex::ColormapLoad("gfx/portal2d.tab");
 
 	// Create picture buffers
 	Rex::SurfaceLoadBMP(&pic_font, "gfx/font8x8.bmp");
@@ -1090,7 +1091,7 @@ int main(int argc, char *argv[])
 		//
 
 		// Clear back buffer
-		Rex::SurfaceClear(&pic_bbuffer, 0);
+		Rex::SurfaceClear(&pic_bbuffer, 241);
 
 		// Voxels
 		{
