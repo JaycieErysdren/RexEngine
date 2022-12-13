@@ -734,7 +734,7 @@ void VoxelInit(rex_int32 screen_width)
 	camera.angles.z = 0; // roll
 
 	// Draw distance (scalar units)
-	camera.draw_distance = REX_SCALAR(1024);
+	camera.draw_distance = REX_SCALAR(128);
 }
 
 void VoxelShutdown()
