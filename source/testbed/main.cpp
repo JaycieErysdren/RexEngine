@@ -195,9 +195,7 @@ void VReXInit()
 	rex_int num;
 	rex_int vx, vy, vz;
 
-	#ifdef LOADER
-
-	FILE *file = fopen("voxel/goxel1.txt", "rt");
+	FILE *file = fopen("voxel/goxel2.txt", "rt");
 
 	while (fgets(line, sizeof(line), file))
 	{
@@ -219,14 +217,14 @@ void VReXInit()
 		}
 
 		voxmap[vz][vy][vx].density = 255;
-		voxmap[vz][vy][vx].color = 255;
+		voxmap[vz][vy][vx].color = 31;
 	}
 
 	fclose(file);
 
-	#endif
+	#ifdef GENERATOR
 
-	// Make a quare
+	// Make a square
 	for (z = 0; z < VOXMAP_Z; z++)
 	{
 		for (y = 0; y < VOXMAP_Y; y++)
@@ -249,6 +247,8 @@ void VReXInit()
 			}
 		}
 	}
+
+	#endif
 
 	#ifdef CRINGE
 
@@ -560,8 +560,8 @@ void VReXRender(Rex::Surface *dst, rex_rect area)
 
 				if (vox.density > 0)
 				{
-					//rex_uint8 c = Rex::ColormapLookup(vox.color, RexScalarToInteger(dist));
-					rex_uint8 c = vox.color;
+					rex_uint8 c = Rex::ColormapLookup(vox.color, RexScalarToInteger(dist));
+					//rex_uint8 c = vox.color;
 					//Rex::SurfaceDrawRectangle(dst, s.x - 1, s.y - 1, 2, 2, vox.color, false);
 					Rex::SurfaceDrawPixel(dst, s.x - 1, s.y - 1, c);
 					Rex::SurfaceDrawPixel(dst, s.x - 1, s.y, c);
@@ -1027,10 +1027,10 @@ int main(int argc, char *argv[])
 	}
 
 	// V-ReX init
-	//VReXInit();
+	VReXInit();
 
 	// Initialize voxel stuff
-	VoxelInit(vidinfo.width);
+	//VoxelInit(vidinfo.width);
 
 	// Start counting time
 	frame_end = Rex::GetTicks64();
@@ -1075,10 +1075,10 @@ int main(int argc, char *argv[])
 			rex_vec3i voxmap_dim = {32, 32, 32};
 
 			// V-ReX renderer
-			//VReXRender(&pic_bbuffer, screen_area);
+			VReXRender(&pic_bbuffer, screen_area);
 
 			// Voxel renderer
-			VoxelRenderWrapper(&pic_bbuffer, screen_area);
+			//VoxelRenderWrapper(&pic_bbuffer, screen_area);
 		}
 
 		sprintf(console_buffer, "x: %d y: %d z %d", RexScalarToInteger(camera.origin.x), RexScalarToInteger(camera.origin.y), RexScalarToInteger(camera.origin.z));
