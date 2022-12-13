@@ -195,6 +195,32 @@ void VReXInit()
 	rex_int num;
 	rex_int vx, vy, vz;
 
+	//Rex::SetGraphicsPalette("gfx/grayscal.pal");
+
+	#ifdef HEHE_MINECRAFT
+
+	FILE *file = fopen("voxel/minecr01.hei", "rb");
+
+	for (y = 0; y < 256; y++)
+	{
+		for (x = 0; x < 256; x++)
+		{
+			rex_uint8 c = (rex_uint8)getc(file);
+
+			for (rex_int h = 0; h < c; h++)
+			{
+				voxmap[h][y][x].color = c;
+				voxmap[h][y][x].density = 255;
+			}
+		}
+	}
+
+	fclose(file);
+
+	#endif
+
+	#ifdef GOXEL_LOADER
+
 	FILE *file = fopen("voxel/goxel2.txt", "rt");
 
 	while (fgets(line, sizeof(line), file))
@@ -222,7 +248,7 @@ void VReXInit()
 
 	fclose(file);
 
-	#ifdef GENERATOR
+	#endif
 
 	// Make a square
 	for (z = 0; z < VOXMAP_Z; z++)
@@ -247,8 +273,6 @@ void VReXInit()
 			}
 		}
 	}
-
-	#endif
 
 	#ifdef CRINGE
 
@@ -560,8 +584,8 @@ void VReXRender(Rex::Surface *dst, rex_rect area)
 
 				if (vox.density > 0)
 				{
-					rex_uint8 c = Rex::ColormapLookup(vox.color, RexScalarToInteger(dist));
-					//rex_uint8 c = vox.color;
+					//rex_uint8 c = Rex::ColormapLookup(vox.color, RexScalarToInteger(dist));
+					rex_uint8 c = vox.color;
 					//Rex::SurfaceDrawRectangle(dst, s.x - 1, s.y - 1, 2, 2, vox.color, false);
 					Rex::SurfaceDrawPixel(dst, s.x - 1, s.y - 1, c);
 					Rex::SurfaceDrawPixel(dst, s.x - 1, s.y, c);
