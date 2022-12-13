@@ -1051,10 +1051,10 @@ int main(int argc, char *argv[])
 	}
 
 	// V-ReX init
-	VReXInit();
+	//VReXInit();
 
 	// Initialize voxel stuff
-	//VoxelInit(vidinfo.width);
+	VoxelInit(vidinfo.width);
 
 	// Start counting time
 	frame_end = Rex::GetTicks64();
@@ -1099,10 +1099,10 @@ int main(int argc, char *argv[])
 			rex_vec3i voxmap_dim = {32, 32, 32};
 
 			// V-ReX renderer
-			VReXRender(&pic_bbuffer, screen_area);
+			//VReXRender(&pic_bbuffer, screen_area);
 
 			// Voxel renderer
-			//VoxelRenderWrapper(&pic_bbuffer, screen_area);
+			VoxelRenderWrapper(&pic_bbuffer, screen_area);
 		}
 
 		sprintf(console_buffer, "x: %d y: %d z %d", RexScalarToInteger(camera.origin.x), RexScalarToInteger(camera.origin.y), RexScalarToInteger(camera.origin.z));
