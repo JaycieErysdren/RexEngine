@@ -580,6 +580,7 @@ void VReXRender(Rex::Surface *dst, rex_rect area)
 
 void VoxelLoadMap1()
 {
+	Rex::SetGraphicsPalette("voxel/m1.pal");
 	f_heightmap = (uint8_t *)calloc(1024 * 1024, sizeof(uint8_t));
 	f_colormap = (uint8_t *)calloc(1024 * 1024, sizeof(uint8_t));
 
@@ -591,7 +592,7 @@ void VoxelLoadMap1()
 	fclose(hei);
 
 	// Load colormap
-	FILE *col = fopen("voxel/m1c_vga.dat", "rb");
+	FILE *col = fopen("voxel/m1c.dat", "rb");
 
 	fread(f_colormap, sizeof(uint8_t), 1024 * 1024, col);
 
@@ -688,11 +689,11 @@ void VoxelLoadCasino()
 void VoxelInit(rex_int32 screen_width)
 {
 	// Load the map from heightmap and colors
-	VoxelLoadMap1();
+	//VoxelLoadMap1();
 	//VoxelLoadMap2();
 	//VoxelLoadMap3();
 
-	//VoxelLoadCasino();
+	VoxelLoadCasino();
 
 	// Build y-buffer
 	ybuffer = (int32_t *)calloc(screen_width, sizeof(int32_t));
@@ -730,6 +731,122 @@ void VoxelRender(Rex::Surface *dst, rex_rect area, rex_vec3s p, rex_int32 yaw, r
 	rex_scalar sn = math.sin[yaw];
 	rex_scalar cs = math.cos[yaw];
 
+	// Screen coords
+	rex_vec2i s;
+
+	// Initialize y-buffer
+	for (rex_int i = 0; i < draw_w; i++)
+		ybuffer[i] = draw_h;
+
+	// More efficient renderer?
+	for (s.x = area.x1; s.x < area.x2; s.x++)
+	{
+		rex_vec2s ray_dir, delta_dist, side_dist;
+		rex_vec2i step, map_pos;
+
+		// map pos (int)
+		map_pos.x = RexScalarToInteger(p.x);
+		map_pos.y = RexScalarToInteger(p.y);
+
+		// calculate ray direction
+		ray_dir.x = REX_MUL(REX_DIV(REX_SCALAR(2.0f), REX_SCALAR(draw_w)), REX_SCALAR(s.x)) - REX_SCALAR(1.0f);
+		ray_dir.y = REX_SCALAR(1.0f);
+
+		// rotate around (0, 0) by camera yaw
+		rex_vec2s temp = ray_dir;
+
+		ray_dir.x = REX_MUL(-temp.x, cs) - REX_MUL(-temp.y, sn);
+		ray_dir.y = REX_MUL(temp.x, sn) + REX_MUL(temp.y, cs);
+
+		// get delta of ray (prevent div by 0)
+		delta_dist.x = (ray_dir.x == 0) ? REX_SCALAR_MAX : ABS(REX_DIV(REX_SCALAR(1.0f), ray_dir.x));
+		delta_dist.y = (ray_dir.y == 0) ? REX_SCALAR_MAX : ABS(REX_DIV(REX_SCALAR(1.0f), ray_dir.y));
+
+		// calculate step and initial side_dist
+		if (ray_dir.x < 0)
+		{
+			step.x = -1;
+			side_dist.x = REX_MUL((p.x - REX_SCALAR(map_pos.x)), delta_dist.x);
+		}
+		else
+		{
+			step.x = 1;
+			side_dist.x = REX_MUL((REX_SCALAR(map_pos.x) + REX_SCALAR(1) - p.x), delta_dist.x);
+		}
+
+		if (ray_dir.y < 0)
+		{
+			step.y = -1;
+			side_dist.y = REX_MUL((p.y - REX_SCALAR(map_pos.y)), delta_dist.y);
+		}
+		else
+		{
+			step.y = 1;
+			side_dist.y = REX_MUL((REX_SCALAR(map_pos.y) + REX_SCALAR(1) - p.y), delta_dist.y);
+		}
+
+		bool hit = false;
+		rex_int side;
+		rex_scalar dist;
+
+		rex_scalar highest_point;
+
+		// perform DDA
+		while (hit == false)
+		{
+			if (side_dist.x < side_dist.y)
+			{
+				side_dist.x += delta_dist.x;
+				map_pos.x += step.x;
+				side = 1;
+			}
+			else
+			{
+				side_dist.y += delta_dist.y;
+				map_pos.y += step.y;
+				side = 2;
+			}
+
+			switch (side)
+			{
+				case 1: dist = (side_dist.x - delta_dist.x); break;
+
+				case 2: dist = (side_dist.y - delta_dist.y); break;
+
+				default: break;
+			}
+
+			if (dist > camera.draw_distance) break;
+
+			// if out of bounds, keep going
+			if (map_pos.x > (map_size.x - 1) || map_pos.x < 0) continue;
+			if (map_pos.y > (map_size.y - 1) || map_pos.y < 0) continue;
+
+			if (dist > REX_SCALAR(1))
+			{
+				rex_scalar h = REX_SCALAR(heightmap[(map_pos.y * map_size.y) + map_pos.x]);
+
+				rex_scalar dh = p.z - h;
+
+				uint8_t c = colormap[(map_pos.y * map_size.y) + map_pos.x];
+
+				rex_int32 line_height = RexScalarToInteger(REX_MUL(REX_DIV(dh, dist), height_scale)) + horizon;
+
+				// clamp to visible region
+				line_height = CLAMP(line_height, area.y1, area.y2);
+
+				if (line_height < ybuffer[s.x])
+				{
+					//c = Rex::ColormapLookup(c, RexScalarToInteger(dist));
+					Rex::SurfaceDrawVerticalLine(dst, s.x, line_height, ybuffer[s.x], c);
+					 ybuffer[s.x] = line_height;
+				}
+			}
+		}
+	}
+
+	#ifdef RAY_RENDERER
+
 	// Z, and current change in Z
 	rex_scalar z = REX_SCALAR(0.05f);
 	rex_scalar dz = REX_SCALAR(0.5f);
@@ -737,6 +854,19 @@ void VoxelRender(Rex::Surface *dst, rex_rect area, rex_vec3s p, rex_int32 yaw, r
 	// Initialize y-buffer
 	for (rex_int32 i = 0; i < draw_w; i++)
 		ybuffer[i] = ceiling == true ? 0 : draw_h;
+
+	rex_vec2i s;
+
+	rex_vec2s pleft, pright;
+
+	pleft.x = (REX_MUL(-cs, z) - REX_MUL(sn, z)) + p.x;
+	pleft.y = (REX_MUL(sn, z) - REX_MUL(cs, z)) + p.y;
+
+	pright.x = (REX_MUL(cs, z) - REX_MUL(sn, z)) + p.x;
+	pright.y = (REX_MUL(-sn, z) - REX_MUL(cs, z)) + p.y;
+
+	rex_scalar dx = REX_DIV(pright.x - pleft.x, REX_SCALAR(draw_w));
+	rex_scalar dy = REX_DIV(pright.y - pleft.y, REX_SCALAR(draw_w));
 
 	// Render front to back
 	while (z < draw_distance)
@@ -794,6 +924,8 @@ void VoxelRender(Rex::Surface *dst, rex_rect area, rex_vec3s p, rex_int32 yaw, r
 		z += dz;
 		//dz += REX_SCALAR(0.02f);
 	}
+
+	#endif
 }
 
 void VoxelRenderWrapper(Rex::Surface *dst, rex_rect area)
@@ -803,7 +935,8 @@ void VoxelRenderWrapper(Rex::Surface *dst, rex_rect area)
 	if (camera.origin.z < minh) camera.origin.z = minh;
 
 	// map 1 floor
-	//VoxelRender(dst, area, camera.origin, camera.angles.y, camera.angles.x, REX_SCALAR(64), camera.draw_distance, false, VEC2I(1024, 1024), f_colormap, f_heightmap);
+	//rex_vec2i map_size = {1024, 1024};
+	//VoxelRender(dst, area, camera.origin, camera.angles.y, camera.angles.x, REX_SCALAR(64), camera.draw_distance, false, map_size, f_colormap, f_heightmap);
 
 	// map 2 floor
 	//VoxelRender(dst, area, camera.origin, camera.angles.y, 100, REX_SCALAR(32), camera.draw_distance, false, VEC2I(64, 64), f_colormap, f_heightmap);
@@ -894,10 +1027,10 @@ int main(int argc, char *argv[])
 	}
 
 	// V-ReX init
-	VReXInit();
+	//VReXInit();
 
 	// Initialize voxel stuff
-	//VoxelInit(vidinfo.width);
+	VoxelInit(vidinfo.width);
 
 	// Start counting time
 	frame_end = Rex::GetTicks64();
@@ -942,10 +1075,10 @@ int main(int argc, char *argv[])
 			rex_vec3i voxmap_dim = {32, 32, 32};
 
 			// V-ReX renderer
-			VReXRender(&pic_bbuffer, screen_area);
+			//VReXRender(&pic_bbuffer, screen_area);
 
 			// Voxel renderer
-			//VoxelRenderWrapper(&pic_bbuffer, screen_area);
+			VoxelRenderWrapper(&pic_bbuffer, screen_area);
 		}
 
 		sprintf(console_buffer, "x: %d y: %d z %d", RexScalarToInteger(camera.origin.x), RexScalarToInteger(camera.origin.y), RexScalarToInteger(camera.origin.z));
