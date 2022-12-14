@@ -54,8 +54,8 @@ typedef struct
 {
 	rex_uint8 skipped;
 	rex_uint8 drawn;
-	rex_uint8 color;
-	rex_uint8 _pad;
+	rex_uint8 side_color;
+	rex_uint8 slab_color;
 } voxel_rle_element_t;
 
 // Voxel RLE column
@@ -826,17 +826,20 @@ void Voxel_RLE_Init()
 	voxel_rle_element_t *e2 = (voxel_rle_element_t *)calloc(2, sizeof(voxel_rle_element_t));
 
 	// e1 - top voxel
-	e1[0].color = 15;
+	e1[0].side_color = 15;
+	e1[0].slab_color = 0;
 	e1[0].skipped = 240;
 	e1[0].drawn = 1;
 
 	// e1 - bottom voxel
-	e1[1].color = 255;
+	e1[1].side_color = 255;
+	e1[1].slab_color = 0;
 	e1[1].skipped = 4;
 	e1[1].drawn = 1;
 
 	// e1 - bottomer voxel
-	e1[2].color = 15;
+	e1[2].side_color = 15;
+	e1[2].slab_color = 0;
 	e1[2].skipped = 0;
 	e1[2].drawn = 1;
 
@@ -845,17 +848,19 @@ void Voxel_RLE_Init()
 	voxmap_rle[0].elements = e1;
 
 	// e2 - pillar
-	e2[0].color = 31;
+	e2[0].side_color = 31;
+	e2[0].slab_color = 0;
 	e2[0].skipped = 240;
 	e2[0].drawn = 6;
 
-	e2[1].color = 0;
+	e2[1].side_color = 0;
+	e2[1].slab_color = 0;
 	e2[1].skipped = 0;
 	e2[1].drawn = 2;
 
 	// add e2 to array
-	voxmap_rle[2].num_elements = 2;
-	voxmap_rle[2].elements = e2;
+	//voxmap_rle[2].num_elements = 2;
+	//voxmap_rle[2].elements = e2;
 
 	// camera
 	camera.draw_distance = REX_SCALAR(32);
@@ -1031,7 +1036,7 @@ void Voxel_RLE_Render(Rex::Surface *dst, rex_rect area)
 					line_end = CLAMP(line_end, area.y1, area.y2);
 
 					// draw the vertical line
-					Rex::SurfaceDrawVerticalLine(dst, s.x, line_start, line_end, element.color);
+					Rex::SurfaceDrawVerticalLine(dst, s.x, line_start, line_end, element.side_color);
 
 					// overall height of this column
 					column_height -= (element.skipped + element.drawn);
