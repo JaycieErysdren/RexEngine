@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex namespace: Surface header
 //
-// LAST EDITED:		December 11th, 2022
+// LAST EDITED:		December 14th, 2022
 //
 // ========================================================
 
@@ -98,6 +98,9 @@ void SurfaceDraw8(Surface *dst, Surface *src, int x, int y, blit_mode flags);
 void SurfaceBlit8(Surface *dst, int x1, int y1, int x2, int y2, Surface *src, int u1, int v1, int u2, int v2, blit_mode mode);
 void SurfaceLiquidEffect8(Surface *dst, Surface *src, int tick);
 void SurfaceBlend8(Surface *dst, Surface *src1, Surface *src2, clut_t blender);
+
+// Set a horizontal line from a buffer
+void SurfaceSetHorizontalLine(Surface *dst, rex_int x, rex_int y, rex_int width, void *buffer);
 
 void SurfaceDrawPixel(Surface *dst, int x, int y, uint8_t color);
 void SurfaceDrawLine(Surface *dst, int x1, int y1, int x2, int y2, uint8_t color);

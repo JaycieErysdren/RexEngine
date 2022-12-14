@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Testbed program entry point
 //
-// LAST EDITED:		December 11th, 2022
+// LAST EDITED:		December 14th, 2022
 //
 // ========================================================
 
@@ -49,6 +49,29 @@ typedef struct
 	uint8_t color;
 } voxel_t;
 
+// Voxel RLE element
+typedef struct
+{
+	rex_uint8 skipped;
+	rex_uint8 drawn;
+	rex_uint8 color;
+	rex_uint8 _pad;
+} voxel_rle_element_t;
+
+// Voxel RLE column
+typedef struct
+{
+	int16_t num_elements;
+	voxel_rle_element_t *elements;
+} voxel_rle_column_t;
+
+#define VOXMAP_RLE_X 2
+#define VOXMAP_RLE_Y 2
+#define VOXMAP_RLE_Z 8
+
+// 2D array of column pointers
+voxel_rle_column_t *voxmap_rle;
+
 //
 // Globals
 //
@@ -66,6 +89,7 @@ uint8_t *colormap;
 
 // Voxels
 int32_t *ybuffer;
+rex_uint8 *hbuf;
 uint8_t *f_heightmap;
 uint8_t *f_colormap;
 uint8_t *c_heightmap;
@@ -606,18 +630,19 @@ void VoxelLoadMap1()
 {
 	Rex::SetGraphicsPalette("gfx/mindgrdn.pal");
 	Rex::ColormapLoad("gfx/mindgrdn.tab");
+
 	f_heightmap = (uint8_t *)calloc(1024 * 1024, sizeof(uint8_t));
 	f_colormap = (uint8_t *)calloc(1024 * 1024, sizeof(uint8_t));
 
 	// Load heightmap
-	FILE *hei = fopen("voxel/m1h.dat", "rb");
+	FILE *hei = fopen("voxel/tomland.hei", "rb");
 
 	fread(f_heightmap, sizeof(uint8_t), 1024 * 1024, hei);
 
 	fclose(hei);
 
 	// Load colormap
-	FILE *col = fopen("voxel/m1c_mg.dat", "rb");
+	FILE *col = fopen("voxel/tomland.col", "rb");
 
 	fread(f_colormap, sizeof(uint8_t), 1024 * 1024, col);
 
@@ -722,6 +747,7 @@ void VoxelInit(rex_int32 screen_width)
 
 	// Build y-buffer
 	ybuffer = (int32_t *)calloc(screen_width, sizeof(int32_t));
+	hbuf = (rex_uint8 *)calloc(screen_width, sizeof(rex_uint8));
 
 	// Position (scalar units)
 	camera.origin.x = REX_SCALAR(32);
@@ -745,6 +771,411 @@ void VoxelShutdown()
 	free(f_colormap);
 	free(ybuffer);
 }
+
+void VolumetricRender(Rex::Surface *dst, rex_rect area)
+{
+	rex_int shape = 1;
+
+	rex_int x, y, z;
+	for (z = 0; z < 100; z++)
+	{
+		for (y = 0; y < 100; y++)
+		{
+			for (x = 0; x < 100; x++)
+			{
+				rex_int px = 160 + x - z;
+				rex_int py = (x / 2) + y + (z / 2);
+				rex_uint8 pc = z / 4 + x / 4 - y / 8 + 12;
+
+				switch (shape)
+				{
+					// Cube
+					case 0:
+					{
+						Rex::SurfaceDrawPixel(dst, px, py, pc);
+						break;
+					}
+
+					// Sphere
+					case 1:
+					{
+						rex_int dx = 50 - x;
+						rex_int dy = 50 - y;
+						rex_int dz = 50 - z;
+						rex_int dt = (dx * dx) + (dy * dy) + (dz * dz);
+
+						if (dt < (50 * 50) && dt > (48 * 48))
+							Rex::SurfaceDrawPixel(dst, px, py, pc);
+
+						break;
+					}
+					
+					default: break;
+				}
+			}
+		}
+	}
+}
+
+void Voxel_RLE_Init()
+{
+	// RLE map
+	voxmap_rle = (voxel_rle_column_t *)calloc(VOXMAP_RLE_X * VOXMAP_RLE_Y, sizeof(voxel_rle_column_t));
+
+	voxel_rle_element_t *e1 = (voxel_rle_element_t *)calloc(3, sizeof(voxel_rle_element_t));
+	voxel_rle_element_t *e2 = (voxel_rle_element_t *)calloc(2, sizeof(voxel_rle_element_t));
+
+	// e1 - top voxel
+	e1[0].color = 15;
+	e1[0].skipped = 240;
+	e1[0].drawn = 1;
+
+	// e1 - bottom voxel
+	e1[1].color = 255;
+	e1[1].skipped = 4;
+	e1[1].drawn = 1;
+
+	// e1 - bottomer voxel
+	e1[2].color = 15;
+	e1[2].skipped = 0;
+	e1[2].drawn = 1;
+
+	// add e1 to array
+	voxmap_rle[0].num_elements = 3;
+	voxmap_rle[0].elements = e1;
+
+	// e2 - pillar
+	e2[0].color = 31;
+	e2[0].skipped = 240;
+	e2[0].drawn = 6;
+
+	e2[1].color = 0;
+	e2[1].skipped = 0;
+	e2[1].drawn = 2;
+
+	// add e2 to array
+	voxmap_rle[2].num_elements = 2;
+	voxmap_rle[2].elements = e2;
+
+	// camera
+	camera.draw_distance = REX_SCALAR(32);
+
+	camera.angles.x = 0;
+	camera.angles.y = 0;
+	camera.angles.z = 0;
+}
+
+void Voxel_RLE_Shutdown()
+{
+	if (voxmap_rle->elements) free(voxmap_rle->elements);
+	if (voxmap_rle) free(voxmap_rle);
+}
+
+void Voxel_RLE_Render(Rex::Surface *dst, rex_rect area)
+{
+	// General variables
+	rex_int i;
+
+	// Drawable area
+	rex_int32 draw_w = area.x2 - area.x1;
+	rex_int32 draw_h = area.y2 - area.y1;
+
+	// Sin and cos of the camera's yaw
+	rex_scalar sn = math.sin[camera.angles.y];
+	rex_scalar cs = math.cos[camera.angles.y];
+
+	// Screen coords
+	rex_vec2i s;
+
+	// meh
+	rex_vec3s p = camera.origin;
+
+	// meh
+	rex_int horizon = camera.angles.x + (draw_h / 2);
+	rex_scalar height_scale = REX_SCALAR(192);
+
+	#ifdef FUCKING_YBUFFER
+	rex_int8 ybuff[draw_h];
+	#endif
+
+	// More efficient renderer?
+	for (s.x = area.x1; s.x < area.x2; s.x++)
+	{
+		rex_vec2s ray_dir, delta_dist, side_dist;
+		rex_vec2i step, map_pos;
+
+		#ifdef FUCKING_YBUFFER
+		// reset y buff
+		memset(&ybuff, -1, draw_h);
+		//for (i = 0; i < draw_h; i++)
+		//{
+		//	ybuff[i] = false;
+		//}
+		#endif
+
+		// map pos (int)
+		map_pos.x = RexScalarToInteger(p.x);
+		map_pos.y = RexScalarToInteger(p.y);
+
+		// calculate ray direction
+		ray_dir.x = REX_MUL(REX_DIV(REX_SCALAR(2.0f), REX_SCALAR(draw_w)), REX_SCALAR(s.x)) - REX_SCALAR(1.0f);
+		ray_dir.y = REX_SCALAR(1.0f);
+
+		// rotate around (0, 0) by camera yaw
+		rex_vec2s temp = ray_dir;
+
+		ray_dir.x = REX_MUL(-temp.x, cs) - REX_MUL(-temp.y, sn);
+		ray_dir.y = REX_MUL(temp.x, sn) + REX_MUL(temp.y, cs);
+
+		// get delta of ray (prevent div by 0)
+		delta_dist.x = (ray_dir.x == 0) ? REX_SCALAR_MAX : ABS(REX_DIV(REX_SCALAR(1.0f), ray_dir.x));
+		delta_dist.y = (ray_dir.y == 0) ? REX_SCALAR_MAX : ABS(REX_DIV(REX_SCALAR(1.0f), ray_dir.y));
+
+		// calculate step and initial side_dist
+		if (ray_dir.x < 0)
+		{
+			step.x = -1;
+			side_dist.x = REX_MUL((p.x - REX_SCALAR(map_pos.x)), delta_dist.x);
+		}
+		else
+		{
+			step.x = 1;
+			side_dist.x = REX_MUL((REX_SCALAR(map_pos.x) + REX_SCALAR(1) - p.x), delta_dist.x);
+		}
+
+		if (ray_dir.y < 0)
+		{
+			step.y = -1;
+			side_dist.y = REX_MUL((p.y - REX_SCALAR(map_pos.y)), delta_dist.y);
+		}
+		else
+		{
+			step.y = 1;
+			side_dist.y = REX_MUL((REX_SCALAR(map_pos.y) + REX_SCALAR(1) - p.y), delta_dist.y);
+		}
+
+		bool casting = true;
+		rex_int side;
+		rex_scalar dist;
+		rex_int r;
+
+		// perform DDA
+		while (casting == true)
+		{
+			if (side_dist.x < side_dist.y)
+			{
+				side_dist.x += delta_dist.x;
+				map_pos.x += step.x;
+				side = 1;
+			}
+			else
+			{
+				side_dist.y += delta_dist.y;
+				map_pos.y += step.y;
+				side = 2;
+			}
+
+			switch (side)
+			{
+				case 1: dist = (side_dist.x - delta_dist.x); break;
+
+				case 2: dist = (side_dist.y - delta_dist.y); break;
+
+				default: break;
+			}
+
+			// if it goes beyond the draw distance, cut off the ray
+			if (dist > camera.draw_distance) break;
+
+			// if out of bounds, keep going in hopes of finding something in-bounds again
+			// this allows rendering the map from an out of bounds location
+			if (map_pos.x > (VOXMAP_RLE_X - 1) || map_pos.x < 0) continue;
+			if (map_pos.y > (VOXMAP_RLE_Y - 1) || map_pos.y < 0) continue;
+
+			if (dist > REX_SCALAR(1))
+			{
+				voxel_rle_column_t column = voxmap_rle[(map_pos.y * VOXMAP_RLE_Y) + map_pos.x];
+
+				rex_int column_height = 255;
+
+				rex_vec3s element_pos = {0, 0, 0};
+				rex_scalar element_height = 0;
+
+				rex_int line_height = 0;
+				rex_int line_start = 0, line_end = 0;
+				rex_scalar height_delta1 = 0, height_delta2 = 0;
+
+				// draw the elements from top to bottom
+				for (i = 0; i < column.num_elements; i++)
+				{
+					voxel_rle_element_t element = column.elements[i];
+
+					// position of element
+					element_pos.x = REX_SCALAR(map_pos.x);
+					element_pos.y = REX_SCALAR(map_pos.y);
+					element_pos.z = REX_SCALAR(column_height - element.skipped);
+
+					// height of element
+					element_height = REX_SCALAR(element.drawn);
+
+					// height delta 1
+					height_delta1 = p.z - element_pos.z;
+					height_delta2 = p.z - (element_pos.z - element_height);
+
+					// height of the line on screen
+					line_start = RexScalarToInteger(REX_MUL(REX_DIV(height_delta1, dist), height_scale)) + horizon;
+					line_end = RexScalarToInteger(REX_MUL(REX_DIV(height_delta2, dist), height_scale)) + horizon;
+
+					// clamp the line to the visible region
+					line_start = CLAMP(line_start, area.y1, area.y2);
+					line_end = CLAMP(line_end, area.y1, area.y2);
+
+					// draw the vertical line
+					Rex::SurfaceDrawVerticalLine(dst, s.x, line_start, line_end, element.color);
+
+					// overall height of this column
+					column_height -= (element.skipped + element.drawn);
+
+					// gotta set a max height somewhere i guess
+					if (column_height < 0) break;
+
+					#ifdef FUCKING_YBUFFER
+
+					if (line_start < line_end)
+					{
+						for (i = line_start; i < line_end; i++)
+						{
+							if (ybuff[i] == -1)
+							{
+								Rex::SurfaceDrawPixel(dst, s.x, i, element.color);
+								ybuff[i] = 1;
+							}
+						}
+					}
+					else if (line_start > line_end)
+					{
+						for (i = line_end; i < line_start; i++)
+						{
+							if (ybuff[i] == -1)
+							{
+								Rex::SurfaceDrawPixel(dst, s.x, i, element.color);
+								ybuff[i] = 1;
+							}
+						}
+					}
+					else if (line_start == line_end)
+					{
+						if (ybuff[line_start] == -1)
+						{
+							Rex::SurfaceDrawPixel(dst, s.x, line_start, element.color);
+							ybuff[line_start] = 1;
+						}
+					}
+
+					#endif
+				}
+			}
+		}
+	}
+}
+
+#ifdef SPIVIS2_KC
+
+void spilin(Rex::Surface *dst, rex_rect area, rex_vec3f pp, rex_vec3f pr, rex_vec3f pd, rex_vec3f pf, rex_int sx0, rex_int sx1, rex_int sy, rex_int maxd)
+{
+	int sx, sxi, sxe, d;
+	int x, y, z, k;
+	int kvx, kvy, kvz;
+
+	sxi = SGN(sx1 - sx0);
+	d = 0;
+
+	int vx = sx0*pr.x + sy*pd.x + pf.x;
+	int vy = sx0*pr.y + sy*pd.y + pf.y;
+	int vz = sx0*pr.z + sy*pd.z + pf.z;
+
+	int vxi = sxi*pr.x;
+	int vyi = sxi*pr.y;
+	int vzi = sxi*pr.z;
+
+	for(sx=sx0,sxe=sx1+sxi;sx!=sxe;ybuffer[sx]=d,sx+=sxi,vx+=vxi,vy+=vyi,vz+=vzi)
+	{
+		d = MIN(d, ybuffer[sx]);
+
+		//d = gd[sx]; //notably faster but loses cliffs when looking up
+
+		if (d >= maxd) { done: Rex::SurfaceDrawPixel(dst, sx, sy, 0); continue; }
+
+		k = int(d/256)+1;
+		x = vx*d + pp.x; kvx = vx*k;
+		y = vy*d + pp.y; kvy = vy*k;
+		z = vz*d + pp.z; kvz = vz*k;
+
+		if (f_heightmap[(y * 1024) + x] >= z)
+		{
+			while (f_heightmap[(y * 1024) + x] >= z)
+			{
+				x += kvx; y += kvy; z += kvz; d += k;
+
+				if ((d >= maxd) || ((z < 0) && (vz < 0))) goto done;
+			}
+		}
+		else
+		{
+			while ((f_heightmap[((y - kvy) * 1024) + (x - kvx)] < z-kvz) && (d > 0))
+			{
+				x -= kvx;
+				y -= kvy;
+				z -= kvz;
+				d -= k;
+			}
+		}
+
+		Rex::SurfaceDrawPixel(dst, sx, sy, f_colormap[(y * 1024) + x]);
+	}
+}
+
+void VoxelRender2(Rex::Surface *dst, rex_rect area, rex_vec3f pp, rex_vec3f pr, rex_vec3f pd, rex_vec3f pf, rex_vec3f ph)
+{
+	// Drawable area
+	int xres = area.x2 - area.x1;
+	int yres = area.y2 - area.y1;
+
+	rex_vec3f nr, nd, nf;
+
+	//proportional to step size
+	float f = 1/1024;
+
+	nr.x = pr.x*f; nd.x = pd.x*f; nf.x = (pf.x*ph.z - pr.x*ph.x - pd.x*ph.y)*f;
+	nr.y = pr.y*f; nd.y = pd.y*f; nf.y = (pf.y*ph.z - pr.y*ph.x - pd.y*ph.y)*f;
+	nr.z = pr.z*f; nd.z = pd.z*f; nf.z = (pf.z*ph.z - pr.z*ph.x - pd.z*ph.y)*f;
+
+	if (pf.z == 0)
+		f = 32767;
+	else
+		f = CLAMP(ph.z / pf.z, -32767, 32767);
+
+	int cx = floor(CLAMP(pr.z*f + ph.x, 0, xres - 1));
+	int cy = floor(CLAMP(pd.z*f + ph.y, 0, yres - 1));
+
+	int x0, x1, x2, x3, y0, y1, y2, y3;
+	int y, yi, i, j;
+
+	if (f >= 0) { x0 = cx; x1 = 0; x2 = cx+1; x3 = xres-1; y0 = cy; y1 = -1; y2 = cy+1; y3 = yres; }
+			else { x0 = 0; x1 = cx; x2 = xres-1; x3 = cx+1; y0 = 0; y1 = cy+1; y2 = yres-1; y3 = cy; }
+	for(yi=SGN(y1-y0),j=2;j>0;j--,y0=y2,y1=y3,yi=-yi) //Look down=spiral out; look up=spiral in
+	{
+		for(i=0;i<xres;i++) ybuffer[i] = 0;
+		for(y=y0;y!=y1;y+=yi)
+		{
+			spilin(dst, area, pp, nr, nd, nf, x0, x1, y, xres);
+			spilin(dst, area, pp, nr, nd, nf, x2, x3, y, xres);
+			//Rex::SurfaceSetHorizontalLine(dst, 0, y, xres, hbuf);
+		}
+	}
+}
+
+#endif
 
 void VoxelRender(Rex::Surface *dst, rex_rect area, rex_vec3s p, rex_int32 yaw, rex_int32 horizon, rex_scalar height_scale, rex_scalar draw_distance, bool ceiling, rex_vec2i map_size, uint8_t *colormap, uint8_t *heightmap)
 {
@@ -1035,8 +1466,8 @@ int main(int argc, char *argv[])
 	Rex::VidInfo vidinfo = Rex::GetVidInfo();
 
 	// Load colormap
-	//Rex::SetGraphicsPalette("gfx/portal2d.pal");
-	//Rex::ColormapLoad("gfx/portal2d.tab");
+	Rex::SetGraphicsPalette("gfx/portal2d.pal");
+	Rex::ColormapLoad("gfx/portal2d.tab");
 
 	// Create picture buffers
 	Rex::SurfaceLoadBMP(&pic_font, "gfx/font8x8.bmp");
@@ -1055,7 +1486,10 @@ int main(int argc, char *argv[])
 	//VReXInit();
 
 	// Initialize voxel stuff
-	VoxelInit(vidinfo.width);
+	//VoxelInit(vidinfo.width);
+
+	// Initialize Voxel RLE
+	Voxel_RLE_Init();
 
 	// Start counting time
 	frame_end = Rex::GetTicks64();
@@ -1097,13 +1531,31 @@ int main(int argc, char *argv[])
 		{
 			// watcom...
 			rex_rect screen_area = {0, 0, pic_bbuffer.width, pic_bbuffer.height};
-			rex_vec3i voxmap_dim = {32, 32, 32};
+			//rex_vec3i voxmap_dim = {32, 32, 32};
 
 			// V-ReX renderer
 			//VReXRender(&pic_bbuffer, screen_area);
 
 			// Voxel renderer
-			VoxelRenderWrapper(&pic_bbuffer, screen_area);
+			//VoxelRenderWrapper(&pic_bbuffer, screen_area);
+
+			// Volumetric renderer
+			//VolumetricRender(&pic_bbuffer, screen_area);
+
+			// Voxel RLE renderer
+			Voxel_RLE_Render(&pic_bbuffer, screen_area);
+
+			#ifdef SPIVIS2_KC
+
+			rex_vec3f pp = {0, 0, 0};
+			rex_vec3f pr = {1, 0, 0};
+			rex_vec3f pd = {0, 0, 1};
+			rex_vec3f pf = {0, -1, 0};
+			rex_vec3f ph = {(float)(pic_bbuffer.width / 2), (float)(pic_bbuffer.height / 2), (float)(pic_bbuffer.width / 2)};
+
+			VoxelRender2(&pic_bbuffer, screen_area, pp, pr, pd, pf, ph);
+		
+			#endif
 		}
 
 		sprintf(console_buffer, "x: %d y: %d z %d", RexScalarToInteger(camera.origin.x), RexScalarToInteger(camera.origin.y), RexScalarToInteger(camera.origin.z));
@@ -1126,6 +1578,9 @@ int main(int argc, char *argv[])
 			frame_end = frame_end + cycles * CLOCKS_PER_SEC / CYCLES;
 		#endif
 	}
+
+	// Shutdown Voxel RLE
+	Voxel_RLE_Shutdown();
 
 	// Shutdown Graphics
 	Rex::ShutdownGraphics();

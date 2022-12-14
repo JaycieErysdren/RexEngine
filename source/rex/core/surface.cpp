@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex namespace: Surface implementation
 //
-// LAST EDITED:		December 11th, 2022
+// LAST EDITED:		December 14th, 2022
 //
 // ========================================================
 
@@ -375,6 +375,12 @@ void SurfaceDrawLine(Surface *dst, int x1, int y1, int x2, int y2, rex_uint8 col
 				SurfaceDrawPixel(dst, px, py, color);
 		}
 	}
+}
+
+// Set a horizontal line from a buffer
+void SurfaceSetHorizontalLine(Surface *dst, rex_int x, rex_int y, rex_int width, void *buffer)
+{
+	memcpy(&dst->scanlines.b[y][x], buffer, width * (dst->bpp / 8));
 }
 
 // Draw a horizontal line
