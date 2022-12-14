@@ -309,6 +309,10 @@ typedef struct
 
 #define REX_LERP_VEC2S(a, b, c)			((rex_vec2s){REX_LERP((a.x), (b.x), (c)), REX_LERP((a.y), (b.y), (c))})
 
+// Dot product
+#define REX_DOT_VEC2S(a, b)				(REX_MUL((a.x), (b.x)) + REX_MUL((a.y), (b.y)))
+#define REX_DOT_VEC3S(a, b)				(REX_MUL((a.x), (b.x)) + REX_MUL((a.y), (b.y)) + REX_MUL((a.z), (b.z)))
+
 //
 // Rect
 //

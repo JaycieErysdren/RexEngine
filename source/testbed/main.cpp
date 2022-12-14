@@ -897,7 +897,7 @@ void Voxel_RLE_Render(Rex::Surface *dst, rex_rect area)
 
 	// meh
 	rex_int horizon = camera.angles.x + (draw_h / 2);
-	rex_scalar height_scale = REX_SCALAR(192);
+	rex_scalar height_scale = REX_SCALAR(160);
 
 	#ifdef FUCKING_YBUFFER
 	rex_int8 ybuff[draw_h];
