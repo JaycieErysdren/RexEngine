@@ -859,8 +859,8 @@ void Voxel_RLE_Init()
 	e2[1].drawn = 2;
 
 	// add e2 to array
-	//voxmap_rle[2].num_elements = 2;
-	//voxmap_rle[2].elements = e2;
+	voxmap_rle[2].num_elements = 2;
+	voxmap_rle[2].elements = e2;
 
 	// camera
 	camera.draw_distance = REX_SCALAR(32);
@@ -899,24 +899,11 @@ void Voxel_RLE_Render(Rex::Surface *dst, rex_rect area)
 	rex_int horizon = camera.angles.x + (draw_h / 2);
 	rex_scalar height_scale = REX_SCALAR(160);
 
-	#ifdef FUCKING_YBUFFER
-	rex_int8 ybuff[draw_h];
-	#endif
-
 	// More efficient renderer?
 	for (s.x = area.x1; s.x < area.x2; s.x++)
 	{
 		rex_vec2s ray_dir, delta_dist, side_dist;
 		rex_vec2i step, map_pos;
-
-		#ifdef FUCKING_YBUFFER
-		// reset y buff
-		memset(&ybuff, -1, draw_h);
-		//for (i = 0; i < draw_h; i++)
-		//{
-		//	ybuff[i] = false;
-		//}
-		#endif
 
 		// map pos (int)
 		map_pos.x = RexScalarToInteger(p.x);
@@ -1043,41 +1030,6 @@ void Voxel_RLE_Render(Rex::Surface *dst, rex_rect area)
 
 					// gotta set a max height somewhere i guess
 					if (column_height < 0) break;
-
-					#ifdef FUCKING_YBUFFER
-
-					if (line_start < line_end)
-					{
-						for (i = line_start; i < line_end; i++)
-						{
-							if (ybuff[i] == -1)
-							{
-								Rex::SurfaceDrawPixel(dst, s.x, i, element.color);
-								ybuff[i] = 1;
-							}
-						}
-					}
-					else if (line_start > line_end)
-					{
-						for (i = line_end; i < line_start; i++)
-						{
-							if (ybuff[i] == -1)
-							{
-								Rex::SurfaceDrawPixel(dst, s.x, i, element.color);
-								ybuff[i] = 1;
-							}
-						}
-					}
-					else if (line_start == line_end)
-					{
-						if (ybuff[line_start] == -1)
-						{
-							Rex::SurfaceDrawPixel(dst, s.x, line_start, element.color);
-							ybuff[line_start] = 1;
-						}
-					}
-
-					#endif
 				}
 			}
 		}
