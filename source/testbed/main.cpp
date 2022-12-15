@@ -1013,18 +1013,29 @@ void Voxel_RLE_Render(Rex::Surface *dst, rex_rect area, camera_t cam)
 					line_start = RexScalarToInteger(REX_MUL(REX_DIV(height_delta1, dist), height_scale)) + horizon;
 					line_end = RexScalarToInteger(REX_MUL(REX_DIV(height_delta2, dist), height_scale)) + horizon;
 
-					line_start2 = RexScalarToInteger(REX_MUL(REX_DIV(height_delta1, dist2), height_scale)) + horizon;
-					line_end2 = RexScalarToInteger(REX_MUL(REX_DIV(height_delta2, dist2), height_scale)) + horizon;
+					// slab
+					{
+						if (dist2 > (CEIL(dist) + REX_SCALAR(1))) dist2 = (CEIL(dist) + REX_SCALAR(1));
+
+						line_start2 = RexScalarToInteger(REX_MUL(REX_DIV(height_delta1, dist2), height_scale)) + horizon;
+						line_end2 = RexScalarToInteger(REX_MUL(REX_DIV(height_delta2, dist2), height_scale)) + horizon;
+
+						line_start2 = CLAMP(line_start2, area.y1, area.y2);
+						line_end2 = CLAMP(line_end2, area.y1, area.y2);
+
+						Rex::SurfaceDrawVerticalLine(dst, s.x, line_start2, line_end2, element.slab_color);
+
+						//sprintf(console_buffer, "dist: %.4f dist2: %.4f", RexScalarToFloat(dist), RexScalarToFloat(dist2));
+						//Rex::ConsoleAddText(0, 2, console_buffer);
+						//sprintf(console_buffer, "ceil dist: %.4f", RexScalarToFloat(CEIL(dist)));
+						//Rex::ConsoleAddText(0, 3, console_buffer);
+					}
 
 					// clamp the line to the visible region
 					line_start = CLAMP(line_start, area.y1, area.y2);
 					line_end = CLAMP(line_end, area.y1, area.y2);
 
-					line_start2 = CLAMP(line_start2, area.y1, area.y2);
-					line_end2 = CLAMP(line_end2, area.y1, area.y2);
-
 					// draw the vertical lines
-					Rex::SurfaceDrawVerticalLine(dst, s.x, line_start2, line_end2, element.slab_color);
 					Rex::SurfaceDrawVerticalLine(dst, s.x, line_start, line_end, element.side_color);
 
 					// overall height of this column
