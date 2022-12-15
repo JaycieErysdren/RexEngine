@@ -827,19 +827,19 @@ void Voxel_RLE_Init()
 
 	// e1 - top voxel
 	e1[0].side_color = 15;
-	e1[0].slab_color = 0;
+	e1[0].slab_color = 11;
 	e1[0].skipped = 240;
 	e1[0].drawn = 1;
 
 	// e1 - bottom voxel
 	e1[1].side_color = 255;
-	e1[1].slab_color = 0;
+	e1[1].slab_color = 255;
 	e1[1].skipped = 4;
 	e1[1].drawn = 1;
 
 	// e1 - bottomer voxel
 	e1[2].side_color = 15;
-	e1[2].slab_color = 0;
+	e1[2].slab_color = 11;
 	e1[2].skipped = 0;
 	e1[2].drawn = 1;
 
@@ -849,18 +849,18 @@ void Voxel_RLE_Init()
 
 	// e2 - pillar
 	e2[0].side_color = 31;
-	e2[0].slab_color = 0;
+	e2[0].slab_color = 15;
 	e2[0].skipped = 240;
 	e2[0].drawn = 6;
 
-	e2[1].side_color = 0;
-	e2[1].slab_color = 0;
+	e2[1].side_color = 255;
+	e2[1].slab_color = 255;
 	e2[1].skipped = 0;
 	e2[1].drawn = 2;
 
 	// add e2 to array
-	voxmap_rle[2].num_elements = 2;
-	voxmap_rle[2].elements = e2;
+	//voxmap_rle[2].num_elements = 2;
+	//voxmap_rle[2].elements = e2;
 
 	// camera
 	camera.draw_distance = REX_SCALAR(32);
@@ -920,8 +920,8 @@ void Voxel_RLE_Render(Rex::Surface *dst, rex_rect area, camera_t cam)
 		ray_dir.y = REX_MUL(temp.x, sn) + REX_MUL(temp.y, cs);
 
 		// get delta of ray (prevent div by 0)
-		delta_dist.x = (ray_dir.x == 0) ? REX_SCALAR_MAX : ABS(REX_DIV(REX_SCALAR(1.0f), ray_dir.x));
-		delta_dist.y = (ray_dir.y == 0) ? REX_SCALAR_MAX : ABS(REX_DIV(REX_SCALAR(1.0f), ray_dir.y));
+		delta_dist.x = (ray_dir.x == 0) ? REX_SCALAR_MIN : ABS(REX_DIV(REX_SCALAR(1.0f), ray_dir.x));
+		delta_dist.y = (ray_dir.y == 0) ? REX_SCALAR_MIN : ABS(REX_DIV(REX_SCALAR(1.0f), ray_dir.y));
 
 		// calculate step and initial side_dist
 		if (ray_dir.x < 0)
@@ -948,7 +948,7 @@ void Voxel_RLE_Render(Rex::Surface *dst, rex_rect area, camera_t cam)
 
 		bool casting = true;
 		rex_int side;
-		rex_scalar dist;
+		rex_scalar dist, dist2;
 		rex_int r;
 
 		// perform DDA
@@ -969,9 +969,9 @@ void Voxel_RLE_Render(Rex::Surface *dst, rex_rect area, camera_t cam)
 
 			switch (side)
 			{
-				case 1: dist = (side_dist.x - delta_dist.x); break;
+				case 1: dist = (side_dist.x - delta_dist.x); dist2 = (side_dist.y); break;
 
-				case 2: dist = (side_dist.y - delta_dist.y); break;
+				case 2: dist = (side_dist.y - delta_dist.y); dist2 = (side_dist.x);  break;
 
 				default: break;
 			}
@@ -984,7 +984,7 @@ void Voxel_RLE_Render(Rex::Surface *dst, rex_rect area, camera_t cam)
 			if (map_pos.x > (VOXMAP_RLE_X - 1) || map_pos.x < 0) continue;
 			if (map_pos.y > (VOXMAP_RLE_Y - 1) || map_pos.y < 0) continue;
 
-			if (dist > REX_SCALAR(1))
+			if (dist > REX_SCALAR(1) && dist2 > REX_SCALAR(1))
 			{
 				voxel_rle_column_t column = voxmap_rle[(map_pos.y * VOXMAP_RLE_Y) + map_pos.x];
 
@@ -995,6 +995,7 @@ void Voxel_RLE_Render(Rex::Surface *dst, rex_rect area, camera_t cam)
 
 				rex_int line_height = 0;
 				rex_int line_start = 0, line_end = 0;
+				rex_int line_start2 = 0, line_end2 = 0;
 				rex_scalar height_delta1 = 0, height_delta2 = 0;
 
 				// draw the elements from top to bottom
@@ -1018,11 +1019,18 @@ void Voxel_RLE_Render(Rex::Surface *dst, rex_rect area, camera_t cam)
 					line_start = RexScalarToInteger(REX_MUL(REX_DIV(height_delta1, dist), height_scale)) + horizon;
 					line_end = RexScalarToInteger(REX_MUL(REX_DIV(height_delta2, dist), height_scale)) + horizon;
 
+					line_start2 = RexScalarToInteger(REX_MUL(REX_DIV(height_delta1, dist2), height_scale)) + horizon;
+					line_end2 = RexScalarToInteger(REX_MUL(REX_DIV(height_delta2, dist2), height_scale)) + horizon;
+
 					// clamp the line to the visible region
 					line_start = CLAMP(line_start, area.y1, area.y2);
 					line_end = CLAMP(line_end, area.y1, area.y2);
 
-					// draw the vertical line
+					line_start2 = CLAMP(line_start2, area.y1, area.y2);
+					line_end2 = CLAMP(line_end2, area.y1, area.y2);
+
+					// draw the vertical lines
+					Rex::SurfaceDrawVerticalLine(dst, s.x, line_start2, line_end2, element.slab_color);
 					Rex::SurfaceDrawVerticalLine(dst, s.x, line_start, line_end, element.side_color);
 
 					// overall height of this column
