@@ -83,20 +83,181 @@ char console_buffer[256];
 // V-ReX
 //
 
-void VReX_ImportHeightmap()
+// Allocate world pointermap
+void VReX_AllocateWorld()
+{
+	voxmap = (voxel_rle_column_t *)calloc(VOXMAP_RLE_X * VOXMAP_RLE_Y, sizeof(voxel_rle_column_t));
+}
+
+// VXL loader
+typedef struct { double x, y, z; } dpoint3d;
+dpoint3d ipos, istr, ihei, ifor;
+
+void setgeom(long x, long y, long z, long issolid)
+{
+
+}
+
+void setcol(long x, long y, long z, long argb)
+{
+
+}
+
+long loadvxl(string filnam)
+{
+	FILE *fil;
+	long i, x, y, z;
+	unsigned char *v, *vbuf;
+
+	fil = fopen(filnam.c_str(),"rb"); if (!fil) return(-1);
+	fread(&i,4,1,fil); //if (i != 0x09072000) return(-1);
+	fread(&i,4,1,fil); //if (i != 1024) return(-1);
+	fread(&i,4,1,fil); //if (i != 1024) return(-1);
+	fread(&ipos,24,1,fil); //camera position
+	fread(&istr,24,1,fil); //unit right vector
+	fread(&ihei,24,1,fil); //unit down vector
+	fread(&ifor,24,1,fil); //unit forward vector
+
+	//Allocate huge buffer and load rest of file into it...
+	long tmp = ftell(fil);
+
+	fseek(fil, 0L, SEEK_END);
+
+	i = ftell(fil) - tmp;
+
+	fseek(fil, tmp, SEEK_SET);
+
+	vbuf = (unsigned char *)malloc(i); if (!vbuf) { fclose(fil); return(-1); }
+	fread(vbuf,i,1,fil);
+	fclose(fil);
+
+	#ifdef MAKE_BOARD_SOLID
+
+	//Set entire board to solid
+	for(z = 0; z < 256; z++)
+	{
+		for(y = 0; y < 1024; y++)
+		{
+			for(x = 0; x < 1024; x++)
+			{
+				setgeom(x, y, z, 1);
+			}
+		}
+	}
+
+	#endif
+
+	v = vbuf;
+
+	for(y = 0; y < 1024; y++)
+	{
+		for(x = 0; x < 1024; x++)
+		{
+			z = 0;
+
+			voxel_rle_element_t *e = (voxel_rle_element_t *)calloc(1, sizeof(voxel_rle_element_t));
+
+			e->skipped = v[1];
+			e->drawn = 256 - v[1];
+			e->side_color = 31;
+			e->slab_color = 15;
+
+			voxmap[(y * VOXMAP_RLE_Y) + x].num_elements = 1;
+			voxmap[(y * VOXMAP_RLE_Y) + x].elements = e;
+
+			v += ((((long)v[2])-((long)v[1])+2)<<2);
+		}
+	}
+
+	free(vbuf);
+
+	return 1;
+}
+
+// KVX loader
+typedef struct
+{
+	rex_uint8 ztop;
+	rex_uint8 zleng;
+	rex_uint8 cullinfo;
+	rex_uint8 color;
+} slab_t;
+
+void VReX_LoadKVX(string filename)
 {
 	// Variables
 	rex_int x, y, i;
 
-	// allocate pointermap
-	voxmap = (voxel_rle_column_t *)calloc(VOXMAP_RLE_X * VOXMAP_RLE_Y, sizeof(voxel_rle_column_t));
+	FILE *kvx = fopen(filename.c_str(), "rb");
 
-	FILE *hei = fopen("voxel/m11.hei", "rb");
-	FILE *col = fopen("voxel/m11.col", "rb");
+	rex_uint32 num_bytes;
+	rex_uint32 xsize, ysize, zsize;
+	rex_uint32 xpivot, ypivot, zpivot;
 
-	for (y = 0; y < VOXMAP_RLE_Y; y++)
+	rex_uint32 *xoffset;
+	rex_uint16 *xyoffset;
+	rex_uint8 *voxdata;
+
+	rex_uint nummipmaplevels = 1;
+
+	for(i = 0; i < nummipmaplevels; i++)
 	{
-		for (x = 0; x < VOXMAP_RLE_X; x++)
+		fread(&num_bytes, sizeof(rex_uint32), 1, kvx);
+		fread(&xsize, sizeof(rex_uint32), 1, kvx);
+		fread(&ysize, sizeof(rex_uint32), 1, kvx);
+		fread(&zsize, sizeof(rex_uint32), 1, kvx);
+		fread(&xpivot, sizeof(rex_uint32), 1, kvx);
+		fread(&ypivot, sizeof(rex_uint32), 1, kvx);
+		fread(&zpivot, sizeof(rex_uint32), 1, kvx);
+
+		rex_uint len_xoffset = xsize + 1;
+		rex_uint len_xyoffset = xsize * (ysize + 1);
+		rex_uint len_voxdata = num_bytes - 24 - (xsize + 1) * 4 - xsize * (ysize + 1) * 2;
+
+		xoffset = (rex_uint32 *)calloc(len_xoffset, sizeof(rex_uint32));
+		xyoffset = (rex_uint16 *)calloc(len_xyoffset, sizeof(rex_uint16));
+		voxdata = (rex_uint8 *)calloc(len_voxdata, sizeof(rex_uint8));
+
+		fread(xoffset, sizeof(rex_uint32), len_xoffset, kvx);
+		fread(xyoffset, sizeof(rex_uint16), len_xyoffset, kvx);
+		fread(voxdata, sizeof(rex_uint8), len_voxdata, kvx);
+	}
+
+	slab_t *slab;
+
+	for (y = 0; y < ysize; y++)
+	{
+		for (x = 0; x < xsize; x++)
+		{
+			voxel_rle_element_t *e = (voxel_rle_element_t *)calloc(1, sizeof(voxel_rle_element_t));
+
+			slab_t *start = (slab_t *)&voxdata[xoffset[x] + xyoffset[(y * ysize) + x]];
+
+			e->skipped = start->ztop;
+			e->drawn = start->zleng;
+			e->slab_color = start->color;
+			e->side_color = start->color;
+
+			voxmap[(y * VOXMAP_RLE_Y) + x].num_elements = 1;
+			voxmap[(y * VOXMAP_RLE_Y) + x].elements = e;
+		}
+	}
+
+	fclose(kvx);
+}
+
+// Heightmap loader
+void VReX_LoadHeightmap(string filename_color, string filename_height, rex_int size_x, rex_int size_y)
+{
+	// Variables
+	rex_int x, y, i;
+
+	FILE *hei = fopen(filename_height.c_str(), "rb");
+	FILE *col = fopen(filename_color.c_str(), "rb");
+
+	for (y = 0; y < size_y; y++)
+	{
+		for (x = 0; x < size_x; x++)
 		{
 			voxel_rle_element_t *e = (voxel_rle_element_t *)calloc(1, sizeof(voxel_rle_element_t));
 
@@ -122,14 +283,19 @@ void VReX_Init()
 	Rex::SetGraphicsPalette("gfx/mindgrdn.pal");
 	Rex::ColormapLoad("gfx/mindgrdn.tab");
 
-	VReX_ImportHeightmap();
+	// allocate pointermap
+	VReX_AllocateWorld();
+
+	VReX_LoadHeightmap("voxel/m1c_mg.dat", "voxel/m1h.dat", 1024, 1024);
+	//VReX_LoadKVX("voxel/pawn.kvx");
+	//if (loadvxl("voxel/HaLongBabel.vxl") == -1) exit(1);
 
 	// camera
 	camera.draw_distance = REX_SCALAR(128);
 
-	camera.origin.x = REX_SCALAR(256);
-	camera.origin.y = REX_SCALAR(256);
-	camera.origin.z = REX_SCALAR(32);
+	camera.origin.x = REX_SCALAR(64);
+	camera.origin.y = REX_SCALAR(64);
+	camera.origin.z = REX_SCALAR(128);
 
 	camera.angles.x = 0;
 	camera.angles.y = 0;
@@ -146,7 +312,7 @@ void VReX_Shutdown()
 	if (ybuff) free(ybuff);
 }
 
-void VReX_Render(Rex::Surface *dst, rex_rect area, camera_t cam)
+void VReX_Render(Rex::Surface *dst, rex_rect area, camera_t cam, rex_scalar height_scale)
 {
 	// General variables
 	rex_int i;
@@ -167,7 +333,6 @@ void VReX_Render(Rex::Surface *dst, rex_rect area, camera_t cam)
 
 	// meh
 	rex_int horizon = -cam.angles.x + (draw_h / 2);
-	rex_scalar height_scale = REX_SCALAR(160);
 
 	// Draw left to right
 	for (s.x = area.x1; s.x < area.x2; s.x++)
@@ -262,7 +427,7 @@ void VReX_Render(Rex::Surface *dst, rex_rect area, camera_t cam)
 			{
 				voxel_rle_column_t column = voxmap[(map_pos.y * VOXMAP_RLE_Y) + map_pos.x];
 
-				rex_int column_height = 255;
+				rex_int column_height = 256;
 
 				rex_vec3s element_pos = {0, 0, 0};
 				rex_scalar element_height = 0;
@@ -573,7 +738,7 @@ int main(int argc, char *argv[])
 			//VolumetricRender(&pic_bbuffer, screen_area);
 
 			// Voxel RLE renderer
-			VReX_Render(&pic_bbuffer, screen_area, camera);
+			VReX_Render(&pic_bbuffer, screen_area, camera, REX_SCALAR(160));
 
 			#ifdef SPIVIS2_KC
 
