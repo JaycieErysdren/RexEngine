@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/rex/modules/core/io/mouse.cpp
+// FILE:			/source/rex/core/mathtabl.cpp
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -8,9 +8,9 @@
 //
 // LICENSE:			ACSL v1.4
 //
-// DESCRIPTION:		Rex namespace: Mouse implementation
+// DESCRIPTION:		Rex namespace: MathTable class
 //
-// LAST EDITED:		December 11th, 2022
+// LAST EDITED:		December 15th, 2022
 //
 // ========================================================
 
@@ -19,7 +19,7 @@
 
 //
 //
-// Rex namespace: Mouse
+// Rex namespace: MathTable class
 //
 //
 
@@ -31,10 +31,11 @@ namespace Rex
 // Functions
 //
 //
+
 // Class initializer
-MathTable::MathTable()
+void MathTable::Initialize()
 {
-	for (rex_int32 i = 0; i < 360; i++)
+	for (rex_int i = 0; i < 360; i++)
 	{
 		sin[i] = REX_SCALAR(std::sin(i / 180.0f * PI));
 		cos[i] = REX_SCALAR(std::cos(i / 180.0f * PI));

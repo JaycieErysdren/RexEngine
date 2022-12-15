@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Testbed program entry point
 //
-// LAST EDITED:		December 14th, 2022
+// LAST EDITED:		December 15th, 2022
 //
 // ========================================================
 
@@ -23,24 +23,194 @@
 // Types
 //
 
-// Math tables
-typedef struct
-{
-	rex_scalar cos[360];
-	rex_scalar sin[360];
-	rex_scalar tan[360];
-} math_t;
+//==========================================================================
+//
+// Voxel RLE element
+//
 
-// Camera
-typedef struct
+// Class definition
+class VoxelElement
 {
-	rex_vec3s origin;				// X, Y, Z
-	rex_vec3s velocity;				// X, Y, Z
-	rex_vec3i angles;				// Pitch, yaw, roll
-	rex_scalar draw_distance;		// Draw distance (scalar units)
-	rex_int32 movespeedkey;
-	rex_int32 anglespeedkey;
-} camera_t;
+	public:
+
+		//
+		// Variables
+		//
+
+		// Number of air voxels above the drawn voxels
+		rex_uint8 skipped;
+
+		// Number of drawn voxels
+		rex_uint8 drawn;
+
+		// Side color
+		rex_color color_side;
+
+		// Top color
+		rex_color color_top;
+
+		// Bottom color
+		rex_color color_bottom;
+
+		//
+		// Functions
+		//
+
+		// Constructor
+		VoxelElement();
+
+		// Constructor with variables
+		VoxelElement(rex_uint8 skipped_voxels, rex_uint8 drawn_voxels, rex_color side_color, rex_color top_color, rex_color bottom_color);
+};
+
+// Constructor
+VoxelElement::VoxelElement()
+{
+
+}
+
+// Constructor with variables
+VoxelElement::VoxelElement(rex_uint8 skipped_voxels, rex_uint8 drawn_voxels, rex_color side_color, rex_color top_color, rex_color bottom_color)
+{
+	skipped = skipped_voxels;
+	drawn = drawn_voxels;
+	color_side = side_color;
+	color_top = top_color;
+	color_bottom = bottom_color;
+}
+
+//
+//
+//
+//==========================================================================
+
+//==========================================================================
+//
+// Voxel Column
+//
+
+// Class definition
+class VoxelColumn
+{
+	public:
+		vector<VoxelElement> elements;
+};
+
+//
+//
+//
+//==========================================================================
+
+//==========================================================================
+//
+// Voxel World
+//
+
+// Class definition
+class VoxelWorld
+{
+	public:
+
+		//
+		// Variables
+		//
+
+		// World name
+		rex_string name;
+
+		// World dimensions (x, y, z)
+		rex_vec3i size;
+
+		// Array of world columns (x * y)
+		vector<VoxelColumn> columns;
+
+		//
+		// Functions
+		//
+
+		// Constructor with default size
+		VoxelWorld();
+
+		// Constructor with size & name declaration
+		VoxelWorld(string world_name, rex_int size_x, rex_int size_y, rex_int size_z);
+
+		// Constructor to load from file
+		VoxelWorld(string filename);
+
+		// Add an element at the specificed column coordinate
+		void AddElement(rex_int x, rex_int y, VoxelElement element);
+
+	private:
+
+		//
+		// Functions
+		//
+
+		// Fill up the columns array
+		void AddColumns();
+};
+
+// Constructor with default size
+VoxelWorld::VoxelWorld()
+{
+	// Set world dimensions to defaults
+	size.x = 1024;
+	size.y = 1024;
+	size.z = 256;
+
+	// Fill up the columns array
+	AddColumns();
+}
+
+// Constructor with size declaration
+VoxelWorld::VoxelWorld(string world_name, rex_int size_x, rex_int size_y, rex_int size_z)
+{
+	// Set world dimensions
+	size.x = size_x;
+	size.y = size_y;
+	size.z = size_z;
+
+	// Set world name
+	name = world_name;
+
+	// Fill up the columns array
+	AddColumns();
+}
+
+// Constructor to load from file
+VoxelWorld::VoxelWorld(string filename)
+{
+	// open file
+	FILE *file = fopen(filename.c_str(), "rb");
+	if (file == NULL) return;
+
+	// close file
+	fclose(file);
+}
+
+// Add an element at the specificed column coordinate
+void VoxelWorld::AddElement(rex_int x, rex_int y, VoxelElement element)
+{
+	columns[(y * size.y) + x].elements.push_back(element);
+}
+
+// Fill up the columns array
+void VoxelWorld::AddColumns()
+{
+	for (rex_int y = 0; y < size.y; y++)
+	{
+		for (rex_int x = 0; x < size.x; x++)
+		{
+			VoxelColumn column;
+			columns.push_back(column);
+		}
+	}
+}
+
+//
+//
+//
+//==========================================================================
 
 // Voxel RLE element
 typedef struct
@@ -51,12 +221,20 @@ typedef struct
 	rex_uint8 slab_color;
 } voxel_rle_element_t;
 
-// Voxel RLE column
+// Voxel column
 typedef struct
 {
-	int16_t num_elements;
+	rex_int32 num_elements;
 	voxel_rle_element_t *elements;
-} voxel_rle_column_t;
+} voxel_column_t;
+
+// Voxel world
+typedef struct
+{
+	rex_string name;
+	rex_vec3i size;
+	voxel_column_t *columns;
+} voxel_world_t;
 
 //
 // Globals
@@ -67,14 +245,14 @@ typedef struct
 #define VOXMAP_RLE_Z 256
 
 // V-ReX
-voxel_rle_column_t *voxmap;
+voxel_column_t *voxmap;
 rex_uint8 *ybuff;
 
 // Camera
-camera_t camera;
+Rex::Camera camera;
 
 // Math tables
-math_t math;
+Rex::MathTable math;
 
 // Console buffer
 char console_buffer[256];
@@ -86,7 +264,7 @@ char console_buffer[256];
 // Allocate world pointermap
 void VReX_AllocateWorld()
 {
-	voxmap = (voxel_rle_column_t *)calloc(VOXMAP_RLE_X * VOXMAP_RLE_Y, sizeof(voxel_rle_column_t));
+	voxmap = (voxel_column_t *)calloc(VOXMAP_RLE_X * VOXMAP_RLE_Y, sizeof(voxel_column_t));
 }
 
 rex_uint8 *geobuffer;
@@ -490,13 +668,9 @@ void VReX_Init()
 	VReX_AllocateWorld();
 
 	//VReX_LoadKV6("voxel/block.kv6");
-
 	VReX_GenerateHeightmap();
-
 	//VReX_LoadHeightmap("voxel/m11.col", "voxel/m11.hei", 1024, 1024);
 	//VReX_LoadKVX("voxel/desklamp.kvx");
-	//if (loadvxl("voxel/untitled.vxl") == -1) exit(1);
-
 	//VReX_LoadVXL("voxel/babel.vxl", true);
 
 	// camera
@@ -521,7 +695,7 @@ void VReX_Shutdown()
 	if (ybuff) free(ybuff);
 }
 
-void VReX_Render(Rex::Surface *dst, rex_rect area, camera_t cam, rex_scalar height_scale)
+void VReX_Render(Rex::Surface *dst, rex_rect area, Rex::Camera cam, rex_scalar height_scale)
 {
 	// General variables
 	rex_int i;
@@ -634,7 +808,7 @@ void VReX_Render(Rex::Surface *dst, rex_rect area, camera_t cam, rex_scalar heig
 
 			if (dist > REX_SCALAR(1) && dist2 > REX_SCALAR(1))
 			{
-				voxel_rle_column_t column = voxmap[(map_pos.y * VOXMAP_RLE_Y) + map_pos.x];
+				voxel_column_t column = voxmap[(map_pos.y * VOXMAP_RLE_Y) + map_pos.x];
 
 				rex_int column_height = 256;
 
@@ -711,7 +885,7 @@ void VReX_Render(Rex::Surface *dst, rex_rect area, camera_t cam, rex_scalar heig
 					column_height -= (element.skipped + element.drawn);
 
 					// gotta set a max height somewhere i guess
-					if (column_height < -1) break;
+					if (column_height < 0) break;
 				}
 			}
 		}
@@ -741,7 +915,7 @@ void CameraController()
 	// Reset pitch
 	if (mb == 3)
 		camera.angles.x = 0;
-	
+
 	camera.anglespeedkey = 2;
 
 	// Keyboard look
@@ -825,7 +999,7 @@ void ReadMouse(rex_int32 *buttons, rex_vec2i *pos, rex_int32 speedlimit, rex_rec
 	rex_int32 halfx = 160, halfy = 100;
 
 	Rex::MouseRead(&mb, &mx, &my);
-	
+
 	dmx = mx - halfx;
 	dmy = my - halfy;
 
@@ -881,12 +1055,7 @@ int main(int argc, char *argv[])
 	Rex::SurfaceCreate(&pic_bbuffer, vidinfo.width, vidinfo.height, vidinfo.bpp, 0, 0);
 
 	// Generate math table
-	for (i = 0; i < 360; i++)
-	{
-		math.sin[i] = REX_SCALAR(sin(i / 180.0f * PI));
-		math.cos[i] = REX_SCALAR(cos(i / 180.0f * PI));
-		math.tan[i] = REX_SCALAR(tan(i / 180.0f * PI));
-	}
+	math.Initialize();
 
 	// V-ReX init
 	VReX_Init();
@@ -943,7 +1112,7 @@ int main(int argc, char *argv[])
 			rex_vec3f ph = {(float)(pic_bbuffer.width / 2), (float)(pic_bbuffer.height / 2), (float)(pic_bbuffer.width / 2)};
 
 			VoxelRender2(&pic_bbuffer, screen_area, pp, pr, pd, pf, ph);
-		
+
 			#endif
 		}
 

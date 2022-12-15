@@ -10,7 +10,7 @@
 ##
 ## DESCRIPTION:		Rex Engine CMake project definition
 ##
-## LAST EDITED:		December 11th, 2022
+## LAST EDITED:		December 15th, 2022
 ##
 ## ========================================================
 
@@ -114,6 +114,7 @@ include_directories(.)
 
 set(REX_CORE_SRC
 	core/bootstrap.cpp
+	core/camera.cpp
 	core/clock.cpp
 	core/console.cpp
 	core/graphics.cpp

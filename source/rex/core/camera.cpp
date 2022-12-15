@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/rex/core/mathtabl.hpp
+// FILE:			/source/rex/core/camera.cpp
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -8,30 +8,28 @@
 //
 // LICENSE:			ACSL v1.4
 //
-// DESCRIPTION:		MathTable class header
+// DESCRIPTION:		Rex namespace: Camera implementation
 //
 // LAST EDITED:		December 15th, 2022
 //
 // ========================================================
 
+// Rex Engine private header
+#include "rex_priv.hpp"
+
 //
 //
-// MathTable class
+// Rex namespace: Camera
 //
 //
 
 namespace Rex
 {
 
-class MathTable
-{
-	public:
-		rex_scalar cos[360];
-		rex_scalar sin[360];
-		rex_scalar tan[360];
-
-		// Initializer
-		void Initialize();
-};
+//
+//
+// Classes
+//
+//
 
 } // namespace Rex

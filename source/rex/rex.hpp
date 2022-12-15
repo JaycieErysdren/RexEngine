@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex Engine public header
 //
-// LAST EDITED:		December 11th, 2022
+// LAST EDITED:		December 15th, 2022
 //
 // ========================================================
 
@@ -119,5 +119,8 @@ using namespace std;
 
 // Console
 #include "core/console.hpp"
+
+// Camera
+#include "core/camera.hpp"
 
 #endif // __REX_ENGINE_H__
