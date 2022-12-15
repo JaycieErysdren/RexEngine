@@ -93,8 +93,27 @@ VoxelElement::VoxelElement(rex_uint8 skipped_voxels, rex_uint8 drawn_voxels, rex
 class VoxelColumn
 {
 	public:
+
+		//
+		// Variables
+		//
+
+		// Array of RLE elemnts
 		vector<VoxelElement> elements;
+
+		//
+		// Functions
+		//
+
+		// Add an element to the array
+		void AddElement(VoxelElement element);
 };
+
+// Add an element to the array
+void VoxelColumn::AddElement(VoxelElement element)
+{
+	elements.push_back(element);
+}
 
 //
 //
@@ -191,7 +210,7 @@ VoxelWorld::VoxelWorld(string filename)
 // Add an element at the specificed column coordinate
 void VoxelWorld::AddElement(rex_int x, rex_int y, VoxelElement element)
 {
-	columns[(y * size.y) + x].elements.push_back(element);
+	columns[(y * size.y) + x].AddElement(element);
 }
 
 // Fill up the columns array
