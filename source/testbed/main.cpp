@@ -89,6 +89,174 @@ void VReX_AllocateWorld()
 	voxmap = (voxel_rle_column_t *)calloc(VOXMAP_RLE_X * VOXMAP_RLE_Y, sizeof(voxel_rle_column_t));
 }
 
+rex_uint8 *geobuffer;
+rex_uint8 *colbuffer;
+
+void setgeom(rex_int32 x, rex_int32 y, rex_int32 z, rex_int32 is_solid)
+{
+	geobuffer[(z * 64) + (y * 512) + x] = (rex_uint8)(is_solid);
+}
+
+void setcolor(rex_int32 x, rex_int32 y, rex_int32 z, rex_int32 color)
+{
+	colbuffer[(z * 64) + (y * 512) + x] = (rex_uint8)(color);
+}
+
+void buffers_to_vrex()
+{
+	// variables
+	rex_int x = 0, y = 0, z = 0, i = 0;
+
+	// father, i require loupes
+	for (y = 0; y < 512; y++)
+	{
+		for (x = 0; x < 512; x++)
+		{
+			bool generating = true;
+
+			// generate elements for this column
+			while (generating == true)
+			{
+				rex_int skipped = 0;
+				rex_int drawn = 0;
+				voxel_rle_element_t *e;
+
+				// determine air run
+				while (geobuffer[(z * 64) + (y * 512) + x] == 0)
+				{
+					skipped++;
+					z++;
+
+					if (z > 63) break;
+				}
+
+				// determine drawn run
+				while (geobuffer[(z * 64) + (y * 512) + x] == 1)
+				{
+					drawn++;
+					z++;
+
+					if (z > 63) break;
+				}
+			}
+		}
+	}
+}
+
+// VXL loader
+void VReX_LoadVXL(string filename, bool aos)
+{
+	// General variables
+	rex_int x, y, z, i;
+	rex_int file_len;
+	rex_uint8 *file_buffer;
+	rex_uint8 *v, *v_base;
+	FILE *file;
+
+	// tell the user we're doing something
+	printf("loading...\n");
+
+	if (aos == true)
+	{
+		// open file
+		file = fopen(filename.c_str(), "rb");
+		if (file == NULL) return;
+
+		// seek to end
+		fseek(file, 0L, SEEK_END);
+
+		// get file size
+		file_len = ftell(file);
+
+		// seek to start
+		fseek(file, 0L, SEEK_SET);
+
+		// allocate memory for file buffer
+		file_buffer = (rex_uint8 *)calloc(1, file_len);
+
+		// read in file data
+		fread(file_buffer, file_len, 1, file);
+
+		// close file
+		fclose(file);
+
+		// allocate temporary buffers
+		geobuffer = (rex_uint8 *)calloc(1, 512 * 512 * 64);
+		colbuffer = (rex_uint8 *)calloc(1, 512 * 512 * 64);
+
+		v_base = file_buffer;
+		v = file_buffer;
+
+		for (y = 0; y < 512; y++)
+		{
+			for (x = 0; x < 512; x++)
+			{
+				for (z = 0; z < 64; z++)
+				{
+					setgeom(x, y, z, 1);
+				}
+
+				z = 0;
+				for(;;)
+				{
+					rex_uint32 *color;
+					int i;
+					int number_4byte_chunks = v[0];
+					int top_color_start = v[1];
+					int top_color_end  = v[2]; // inclusive
+					int bottom_color_start;
+					int bottom_color_end; // exclusive
+					int len_top;
+					int len_bottom;
+
+					for(i=z; i < top_color_start; i++)
+					{
+						setgeom(x, y, i, 0);
+					}
+
+					color = (rex_uint32 *)(v+4);
+
+					for(z=top_color_start; z <= top_color_end; z++)
+					{
+						setcolor(x, y, z, *color++);
+					}
+
+					len_bottom = top_color_end - top_color_start + 1;
+
+					// check for end of data marker
+					if (number_4byte_chunks == 0)
+					{
+						// infer ACTUAL number of 4-byte chunks from the length of the color data
+						v += 4 * (len_bottom + 1);
+						break;
+					}
+
+					// infer the number of bottom colors in next span from chunk length
+					len_top = (number_4byte_chunks-1) - len_bottom;
+
+					// now skip the v pointer past the data to the beginning of the next span
+					v += v[0]*4;
+
+					bottom_color_end  = v[3]; // aka air start
+					bottom_color_start = bottom_color_end - len_top;
+
+					for (z = bottom_color_start; z < bottom_color_end; z++)
+					{
+						setcolor(x, y, z, *color++);
+					}
+				}
+			}
+		}
+
+		buffers_to_vrex();
+
+		// free memory
+		if (file_buffer) free(file_buffer);
+		if (geobuffer) free(geobuffer);
+		if (colbuffer) free(colbuffer);
+	}
+}
+
 // KV6 loader
 void VReX_LoadKV6(string filename)
 {
@@ -284,9 +452,11 @@ void VReX_Init()
 
 	//VReX_LoadKV6("voxel/block.kv6");
 
-	//VReX_LoadHeightmap("voxel/m1c_mg.dat", "voxel/m1h.dat", 1024, 1024);
-	VReX_LoadKVX("voxel/desklamp.kvx");
+	VReX_LoadHeightmap("voxel/m11.col", "voxel/m11.hei", 1024, 1024);
+	//VReX_LoadKVX("voxel/desklamp.kvx");
 	//if (loadvxl("voxel/untitled.vxl") == -1) exit(1);
+
+	//VReX_LoadVXL("voxel/babel.vxl", true);
 
 	// camera
 	camera.draw_distance = REX_SCALAR(128);
@@ -408,7 +578,7 @@ void VReX_Render(Rex::Surface *dst, rex_rect area, camera_t cam, rex_scalar heig
 			{
 				case 1: dist = side_dist.x - delta_dist.x; dist2 = side_dist.y; break;
 
-				case 2: dist = side_dist.y - delta_dist.y; dist2 = side_dist.x;  break;
+				case 2: dist = side_dist.y - delta_dist.y; dist2 = side_dist.x; break;
 
 				default: break;
 			}
