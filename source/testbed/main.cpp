@@ -408,6 +408,45 @@ void VReX_LoadKVX(string filename)
 	fclose(file);
 }
 
+// Heightmap generator
+void VReX_GenerateHeightmap()
+{
+	rex_int x, y;
+
+	for (y = 0; y < 64; y++)
+	{
+		for (x = 0; x < 64; x++)
+		{
+			rex_int d1 = ((x & 31) - 16);
+			rex_int d2 = ((y & 31) - 16);
+			rex_int d = (15 * 15) - (d1 * d1) - (d2 * d2);
+			rex_int hei;
+			rex_uint8 col;
+
+			if (d > 0 && ((x ^ y) & 32))
+			{
+				hei = 64 + sqrt(d);
+				col = (x + y) * 0.5f;
+			}
+			else
+			{
+				hei = 64;
+				col = (cos(x * 0.2f) + sin(y * 0.3f)) * 3 + 88;
+			}
+
+			voxel_rle_element_t *e = (voxel_rle_element_t *)calloc(1, sizeof(voxel_rle_element_t));
+
+			e->drawn = hei;
+			e->skipped = 256 - hei;
+			e->side_color = col;
+			e->slab_color = col;
+
+			voxmap[(y * VOXMAP_RLE_Y) + x].num_elements = 1;
+			voxmap[(y * VOXMAP_RLE_Y) + x].elements = e;
+		}
+	}
+}
+
 // Heightmap loader
 void VReX_LoadHeightmap(string filename_color, string filename_height, rex_int size_x, rex_int size_y)
 {
@@ -452,7 +491,9 @@ void VReX_Init()
 
 	//VReX_LoadKV6("voxel/block.kv6");
 
-	VReX_LoadHeightmap("voxel/m11.col", "voxel/m11.hei", 1024, 1024);
+	VReX_GenerateHeightmap();
+
+	//VReX_LoadHeightmap("voxel/m11.col", "voxel/m11.hei", 1024, 1024);
 	//VReX_LoadKVX("voxel/desklamp.kvx");
 	//if (loadvxl("voxel/untitled.vxl") == -1) exit(1);
 
@@ -670,7 +711,7 @@ void VReX_Render(Rex::Surface *dst, rex_rect area, camera_t cam, rex_scalar heig
 					column_height -= (element.skipped + element.drawn);
 
 					// gotta set a max height somewhere i guess
-					if (column_height < 0) break;
+					if (column_height < -1) break;
 				}
 			}
 		}
