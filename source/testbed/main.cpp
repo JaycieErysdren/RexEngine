@@ -89,89 +89,81 @@ void VReX_AllocateWorld()
 	voxmap = (voxel_rle_column_t *)calloc(VOXMAP_RLE_X * VOXMAP_RLE_Y, sizeof(voxel_rle_column_t));
 }
 
-// VXL loader
-typedef struct { double x, y, z; } dpoint3d;
-dpoint3d ipos, istr, ihei, ifor;
-
-void setgeom(long x, long y, long z, long issolid)
+// KV6 loader
+void VReX_LoadKV6(string filename)
 {
+	// General variables
+	rex_int x, y, i;
+	FILE *kv6;
 
-}
+	// KV6 variables
+	char kv6_magic[5] = "Kvxl";
+	char magic[4];
+	rex_int32 xsize, ysize, zsize;
+	rex_int32 num_surface_voxels;
 
-void setcol(long x, long y, long z, long argb)
-{
+	// open the file
+	kv6 = fopen(filename.c_str(), "rb");
+	if (kv6 == NULL) return;
 
-}
+	// read in magic
+	fread(&magic, sizeof(rex_uint8), 4, kv6);
 
-long loadvxl(string filnam)
-{
-	FILE *fil;
-	long i, x, y, z;
-	unsigned char *v, *vbuf;
+	// compare magic
+	if (memcmp(kv6_magic, magic, 4) != 0) return;
 
-	fil = fopen(filnam.c_str(),"rb"); if (!fil) return(-1);
-	fread(&i,4,1,fil); //if (i != 0x09072000) return(-1);
-	fread(&i,4,1,fil); //if (i != 1024) return(-1);
-	fread(&i,4,1,fil); //if (i != 1024) return(-1);
-	fread(&ipos,24,1,fil); //camera position
-	fread(&istr,24,1,fil); //unit right vector
-	fread(&ihei,24,1,fil); //unit down vector
-	fread(&ifor,24,1,fil); //unit forward vector
+	// read in size vlaues
+	fread(&xsize, sizeof(rex_int32), 1, kv6);
+	fread(&ysize, sizeof(rex_int32), 1, kv6);
+	fread(&zsize, sizeof(rex_int32), 1, kv6);
 
-	//Allocate huge buffer and load rest of file into it...
-	long tmp = ftell(fil);
+	// skip the pivot, we don't need it
+	fseek(kv6, 12, SEEK_CUR);
 
-	fseek(fil, 0L, SEEK_END);
+	// get number of surface voxels
+	fread(&num_surface_voxels, sizeof(rex_int32), 1, kv6);
 
-	i = ftell(fil) - tmp;
+	// skip the surface voxels
+	fseek(kv6, num_surface_voxels * 8, SEEK_CUR);
 
-	fseek(fil, tmp, SEEK_SET);
+	// read in the x plane info
+	rex_uint32 xlen[xsize];
 
-	vbuf = (unsigned char *)malloc(i); if (!vbuf) { fclose(fil); return(-1); }
-	fread(vbuf,i,1,fil);
-	fclose(fil);
-
-	#ifdef MAKE_BOARD_SOLID
-
-	//Set entire board to solid
-	for(z = 0; z < 256; z++)
+	for(x = 0; x < xsize; x++)
 	{
-		for(y = 0; y < 1024; y++)
+		fread(&xlen[x], sizeof(rex_uint32), 1, kv6);
+	}
+
+	// read in x,y column information
+	rex_uint16 ylen[xsize][ysize];
+
+	for(x = 0; x < xsize; x++)
+	{
+		for(y = 0; y < ysize; y++)
 		{
-			for(x = 0; x < 1024; x++)
-			{
-				setgeom(x, y, z, 1);
-			}
+			fread(&ylen[x][y], sizeof(rex_uint16), 1, kv6);
 		}
 	}
 
-	#endif
-
-	v = vbuf;
-
-	for(y = 0; y < 1024; y++)
+	// create columns
+	for(x = 0; x < xsize; x++)
 	{
-		for(x = 0; x < 1024; x++)
+		for(y = 0; y < ysize; y++)
 		{
-			z = 0;
-
 			voxel_rle_element_t *e = (voxel_rle_element_t *)calloc(1, sizeof(voxel_rle_element_t));
 
-			e->skipped = v[1];
-			e->drawn = 256 - v[1];
+			e->skipped = 0;
+			e->drawn = ylen[x][y];
 			e->side_color = 31;
 			e->slab_color = 15;
 
-			voxmap[(y * VOXMAP_RLE_Y) + x].num_elements = 1;
 			voxmap[(y * VOXMAP_RLE_Y) + x].elements = e;
-
-			v += ((((long)v[2])-((long)v[1])+2)<<2);
+			voxmap[(y * VOXMAP_RLE_Y) + x].num_elements = 1;
 		}
 	}
 
-	free(vbuf);
-
-	return 1;
+	// close the file
+	fclose(kv6);
 }
 
 // KVX loader
@@ -252,6 +244,8 @@ void VReX_LoadHeightmap(string filename_color, string filename_height, rex_int s
 	// Variables
 	rex_int x, y, i;
 
+	printf("loading...\n");
+
 	FILE *hei = fopen(filename_height.c_str(), "rb");
 	FILE *col = fopen(filename_color.c_str(), "rb");
 
@@ -286,16 +280,18 @@ void VReX_Init()
 	// allocate pointermap
 	VReX_AllocateWorld();
 
+	//VReX_LoadKV6("voxel/block.kv6");
+
 	VReX_LoadHeightmap("voxel/m1c_mg.dat", "voxel/m1h.dat", 1024, 1024);
 	//VReX_LoadKVX("voxel/pawn.kvx");
-	//if (loadvxl("voxel/HaLongBabel.vxl") == -1) exit(1);
+	//if (loadvxl("voxel/untitled.vxl") == -1) exit(1);
 
 	// camera
 	camera.draw_distance = REX_SCALAR(128);
 
-	camera.origin.x = REX_SCALAR(64);
-	camera.origin.y = REX_SCALAR(64);
-	camera.origin.z = REX_SCALAR(128);
+	camera.origin.x = REX_SCALAR(0);
+	camera.origin.y = REX_SCALAR(0);
+	camera.origin.z = REX_SCALAR(255);
 
 	camera.angles.x = 0;
 	camera.angles.y = 0;
@@ -408,9 +404,9 @@ void VReX_Render(Rex::Surface *dst, rex_rect area, camera_t cam, rex_scalar heig
 
 			switch (side)
 			{
-				case 1: dist = (side_dist.x - delta_dist.x); dist2 = (side_dist.y); break;
+				case 1: dist = side_dist.x - delta_dist.x; dist2 = side_dist.y; break;
 
-				case 2: dist = (side_dist.y - delta_dist.y); dist2 = (side_dist.x);  break;
+				case 2: dist = side_dist.y - delta_dist.y; dist2 = side_dist.x;  break;
 
 				default: break;
 			}
@@ -680,12 +676,6 @@ int main(int argc, char *argv[])
 	}
 
 	// V-ReX init
-	//VReXInit();
-
-	// Initialize voxel stuff
-	//VoxelInit(vidinfo.width);
-
-	// Initialize Voxel RLE
 	VReX_Init();
 
 	// Start counting time
@@ -729,15 +719,6 @@ int main(int argc, char *argv[])
 			//rex_vec3i voxmap_dim = {32, 32, 32};
 
 			// V-ReX renderer
-			//VReXRender(&pic_bbuffer, screen_area);
-
-			// Voxel renderer
-			//VoxelRenderWrapper(&pic_bbuffer, screen_area);
-
-			// Volumetric renderer
-			//VolumetricRender(&pic_bbuffer, screen_area);
-
-			// Voxel RLE renderer
 			VReX_Render(&pic_bbuffer, screen_area, camera, REX_SCALAR(160));
 
 			#ifdef SPIVIS2_KC
