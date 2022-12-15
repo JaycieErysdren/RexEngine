@@ -828,12 +828,12 @@ void Voxel_RLE_ImportHeightmap()
 	// allocate pointermap
 	voxmap_rle = (voxel_rle_column_t *)calloc(VOXMAP_RLE_X * VOXMAP_RLE_Y, sizeof(voxel_rle_column_t));
 
-	FILE *hei = fopen("voxel/m1h.dat", "rb");
-	FILE *col = fopen("voxel/m1c_mg.dat", "rb");
+	FILE *hei = fopen("voxel/m11.hei", "rb");
+	FILE *col = fopen("voxel/m11.col", "rb");
 
-	for (y = 0; y < 1024; y++)
+	for (y = 0; y < VOXMAP_RLE_Y; y++)
 	{
-		for (x = 0; x < 1024; x++)
+		for (x = 0; x < VOXMAP_RLE_X; x++)
 		{
 			voxel_rle_element_t *e = (voxel_rle_element_t *)calloc(1, sizeof(voxel_rle_element_t));
 
@@ -861,53 +861,12 @@ void Voxel_RLE_Init()
 
 	Voxel_RLE_ImportHeightmap();
 
-	#ifdef CODED_MAP
-
-	// RLE map
-	voxmap_rle = (voxel_rle_column_t *)calloc(VOXMAP_RLE_X * VOXMAP_RLE_Y, sizeof(voxel_rle_column_t));
-
-	voxel_rle_element_t *e1 = (voxel_rle_element_t *)calloc(2, sizeof(voxel_rle_element_t));
-	voxel_rle_element_t *e2 = (voxel_rle_element_t *)calloc(2, sizeof(voxel_rle_element_t));
-
-	// e1 - top voxel
-	e1[0].side_color = 15;
-	e1[0].slab_color = 11;
-	e1[0].skipped = 240;
-	e1[0].drawn = 1;
-
-	// e1 - bottom voxel
-	e1[1].side_color = 255;
-	e1[1].slab_color = 11;
-	e1[1].skipped = 4;
-	e1[1].drawn = 1;
-
-	// add e1 to array
-	voxmap_rle[0].num_elements = 2;
-	voxmap_rle[0].elements = e1;
-
-	// e2 - pillar
-	e2[0].side_color = 31;
-	e2[0].slab_color = 11;
-	e2[0].skipped = 240;
-	e2[0].drawn = 6;
-
-	e2[1].side_color = 255;
-	e2[1].slab_color = 11;
-	e2[1].skipped = 0;
-	e2[1].drawn = 2;
-
-	// add e2 to array
-	voxmap_rle[2].num_elements = 2;
-	voxmap_rle[2].elements = e2;
-
-	#endif
-
 	// camera
 	camera.draw_distance = REX_SCALAR(128);
 
-	camera.origin.x = REX_SCALAR(512);
-	camera.origin.y = REX_SCALAR(512);
-	camera.origin.z = REX_SCALAR(255);
+	camera.origin.x = REX_SCALAR(256);
+	camera.origin.y = REX_SCALAR(256);
+	camera.origin.z = REX_SCALAR(32);
 
 	camera.angles.x = 0;
 	camera.angles.y = 0;
@@ -1080,7 +1039,9 @@ void Voxel_RLE_Render(Rex::Surface *dst, rex_rect area, camera_t cam)
 					{
 						if (ybuff[s.y] == 0)
 						{
-							Rex::SurfaceDrawPixel(dst, s.x, s.y, element.side_color);
+							rex_uint8 c = element.side_color;
+							//c = Rex::ColormapLookup(c, RexScalarToInteger(dist));
+							Rex::SurfaceDrawPixel(dst, s.x, s.y, c);
 							ybuff[s.y] = 1;
 						}
 					}
@@ -1101,7 +1062,9 @@ void Voxel_RLE_Render(Rex::Surface *dst, rex_rect area, camera_t cam)
 						{
 							if (ybuff[s.y] == 0)
 							{
-								Rex::SurfaceDrawPixel(dst, s.x, s.y, element.slab_color);
+								rex_uint8 c = element.slab_color;
+								//c = Rex::ColormapLookup(c, RexScalarToInteger(dist));
+								Rex::SurfaceDrawPixel(dst, s.x, s.y, c);
 								ybuff[s.y] = 1;
 							}
 						}
