@@ -65,9 +65,9 @@ typedef struct
 	voxel_rle_element_t *elements;
 } voxel_rle_column_t;
 
-#define VOXMAP_RLE_X 2
-#define VOXMAP_RLE_Y 2
-#define VOXMAP_RLE_Z 8
+#define VOXMAP_RLE_X 1024
+#define VOXMAP_RLE_Y 1024
+#define VOXMAP_RLE_Z 256
 
 // 2D array of column pointers
 voxel_rle_column_t *voxmap_rle;
@@ -94,6 +94,9 @@ uint8_t *f_heightmap;
 uint8_t *f_colormap;
 uint8_t *c_heightmap;
 uint8_t *c_colormap;
+
+// Voxel RLE
+rex_uint8 *ybuff;
 
 // Camera
 camera_t camera;
@@ -817,8 +820,49 @@ void VolumetricRender(Rex::Surface *dst, rex_rect area)
 	}
 }
 
+void Voxel_RLE_ImportHeightmap()
+{
+	// Variables
+	rex_int x, y, i;
+
+	// allocate pointermap
+	voxmap_rle = (voxel_rle_column_t *)calloc(VOXMAP_RLE_X * VOXMAP_RLE_Y, sizeof(voxel_rle_column_t));
+
+	FILE *hei = fopen("voxel/m1h.dat", "rb");
+	FILE *col = fopen("voxel/m1c_mg.dat", "rb");
+
+	for (y = 0; y < 1024; y++)
+	{
+		for (x = 0; x < 1024; x++)
+		{
+			voxel_rle_element_t *e = (voxel_rle_element_t *)calloc(1, sizeof(voxel_rle_element_t));
+
+			rex_uint8 height = fgetc(hei);
+			rex_uint8 color = fgetc(col);
+
+			e->drawn = height;
+			e->skipped = 255 - height;
+			e->slab_color = color;
+			e->side_color = color - 2;
+
+			voxmap_rle[(y * VOXMAP_RLE_Y) + x].num_elements = 1;
+			voxmap_rle[(y * VOXMAP_RLE_Y) + x].elements = e;
+		}
+	}
+
+	fclose(hei);
+	fclose(col);
+}
+
 void Voxel_RLE_Init()
 {
+	Rex::SetGraphicsPalette("gfx/mindgrdn.pal");
+	Rex::ColormapLoad("gfx/mindgrdn.tab");
+
+	Voxel_RLE_ImportHeightmap();
+
+	#ifdef CODED_MAP
+
 	// RLE map
 	voxmap_rle = (voxel_rle_column_t *)calloc(VOXMAP_RLE_X * VOXMAP_RLE_Y, sizeof(voxel_rle_column_t));
 
@@ -843,31 +887,41 @@ void Voxel_RLE_Init()
 
 	// e2 - pillar
 	e2[0].side_color = 31;
-	e2[0].slab_color = 31;
+	e2[0].slab_color = 11;
 	e2[0].skipped = 240;
 	e2[0].drawn = 6;
 
 	e2[1].side_color = 255;
-	e2[1].slab_color = 255;
+	e2[1].slab_color = 11;
 	e2[1].skipped = 0;
 	e2[1].drawn = 2;
 
 	// add e2 to array
-	//voxmap_rle[2].num_elements = 2;
-	//voxmap_rle[2].elements = e2;
+	voxmap_rle[2].num_elements = 2;
+	voxmap_rle[2].elements = e2;
+
+	#endif
 
 	// camera
-	camera.draw_distance = REX_SCALAR(32);
+	camera.draw_distance = REX_SCALAR(128);
+
+	camera.origin.x = REX_SCALAR(512);
+	camera.origin.y = REX_SCALAR(512);
+	camera.origin.z = REX_SCALAR(255);
 
 	camera.angles.x = 0;
 	camera.angles.y = 0;
 	camera.angles.z = 0;
+
+	// y buffer
+	ybuff = (rex_uint8 *)calloc(200, sizeof(rex_uint8));
 }
 
 void Voxel_RLE_Shutdown()
 {
 	if (voxmap_rle->elements) free(voxmap_rle->elements);
 	if (voxmap_rle) free(voxmap_rle);
+	if (ybuff) free(ybuff);
 }
 
 void Voxel_RLE_Render(Rex::Surface *dst, rex_rect area, camera_t cam)
@@ -893,11 +947,15 @@ void Voxel_RLE_Render(Rex::Surface *dst, rex_rect area, camera_t cam)
 	rex_int horizon = -cam.angles.x + (draw_h / 2);
 	rex_scalar height_scale = REX_SCALAR(160);
 
-	// More efficient renderer?
+	// Draw left to right
 	for (s.x = area.x1; s.x < area.x2; s.x++)
 	{
+		// variables
 		rex_vec2s ray_dir, delta_dist, side_dist;
 		rex_vec2i step, map_pos;
+
+		// clear y-buffer
+		memset(ybuff, 0, 200);
 
 		// map pos (int)
 		map_pos.x = RexScalarToInteger(p.x);
@@ -1013,9 +1071,25 @@ void Voxel_RLE_Render(Rex::Surface *dst, rex_rect area, camera_t cam)
 					line_start = RexScalarToInteger(REX_MUL(REX_DIV(height_delta1, dist), height_scale)) + horizon;
 					line_end = RexScalarToInteger(REX_MUL(REX_DIV(height_delta2, dist), height_scale)) + horizon;
 
-					// slab
+					// clamp the line to the visible region
+					line_start = CLAMP(line_start, area.y1, area.y2);
+					line_end = CLAMP(line_end, area.y1, area.y2);
+
+					// draw the side of the voxel
+					for (s.y = line_start; s.y < line_end; s.y++)
 					{
-						if (dist2 > (CEIL(dist) + REX_SCALAR(1))) dist2 = (CEIL(dist) + REX_SCALAR(1));
+						if (ybuff[s.y] == 0)
+						{
+							Rex::SurfaceDrawPixel(dst, s.x, s.y, element.side_color);
+							ybuff[s.y] = 1;
+						}
+					}
+
+					// draw the top or bottom slab of the voxel
+					{
+						// this is where the magic happens
+						if (dist2 > (dist + REX_SCALAR(1)))
+							dist2 = (dist + REX_SCALAR(1));
 
 						line_start2 = RexScalarToInteger(REX_MUL(REX_DIV(height_delta1, dist2), height_scale)) + horizon;
 						line_end2 = RexScalarToInteger(REX_MUL(REX_DIV(height_delta2, dist2), height_scale)) + horizon;
@@ -1023,20 +1097,15 @@ void Voxel_RLE_Render(Rex::Surface *dst, rex_rect area, camera_t cam)
 						line_start2 = CLAMP(line_start2, area.y1, area.y2);
 						line_end2 = CLAMP(line_end2, area.y1, area.y2);
 
-						Rex::SurfaceDrawVerticalLine(dst, s.x, line_start2, line_end2, element.slab_color);
-
-						//sprintf(console_buffer, "dist: %.4f dist2: %.4f", RexScalarToFloat(dist), RexScalarToFloat(dist2));
-						//Rex::ConsoleAddText(0, 2, console_buffer);
-						//sprintf(console_buffer, "ceil dist: %.4f", RexScalarToFloat(CEIL(dist)));
-						//Rex::ConsoleAddText(0, 3, console_buffer);
+						for (s.y = line_start2; s.y < line_end2; s.y++)
+						{
+							if (ybuff[s.y] == 0)
+							{
+								Rex::SurfaceDrawPixel(dst, s.x, s.y, element.slab_color);
+								ybuff[s.y] = 1;
+							}
+						}
 					}
-
-					// clamp the line to the visible region
-					line_start = CLAMP(line_start, area.y1, area.y2);
-					line_end = CLAMP(line_end, area.y1, area.y2);
-
-					// draw the vertical lines
-					Rex::SurfaceDrawVerticalLine(dst, s.x, line_start, line_end, element.side_color);
 
 					// overall height of this column
 					column_height -= (element.skipped + element.drawn);
@@ -1338,8 +1407,8 @@ int main(int argc, char *argv[])
 	Rex::VidInfo vidinfo = Rex::GetVidInfo();
 
 	// Load colormap
-	Rex::SetGraphicsPalette("gfx/portal2d.pal");
-	Rex::ColormapLoad("gfx/portal2d.tab");
+	//Rex::SetGraphicsPalette("gfx/portal2d.pal");
+	//Rex::ColormapLoad("gfx/portal2d.tab");
 
 	// Create picture buffers
 	Rex::SurfaceLoadBMP(&pic_font, "gfx/font8x8.bmp");
