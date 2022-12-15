@@ -822,7 +822,7 @@ void Voxel_RLE_Init()
 	// RLE map
 	voxmap_rle = (voxel_rle_column_t *)calloc(VOXMAP_RLE_X * VOXMAP_RLE_Y, sizeof(voxel_rle_column_t));
 
-	voxel_rle_element_t *e1 = (voxel_rle_element_t *)calloc(3, sizeof(voxel_rle_element_t));
+	voxel_rle_element_t *e1 = (voxel_rle_element_t *)calloc(2, sizeof(voxel_rle_element_t));
 	voxel_rle_element_t *e2 = (voxel_rle_element_t *)calloc(2, sizeof(voxel_rle_element_t));
 
 	// e1 - top voxel
@@ -833,23 +833,17 @@ void Voxel_RLE_Init()
 
 	// e1 - bottom voxel
 	e1[1].side_color = 255;
-	e1[1].slab_color = 255;
+	e1[1].slab_color = 11;
 	e1[1].skipped = 4;
 	e1[1].drawn = 1;
 
-	// e1 - bottomer voxel
-	e1[2].side_color = 15;
-	e1[2].slab_color = 11;
-	e1[2].skipped = 0;
-	e1[2].drawn = 1;
-
 	// add e1 to array
-	voxmap_rle[0].num_elements = 3;
+	voxmap_rle[0].num_elements = 2;
 	voxmap_rle[0].elements = e1;
 
 	// e2 - pillar
 	e2[0].side_color = 31;
-	e2[0].slab_color = 15;
+	e2[0].slab_color = 31;
 	e2[0].skipped = 240;
 	e2[0].drawn = 6;
 
