@@ -876,7 +876,7 @@ void Voxel_RLE_Shutdown()
 	if (voxmap_rle) free(voxmap_rle);
 }
 
-void Voxel_RLE_Render(Rex::Surface *dst, rex_rect area)
+void Voxel_RLE_Render(Rex::Surface *dst, rex_rect area, camera_t cam)
 {
 	// General variables
 	rex_int i;
@@ -886,17 +886,17 @@ void Voxel_RLE_Render(Rex::Surface *dst, rex_rect area)
 	rex_int32 draw_h = area.y2 - area.y1;
 
 	// Sin and cos of the camera's yaw
-	rex_scalar sn = math.sin[camera.angles.y];
-	rex_scalar cs = math.cos[camera.angles.y];
+	rex_scalar sn = math.sin[cam.angles.y];
+	rex_scalar cs = math.cos[cam.angles.y];
 
 	// Screen coords
 	rex_vec2i s;
 
 	// meh
-	rex_vec3s p = camera.origin;
+	rex_vec3s p = cam.origin;
 
 	// meh
-	rex_int horizon = camera.angles.x + (draw_h / 2);
+	rex_int horizon = -cam.angles.x + (draw_h / 2);
 	rex_scalar height_scale = REX_SCALAR(160);
 
 	// More efficient renderer?
@@ -977,7 +977,7 @@ void Voxel_RLE_Render(Rex::Surface *dst, rex_rect area)
 			}
 
 			// if it goes beyond the draw distance, cut off the ray
-			if (dist > camera.draw_distance) break;
+			if (dist > cam.draw_distance) break;
 
 			// if out of bounds, keep going in hopes of finding something in-bounds again
 			// this allows rendering the map from an out of bounds location
@@ -1035,104 +1035,6 @@ void Voxel_RLE_Render(Rex::Surface *dst, rex_rect area)
 		}
 	}
 }
-
-#ifdef SPIVIS2_KC
-
-void spilin(Rex::Surface *dst, rex_rect area, rex_vec3f pp, rex_vec3f pr, rex_vec3f pd, rex_vec3f pf, rex_int sx0, rex_int sx1, rex_int sy, rex_int maxd)
-{
-	int sx, sxi, sxe, d;
-	int x, y, z, k;
-	int kvx, kvy, kvz;
-
-	sxi = SGN(sx1 - sx0);
-	d = 0;
-
-	int vx = sx0*pr.x + sy*pd.x + pf.x;
-	int vy = sx0*pr.y + sy*pd.y + pf.y;
-	int vz = sx0*pr.z + sy*pd.z + pf.z;
-
-	int vxi = sxi*pr.x;
-	int vyi = sxi*pr.y;
-	int vzi = sxi*pr.z;
-
-	for(sx=sx0,sxe=sx1+sxi;sx!=sxe;ybuffer[sx]=d,sx+=sxi,vx+=vxi,vy+=vyi,vz+=vzi)
-	{
-		d = MIN(d, ybuffer[sx]);
-
-		//d = gd[sx]; //notably faster but loses cliffs when looking up
-
-		if (d >= maxd) { done: Rex::SurfaceDrawPixel(dst, sx, sy, 0); continue; }
-
-		k = int(d/256)+1;
-		x = vx*d + pp.x; kvx = vx*k;
-		y = vy*d + pp.y; kvy = vy*k;
-		z = vz*d + pp.z; kvz = vz*k;
-
-		if (f_heightmap[(y * 1024) + x] >= z)
-		{
-			while (f_heightmap[(y * 1024) + x] >= z)
-			{
-				x += kvx; y += kvy; z += kvz; d += k;
-
-				if ((d >= maxd) || ((z < 0) && (vz < 0))) goto done;
-			}
-		}
-		else
-		{
-			while ((f_heightmap[((y - kvy) * 1024) + (x - kvx)] < z-kvz) && (d > 0))
-			{
-				x -= kvx;
-				y -= kvy;
-				z -= kvz;
-				d -= k;
-			}
-		}
-
-		Rex::SurfaceDrawPixel(dst, sx, sy, f_colormap[(y * 1024) + x]);
-	}
-}
-
-void VoxelRender2(Rex::Surface *dst, rex_rect area, rex_vec3f pp, rex_vec3f pr, rex_vec3f pd, rex_vec3f pf, rex_vec3f ph)
-{
-	// Drawable area
-	int xres = area.x2 - area.x1;
-	int yres = area.y2 - area.y1;
-
-	rex_vec3f nr, nd, nf;
-
-	//proportional to step size
-	float f = 1/1024;
-
-	nr.x = pr.x*f; nd.x = pd.x*f; nf.x = (pf.x*ph.z - pr.x*ph.x - pd.x*ph.y)*f;
-	nr.y = pr.y*f; nd.y = pd.y*f; nf.y = (pf.y*ph.z - pr.y*ph.x - pd.y*ph.y)*f;
-	nr.z = pr.z*f; nd.z = pd.z*f; nf.z = (pf.z*ph.z - pr.z*ph.x - pd.z*ph.y)*f;
-
-	if (pf.z == 0)
-		f = 32767;
-	else
-		f = CLAMP(ph.z / pf.z, -32767, 32767);
-
-	int cx = floor(CLAMP(pr.z*f + ph.x, 0, xres - 1));
-	int cy = floor(CLAMP(pd.z*f + ph.y, 0, yres - 1));
-
-	int x0, x1, x2, x3, y0, y1, y2, y3;
-	int y, yi, i, j;
-
-	if (f >= 0) { x0 = cx; x1 = 0; x2 = cx+1; x3 = xres-1; y0 = cy; y1 = -1; y2 = cy+1; y3 = yres; }
-			else { x0 = 0; x1 = cx; x2 = xres-1; x3 = cx+1; y0 = 0; y1 = cy+1; y2 = yres-1; y3 = cy; }
-	for(yi=SGN(y1-y0),j=2;j>0;j--,y0=y2,y1=y3,yi=-yi) //Look down=spiral out; look up=spiral in
-	{
-		for(i=0;i<xres;i++) ybuffer[i] = 0;
-		for(y=y0;y!=y1;y+=yi)
-		{
-			spilin(dst, area, pp, nr, nd, nf, x0, x1, y, xres);
-			spilin(dst, area, pp, nr, nd, nf, x2, x3, y, xres);
-			//Rex::SurfaceSetHorizontalLine(dst, 0, y, xres, hbuf);
-		}
-	}
-}
-
-#endif
 
 void VoxelRender(Rex::Surface *dst, rex_rect area, rex_vec3s p, rex_int32 yaw, rex_int32 horizon, rex_scalar height_scale, rex_scalar draw_distance, bool ceiling, rex_vec2i map_size, uint8_t *colormap, uint8_t *heightmap)
 {
@@ -1500,7 +1402,7 @@ int main(int argc, char *argv[])
 			//VolumetricRender(&pic_bbuffer, screen_area);
 
 			// Voxel RLE renderer
-			Voxel_RLE_Render(&pic_bbuffer, screen_area);
+			Voxel_RLE_Render(&pic_bbuffer, screen_area, camera);
 
 			#ifdef SPIVIS2_KC
 
