@@ -177,65 +177,67 @@ typedef struct
 
 void VReX_LoadKVX(string filename)
 {
-	// Variables
+	// general variables
 	rex_int x, y, i;
+	FILE *file;
 
-	FILE *kvx = fopen(filename.c_str(), "rb");
+	// kvx variables
+	rex_int num_mips = 1;
+	rex_int32 len_mip;
+	rex_int32 xsize, ysize, zsize;
 
-	rex_uint32 num_bytes;
-	rex_uint32 xsize, ysize, zsize;
-	rex_uint32 xpivot, ypivot, zpivot;
+	// open the file
+	file = fopen(filename.c_str(), "rb");
 
-	rex_uint32 *xoffset;
-	rex_uint16 *xyoffset;
-	rex_uint8 *voxdata;
-
-	rex_uint nummipmaplevels = 1;
-
-	for(i = 0; i < nummipmaplevels; i++)
+	for (i = 0; i < num_mips; i++)
 	{
-		fread(&num_bytes, sizeof(rex_uint32), 1, kvx);
-		fread(&xsize, sizeof(rex_uint32), 1, kvx);
-		fread(&ysize, sizeof(rex_uint32), 1, kvx);
-		fread(&zsize, sizeof(rex_uint32), 1, kvx);
-		fread(&xpivot, sizeof(rex_uint32), 1, kvx);
-		fread(&ypivot, sizeof(rex_uint32), 1, kvx);
-		fread(&zpivot, sizeof(rex_uint32), 1, kvx);
+		// size of mip after this point (in bytes)
+		fread(&len_mip, sizeof(rex_int32), 1, file);
 
-		rex_uint len_xoffset = xsize + 1;
-		rex_uint len_xyoffset = xsize * (ysize + 1);
-		rex_uint len_voxdata = num_bytes - 24 - (xsize + 1) * 4 - xsize * (ysize + 1) * 2;
+		// size boundaries of voxel model
+		fread(&xsize, sizeof(rex_int32), 1, file);
+		fread(&ysize, sizeof(rex_int32), 1, file);
+		fread(&zsize, sizeof(rex_int32), 1, file);
 
-		xoffset = (rex_uint32 *)calloc(len_xoffset, sizeof(rex_uint32));
-		xyoffset = (rex_uint16 *)calloc(len_xyoffset, sizeof(rex_uint16));
-		voxdata = (rex_uint8 *)calloc(len_voxdata, sizeof(rex_uint8));
+		// skip the pivot
+		fseek(file, sizeof(rex_int32) * 3, SEEK_CUR);
 
-		fread(xoffset, sizeof(rex_uint32), len_xoffset, kvx);
-		fread(xyoffset, sizeof(rex_uint16), len_xyoffset, kvx);
-		fread(voxdata, sizeof(rex_uint8), len_voxdata, kvx);
-	}
+		// x offsets, xy offsets and raw voxel data
+		rex_int len_xoffsets = xsize + 1;
+		rex_int len_xyoffsets = xsize * (ysize + 1);
+		rex_int len_voxdata = len_mip - 24 - (len_xoffsets * sizeof(rex_int32)) - (len_xyoffsets * sizeof(rex_int16));
 
-	slab_t *slab;
+		rex_int32 xoffsets[len_xoffsets];
+		rex_int16 xyoffsets[xsize][ysize + 1];
+		rex_int8 voxdata[len_voxdata];
 
-	for (y = 0; y < ysize; y++)
-	{
-		for (x = 0; x < xsize; x++)
+		fread(&xoffsets, sizeof(rex_int32), len_xoffsets, file);
+		fread(&xyoffsets, sizeof(rex_int16), len_xyoffsets, file);
+		fread(&voxdata, sizeof(rex_int8), len_voxdata, file);
+
+		// spool in the data
+		for (y = 0; y < ysize; y++)
 		{
-			voxel_rle_element_t *e = (voxel_rle_element_t *)calloc(1, sizeof(voxel_rle_element_t));
+			for (x = 0; x < xsize; x++)
+			{
+				slab_t *start = (slab_t *)&voxdata[xoffsets[x] + xyoffsets[x][y]];
+				slab_t *end = (slab_t *)&voxdata[xoffsets[x] + xyoffsets[x][y + 1]];
 
-			slab_t *start = (slab_t *)&voxdata[xoffset[x] + xyoffset[(y * ysize) + x]];
+				voxel_rle_element_t *e = (voxel_rle_element_t *)calloc(1, sizeof(voxel_rle_element_t));
 
-			e->skipped = start->ztop;
-			e->drawn = start->zleng;
-			e->slab_color = start->color;
-			e->side_color = start->color;
+				e->skipped = start->ztop;
+				e->drawn = start->zleng;
+				e->side_color = start->color;
+				e->slab_color = start->color;
 
-			voxmap[(y * VOXMAP_RLE_Y) + x].num_elements = 1;
-			voxmap[(y * VOXMAP_RLE_Y) + x].elements = e;
+				voxmap[(y * VOXMAP_RLE_Y) + x].num_elements = 1;
+				voxmap[(y * VOXMAP_RLE_Y) + x].elements = e;
+			}
 		}
 	}
 
-	fclose(kvx);
+	// close the file
+	fclose(file);
 }
 
 // Heightmap loader
@@ -282,8 +284,8 @@ void VReX_Init()
 
 	//VReX_LoadKV6("voxel/block.kv6");
 
-	VReX_LoadHeightmap("voxel/m1c_mg.dat", "voxel/m1h.dat", 1024, 1024);
-	//VReX_LoadKVX("voxel/pawn.kvx");
+	//VReX_LoadHeightmap("voxel/m1c_mg.dat", "voxel/m1h.dat", 1024, 1024);
+	VReX_LoadKVX("voxel/desklamp.kvx");
 	//if (loadvxl("voxel/untitled.vxl") == -1) exit(1);
 
 	// camera
