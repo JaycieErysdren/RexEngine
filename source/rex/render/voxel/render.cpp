@@ -35,7 +35,6 @@ namespace Voxel
 //
 //
 
-rex_uint8 *ybuffer;
 rex_uint8 *zbuffer;
 Rex::MathTable *mathtable;
 
@@ -60,7 +59,6 @@ void Initialize(rex_int render_width, rex_int render_height)
 void Shutdown()
 {
 	if (mathtable) delete mathtable;
-	if (ybuffer) delete ybuffer;
 	if (zbuffer) delete zbuffer;
 }
 
@@ -90,8 +88,7 @@ void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixe
 		rex_vec2s ray_dir, delta_dist, side_dist;
 		rex_vec2i step, map_pos;
 
-		// clear y-buffer
-		//memset(ybuffer, 0, draw_h);
+		// clear z-buffer
 		memset(zbuffer, 255, draw_h);
 
 		// map pos (int)
@@ -301,13 +298,11 @@ void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixe
 // Set render dimensions
 void SetRenderDimensions(rex_int w, rex_int h)
 {
-	if (ybuffer) delete ybuffer;
 	if (zbuffer) delete zbuffer;
 
 	draw_w = w;
 	draw_h = h;
 
-	ybuffer = new rex_uint8[h];
 	zbuffer = new rex_uint8[h];
 }
 
