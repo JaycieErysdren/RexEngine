@@ -231,11 +231,17 @@ void Initialize()
 	world = new Voxel::World("Map", 1024, 1024, 256);
 
 	// add an actor
-	world->AddActor(REX_SCALAR(16), REX_SCALAR(32), REX_SCALAR(4));
+	Voxel::Actor object01;
+	object01.origin.x = REX_SCALAR(16);
+	object01.origin.y = REX_SCALAR(32);
+	object01.origin.z = REX_SCALAR(4);
+	rex_int object01_id = world->AddActor(object01);
 
 	Heightmap_Generate();
 	//Heightmap_Load("voxel/m1c_mg.dat", "voxel/m1h.dat", 1024, 1024);
 	//Tilemap_Load("maps/casino.tmj");
+
+	world->Save("world.vrx");
 
 	// Initialize math table
 	mathtable = new Rex::MathTable;

@@ -172,7 +172,6 @@ void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixe
 			// voxel draw loop
 			if (dist > REX_SCALAR(1) && dist2 > REX_SCALAR(1))
 			{
-				//voxel_column_t column = voxmap[(map_pos.y * world->size.y) + map_pos.x];
 				Column column = world->GetColumn(map_pos.x, map_pos.y);
 
 				rex_int column_height = 256;
@@ -185,20 +184,20 @@ void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixe
 				rex_int line_start2 = 0, line_end2 = 0;
 				rex_scalar height_delta1 = 0, height_delta2 = 0;
 
-				// draw the elements from top to bottom
+				// draw the slabs from top to bottom
 				for (i = 0; i < column.slabs.size(); i++)
 				{
 					Slab slab = column.slabs[i];
 
-					// position of element
+					// position of the slab
 					slab_pos.x = REX_SCALAR(map_pos.x);
 					slab_pos.y = REX_SCALAR(map_pos.y);
 					slab_pos.z = REX_SCALAR(column_height - slab.skipped);
 
-					// height of element
+					// height of the slab
 					slab_height = REX_SCALAR(slab.drawn);
 
-					// height delta 1
+					// height delta 1 & 2
 					height_delta1 = p.z - slab_pos.z;
 					height_delta2 = p.z - (slab_pos.z - slab_height);
 
@@ -255,8 +254,7 @@ void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixe
 			}
 		}
 
-
-		// draw sprites
+		// draw actors
 		for (i = 0; i < world->actors.size(); i++)
 		{
 			Actor actor = world->actors[i];
@@ -273,10 +271,8 @@ void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixe
 			pv.y = REX_MUL(v.x, sn) + REX_MUL(v.y, cs);
 
 			// if behind the player, don't draw
-			if (pv.y < REX_SCALAR(1)) continue;
-
 			// if beyond the draw distance, don't draw
-			if (pv.y > camera.draw_distance) continue;
+			if (pv.y < REX_SCALAR(1) || pv.y > camera.draw_distance) continue;
 
 			// rotate the x and z coordinates into the player's view
 			pv.x = REX_MUL(-v.x, cs) - REX_MUL(-v.y, sn);

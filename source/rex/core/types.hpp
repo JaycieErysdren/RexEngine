@@ -42,7 +42,7 @@ typedef bool rex_bool;								// Boolean
 
 typedef string rex_string;							// String
 
-typedef rex_int32 rex_color;						// Packed color
+typedef rex_uint32 rex_color;						// Packed color
 
 typedef rex_int32 rex_int;							// Basic signed integer
 typedef rex_uint32 rex_uint;						// Basic unsigned integer

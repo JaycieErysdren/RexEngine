@@ -49,10 +49,10 @@ class Slab
 		//
 
 		// Number of air voxels above the drawn voxels
-		rex_uint8 skipped;
+		rex_uint16 skipped;
 
 		// Number of drawn voxels
-		rex_uint8 drawn;
+		rex_uint16 drawn;
 
 		// Side color
 		rex_color color_side;
@@ -126,29 +126,26 @@ class World
 		// Constructor with size & name declaration
 		World(string world_name, rex_int size_x, rex_int size_y, rex_int size_z);
 
-		// Constructor to load from file
+		// Constructor to load world from file
 		World(string filename);
+
+		// Save world to file
+		void Save(string filename);
 
 		// Add a slab at the specificed column coordinate
 		void AddSlab(rex_int x, rex_int y, Slab slab);
 
-		// Add an actor at the specified coordinate
-		void AddActor(rex_scalar x, rex_scalar y, rex_scalar z);
+		// Add an actor at the specified coordinate. Returns the ID of the actor
+		rex_int AddActor(rex_scalar x, rex_scalar y, rex_scalar z);
 
-		// Add an actor
-		void AddActor(Actor actor);
+		// Add an actor. Returns the ID of the actor
+		rex_int AddActor(Actor actor);
+
+		// Update the actor with the specified ID
+		void UpdateActor(rex_int id, Actor actor);
 
 		// Returns the column at the specificed coordinate
 		Column GetColumn(rex_int x, rex_int y);
-
-	private:
-
-		//
-		// Functions
-		//
-
-		// Fill up the columns array
-		void FillColumnArray();
 };
 
 //
