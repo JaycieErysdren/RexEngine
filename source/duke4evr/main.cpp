@@ -56,7 +56,6 @@ bool texturemapping = false;
 // Raycaster globals
 //
 
-
 #define MAP_X 24
 #define MAP_Y 24
 #define MAP_SIZE 2

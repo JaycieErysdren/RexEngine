@@ -40,8 +40,6 @@ void Heightmap_Generate()
 {
 	rex_int x, y;
 
-	printf("loading...\n");
-
 	for (y = 0; y < 128; y++)
 	{
 		for (x = 0; x < 128; x++)
@@ -104,8 +102,6 @@ void Heightmap_Load(string filename_color, string filename_height, rex_int size_
 {
 	// Variables
 	rex_int x, y;
-
-	printf("loading...\n");
 
 	FILE *hei = fopen(filename_height.c_str(), "rb");
 	FILE *col = fopen(filename_color.c_str(), "rb");
@@ -226,6 +222,8 @@ void Tilemap_Load(string filename)
 // Initialize testbed
 void Initialize()
 {
+	printf("loading...\n");
+
 	Rex::SetGraphicsPalette("gfx/mindgrdn.pal");
 	Rex::ColormapLoad("gfx/mindgrdn.tab");
 

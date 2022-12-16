@@ -43,6 +43,8 @@ bool Initialize()
 
 	ConsoleInitialize();
 
+	frame_end_time = GetTicks64();
+
 	return true;
 }
 

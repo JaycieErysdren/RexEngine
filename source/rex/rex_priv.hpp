@@ -33,18 +33,16 @@
 
 extern Rex::VidInfo vid_info;
 
+extern rex_uint64 frame_start_time;
+extern rex_uint64 frame_end_time;
+extern rex_uint32 frame_cycles;
+extern rex_uint32 frame_target_cycles;
+
 //
 //
 // Rex Engine private headers
 //
 //
-
-//
-// Core modules
-//
-
-// Math
-#include "modules/core/math/math.hpp"
 
 //
 // Hardware I/O modules

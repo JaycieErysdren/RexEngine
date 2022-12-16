@@ -67,34 +67,49 @@ void SurfaceCreate(Surface *picture, int width, int height, int bpp, int bytes_p
 	picture->shared				= buffer != 0;
 	picture->scanlines.b		= (rex_uint8 **)malloc(height * sizeof(void *));
 
-	while (height--)
-	{
-		#if (REX_PLATFORM == PLATFORM_DOS)
+	#if (REX_TARGET == PLATFORM_DOS)
 
-		if (picture->bpp == 8)
-			picture->scanlines.b[height] = (rex_uint8 *)((rex_uint32)picture->buffer + bytes_per_row * height);
+		switch(bpp)
+		{
+			case 8:
+				while (height--) picture->scanlines.b[height] = (rex_uint8 *)((rex_uint32)picture->buffer + bytes_per_row * height);
+				break;
 
-		if (picture->bpp == 16)
-			picture->scanlines.w[height] = (rex_uint16 *)((rex_uint32)picture->buffer + bytes_per_row * height);
+			case 16:
+				while (height--) picture->scanlines.w[height] = (rex_uint16 *)((rex_uint32)picture->buffer + bytes_per_row * height);
+				break;
 
-		if (picture->bpp == 24 || picture->bpp == 32)
-			picture->scanlines.l[height] = (rex_uint32 *)((rex_uint32)picture->buffer + bytes_per_row * height);
+			case 24:
+			case 32:
+				while (height--) picture->scanlines.l[height] = (rex_uint32 *)((rex_uint32)picture->buffer + bytes_per_row * height);
+				break;
 
-		#endif
+			default:
+				break;
+		}
 
-		#if (REX_PLATFORM == PLATFORM_NIX) || (REX_PLATFORM == PLATFORM_WIN)
+	#else
 
-		if (picture->bpp == 8)
-			picture->scanlines.b[height] = (rex_uint8 *)((rex_uint32 *)picture->buffer + bytes_per_row * height);
+		switch(bpp)
+		{
+			case 8:
+				while (height--) picture->scanlines.b[height] = (rex_uint8 *)((rex_uint32 *)picture->buffer + bytes_per_row * height);
+				break;
 
-		if (picture->bpp == 16)
-			picture->scanlines.w[height] = (rex_uint16 *)((rex_uint32 *)picture->buffer + bytes_per_row * height);
+			case 16:
+				while (height--) picture->scanlines.w[height] = (rex_uint16 *)((rex_uint32 *)picture->buffer + bytes_per_row * height);
+				break;
 
-		if (picture->bpp == 24 || picture->bpp == 32)
-			picture->scanlines.l[height] = (rex_uint32 *)((rex_uint32 *)picture->buffer + bytes_per_row * height);
+			case 24:
+			case 32:
+				while (height--) picture->scanlines.l[height] = (rex_uint32 *)((rex_uint32 *)picture->buffer + bytes_per_row * height);
+				break;
 
-		#endif
-	}
+			default:
+				break;
+		}
+
+	#endif
 }
 
 void SurfaceCreateMip(Surface *dst, Surface *src, clut_t blender)

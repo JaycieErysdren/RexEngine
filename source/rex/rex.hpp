@@ -24,15 +24,15 @@
 //
 
 // Potential compilers (Sorry clang)
-#define COMPILER_GCC 0		// GCC
-#define COMPILER_MINGW 1	// MINGW
-#define COMPILER_DJGPP 2	// DJGPP
-#define COMPILER_WATCOM 3	// Open Watcom
+#define COMPILER_GCC 1		// GCC
+#define COMPILER_MINGW 2	// MINGW
+#define COMPILER_DJGPP 3	// DJGPP
+#define COMPILER_WATCOM 4	// Open Watcom
 
 // Potential target & host platforms
-#define PLATFORM_NIX 0		// Linux
-#define PLATFORM_WIN 1		// Windows
-#define PLATFORM_DOS 2		// DOS
+#define PLATFORM_NIX 1		// Linux
+#define PLATFORM_WIN 2		// Windows
+#define PLATFORM_DOS 3		// DOS
 
 //
 // External headers
