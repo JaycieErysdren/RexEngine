@@ -44,11 +44,6 @@ if(${MODULE_MATH})
 	add_compile_definitions("MODULE_MATH=1")
 endif()
 
-## Surface
-if(${MODULE_SURFACE})
-	add_compile_definitions("MODULE_SURFACE=1")
-endif()
-
 ## Utils
 if(${MODULE_UTILS})
 	add_compile_definitions("MODULE_UTILS=1")
@@ -83,18 +78,18 @@ endif()
 ##
 
 ## Raycast
-if(${MODULE_RAYCAST})
-	add_compile_definitions("MODULE_RAYCAST=1")
+if(${RENDERER_RAYCAST})
+	add_compile_definitions("RENDERER_RAYCAST=1")
 endif()
 
 ## Portal2D
-if(${MODULE_PORTAL2D})
-	add_compile_definitions("MODULE_PORTAL2D=1")
+if(${RENDERER_PORTAL2D})
+	add_compile_definitions("RENDERER_PORTAL2D=1")
 endif()
 
 ## Voxel
-if(${MODULE_VOXEL})
-	add_compile_definitions("MODULE_VOXEL=1")
+if(${RENDERER_VOXEL})
+	add_compile_definitions("RENDERER_VOXEL=1")
 endif()
 
 ##
@@ -207,10 +202,10 @@ endif()
 ##
 
 ## Raycast
-if(${MODULE_RAYCAST})
+if(${RENDERER_RAYCAST})
 
 	set(REX_RAYCAST_SRC
-		modules/render/raycast/raycast.cpp
+		render/raycast/raycast.cpp
 	)
 
 	add_library(raycast STATIC ${REX_RAYCAST_SRC})
@@ -218,13 +213,25 @@ if(${MODULE_RAYCAST})
 endif()
 
 ## Portal2D
-if(${MODULE})
+if(${RENDERER_PORTAL2D})
 
 	set(REX_PORTAL2D_SRC
-		modules/render/portal2d/portal2d.cpp
+		render/portal2d/portal2d.cpp
 	)
 
 	add_library(portal2d STATIC ${REX_PORTAL2D_SRC})
+
+endif()
+
+## Voxel
+if(${RENDERER_VOXEL})
+
+	set(REX_VOXEL_SRC
+		render/voxel/world.cpp
+		render/voxel/render.cpp
+	)
+
+	add_library(voxel STATIC ${REX_VOXEL_SRC})
 
 endif()
 
@@ -273,14 +280,14 @@ endif()
 ## Renderer modules
 ##
 
-if(${MODULE_RAYCAST})
+if(${RENDERER_RAYCAST})
 	target_link_libraries(rex INTERFACE raycast)
 endif()
 
-if(${MODULE})
+if(${RENDERER_PORTAL2D})
 	target_link_libraries(rex INTERFACE portal2d)
 endif()
 
-if(${MODULE_VOXEL})
+if(${RENDERER_VOXEL})
 	target_link_libraries(rex INTERFACE voxel)
 endif()

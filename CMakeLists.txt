@@ -10,7 +10,7 @@
 ##
 ## DESCRIPTION:		Duke4Ever CMake project definition
 ##
-## LAST EDITED:		December 11th, 2022
+## LAST EDITED:		December 15th, 2022
 ##
 ## ========================================================
 
@@ -32,16 +32,14 @@ set(CMAKE_BUILD_TYPE Release)
 ##
 
 ## Set the modules we want
-set(MODULE_COLORMAP TRUE)
-set(MODULE_CONSOLE TRUE)
 set(MODULE_MATH TRUE)
-set(MODULE_PALETTE TRUE)
-set(MODULE_SURFACE TRUE)
 set(MODULE_UTILS TRUE)
 set(MODULE_DOS TRUE)
 set(MODULE_VESA TRUE)
 set(MODULE_VGA TRUE)
-set(MODULE_RAYCAST TRUE)
+
+## Set the renderers we want
+set(RENDERER_VOXEL TRUE)
 
 ## Rex Engine platform & compiler determinator
 include(cmake/rex_determinator.cmake)

@@ -123,4 +123,23 @@ using namespace std;
 // Camera
 #include "core/camera.hpp"
 
+//
+// Renderers
+//
+
+// Raycast
+#if RENDERER_RAYCAST
+#include "render/raycast/raycast.hpp"
+#endif
+
+// Portal2D
+#if RENDERER_PORTAL2D
+#include "render/portal2d/portal2d.hpp"
+#endif
+
+// Voxel
+#if RENDERER_VOXEL
+#include "render/voxel/voxel.hpp"
+#endif
+
 #endif // __REX_ENGINE_H__

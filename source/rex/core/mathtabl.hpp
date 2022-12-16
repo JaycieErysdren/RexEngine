@@ -30,8 +30,8 @@ class MathTable
 		rex_scalar sin[360];
 		rex_scalar tan[360];
 
-		// Initializer
-		void Initialize();
+		// Constructor
+		MathTable();
 };
 
 } // namespace Rex

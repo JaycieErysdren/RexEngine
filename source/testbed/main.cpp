@@ -20,593 +20,23 @@
 #define CYCLES 30
 
 //
-// Types
-//
-
-//==========================================================================
-//
-// Voxel RLE element
-//
-
-// Class definition
-class VoxelElement
-{
-	public:
-
-		//
-		// Variables
-		//
-
-		// Number of air voxels above the drawn voxels
-		rex_uint8 skipped;
-
-		// Number of drawn voxels
-		rex_uint8 drawn;
-
-		// Side color
-		rex_color color_side;
-
-		// Top color
-		rex_color color_top;
-
-		// Bottom color
-		rex_color color_bottom;
-
-		//
-		// Functions
-		//
-
-		// Constructor
-		VoxelElement();
-
-		// Constructor with variables
-		VoxelElement(rex_uint8 skipped_voxels, rex_uint8 drawn_voxels, rex_color side_color, rex_color top_color, rex_color bottom_color);
-};
-
-// Constructor
-VoxelElement::VoxelElement()
-{
-
-}
-
-// Constructor with variables
-VoxelElement::VoxelElement(rex_uint8 skipped_voxels, rex_uint8 drawn_voxels, rex_color side_color, rex_color top_color, rex_color bottom_color)
-{
-	skipped = skipped_voxels;
-	drawn = drawn_voxels;
-	color_side = side_color;
-	color_top = top_color;
-	color_bottom = bottom_color;
-}
-
-//
-//
-//
-//==========================================================================
-
-//==========================================================================
-//
-// Voxel Column
-//
-
-// Class definition
-class VoxelColumn
-{
-	public:
-
-		//
-		// Variables
-		//
-
-		// Array of RLE elemnts
-		vector<VoxelElement> elements;
-
-		//
-		// Functions
-		//
-
-		// Add an element to the array
-		void AddElement(VoxelElement element);
-};
-
-// Add an element to the array
-void VoxelColumn::AddElement(VoxelElement element)
-{
-	elements.push_back(element);
-}
-
-//
-//
-//
-//==========================================================================
-
-//==========================================================================
-//
-// Voxel World
-//
-
-// Class definition
-class VoxelWorld
-{
-	public:
-
-		//
-		// Variables
-		//
-
-		// World name
-		rex_string name;
-
-		// World dimensions (x, y, z)
-		rex_vec3i size;
-
-		// Array of world columns (x * y)
-		vector<VoxelColumn> columns;
-
-		//
-		// Functions
-		//
-
-		// Constructor with default size
-		VoxelWorld();
-
-		// Constructor with size & name declaration
-		VoxelWorld(string world_name, rex_int size_x, rex_int size_y, rex_int size_z);
-
-		// Constructor to load from file
-		VoxelWorld(string filename);
-
-		// Add an element at the specificed column coordinate
-		void AddElement(rex_int x, rex_int y, VoxelElement element);
-
-	private:
-
-		//
-		// Functions
-		//
-
-		// Fill up the columns array
-		void AddColumns();
-};
-
-// Constructor with default size
-VoxelWorld::VoxelWorld()
-{
-	// Set world dimensions to defaults
-	size.x = 1024;
-	size.y = 1024;
-	size.z = 256;
-
-	// Fill up the columns array
-	AddColumns();
-}
-
-// Constructor with size declaration
-VoxelWorld::VoxelWorld(string world_name, rex_int size_x, rex_int size_y, rex_int size_z)
-{
-	// Set world dimensions
-	size.x = size_x;
-	size.y = size_y;
-	size.z = size_z;
-
-	// Set world name
-	name = world_name;
-
-	// Fill up the columns array
-	AddColumns();
-}
-
-// Constructor to load from file
-VoxelWorld::VoxelWorld(string filename)
-{
-	// open file
-	FILE *file = fopen(filename.c_str(), "rb");
-	if (file == NULL) return;
-
-	// close file
-	fclose(file);
-}
-
-// Add an element at the specificed column coordinate
-void VoxelWorld::AddElement(rex_int x, rex_int y, VoxelElement element)
-{
-	columns[(y * size.y) + x].AddElement(element);
-}
-
-// Fill up the columns array
-void VoxelWorld::AddColumns()
-{
-	for (rex_int y = 0; y < size.y; y++)
-	{
-		for (rex_int x = 0; x < size.x; x++)
-		{
-			VoxelColumn column;
-			columns.push_back(column);
-		}
-	}
-}
-
-//
-//
-//
-//==========================================================================
-
-// Voxel RLE element
-typedef struct
-{
-	rex_uint8 skipped;
-	rex_uint8 drawn;
-	rex_uint8 side_color;
-	rex_uint8 slab_color;
-} voxel_rle_element_t;
-
-// Voxel column
-typedef struct
-{
-	rex_int32 num_elements;
-	voxel_rle_element_t *elements;
-} voxel_column_t;
-
-// Voxel world
-typedef struct
-{
-	rex_string name;
-	rex_vec3i size;
-	voxel_column_t *columns;
-} voxel_world_t;
-
-//
 // Globals
 //
 
-#define VOXMAP_RLE_X 1024
-#define VOXMAP_RLE_Y 1024
-#define VOXMAP_RLE_Z 256
-
-// V-ReX
-voxel_column_t *voxmap;
-rex_uint8 *ybuff;
+// Voxel world
+Voxel::World *world;
 
 // Camera
 Rex::Camera camera;
 
 // Math tables
-Rex::MathTable math;
+Rex::MathTable *mathtable;
 
 // Console buffer
 char console_buffer[256];
 
-//
-// V-ReX
-//
-
-// Allocate world pointermap
-void VReX_AllocateWorld()
-{
-	voxmap = (voxel_column_t *)calloc(VOXMAP_RLE_X * VOXMAP_RLE_Y, sizeof(voxel_column_t));
-}
-
-rex_uint8 *geobuffer;
-rex_uint8 *colbuffer;
-
-void setgeom(rex_int32 x, rex_int32 y, rex_int32 z, rex_int32 is_solid)
-{
-	geobuffer[(z * 64) + (y * 512) + x] = (rex_uint8)(is_solid);
-}
-
-void setcolor(rex_int32 x, rex_int32 y, rex_int32 z, rex_int32 color)
-{
-	colbuffer[(z * 64) + (y * 512) + x] = (rex_uint8)(color);
-}
-
-void buffers_to_vrex()
-{
-	// variables
-	rex_int x = 0, y = 0, z = 0, i = 0;
-
-	// father, i require loupes
-	for (y = 0; y < 512; y++)
-	{
-		for (x = 0; x < 512; x++)
-		{
-			bool generating = true;
-
-			// generate elements for this column
-			while (generating == true)
-			{
-				rex_int skipped = 0;
-				rex_int drawn = 0;
-				voxel_rle_element_t *e;
-
-				// determine air run
-				while (geobuffer[(z * 64) + (y * 512) + x] == 0)
-				{
-					skipped++;
-					z++;
-
-					if (z > 63) break;
-				}
-
-				// determine drawn run
-				while (geobuffer[(z * 64) + (y * 512) + x] == 1)
-				{
-					drawn++;
-					z++;
-
-					if (z > 63) break;
-				}
-			}
-		}
-	}
-}
-
-// VXL loader
-void VReX_LoadVXL(string filename, bool aos)
-{
-	// General variables
-	rex_int x, y, z, i;
-	rex_int file_len;
-	rex_uint8 *file_buffer;
-	rex_uint8 *v, *v_base;
-	FILE *file;
-
-	// tell the user we're doing something
-	printf("loading...\n");
-
-	if (aos == true)
-	{
-		// open file
-		file = fopen(filename.c_str(), "rb");
-		if (file == NULL) return;
-
-		// seek to end
-		fseek(file, 0L, SEEK_END);
-
-		// get file size
-		file_len = ftell(file);
-
-		// seek to start
-		fseek(file, 0L, SEEK_SET);
-
-		// allocate memory for file buffer
-		file_buffer = (rex_uint8 *)calloc(1, file_len);
-
-		// read in file data
-		fread(file_buffer, file_len, 1, file);
-
-		// close file
-		fclose(file);
-
-		// allocate temporary buffers
-		geobuffer = (rex_uint8 *)calloc(1, 512 * 512 * 64);
-		colbuffer = (rex_uint8 *)calloc(1, 512 * 512 * 64);
-
-		v_base = file_buffer;
-		v = file_buffer;
-
-		for (y = 0; y < 512; y++)
-		{
-			for (x = 0; x < 512; x++)
-			{
-				for (z = 0; z < 64; z++)
-				{
-					setgeom(x, y, z, 1);
-				}
-
-				z = 0;
-				for(;;)
-				{
-					rex_uint32 *color;
-					int i;
-					int number_4byte_chunks = v[0];
-					int top_color_start = v[1];
-					int top_color_end  = v[2]; // inclusive
-					int bottom_color_start;
-					int bottom_color_end; // exclusive
-					int len_top;
-					int len_bottom;
-
-					for(i=z; i < top_color_start; i++)
-					{
-						setgeom(x, y, i, 0);
-					}
-
-					color = (rex_uint32 *)(v+4);
-
-					for(z=top_color_start; z <= top_color_end; z++)
-					{
-						setcolor(x, y, z, *color++);
-					}
-
-					len_bottom = top_color_end - top_color_start + 1;
-
-					// check for end of data marker
-					if (number_4byte_chunks == 0)
-					{
-						// infer ACTUAL number of 4-byte chunks from the length of the color data
-						v += 4 * (len_bottom + 1);
-						break;
-					}
-
-					// infer the number of bottom colors in next span from chunk length
-					len_top = (number_4byte_chunks-1) - len_bottom;
-
-					// now skip the v pointer past the data to the beginning of the next span
-					v += v[0]*4;
-
-					bottom_color_end  = v[3]; // aka air start
-					bottom_color_start = bottom_color_end - len_top;
-
-					for (z = bottom_color_start; z < bottom_color_end; z++)
-					{
-						setcolor(x, y, z, *color++);
-					}
-				}
-			}
-		}
-
-		buffers_to_vrex();
-
-		// free memory
-		if (file_buffer) free(file_buffer);
-		if (geobuffer) free(geobuffer);
-		if (colbuffer) free(colbuffer);
-	}
-}
-
-// KV6 loader
-void VReX_LoadKV6(string filename)
-{
-	// General variables
-	rex_int x, y, i;
-	FILE *kv6;
-
-	// KV6 variables
-	char kv6_magic[5] = "Kvxl";
-	char magic[4];
-	rex_int32 xsize, ysize, zsize;
-	rex_int32 num_surface_voxels;
-
-	// open the file
-	kv6 = fopen(filename.c_str(), "rb");
-	if (kv6 == NULL) return;
-
-	// read in magic
-	fread(&magic, sizeof(rex_uint8), 4, kv6);
-
-	// compare magic
-	if (memcmp(kv6_magic, magic, 4) != 0) return;
-
-	// read in size vlaues
-	fread(&xsize, sizeof(rex_int32), 1, kv6);
-	fread(&ysize, sizeof(rex_int32), 1, kv6);
-	fread(&zsize, sizeof(rex_int32), 1, kv6);
-
-	// skip the pivot, we don't need it
-	fseek(kv6, 12, SEEK_CUR);
-
-	// get number of surface voxels
-	fread(&num_surface_voxels, sizeof(rex_int32), 1, kv6);
-
-	// skip the surface voxels
-	fseek(kv6, num_surface_voxels * 8, SEEK_CUR);
-
-	// read in the x plane info
-	rex_uint32 xlen[xsize];
-
-	for(x = 0; x < xsize; x++)
-	{
-		fread(&xlen[x], sizeof(rex_uint32), 1, kv6);
-	}
-
-	// read in x,y column information
-	rex_uint16 ylen[xsize][ysize];
-
-	for(x = 0; x < xsize; x++)
-	{
-		for(y = 0; y < ysize; y++)
-		{
-			fread(&ylen[x][y], sizeof(rex_uint16), 1, kv6);
-		}
-	}
-
-	// create columns
-	for(x = 0; x < xsize; x++)
-	{
-		for(y = 0; y < ysize; y++)
-		{
-			voxel_rle_element_t *e = (voxel_rle_element_t *)calloc(1, sizeof(voxel_rle_element_t));
-
-			e->skipped = 0;
-			e->drawn = ylen[x][y];
-			e->side_color = 31;
-			e->slab_color = 15;
-
-			voxmap[(y * VOXMAP_RLE_Y) + x].elements = e;
-			voxmap[(y * VOXMAP_RLE_Y) + x].num_elements = 1;
-		}
-	}
-
-	// close the file
-	fclose(kv6);
-}
-
-// KVX loader
-typedef struct
-{
-	rex_uint8 ztop;
-	rex_uint8 zleng;
-	rex_uint8 cullinfo;
-	rex_uint8 color;
-} slab_t;
-
-void VReX_LoadKVX(string filename)
-{
-	// general variables
-	rex_int x, y, i;
-	FILE *file;
-
-	// kvx variables
-	rex_int num_mips = 1;
-	rex_int32 len_mip;
-	rex_int32 xsize, ysize, zsize;
-
-	// open the file
-	file = fopen(filename.c_str(), "rb");
-
-	for (i = 0; i < num_mips; i++)
-	{
-		// size of mip after this point (in bytes)
-		fread(&len_mip, sizeof(rex_int32), 1, file);
-
-		// size boundaries of voxel model
-		fread(&xsize, sizeof(rex_int32), 1, file);
-		fread(&ysize, sizeof(rex_int32), 1, file);
-		fread(&zsize, sizeof(rex_int32), 1, file);
-
-		// skip the pivot
-		fseek(file, sizeof(rex_int32) * 3, SEEK_CUR);
-
-		// x offsets, xy offsets and raw voxel data
-		rex_int len_xoffsets = xsize + 1;
-		rex_int len_xyoffsets = xsize * (ysize + 1);
-		rex_int len_voxdata = len_mip - 24 - (len_xoffsets * sizeof(rex_int32)) - (len_xyoffsets * sizeof(rex_int16));
-
-		rex_int32 xoffsets[len_xoffsets];
-		rex_int16 xyoffsets[xsize][ysize + 1];
-		rex_int8 voxdata[len_voxdata];
-
-		fread(&xoffsets, sizeof(rex_int32), len_xoffsets, file);
-		fread(&xyoffsets, sizeof(rex_int16), len_xyoffsets, file);
-		fread(&voxdata, sizeof(rex_int8), len_voxdata, file);
-
-		// spool in the data
-		for (y = 0; y < ysize; y++)
-		{
-			for (x = 0; x < xsize; x++)
-			{
-				slab_t *start = (slab_t *)&voxdata[xoffsets[x] + xyoffsets[x][y]];
-				slab_t *end = (slab_t *)&voxdata[xoffsets[x] + xyoffsets[x][y + 1]];
-
-				voxel_rle_element_t *e = (voxel_rle_element_t *)calloc(1, sizeof(voxel_rle_element_t));
-
-				e->skipped = start->ztop;
-				e->drawn = start->zleng;
-				e->side_color = start->color;
-				e->slab_color = start->color;
-
-				voxmap[(y * VOXMAP_RLE_Y) + x].num_elements = 1;
-				voxmap[(y * VOXMAP_RLE_Y) + x].elements = e;
-			}
-		}
-	}
-
-	// close the file
-	fclose(file);
-}
-
 // Heightmap generator
-void VReX_GenerateHeightmap()
+void Heightmap_Generate()
 {
 	rex_int x, y;
 
@@ -617,35 +47,58 @@ void VReX_GenerateHeightmap()
 			rex_int d1 = ((x & 31) - 16);
 			rex_int d2 = ((y & 31) - 16);
 			rex_int d = (15 * 15) - (d1 * d1) - (d2 * d2);
-			rex_int hei;
-			rex_uint8 col;
+			rex_int sphere_hei;
+			rex_uint8 sphere_col;
+
+			rex_int ground_hei;
+			rex_color ground_col;
+
+			Voxel::Slab ground_slab;
+			Voxel::Slab sphere_slab;
+
+			ground_hei = 1;
+			ground_col = (cos(x * 0.2f) + sin(y * 0.3f)) * 3 + 88;
+
+			ground_slab.drawn = ground_hei;
+			ground_slab.color_side = ground_col;
+			ground_slab.color_top = ground_col;
+			ground_slab.color_bottom = ground_col;
 
 			if (d > 0 && ((x ^ y) & 32))
 			{
-				hei = 64 + sqrt(d);
-				col = (x + y) * 0.5f;
+				// we're drawing a sphere above the ground
+				sphere_hei = sqrt(d);
+				sphere_col = (x + y) * 0.5f;
+
+				sphere_slab.drawn = sphere_hei;
+				sphere_slab.skipped = (256 - sphere_hei) - 32;
+				sphere_slab.color_side = sphere_col;
+				sphere_slab.color_top = sphere_col;
+				sphere_slab.color_bottom = sphere_col;
+
+				// top half of sphere
+				world->AddSlab(x, y, sphere_slab);
+
+				// bottom half of sphere
+				sphere_slab.skipped = 0;
+				world->AddSlab(x, y, sphere_slab);
+
+				// ground
+				ground_slab.skipped = 31 - sphere_hei;
+				world->AddSlab(x, y, ground_slab);
 			}
 			else
 			{
-				hei = 64;
-				col = (cos(x * 0.2f) + sin(y * 0.3f)) * 3 + 88;
+				// we're just drawing the ground
+				ground_slab.skipped = 256 - ground_hei;
+				world->AddSlab(x, y, ground_slab);
 			}
-
-			voxel_rle_element_t *e = (voxel_rle_element_t *)calloc(1, sizeof(voxel_rle_element_t));
-
-			e->drawn = hei;
-			e->skipped = 256 - hei;
-			e->side_color = col;
-			e->slab_color = col;
-
-			voxmap[(y * VOXMAP_RLE_Y) + x].num_elements = 1;
-			voxmap[(y * VOXMAP_RLE_Y) + x].elements = e;
 		}
 	}
 }
 
 // Heightmap loader
-void VReX_LoadHeightmap(string filename_color, string filename_height, rex_int size_x, rex_int size_y)
+void Heightmap_Load(string filename_color, string filename_height, rex_int size_x, rex_int size_y)
 {
 	// Variables
 	rex_int x, y, i;
@@ -659,18 +112,19 @@ void VReX_LoadHeightmap(string filename_color, string filename_height, rex_int s
 	{
 		for (x = 0; x < size_x; x++)
 		{
-			voxel_rle_element_t *e = (voxel_rle_element_t *)calloc(1, sizeof(voxel_rle_element_t));
+			Voxel::Slab slab;
 
 			rex_uint8 height = fgetc(hei);
 			rex_uint8 color = fgetc(col);
 
-			e->drawn = height;
-			e->skipped = 255 - height;
-			e->slab_color = color;
-			e->side_color = color - 2;
+			slab.drawn = height;
+			slab.skipped = 256 - height;
 
-			voxmap[(y * VOXMAP_RLE_Y) + x].num_elements = 1;
-			voxmap[(y * VOXMAP_RLE_Y) + x].elements = e;
+			slab.color_top = color - 2;
+			slab.color_bottom = color - 2;
+			slab.color_side = color;
+
+			world->AddSlab(x, y, slab);
 		}
 	}
 
@@ -678,237 +132,34 @@ void VReX_LoadHeightmap(string filename_color, string filename_height, rex_int s
 	fclose(col);
 }
 
-void VReX_Init()
+void Initialize()
 {
 	Rex::SetGraphicsPalette("gfx/mindgrdn.pal");
 	Rex::ColormapLoad("gfx/mindgrdn.tab");
 
-	// allocate pointermap
-	VReX_AllocateWorld();
+	world = new Voxel::World("Map", 1024, 1024, 256);
 
-	//VReX_LoadKV6("voxel/block.kv6");
-	VReX_GenerateHeightmap();
-	//VReX_LoadHeightmap("voxel/m11.col", "voxel/m11.hei", 1024, 1024);
-	//VReX_LoadKVX("voxel/desklamp.kvx");
-	//VReX_LoadVXL("voxel/babel.vxl", true);
+	Heightmap_Generate();
 
-	// camera
+	// Initialize math table
+	mathtable = new Rex::MathTable;
+
+	// Initialize camera info
 	camera.draw_distance = REX_SCALAR(128);
 
 	camera.origin.x = REX_SCALAR(0);
 	camera.origin.y = REX_SCALAR(0);
-	camera.origin.z = REX_SCALAR(255);
+	camera.origin.z = REX_SCALAR(64);
 
 	camera.angles.x = 0;
 	camera.angles.y = 0;
 	camera.angles.z = 0;
-
-	// y buffer
-	ybuff = (rex_uint8 *)calloc(200, sizeof(rex_uint8));
 }
 
-void VReX_Shutdown()
+void Shutdown()
 {
-	if (voxmap->elements) free(voxmap->elements);
-	if (voxmap) free(voxmap);
-	if (ybuff) free(ybuff);
-}
-
-void VReX_Render(Rex::Surface *dst, rex_rect area, Rex::Camera cam, rex_scalar height_scale)
-{
-	// General variables
-	rex_int i;
-
-	// Drawable area
-	rex_int32 draw_w = area.x2 - area.x1;
-	rex_int32 draw_h = area.y2 - area.y1;
-
-	// Sin and cos of the camera's yaw
-	rex_scalar sn = math.sin[cam.angles.y];
-	rex_scalar cs = math.cos[cam.angles.y];
-
-	// Screen coords
-	rex_vec2i s;
-
-	// meh
-	rex_vec3s p = cam.origin;
-
-	// meh
-	rex_int horizon = -cam.angles.x + (draw_h / 2);
-
-	// Draw left to right
-	for (s.x = area.x1; s.x < area.x2; s.x++)
-	{
-		// variables
-		rex_vec2s ray_dir, delta_dist, side_dist;
-		rex_vec2i step, map_pos;
-
-		// clear y-buffer
-		memset(ybuff, 0, 200);
-
-		// map pos (int)
-		map_pos.x = RexScalarToInteger(p.x);
-		map_pos.y = RexScalarToInteger(p.y);
-
-		// calculate ray direction
-		ray_dir.x = REX_MUL(REX_DIV(REX_SCALAR(2.0f), REX_SCALAR(draw_w)), REX_SCALAR(s.x)) - REX_SCALAR(1.0f);
-		ray_dir.y = REX_SCALAR(1.0f);
-
-		// rotate around (0, 0) by camera yaw
-		rex_vec2s temp = ray_dir;
-
-		ray_dir.x = REX_MUL(-temp.x, cs) - REX_MUL(-temp.y, sn);
-		ray_dir.y = REX_MUL(temp.x, sn) + REX_MUL(temp.y, cs);
-
-		// get delta of ray (prevent div by 0)
-		delta_dist.x = (ray_dir.x == 0) ? REX_SCALAR_MIN : ABS(REX_DIV(REX_SCALAR(1.0f), ray_dir.x));
-		delta_dist.y = (ray_dir.y == 0) ? REX_SCALAR_MIN : ABS(REX_DIV(REX_SCALAR(1.0f), ray_dir.y));
-
-		// calculate step and initial side_dist
-		if (ray_dir.x < 0)
-		{
-			step.x = -1;
-			side_dist.x = REX_MUL((p.x - REX_SCALAR(map_pos.x)), delta_dist.x);
-		}
-		else
-		{
-			step.x = 1;
-			side_dist.x = REX_MUL((REX_SCALAR(map_pos.x) + REX_SCALAR(1) - p.x), delta_dist.x);
-		}
-
-		if (ray_dir.y < 0)
-		{
-			step.y = -1;
-			side_dist.y = REX_MUL((p.y - REX_SCALAR(map_pos.y)), delta_dist.y);
-		}
-		else
-		{
-			step.y = 1;
-			side_dist.y = REX_MUL((REX_SCALAR(map_pos.y) + REX_SCALAR(1) - p.y), delta_dist.y);
-		}
-
-		bool casting = true;
-		rex_int side;
-		rex_scalar dist, dist2;
-		rex_int r;
-
-		// perform DDA
-		while (casting == true)
-		{
-			if (side_dist.x < side_dist.y)
-			{
-				side_dist.x += delta_dist.x;
-				map_pos.x += step.x;
-				side = 1;
-			}
-			else
-			{
-				side_dist.y += delta_dist.y;
-				map_pos.y += step.y;
-				side = 2;
-			}
-
-			switch (side)
-			{
-				case 1: dist = side_dist.x - delta_dist.x; dist2 = side_dist.y; break;
-
-				case 2: dist = side_dist.y - delta_dist.y; dist2 = side_dist.x; break;
-
-				default: break;
-			}
-
-			// if it goes beyond the draw distance, cut off the ray
-			if (dist > cam.draw_distance) break;
-
-			// if out of bounds, keep going in hopes of finding something in-bounds again
-			// this allows rendering the map from an out of bounds location
-			if (map_pos.x > (VOXMAP_RLE_X - 1) || map_pos.x < 0) continue;
-			if (map_pos.y > (VOXMAP_RLE_Y - 1) || map_pos.y < 0) continue;
-
-			if (dist > REX_SCALAR(1) && dist2 > REX_SCALAR(1))
-			{
-				voxel_column_t column = voxmap[(map_pos.y * VOXMAP_RLE_Y) + map_pos.x];
-
-				rex_int column_height = 256;
-
-				rex_vec3s element_pos = {0, 0, 0};
-				rex_scalar element_height = 0;
-
-				rex_int line_height = 0;
-				rex_int line_start = 0, line_end = 0;
-				rex_int line_start2 = 0, line_end2 = 0;
-				rex_scalar height_delta1 = 0, height_delta2 = 0;
-
-				// draw the elements from top to bottom
-				for (i = 0; i < column.num_elements; i++)
-				{
-					voxel_rle_element_t element = column.elements[i];
-
-					// position of element
-					element_pos.x = REX_SCALAR(map_pos.x);
-					element_pos.y = REX_SCALAR(map_pos.y);
-					element_pos.z = REX_SCALAR(column_height - element.skipped);
-
-					// height of element
-					element_height = REX_SCALAR(element.drawn);
-
-					// height delta 1
-					height_delta1 = p.z - element_pos.z;
-					height_delta2 = p.z - (element_pos.z - element_height);
-
-					// height of the line on screen
-					line_start = RexScalarToInteger(REX_MUL(REX_DIV(height_delta1, dist), height_scale)) + horizon;
-					line_end = RexScalarToInteger(REX_MUL(REX_DIV(height_delta2, dist), height_scale)) + horizon;
-
-					// clamp the line to the visible region
-					line_start = CLAMP(line_start, area.y1, area.y2);
-					line_end = CLAMP(line_end, area.y1, area.y2);
-
-					// draw the side of the voxel
-					for (s.y = line_start; s.y < line_end; s.y++)
-					{
-						if (ybuff[s.y] == 0)
-						{
-							rex_uint8 c = element.side_color;
-							//c = Rex::ColormapLookup(c, RexScalarToInteger(dist));
-							Rex::SurfaceDrawPixel(dst, s.x, s.y, c);
-							ybuff[s.y] = 1;
-						}
-					}
-
-					// draw the top or bottom slab of the voxel
-					{
-						// this is where the magic happens
-						if (dist2 > (dist + REX_SCALAR(1)))
-							dist2 = (dist + REX_SCALAR(1));
-
-						line_start2 = RexScalarToInteger(REX_MUL(REX_DIV(height_delta1, dist2), height_scale)) + horizon;
-						line_end2 = RexScalarToInteger(REX_MUL(REX_DIV(height_delta2, dist2), height_scale)) + horizon;
-
-						line_start2 = CLAMP(line_start2, area.y1, area.y2);
-						line_end2 = CLAMP(line_end2, area.y1, area.y2);
-
-						for (s.y = line_start2; s.y < line_end2; s.y++)
-						{
-							if (ybuff[s.y] == 0)
-							{
-								rex_uint8 c = element.slab_color;
-								//c = Rex::ColormapLookup(c, RexScalarToInteger(dist));
-								Rex::SurfaceDrawPixel(dst, s.x, s.y, c);
-								ybuff[s.y] = 1;
-							}
-						}
-					}
-
-					// overall height of this column
-					column_height -= (element.skipped + element.drawn);
-
-					// gotta set a max height somewhere i guess
-					if (column_height < 0) break;
-				}
-			}
-		}
-	}
+	if (world) delete world;
+	if (mathtable) delete mathtable;
 }
 
 //
@@ -967,8 +218,8 @@ void CameraController()
 		camera.movespeedkey = 1;
 
 	// Set velocity
-	camera.velocity.x = math.sin[camera.angles.y] * camera.movespeedkey;
-	camera.velocity.y = math.cos[camera.angles.y] * camera.movespeedkey;
+	camera.velocity.x = mathtable->sin[camera.angles.y] * camera.movespeedkey;
+	camera.velocity.y = mathtable->cos[camera.angles.y] * camera.movespeedkey;
 	camera.velocity.z = REX_SCALAR(1.0f) * camera.movespeedkey;
 
 	// Move forwards
@@ -1064,20 +315,17 @@ int main(int argc, char *argv[])
 	if (Rex::InitializeGraphics(320, 200, 8) == false) return EXIT_FAILURE;
 	Rex::VidInfo vidinfo = Rex::GetVidInfo();
 
-	// Load colormap
-	//Rex::SetGraphicsPalette("gfx/portal2d.pal");
-	//Rex::ColormapLoad("gfx/portal2d.tab");
+	// Set palette & colormap
+	Rex::SetGraphicsPalette("gfx/mindgrdn.pal");
+	Rex::ColormapLoad("gfx/mindgrdn.tab");
 
 	// Create picture buffers
 	Rex::SurfaceLoadBMP(&pic_font, "gfx/font8x8.bmp");
 	Rex::SurfaceLoadBMP(&pic_cursor, "local/cursor.bmp");
 	Rex::SurfaceCreate(&pic_bbuffer, vidinfo.width, vidinfo.height, vidinfo.bpp, 0, 0);
 
-	// Generate math table
-	math.Initialize();
-
-	// V-ReX init
-	VReX_Init();
+	Voxel::Initialize(vidinfo.width, vidinfo.height);
+	Initialize();
 
 	// Start counting time
 	frame_end = Rex::GetTicks64();
@@ -1117,22 +365,8 @@ int main(int argc, char *argv[])
 		{
 			// watcom...
 			rex_rect screen_area = {0, 0, pic_bbuffer.width, pic_bbuffer.height};
-			//rex_vec3i voxmap_dim = {32, 32, 32};
 
-			// V-ReX renderer
-			VReX_Render(&pic_bbuffer, screen_area, camera, REX_SCALAR(160));
-
-			#ifdef SPIVIS2_KC
-
-			rex_vec3f pp = {0, 0, 0};
-			rex_vec3f pr = {1, 0, 0};
-			rex_vec3f pd = {0, 0, 1};
-			rex_vec3f pf = {0, -1, 0};
-			rex_vec3f ph = {(float)(pic_bbuffer.width / 2), (float)(pic_bbuffer.height / 2), (float)(pic_bbuffer.width / 2)};
-
-			VoxelRender2(&pic_bbuffer, screen_area, pp, pr, pd, pf, ph);
-
-			#endif
+			Voxel::Render(&pic_bbuffer, camera, world, REX_SCALAR(160));
 		}
 
 		sprintf(console_buffer, "x: %d y: %d z %d", RexScalarToInteger(camera.origin.x), RexScalarToInteger(camera.origin.y), RexScalarToInteger(camera.origin.z));
@@ -1156,8 +390,8 @@ int main(int argc, char *argv[])
 		#endif
 	}
 
-	// Shutdown Voxel RLE
-	VReX_Shutdown();
+	// Shutdown game features, free up memory
+	Shutdown();
 
 	// Shutdown Graphics
 	Rex::ShutdownGraphics();

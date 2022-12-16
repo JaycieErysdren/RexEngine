@@ -84,23 +84,4 @@ extern Rex::VidInfo vid_info;
 
 #endif
 
-//
-// Renderers
-//
-
-// Raycast
-#if MODULE_RAYCAST
-#include "modules/render/raycast/raycast.hpp"
-#endif
-
-// Portal2D
-#if MODULE_PORTAL2D
-#include "modules/render/portal2d/portal2d.hpp"
-#endif
-
-// Voxel
-#if MODULE_VOXEL
-#include "modules/render/voxel/voxel.hpp"
-#endif
-
 #endif // __REX_ENGINE_PRIVATE_H__

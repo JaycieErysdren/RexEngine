@@ -32,8 +32,8 @@ namespace Rex
 //
 //
 
-// Class initializer
-void MathTable::Initialize()
+// Class constructor
+MathTable::MathTable()
 {
 	for (rex_int i = 0; i < 360; i++)
 	{
