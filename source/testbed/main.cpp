@@ -233,9 +233,9 @@ void Initialize()
 	// add an actor
 	world->AddActor(REX_SCALAR(16), REX_SCALAR(32), REX_SCALAR(4));
 
-	//Heightmap_Generate();
+	Heightmap_Generate();
 	//Heightmap_Load("voxel/m1c_mg.dat", "voxel/m1h.dat", 1024, 1024);
-	Tilemap_Load("maps/casino.tmj");
+	//Tilemap_Load("maps/casino.tmj");
 
 	// Initialize math table
 	mathtable = new Rex::MathTable;
@@ -245,7 +245,7 @@ void Initialize()
 
 	camera.origin.x = REX_SCALAR(0);
 	camera.origin.y = REX_SCALAR(0);
-	camera.origin.z = REX_SCALAR(2);
+	camera.origin.z = REX_SCALAR(4);
 
 	camera.angles.x = 0;
 	camera.angles.y = 0;

@@ -275,6 +275,9 @@ void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixe
 			// if behind the player, don't draw
 			if (pv.y < REX_SCALAR(1)) continue;
 
+			// if beyond the draw distance, don't draw
+			if (pv.y > camera.draw_distance) continue;
+
 			// rotate the x and z coordinates into the player's view
 			pv.x = REX_MUL(-v.x, cs) - REX_MUL(-v.y, sn);
 			pv.z = v.z - REX_DIV(REX_MUL(REX_SCALAR(camera.angles.x), pv.y), pixel_height_scale);
@@ -285,6 +288,7 @@ void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixe
 
 			if (sv.x == s.x && sv.y > -1 && sv.y < draw_h) 
 			{
+				// check zbuffer
 				if (REX_SCALAR(zbuffer[sv.y]) > pv.y)
 				{
 					Rex::SurfaceDrawPixel(dst, s.x, sv.y, 255);
