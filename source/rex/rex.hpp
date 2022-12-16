@@ -89,6 +89,14 @@ using namespace std;
 
 //
 //
+// Rex Engine thirdparty headers
+//
+//
+
+#include "thrdprty/cjson/cJSON.h"
+
+//
+//
 // Rex Engine public headers
 //
 //

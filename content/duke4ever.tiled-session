@@ -3,12 +3,14 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "mapsrc/test2.tmj",
+    "activeFile": "mapsrc/yasha/Casino_Map.tmj",
     "expandedProjectPaths": [
         ".",
-        "tilesrc",
-        "mapsrc"
+        "mapsrc/yasha",
+        "mapsrc",
+        "tilesrc"
     ],
+    "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
         "mapsrc/heightmaps.tsx": {
             "scaleInDock": 1,
@@ -24,6 +26,17 @@
                 "x": 716,
                 "y": 636
             }
+        },
+        "mapsrc/yasha/Casino_Map.tmj": {
+            "scale": 0.55478515625,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 513.7123745819399,
+                "y": 513.7123745819398
+            }
+        },
+        "mapsrc/yasha/test_kenney.tsx": {
+            "scaleInDock": 1
         },
         "tilesrc/duke4ever.tsx": {
             "dynamicWrapping": true,
@@ -53,13 +66,15 @@
     "map.width": 32,
     "openFiles": [
         "mapsrc/test2.tmj",
-        "tilesrc/heightmaps.tsx"
+        "tilesrc/heightmaps.tsx",
+        "mapsrc/yasha/Casino_Map.tmj"
     ],
     "project": "duke4ever.tiled-project",
     "property.type": "int",
     "recentFiles": [
-        "tilesrc/heightmaps.tsx",
         "mapsrc/test2.tmj",
+        "tilesrc/heightmaps.tsx",
+        "mapsrc/yasha/Casino_Map.tmj",
         "mapsrc/heightmaps.tsx",
         "tilesrc/floors.tsx",
         "tilesrc/walls.tsx",

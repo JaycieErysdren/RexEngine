@@ -98,8 +98,20 @@ endif()
 ##
 ##
 
-## For rex.hpp
+## For rex_priv.hpp
 include_directories(.)
+
+##
+##
+## Rex Engine thirdparty
+##
+##
+
+set(CJSON_SRC
+	thrdprty/cjson/cJSON.c
+)
+
+add_library(cjson STATIC ${CJSON_SRC})
 
 ##
 ##
@@ -242,6 +254,8 @@ endif()
 add_library(rex INTERFACE)
 
 target_link_libraries(rex INTERFACE rex_core)
+
+target_link_libraries(rex INTERFACE cjson)
 
 ##
 ## Core modules
