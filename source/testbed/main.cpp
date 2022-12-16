@@ -285,16 +285,16 @@ void CameraController()
 	// Keyboard look
 	{
 		// Rotate leftwards
-		if (Rex::KeyTest(REX_KB_LTARROW)) camera.angles.y += camera.anglespeedkey;
+		if (Rex::KeyTest(REX_KB_LEFT)) camera.angles.y += camera.anglespeedkey;
 
 		// Rotate rightwards
-		if (Rex::KeyTest(REX_KB_RTARROW)) camera.angles.y -= camera.anglespeedkey;
+		if (Rex::KeyTest(REX_KB_RIGHT)) camera.angles.y -= camera.anglespeedkey;
 
 		// Look upwards
-		if (Rex::KeyTest(REX_KB_UPARROW)) camera.angles.x += camera.anglespeedkey;
+		if (Rex::KeyTest(REX_KB_UP)) camera.angles.x += camera.anglespeedkey;
 
 		// Look downwards
-		if (Rex::KeyTest(REX_KB_DNARROW)) camera.angles.x -= camera.anglespeedkey;
+		if (Rex::KeyTest(REX_KB_DOWN)) camera.angles.x -= camera.anglespeedkey;
 	}
 
 	// Pitch angle sanity checks
@@ -306,7 +306,7 @@ void CameraController()
 	if (camera.angles.y > 359) camera.angles.y -= 360;
 
 	// Check if sprinting
-	if (Rex::KeyTest(REX_KB_LTSHIFT))
+	if (Rex::KeyTest(REX_KB_LSHIFT))
 		camera.movespeedkey = 2;
 	else
 		camera.movespeedkey = 1;
@@ -425,7 +425,7 @@ int main(int argc, char *argv[])
 	frame_end = Rex::GetTicks64();
 
 	// Main loop
-	while (!Rex::KeyTest(REX_KB_ESC))
+	while (!Rex::KeyTest(REX_KB_ESCAPE))
 	{
 		// Get start of frame time
 		frame_start = Rex::GetTicks64();

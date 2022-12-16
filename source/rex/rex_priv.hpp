@@ -47,20 +47,6 @@ extern Rex::VidInfo vid_info;
 #include "modules/core/math/math.hpp"
 
 //
-// Core modules (optional)
-//
-
-// Palette
-#if MODULE_PALETTE
-#include "modules/core/palette/palette.hpp"
-#endif
-
-// Utils
-#if MODULE_UTILS
-#include "modules/core/utils/utils.hpp"
-#endif
-
-//
 // Hardware I/O modules
 //
 

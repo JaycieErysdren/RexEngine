@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex namespace: Graphics implementation
 //
-// LAST EDITED:		December 11th, 2022
+// LAST EDITED:		December 16th, 2022
 //
 // ========================================================
 
@@ -152,13 +152,9 @@ VidInfo GetVidInfo()
 
 	VESA::GetVidInfo(&v.width, &v.height, &v.bpp, &v.bytes_per_row);
 
-	return v;
-
-	#else
-
-	return NULL;
-
 	#endif
+
+	return v;
 }
 
 //

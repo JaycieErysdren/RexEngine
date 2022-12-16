@@ -67,7 +67,34 @@ void SurfaceCreate(Surface *picture, int width, int height, int bpp, int bytes_p
 	picture->shared				= buffer != 0;
 	picture->scanlines.b		= (rex_uint8 **)malloc(height * sizeof(void *));
 
-	while (height--) picture->scanlines.b[height] = (rex_uint8 *)((uint32_t)picture->buffer + bytes_per_row * height);
+	while (height--)
+	{
+		#if (REX_COMPILER == COMPILER_DJGPP)
+
+		if (picture->bpp == 8)
+			picture->scanlines.b[height] = (rex_uint8 *)((rex_uint32)picture->buffer + bytes_per_row * height);
+
+		if (picture->bpp == 16)
+			picture->scanlines.w[height] = (rex_uint16 *)((rex_uint32)picture->buffer + bytes_per_row * height);
+
+		if (picture->bpp == 24 || picture->bpp == 32)
+			picture->scanlines.l[height] = (rex_uint32 *)((rex_uint32)picture->buffer + bytes_per_row * height);
+
+		#endif
+
+		#if (REX_COMPILER == COMPILER_GCC)
+
+		if (picture->bpp == 8)
+			picture->scanlines.b[height] = (rex_uint8 *)((rex_uint32 *)picture->buffer + bytes_per_row * height);
+
+		if (picture->bpp == 16)
+			picture->scanlines.w[height] = (rex_uint16 *)((rex_uint32 *)picture->buffer + bytes_per_row * height);
+
+		if (picture->bpp == 24 || picture->bpp == 32)
+			picture->scanlines.l[height] = (rex_uint32 *)((rex_uint32 *)picture->buffer + bytes_per_row * height);
+
+		#endif
+	}
 }
 
 void SurfaceCreateMip(Surface *dst, Surface *src, clut_t blender)
@@ -141,17 +168,17 @@ void SurfaceLoadBMP(Surface *picture, string filename)
 		//fail("%s is not a bitmap file", filename);
 	}
 
-	Utils::FileSkip(fp, 16);
+	fseek(fp, 16, SEEK_CUR);
 	fread(&width, sizeof(uint16_t), 1, fp);
-	Utils::FileSkip(fp, 2);
+	fseek(fp, 2, SEEK_CUR);
 	fread(&height, sizeof(uint16_t), 1, fp);
-	Utils::FileSkip(fp, 22);
+	fseek(fp, 22, SEEK_CUR);
 	fread(&num_palette_colors, sizeof(uint16_t), 1, fp);
 
 	SurfaceCreate(picture, width, height, 0, 0, 0);
 
-	Utils::FileSkip(fp, 6);
-	Utils::FileSkip(fp, num_palette_colors * 4);
+	fseek(fp, 6, SEEK_CUR);
+	fseek(fp, num_palette_colors * 4, SEEK_CUR);
 
 	fread(picture->buffer, height, picture->bytes_per_row, fp);
 

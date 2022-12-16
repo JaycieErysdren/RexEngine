@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex Engine public header
 //
-// LAST EDITED:		December 15th, 2022
+// LAST EDITED:		December 16th, 2022
 //
 // ========================================================
 
@@ -81,6 +81,14 @@
 		#include <graph.h>
 
 	#endif
+
+#endif
+
+// Modern target headers
+#if (REX_TARGET == PLATFORM_NIX) || (REX_TARGET == PLATFORM_WIN)
+
+// SDL2
+#include <SDL2/SDL.h>
 
 #endif
 

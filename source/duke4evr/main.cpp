@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Duke4Ever program entry point
 //
-// LAST EDITED:		December 7th, 2022
+// LAST EDITED:		December 17th, 2022
 //
 // ========================================================
 
@@ -18,7 +18,6 @@
 #include "duke4evr.hpp"
 
 #define CYCLES 30
-
 
 //
 // Types
@@ -345,16 +344,16 @@ void PlayerController()
 	// Keyboard look
 	{
 		// Rotate leftwards
-		if (Rex::KeyTest(REX_KB_LTARROW)) player.angles.y += player.anglespeedkey;
+		if (Rex::KeyTest(REX_KB_LEFT)) player.angles.y += player.anglespeedkey;
 
 		// Rotate rightwards
-		if (Rex::KeyTest(REX_KB_RTARROW)) player.angles.y -= player.anglespeedkey;
+		if (Rex::KeyTest(REX_KB_RIGHT)) player.angles.y -= player.anglespeedkey;
 
 		// Look upwards
-		if (Rex::KeyTest(REX_KB_UPARROW)) player.angles.x += player.anglespeedkey;
+		if (Rex::KeyTest(REX_KB_UP)) player.angles.x += player.anglespeedkey;
 
 		// Look downwards
-		if (Rex::KeyTest(REX_KB_DNARROW)) player.angles.x -= player.anglespeedkey;
+		if (Rex::KeyTest(REX_KB_DOWN)) player.angles.x -= player.anglespeedkey;
 	}
 
 	// Pitch angle sanity checks
@@ -366,7 +365,7 @@ void PlayerController()
 	if (player.angles.y > 359) player.angles.y -= 360;
 
 	// Check if sprinting
-	if (Rex::KeyTest(REX_KB_LTSHIFT))
+	if (Rex::KeyTest(REX_KB_LSHIFT))
 		player.movespeedkey = 6;
 	else
 		player.movespeedkey = 4;
@@ -557,7 +556,7 @@ int main(int argc, char *argv[])
 	frame_end = Rex::GetTicks64();
 
 	// Main loop
-	while (!Rex::KeyTest(REX_KB_ESC))
+	while (!Rex::KeyTest(REX_KB_ESCAPE))
 	{
 		// Get start of frame time
 		frame_start = Rex::GetTicks64();

@@ -10,7 +10,7 @@
 ##
 ## DESCRIPTION:		Rex Engine CMake project definition
 ##
-## LAST EDITED:		December 15th, 2022
+## LAST EDITED:		December 16th, 2022
 ##
 ## ========================================================
 
@@ -156,17 +156,6 @@ if(${MODULE_MATH})
 
 endif()
 
-## Utils
-if(${MODULE_UTILS})
-
-	set(REX_UTILS_SRC
-		modules/core/utils/utils.cpp
-	)
-
-	add_library(utils STATIC ${REX_UTILS_SRC})
-
-endif()
-
 ##
 ## Hardware I/O modules
 ##
@@ -260,10 +249,6 @@ target_link_libraries(rex INTERFACE cjson)
 ##
 ## Core modules
 ##
-
-if(${MODULE_UTILS})
-	target_link_libraries(rex INTERFACE utils)
-endif()
 
 if(${MODULE_MATH})
 	target_link_libraries(rex INTERFACE math)

@@ -18,7 +18,6 @@
 #define __TESTBED_H__
 
 // Rex Engine modules
-#define MODULE_UTILS 1
 #define MODULE_MATH 1
 #define MODULE_DOS 1
 #define MODULE_VGA 1
