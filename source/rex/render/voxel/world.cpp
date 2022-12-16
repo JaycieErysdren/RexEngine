@@ -144,8 +144,6 @@ World::World(string filename)
 		fread(&x, sizeof(rex_int32), 1, file);
 		fread(&y, sizeof(rex_int32), 1, file);
 
-		cout << x << " " << y << endl;
-
 		// read number of slabs
 		rex_int32 num_slabs;
 		fread(&num_slabs, sizeof(rex_int32), 1, file);

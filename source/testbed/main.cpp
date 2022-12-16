@@ -228,7 +228,7 @@ void Initialize()
 	Rex::ColormapLoad("gfx/mindgrdn.tab");
 
 	// allocate world
-	world = new Voxel::World("world.vrx");
+	world = new Voxel::World("maps/orbb.vrx");
 	//world = new Voxel::World("Map", 1024, 1024, 256);
 
 	// add an actor
