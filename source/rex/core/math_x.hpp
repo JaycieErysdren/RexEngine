@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/rex/modules/core/math/fixed.hpp
+// FILE:			/source/rex/core/math_x.hpp
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -8,11 +8,23 @@
 //
 // LICENSE:			ACSL v1.4
 //
-// DESCRIPTION:		Fixed-point math header
+// DESCRIPTION:		Rex namespace: Fixed Math header
 //
-// LAST EDITED:		December 11th, 2022
+// LAST EDITED:		December 16th, 2022
 //
 // ========================================================
+
+#ifndef __REX_FIXED_MATH_H__
+#define __REX_FIXED_MATH_H__
+
+//
+//
+// Rex namespace: Fixed Math
+//
+//
+
+namespace Rex
+{
 
 //
 //
@@ -29,3 +41,7 @@ extern rex_int32 sintable[2048];
 
 #define fixsin(a) sintable[(a) & 2047]
 #define fixcos(a) sintable[((a) + 512) & 2047]
+
+} // namespace Rex
+
+#endif // __REX_FIXED_MATH_H__

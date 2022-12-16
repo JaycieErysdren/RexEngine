@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/rex/modules/core/math/integer.cpp
+// FILE:			/source/rex/core/math_i.cpp
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -8,17 +8,23 @@
 //
 // LICENSE:			ACSL v1.4
 //
-// DESCRIPTION:		Integer math header
+// DESCRIPTION:		Rex namespace: Integer Math implementation
 //
-// LAST EDITED:		December 11th, 2022
+// LAST EDITED:		December 16th, 2022
 //
 // ========================================================
 
 // Rex Engine private header
 #include "rex_priv.hpp"
 
-// This module's headers
-#include "math.hpp"
+//
+//
+// Rex namespace: Integer Math
+//
+//
+
+namespace Rex
+{
 
 //
 //
@@ -26,8 +32,10 @@
 //
 //
 
-// Integer square root
+// Integer squared
 rex_int32 isqr(rex_int32 value)
 {
 	return value * value;
 }
+
+} //  namespace Rex

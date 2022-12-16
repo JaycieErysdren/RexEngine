@@ -112,6 +112,12 @@ using namespace std;
 // Types
 #include "core/types.hpp"
 
+// Integer Math
+#include "core/math_i.hpp"
+
+// Fixed Math
+#include "core/math_x.hpp"
+
 // Math Table
 #include "core/mathtabl.hpp"
 

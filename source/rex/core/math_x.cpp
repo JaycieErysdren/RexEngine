@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/rex/modules/core/math/fixed.cpp
+// FILE:			/source/rex/core/math_x.cpp
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -8,17 +8,23 @@
 //
 // LICENSE:			ACSL v1.4
 //
-// DESCRIPTION:		Fixed-point math implementation
+// DESCRIPTION:		Rex namespace: Fixed Math implementation
 //
-// LAST EDITED:		December 11th, 2022
+// LAST EDITED:		December 16th, 2022
 //
 // ========================================================
 
 // Rex Engine private header
 #include "rex_priv.hpp"
 
-// This module's headers
-#include "math.hpp"
+//
+//
+// Rex namespace: Fixed Math
+//
+//
+
+namespace Rex
+{
 
 //
 //
@@ -45,3 +51,5 @@ int fixdot3(int a1, int b1, int a2, int b2, int a3, int b3)
 {
 	return ((rex_int64)a1 * b1 + (rex_int64)a2 * b2 + (rex_int64)a3 * b3) >> 16;
 }
+
+} // namespace Rex

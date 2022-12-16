@@ -36,20 +36,6 @@ include(../../cmake/rex_determinator.cmake)
 ##
 
 ##
-## Core modules
-##
-
-## Math
-if(${MODULE_MATH})
-	add_compile_definitions("MODULE_MATH=1")
-endif()
-
-## Utils
-if(${MODULE_UTILS})
-	add_compile_definitions("MODULE_UTILS=1")
-endif()
-
-##
 ## Hardware I/O modules
 ##
 
@@ -126,6 +112,9 @@ set(REX_CORE_SRC
 	core/console.cpp
 	core/graphics.cpp
 	core/keyboard.cpp
+	core/math_i.cpp
+	core/math_sin.cpp
+	core/math_x.cpp
 	core/mathtabl.cpp
 	core/mouse.cpp
 	core/surface.cpp
@@ -138,23 +127,6 @@ add_library(rex_core STATIC ${REX_CORE_SRC})
 ## Rex Engine modules
 ##
 ##
-
-##
-## Core modules
-##
-
-## Math
-if(${MODULE_MATH})
-
-	set(REX_MATH_SRC
-		modules/core/math/fixed.cpp
-		modules/core/math/integer.cpp
-		modules/core/math/sintable.cpp
-	)
-
-	add_library(math STATIC ${REX_MATH_SRC})
-
-endif()
 
 ##
 ## Hardware I/O modules
@@ -245,14 +217,6 @@ add_library(rex INTERFACE)
 target_link_libraries(rex INTERFACE rex_core)
 
 target_link_libraries(rex INTERFACE cjson)
-
-##
-## Core modules
-##
-
-if(${MODULE_MATH})
-	target_link_libraries(rex INTERFACE math)
-endif()
 
 ##
 ## Hardware I/O modules

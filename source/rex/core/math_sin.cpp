@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/rex/modules/core/math/sintable.hpp
+// FILE:			/source/rex/core/math_sin.cpp
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -8,17 +8,23 @@
 //
 // LICENSE:			ACSL v1.4
 //
-// DESCRIPTION:		Fixed-point sin table
+// DESCRIPTION:		Rex namespace: Sin Table implementation
 //
-// LAST EDITED:		December 11th, 2022
+// LAST EDITED:		December 16th, 2022
 //
 // ========================================================
 
 // Rex Engine private header
 #include "rex_priv.hpp"
 
-// This module's headers
-#include "math.hpp"
+//
+//
+// Rex namespace: Sin Table
+//
+//
+
+namespace Rex
+{
 
 // look upon ye mighty and despair
 rex_int32 sintable[] =
@@ -364,3 +370,5 @@ short radarang[] =
 	-2014, -1885, -1755, -1626, -1496, -1367, -1237, -1107,
 	-977, -847, -716, -586, -456, -325, -195, -65
 };
+
+} // namespace Rex
