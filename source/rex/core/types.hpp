@@ -255,8 +255,18 @@ typedef rex_fixed_32uf					rex_ufraction;
 #define REX_SAFEDIV(a, b)			((((a) == 0) || (b) == 0) ? REX_SCALAR_MIN : REX_DIV((a), (b)))
 #define REX_SAFEMULDIV(a, b, c)		(REX_SAFEDIV(REX_MUL((a), (b)), (c)))
 
-#define FLOOR(a)					((a) & REX_MASK_32S)
-#define CEIL(a)						(((a) & REX_MASK_32SF == 0) ? (a) : ((a) + REX_ONE_32S) & REX_MASK_32S)
+#define REX_FLOOR(a)				((a) & REX_MASK_32S)
+#define REX_CEIL(a)					(((a) & REX_MASK_32SF == 0) ? (a) : ((a) + REX_ONE_32S) & REX_MASK_32S)
+
+#if (REX_COMPILER == COMPILER_WATCOM)
+
+#define REX_SQRT(a)					(sqrt((double)(a)))
+
+#else
+
+#define REX_SQRT(a)					(sqrt(a))
+
+#endif
 
 //
 // Vector types & macros

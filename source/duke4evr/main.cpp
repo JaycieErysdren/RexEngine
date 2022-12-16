@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Duke4Ever program entry point
 //
-// LAST EDITED:		December 17th, 2022
+// LAST EDITED:		December 16th, 2022
 //
 // ========================================================
 
@@ -208,7 +208,7 @@ void RenderRays(Rex::Surface *dst, rex_rect area)
 				if (side == false) wall_x = player.origin.y + REX_MUL(perp_wall_dist, raydir.y);
 				else wall_x = player.origin.x + REX_MUL(perp_wall_dist, raydir.x);
 
-				wall_x -= FLOOR(wall_x);
+				wall_x -= REX_FLOOR(wall_x);
 
 				//x coordinate on the texture
 				rex_int32 tex_x = RexScalarToInteger(REX_MUL(wall_x, REX_SCALAR(TEXTURE_X)));

@@ -69,7 +69,7 @@ void SurfaceCreate(Surface *picture, int width, int height, int bpp, int bytes_p
 
 	while (height--)
 	{
-		#if (REX_COMPILER == COMPILER_DJGPP)
+		#if (REX_PLATFORM == PLATFORM_DOS)
 
 		if (picture->bpp == 8)
 			picture->scanlines.b[height] = (rex_uint8 *)((rex_uint32)picture->buffer + bytes_per_row * height);
@@ -82,7 +82,7 @@ void SurfaceCreate(Surface *picture, int width, int height, int bpp, int bytes_p
 
 		#endif
 
-		#if (REX_COMPILER == COMPILER_GCC)
+		#if (REX_PLATFORM == PLATFORM_NIX) || (REX_PLATFORM == PLATFORM_WIN)
 
 		if (picture->bpp == 8)
 			picture->scanlines.b[height] = (rex_uint8 *)((rex_uint32 *)picture->buffer + bytes_per_row * height);

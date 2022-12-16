@@ -69,7 +69,7 @@ void Heightmap_Generate()
 			if (d > 0 && ((x ^ y) & 32))
 			{
 				// we're drawing a sphere above the ground
-				sphere_hei = sqrt(d);
+				sphere_hei = REX_SQRT(d);
 				sphere_col = (x + y) * 0.5f;
 
 				sphere_slab.drawn = sphere_hei;
@@ -103,7 +103,7 @@ void Heightmap_Generate()
 void Heightmap_Load(string filename_color, string filename_height, rex_int size_x, rex_int size_y)
 {
 	// Variables
-	rex_int x, y, i;
+	rex_int x, y;
 
 	printf("loading...\n");
 
@@ -140,7 +140,7 @@ void Tilemap_Load(string filename)
 	// variables
 	cJSON *json, *json_array, *json_arrayitem, *json_child, *json_mapdata;
 	FILE *file;
-	rex_int file_len, map_w, map_h, mapdata, mapdata_len, x, y, i;
+	rex_int file_len, map_w, map_h, mapdata, mapdata_len, x, y;
 	char *buffer;
 
 	// open file
@@ -389,9 +389,6 @@ void ReadMouse(rex_int32 *buttons, rex_vec2i *pos, rex_int32 speedlimit, rex_rec
 
 int main(int argc, char *argv[])
 {
-	// General variables
-	rex_int i;
-
 	// Cycle variables
 	rex_int64 frame_start, frame_end;
 	rex_int32 cycles, c;

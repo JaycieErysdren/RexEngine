@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Voxel namespace: Render implementation
 //
-// LAST EDITED:		December 15th, 2022
+// LAST EDITED:		December 16th, 2022
 //
 // ========================================================
 
@@ -185,7 +185,6 @@ void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixe
 		bool casting = true;
 		rex_int side;
 		rex_scalar dist, dist2;
-		rex_int r;
 
 		// perform DDA to draw voxels
 		while (casting == true)
