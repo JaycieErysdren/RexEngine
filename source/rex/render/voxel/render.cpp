@@ -238,7 +238,7 @@ void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixe
 						{
 							if (ybuffer[s.y] == 0)
 							{
-								rex_uint8 c = slab.color_bottom;
+								rex_uint8 c = p.z > slab_pos.z ? slab.color_top : slab.color_bottom;
 								//c = Rex::ColormapLookup(c, RexScalarToInteger(dist));
 								Rex::SurfaceDrawPixel(dst, s.x, s.y, c);
 								ybuffer[s.y] = 1;

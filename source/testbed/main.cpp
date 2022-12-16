@@ -40,6 +40,8 @@ void Heightmap_Generate()
 {
 	rex_int x, y;
 
+	printf("loading...\n");
+
 	for (y = 0; y < 64; y++)
 	{
 		for (x = 0; x < 64; x++)
