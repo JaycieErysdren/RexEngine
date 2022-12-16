@@ -104,7 +104,8 @@ World::World(string world_name, rex_int size_x, rex_int size_y, rex_int size_z)
 World::World(string filename)
 {
 	// variables
-	rex_int x, y, z;
+	rex_int32 x, y, z, i;
+	rex_int32 num_columns;
 
 	// open file
 	FILE *file = fopen(filename.c_str(), "rb");
@@ -120,9 +121,12 @@ World::World(string filename)
 	fread(&size.y, sizeof(rex_int32), 1, file);
 	fread(&size.z, sizeof(rex_int32), 1, file);
 
+	// read number of columns
+	fread(&num_columns, sizeof(rex_int32), 1, file);
+
 	// read map name
-	char namebuf[112];
-	name = fgets(namebuf, 112, file);
+	char namebuf[108];
+	name = fgets(namebuf, 108, file);
 
 	// seek to end of header
 	fseek(file, 128L, SEEK_SET);
@@ -130,37 +134,39 @@ World::World(string filename)
 	// fill up the columns array
 	columns.resize(size.x * size.y);
 
-	// read columns
-	for (y = 0; y < size.y; y++)
+	for (i = 0; i < num_columns; i++)
 	{
-		for (x = 0; x < size.x; x++)
+		// read magic
+		fread(magic, sizeof(char), 4, file);
+		if (memcmp(magic, voxel_file_column_magic, 4) != 0) return;
+
+		// read x and y of column
+		fread(&x, sizeof(rex_int32), 1, file);
+		fread(&y, sizeof(rex_int32), 1, file);
+
+		cout << x << " " << y << endl;
+
+		// read number of slabs
+		rex_int32 num_slabs;
+		fread(&num_slabs, sizeof(rex_int32), 1, file);
+		if (num_slabs == 0) continue;
+
+		// read slabs
+		for (z = 0; z < num_slabs; z++)
 		{
 			// read magic
 			fread(magic, sizeof(char), 4, file);
-			if (memcmp(magic, voxel_file_column_magic, 4) != 0) return;
+			if (memcmp(magic, voxel_file_slab_magic, 4) != 0) return;
 
-			// read number of slabs
-			rex_int32 num_slabs;
-			fread(&num_slabs, sizeof(rex_int32), 1, file);
-			if (num_slabs == 0) continue;
+			Slab slab;
 
-			// read slabs
-			for (z = 0; z < num_slabs; z++)
-			{
-				// read magic
-				fread(magic, sizeof(char), 4, file);
-				if (memcmp(magic, voxel_file_slab_magic, 4) != 0) return;
+			fread(&slab.skipped, sizeof(rex_uint16), 1, file);
+			fread(&slab.drawn, sizeof(rex_uint16), 1, file);
+			fread(&slab.color_side, sizeof(rex_color), 1, file);
+			fread(&slab.color_top, sizeof(rex_color), 1, file);
+			fread(&slab.color_bottom, sizeof(rex_color), 1, file);
 
-				Slab slab;
-
-				fread(&slab.skipped, sizeof(rex_uint16), 1, file);
-				fread(&slab.drawn, sizeof(rex_uint16), 1, file);
-				fread(&slab.color_side, sizeof(rex_color), 1, file);
-				fread(&slab.color_top, sizeof(rex_color), 1, file);
-				fread(&slab.color_bottom, sizeof(rex_color), 1, file);
-
-				AddSlab(x, y, slab);
-			}
+			AddSlab(x, y, slab);
 		}
 	}
 
@@ -172,7 +178,7 @@ World::World(string filename)
 void World::Save(string filename)
 {
 	// variables
-	rex_int x, y, z;
+	rex_int32 x, y, z;
 
 	// open file
 	FILE *file = fopen(filename.c_str(), "wb");
@@ -186,11 +192,27 @@ void World::Save(string filename)
 	fwrite(&size.y, sizeof(rex_int32), 1, file);
 	fwrite(&size.z, sizeof(rex_int32), 1, file);
 
+	// write number of columns
+	rex_int32 num_columns = 0;
+
+	for (y = 0; y < size.y; y++)
+	{
+		for (x = 0; x < size.x; x++)
+		{
+			Column column = columns[y * size.x + x];
+			rex_int32 num_slabs = column.slabs.size();
+
+			if (num_slabs > 0) num_columns++;
+		}
+	}
+
+	fwrite(&num_columns, sizeof(rex_int32), 1, file);
+
 	// write map name
 	fwrite(name.c_str(), sizeof(char), name.size(), file);
 
 	// pad header to 128 bytes
-	string padding(112 - name.size(), '\0');
+	string padding(108 - name.size(), '\0');
 	fwrite(padding.c_str(), sizeof(char), padding.size(), file);
 
 	// write columns
@@ -201,8 +223,14 @@ void World::Save(string filename)
 			Column column = columns[y * size.x + x];
 			rex_int32 num_slabs = column.slabs.size();
 
+			if (num_slabs < 1) continue;
+
 			// write magic
 			fwrite(voxel_file_column_magic, sizeof(char), 4, file);
+
+			// write x and y
+			fwrite(&x, sizeof(rex_int32), 1, file);
+			fwrite(&y, sizeof(rex_int32), 1, file);
 
 			// write number of slabs
 			fwrite(&num_slabs, sizeof(rex_int32), 1, file);

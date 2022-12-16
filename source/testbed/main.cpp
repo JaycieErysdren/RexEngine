@@ -228,8 +228,8 @@ void Initialize()
 	Rex::ColormapLoad("gfx/mindgrdn.tab");
 
 	// allocate world
-	//world = new Voxel::World("world.vrx");
-	world = new Voxel::World("Map", 1024, 1024, 256);
+	world = new Voxel::World("world.vrx");
+	//world = new Voxel::World("Map", 1024, 1024, 256);
 
 	// add an actor
 	Voxel::Actor object01;
@@ -240,7 +240,7 @@ void Initialize()
 
 	//Heightmap_Generate();
 	//Heightmap_Load("voxel/m1c_mg.dat", "voxel/m1h.dat", 1024, 1024);
-	Tilemap_Load("maps/casino.tmj");
+	//Tilemap_Load("maps/casino.tmj");
 
 	//world->Save("world.vrx");
 
