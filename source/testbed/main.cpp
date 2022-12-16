@@ -243,7 +243,7 @@ void Initialize()
 
 	camera.origin.x = REX_SCALAR(0);
 	camera.origin.y = REX_SCALAR(0);
-	camera.origin.z = REX_SCALAR(64);
+	camera.origin.z = REX_SCALAR(2);
 
 	camera.angles.x = 0;
 	camera.angles.y = 0;

@@ -41,6 +41,16 @@ Rex::MathTable *mathtable;
 rex_int draw_w;
 rex_int draw_h;
 
+// Sprite
+class Sprite
+{
+	public:
+		Rex::Surface color;
+		rex_vec3s origin;
+};
+
+Sprite object01;
+
 //
 //
 // Functions
@@ -53,6 +63,11 @@ void Initialize(rex_int render_width, rex_int render_height)
 	mathtable = new Rex::MathTable;
 
 	SetRenderDimensions(render_width, render_height);
+
+	// sprite test
+	object01.origin.x = REX_SCALAR(16);
+	object01.origin.y = REX_SCALAR(32);
+	object01.origin.z = REX_SCALAR(4);
 }
 
 // Shutdown renderer
@@ -89,7 +104,7 @@ void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixe
 		rex_vec2i step, map_pos;
 
 		// clear y-buffer
-		memset(ybuffer, 0, 200);
+		memset(ybuffer, 0, draw_h);
 
 		// map pos (int)
 		map_pos.x = RexScalarToInteger(p.x);
@@ -132,12 +147,47 @@ void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixe
 			side_dist.y = REX_MUL((REX_SCALAR(map_pos.y) + REX_SCALAR(1) - p.y), delta_dist.y);
 		}
 
+		// draw sprite
+		for (i = 0; i < 1; i++)
+		{
+			rex_vec3s v, pv;
+			rex_vec2i sv;
+
+			// transform the sprite into the player's view
+			v.x = object01.origin.x - camera.origin.x;
+			v.y = object01.origin.y - camera.origin.y;
+			v.z = -object01.origin.z + camera.origin.z;
+
+			// rotate the y coordinate into the player's view
+			pv.y = REX_MUL(v.x, sn) + REX_MUL(v.y, cs);
+
+			// if behind the player, don't draw
+			if (pv.y < REX_SCALAR(1)) continue;
+
+			// rotate the x and z coordinates into the player's view
+			pv.x = REX_MUL(-v.x, cs) - REX_MUL(-v.y, sn);
+			pv.z = v.z - REX_DIV(REX_MUL(REX_SCALAR(camera.angles.x), pv.y), pixel_height_scale);
+
+			// get screen coordinates
+			sv.x = RexScalarToInteger(REX_DIV(REX_MUL(pv.x, pixel_height_scale), pv.y)) + (draw_w / 2);
+			sv.y = RexScalarToInteger(REX_DIV(REX_MUL(pv.z, pixel_height_scale), pv.y)) + (draw_h / 2);
+
+			if (sv.x == s.x && sv.y > -1 && sv.y < draw_h) 
+			{
+				if (ybuffer[sv.y] == 0)
+				{
+					Rex::SurfaceDrawPixel(dst, s.x, sv.y, 255);
+					ybuffer[sv.y] = 1;
+				}
+			}
+		}
+
 		bool casting = true;
 		rex_int side;
 		rex_scalar dist, dist2;
 		rex_int r;
 
-		// perform DDA
+		// perform DDA to draw voxels
 		while (casting == true)
 		{
 			if (side_dist.x < side_dist.y)
@@ -170,6 +220,7 @@ void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixe
 			if (map_pos.x > (world->size.x - 1) || map_pos.x < 0) continue;
 			if (map_pos.y > (world->size.y - 1) || map_pos.y < 0) continue;
 
+			// voxel draw loop
 			if (dist > REX_SCALAR(1) && dist2 > REX_SCALAR(1))
 			{
 				//voxel_column_t column = voxmap[(map_pos.y * world->size.y) + map_pos.x];
