@@ -227,7 +227,11 @@ void Initialize()
 	Rex::SetGraphicsPalette("gfx/mindgrdn.pal");
 	Rex::ColormapLoad("gfx/mindgrdn.tab");
 
+	// allocate world
 	world = new Voxel::World("Map", 1024, 1024, 256);
+
+	// add an actor
+	world->AddActor(REX_SCALAR(16), REX_SCALAR(32), REX_SCALAR(4));
 
 	//Heightmap_Generate();
 	//Heightmap_Load("voxel/m1c_mg.dat", "voxel/m1h.dat", 1024, 1024);

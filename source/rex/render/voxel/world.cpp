@@ -117,6 +117,24 @@ void World::AddSlab(rex_int x, rex_int y, Slab slab)
 	columns[(y * size.y) + x].AddSlab(slab);
 }
 
+// Add an actor at the specificed coordinate
+void World::AddActor(rex_scalar x, rex_scalar y, rex_scalar z)
+{
+	Actor actor;
+
+	actor.origin.x = x;
+	actor.origin.y = y;
+	actor.origin.z = z;
+
+	actors.push_back(actor);
+}
+
+// Add an actor
+void World::AddActor(Actor actor)
+{
+	actors.push_back(actor);
+}
+
 // Returns the column at the specificed coordinate
 Column World::GetColumn(rex_int x, rex_int y)
 {

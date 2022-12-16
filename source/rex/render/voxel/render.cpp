@@ -36,20 +36,11 @@ namespace Voxel
 //
 
 rex_uint8 *ybuffer;
+rex_uint8 *zbuffer;
 Rex::MathTable *mathtable;
 
 rex_int draw_w;
 rex_int draw_h;
-
-// Sprite
-class Sprite
-{
-	public:
-		Rex::Surface color;
-		rex_vec3s origin;
-};
-
-Sprite object01;
 
 //
 //
@@ -63,11 +54,6 @@ void Initialize(rex_int render_width, rex_int render_height)
 	mathtable = new Rex::MathTable;
 
 	SetRenderDimensions(render_width, render_height);
-
-	// sprite test
-	object01.origin.x = REX_SCALAR(16);
-	object01.origin.y = REX_SCALAR(32);
-	object01.origin.z = REX_SCALAR(4);
 }
 
 // Shutdown renderer
@@ -75,6 +61,7 @@ void Shutdown()
 {
 	if (mathtable) delete mathtable;
 	if (ybuffer) delete ybuffer;
+	if (zbuffer) delete zbuffer;
 }
 
 // Render an image to the specified surface
@@ -104,7 +91,8 @@ void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixe
 		rex_vec2i step, map_pos;
 
 		// clear y-buffer
-		memset(ybuffer, 0, draw_h);
+		//memset(ybuffer, 0, draw_h);
+		memset(zbuffer, 255, draw_h);
 
 		// map pos (int)
 		map_pos.x = RexScalarToInteger(p.x);
@@ -145,41 +133,6 @@ void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixe
 		{
 			step.y = 1;
 			side_dist.y = REX_MUL((REX_SCALAR(map_pos.y) + REX_SCALAR(1) - p.y), delta_dist.y);
-		}
-
-		// draw sprite
-		for (i = 0; i < 1; i++)
-		{
-			rex_vec3s v, pv;
-			rex_vec2i sv;
-
-			// transform the sprite into the player's view
-			v.x = object01.origin.x - camera.origin.x;
-			v.y = object01.origin.y - camera.origin.y;
-			v.z = -object01.origin.z + camera.origin.z;
-
-			// rotate the y coordinate into the player's view
-			pv.y = REX_MUL(v.x, sn) + REX_MUL(v.y, cs);
-
-			// if behind the player, don't draw
-			if (pv.y < REX_SCALAR(1)) continue;
-
-			// rotate the x and z coordinates into the player's view
-			pv.x = REX_MUL(-v.x, cs) - REX_MUL(-v.y, sn);
-			pv.z = v.z - REX_DIV(REX_MUL(REX_SCALAR(camera.angles.x), pv.y), pixel_height_scale);
-
-			// get screen coordinates
-			sv.x = RexScalarToInteger(REX_DIV(REX_MUL(pv.x, pixel_height_scale), pv.y)) + (draw_w / 2);
-			sv.y = RexScalarToInteger(REX_DIV(REX_MUL(pv.z, pixel_height_scale), pv.y)) + (draw_h / 2);
-
-			if (sv.x == s.x && sv.y > -1 && sv.y < draw_h) 
-			{
-				if (ybuffer[sv.y] == 0)
-				{
-					Rex::SurfaceDrawPixel(dst, s.x, sv.y, 255);
-					ybuffer[sv.y] = 1;
-				}
-			}
 		}
 
 		bool casting = true;
@@ -263,12 +216,12 @@ void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixe
 					// draw the side of the voxel
 					for (s.y = line_start; s.y < line_end; s.y++)
 					{
-						if (ybuffer[s.y] == 0)
+						if (REX_SCALAR(zbuffer[s.y]) > dist)
 						{
 							rex_uint8 c = slab.color_side;
 							//c = Rex::ColormapLookup(c, RexScalarToInteger(dist));
 							Rex::SurfaceDrawPixel(dst, s.x, s.y, c);
-							ybuffer[s.y] = 1;
+							zbuffer[s.y] = RexScalarToInteger(dist);
 						}
 					}
 
@@ -286,12 +239,12 @@ void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixe
 
 						for (s.y = line_start2; s.y < line_end2; s.y++)
 						{
-							if (ybuffer[s.y] == 0)
+							if (REX_SCALAR(zbuffer[s.y]) > dist2)
 							{
 								rex_uint8 c = p.z > slab_pos.z ? slab.color_top : slab.color_bottom;
 								//c = Rex::ColormapLookup(c, RexScalarToInteger(dist));
 								Rex::SurfaceDrawPixel(dst, s.x, s.y, c);
-								ybuffer[s.y] = 1;
+								zbuffer[s.y] = RexScalarToInteger(dist2);
 							}
 						}
 					}
@@ -304,6 +257,44 @@ void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixe
 				}
 			}
 		}
+
+
+		// draw sprites
+		for (i = 0; i < world->actors.size(); i++)
+		{
+			Actor actor = world->actors[i];
+
+			rex_vec3s v, pv;
+			rex_vec2i sv;
+
+			// transform the sprite into the player's view
+			v.x = actor.origin.x - camera.origin.x;
+			v.y = actor.origin.y - camera.origin.y;
+			v.z = -actor.origin.z + camera.origin.z;
+
+			// rotate the y coordinate into the player's view
+			pv.y = REX_MUL(v.x, sn) + REX_MUL(v.y, cs);
+
+			// if behind the player, don't draw
+			if (pv.y < REX_SCALAR(1)) continue;
+
+			// rotate the x and z coordinates into the player's view
+			pv.x = REX_MUL(-v.x, cs) - REX_MUL(-v.y, sn);
+			pv.z = v.z - REX_DIV(REX_MUL(REX_SCALAR(camera.angles.x), pv.y), pixel_height_scale);
+
+			// get screen coordinates
+			sv.x = RexScalarToInteger(REX_DIV(REX_MUL(pv.x, pixel_height_scale), pv.y)) + (draw_w / 2);
+			sv.y = RexScalarToInteger(REX_DIV(REX_MUL(pv.z, pixel_height_scale), pv.y)) + (draw_h / 2);
+
+			if (sv.x == s.x && sv.y > -1 && sv.y < draw_h) 
+			{
+				if (REX_SCALAR(zbuffer[sv.y]) > pv.y)
+				{
+					Rex::SurfaceDrawPixel(dst, s.x, sv.y, 255);
+					zbuffer[sv.y] = RexScalarToInteger(pv.y);
+				}
+			}
+		}
 	}
 }
 
@@ -311,11 +302,13 @@ void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixe
 void SetRenderDimensions(rex_int w, rex_int h)
 {
 	if (ybuffer) delete ybuffer;
+	if (zbuffer) delete zbuffer;
 
 	draw_w = w;
 	draw_h = h;
 
 	ybuffer = new rex_uint8[h];
+	zbuffer = new rex_uint8[h];
 }
 
 } // namespace Voxel

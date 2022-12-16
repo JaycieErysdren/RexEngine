@@ -32,6 +32,13 @@ namespace Voxel
 //
 //
 
+// Actor class definition
+class Actor
+{
+	public:
+		rex_vec3s origin;
+};
+
 // Slab class definition
 class Slab
 {
@@ -106,6 +113,9 @@ class World
 		// Array of world columns (x * y)
 		vector<Column> columns;
 
+		// Array of actors in the worldf
+		vector<Actor> actors;
+
 		//
 		// Functions
 		//
@@ -121,6 +131,12 @@ class World
 
 		// Add a slab at the specificed column coordinate
 		void AddSlab(rex_int x, rex_int y, Slab slab);
+
+		// Add an actor at the specified coordinate
+		void AddActor(rex_scalar x, rex_scalar y, rex_scalar z);
+
+		// Add an actor
+		void AddActor(Actor actor);
 
 		// Returns the column at the specificed coordinate
 		Column GetColumn(rex_int x, rex_int y);
