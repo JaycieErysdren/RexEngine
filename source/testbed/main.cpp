@@ -194,10 +194,12 @@ void Tilemap_Load(string filename)
 	json_mapdata = cJSON_GetObjectItem(json_arrayitem, "data");
 	if (json_mapdata == NULL) return;
 
+	// get length of map data array
 	mapdata_len = cJSON_GetArraySize(json_mapdata);
 	if (mapdata_len < 1) return;
 	if (mapdata_len != map_w * map_h) return;
 
+	// create slabs for map data array
 	for (y = 0; y < map_h; y++)
 	{
 		for (x = 0; x < map_w; x++)
