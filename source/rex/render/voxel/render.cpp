@@ -176,48 +176,43 @@ void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixe
 
 				rex_int column_height = 256;
 
-				rex_vec3s slab_pos = {0, 0, 0};
-				rex_scalar slab_height = 0;
-
-				rex_int line_height = 0;
-				rex_int line_start = 0, line_end = 0;
-				rex_int line_start2 = 0, line_end2 = 0;
-				rex_scalar height_delta1 = 0, height_delta2 = 0;
-
 				// draw the slabs from top to bottom
 				for (i = 0; i < column.slabs.size(); i++)
 				{
 					Slab slab = column.slabs[i];
 
-					// position of the slab
-					slab_pos.x = REX_SCALAR(map_pos.x);
-					slab_pos.y = REX_SCALAR(map_pos.y);
-					slab_pos.z = REX_SCALAR(column_height - slab.skipped);
+					// z position of the slab
+					rex_scalar slab_z = REX_SCALAR(column_height - slab.skipped);
 
 					// height of the slab
-					slab_height = REX_SCALAR(slab.drawn);
+					rex_scalar slab_height = REX_SCALAR(slab.drawn);
 
 					// height delta 1 & 2
-					height_delta1 = p.z - slab_pos.z;
-					height_delta2 = p.z - (slab_pos.z - slab_height);
+					rex_scalar height_delta1 = p.z - slab_z;
+					rex_scalar height_delta2 = p.z - (slab_z - slab_height);
 
 					// height of the line on screen
-					line_start = RexScalarToInteger(REX_MUL(REX_DIV(height_delta1, dist), pixel_height_scale)) + horizon;
-					line_end = RexScalarToInteger(REX_MUL(REX_DIV(height_delta2, dist), pixel_height_scale)) + horizon;
-
-					// clamp the line to the visible region
-					line_start = CLAMP(line_start, 0, draw_h);
-					line_end = CLAMP(line_end, 0, draw_h);
+					rex_int line_start, line_end;
 
 					// draw the side of the voxel
-					for (s.y = line_start; s.y < line_end; s.y++)
 					{
-						if (REX_SCALAR(zbuffer[s.y]) > dist)
+						// height of the line on screen
+						line_start = RexScalarToInteger(REX_MUL(REX_DIV(height_delta1, dist), pixel_height_scale)) + horizon;
+						line_end = RexScalarToInteger(REX_MUL(REX_DIV(height_delta2, dist), pixel_height_scale)) + horizon;
+
+						// clamp the line to the visible region
+						line_start = CLAMP(line_start, 0, draw_h);
+						line_end = CLAMP(line_end, 0, draw_h);
+
+						for (s.y = line_start; s.y < line_end; s.y++)
 						{
-							rex_uint8 c = slab.color_side;
-							//c = Rex::ColormapLookup(c, RexScalarToInteger(dist));
-							Rex::SurfaceDrawPixel(dst, s.x, s.y, c);
-							zbuffer[s.y] = RexScalarToInteger(dist);
+							if (REX_SCALAR(zbuffer[s.y]) > dist)
+							{
+								rex_uint8 c = slab.color_side;
+								//c = Rex::ColormapLookup(c, RexScalarToInteger(dist));
+								Rex::SurfaceDrawPixel(dst, s.x, s.y, c);
+								zbuffer[s.y] = RexScalarToInteger(dist);
+							}
 						}
 					}
 
@@ -227,17 +222,19 @@ void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixe
 						if (dist2 > (dist + REX_SCALAR(1)))
 							dist2 = (dist + REX_SCALAR(1));
 
-						line_start2 = RexScalarToInteger(REX_MUL(REX_DIV(height_delta1, dist2), pixel_height_scale)) + horizon;
-						line_end2 = RexScalarToInteger(REX_MUL(REX_DIV(height_delta2, dist2), pixel_height_scale)) + horizon;
+						// height of the line on screen
+						line_start = RexScalarToInteger(REX_MUL(REX_DIV(height_delta1, dist2), pixel_height_scale)) + horizon;
+						line_end = RexScalarToInteger(REX_MUL(REX_DIV(height_delta2, dist2), pixel_height_scale)) + horizon;
 
-						line_start2 = CLAMP(line_start2, 0, draw_h);
-						line_end2 = CLAMP(line_end2, 0, draw_h);
+						// clamp the line to the visible region
+						line_start = CLAMP(line_start, 0, draw_h);
+						line_end = CLAMP(line_end, 0, draw_h);
 
-						for (s.y = line_start2; s.y < line_end2; s.y++)
+						for (s.y = line_start; s.y < line_end; s.y++)
 						{
 							if (REX_SCALAR(zbuffer[s.y]) > dist2)
 							{
-								rex_uint8 c = p.z > slab_pos.z ? slab.color_top : slab.color_bottom;
+								rex_uint8 c = p.z > slab_z ? slab.color_top : slab.color_bottom;
 								//c = Rex::ColormapLookup(c, RexScalarToInteger(dist));
 								Rex::SurfaceDrawPixel(dst, s.x, s.y, c);
 								zbuffer[s.y] = RexScalarToInteger(dist2);
@@ -247,9 +244,6 @@ void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixe
 
 					// overall height of this column
 					column_height -= (slab.skipped + slab.drawn);
-
-					// gotta set a max height somewhere i guess
-					if (column_height < 0) break;
 				}
 			}
 		}
