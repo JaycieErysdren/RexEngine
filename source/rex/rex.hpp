@@ -121,6 +121,9 @@ using namespace std;
 // Math Table
 #include "core/mathtabl.hpp"
 
+// Memory Pool
+#include "core/mempool.hpp"
+
 // Bootstrap
 #include "core/bootstrap.hpp"
 

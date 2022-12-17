@@ -89,15 +89,23 @@ include_directories(.)
 
 ##
 ##
-## Rex Engine thirdparty
+## Rex Engine thirdparty modules
 ##
 ##
 
+## cJSON
 set(CJSON_SRC
 	thrdprty/cjson/cJSON.c
 )
 
 add_library(cjson STATIC ${CJSON_SRC})
+
+## mplite
+set(MPLITE_SRC
+	thrdprty/mplite/mplite.c
+)
+
+add_library(mplite STATIC ${MPLITE_SRC})
 
 ##
 ##
@@ -116,6 +124,7 @@ set(REX_CORE_SRC
 	core/math_sin.cpp
 	core/math_x.cpp
 	core/mathtabl.cpp
+	core/mempool.cpp
 	core/mouse.cpp
 	core/surface.cpp
 )
@@ -214,9 +223,14 @@ endif()
 
 add_library(rex INTERFACE)
 
+## Add Rex core
 target_link_libraries(rex INTERFACE rex_core)
 
+## Add cJSON
 target_link_libraries(rex INTERFACE cjson)
+
+## Add mplite
+target_link_libraries(rex INTERFACE mplite)
 
 ##
 ## Hardware I/O modules
