@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Voxel renderer header
 //
-// LAST EDITED:		December 15th, 2022
+// LAST EDITED:		December 17th, 2022
 //
 // ========================================================
 
@@ -36,6 +36,7 @@ namespace Voxel
 class Actor
 {
 	public:
+		Rex::Surface color;
 		rex_vec3s origin;
 };
 

@@ -255,6 +255,8 @@ void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixe
 
 			rex_vec3s v, pv;
 			rex_vec2i sv;
+			rex_int line_height, line_start, line_end;
+			rex_int line_startx, line_endx;
 
 			// transform the sprite into the player's view
 			v.x = actor.origin.x - camera.origin.x;
@@ -276,13 +278,38 @@ void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixe
 			sv.x = RexScalarToInteger(REX_DIV(REX_MUL(pv.x, pixel_height_scale), pv.y)) + (draw_w / 2);
 			sv.y = RexScalarToInteger(REX_DIV(REX_MUL(pv.z, pixel_height_scale), pv.y)) + (draw_h / 2);
 
-			if (sv.x == s.x && sv.y > -1 && sv.y < draw_h) 
+			// height of line on screen
+			line_height = RexScalarToInteger(REX_MUL(REX_DIV(REX_SCALAR(4), pv.y), pixel_height_scale));
+
+			line_start = sv.y - (line_height / 2);
+			line_end = sv.y + (line_height / 2);
+
+			line_startx = s.x - (line_height / 2);
+			line_endx = s.x + (line_height / 2);
+
+			// clamp line to the visible area
+			line_start = CLAMP(line_start, 0, draw_h);
+			line_end = CLAMP(line_end, 0, draw_h);
+
+			line_startx = CLAMP(line_startx, 0, draw_w);
+			line_endx = CLAMP(line_endx, 0, draw_w);
+
+			if (sv.x > line_startx && sv.x < line_endx) 
 			{
-				// check zbuffer
-				if (REX_SCALAR(zbuffer[sv.y]) > pv.y)
+				//rex_int tex_x_inc = actor.color.width / line_height;
+				//rex_int tex_x1 = tex_x_inc * (s.x - line_startx);
+				//rex_int tex_x2 = tex_x1 + 1;
+				//Rex::SurfaceBlit8(dst, s.x, line_start, s.x + 1, line_end, &actor.color, tex_x1, 0, tex_x2, actor.color.height, Rex::COLORKEY);
+
+				// draw the line
+				for (s.y = line_start; s.y < line_end; s.y++)
 				{
-					Rex::SurfaceDrawPixel(dst, s.x, sv.y, 255);
-					zbuffer[sv.y] = RexScalarToInteger(pv.y);
+					// check zbuffer
+					if (REX_SCALAR(zbuffer[s.y]) > pv.y)
+					{
+						Rex::SurfaceDrawPixel(dst, s.x, s.y, 255);
+						zbuffer[sv.y] = RexScalarToInteger(pv.y);
+					}
 				}
 			}
 		}

@@ -228,19 +228,20 @@ void Initialize()
 	Rex::ColormapLoad("gfx/mindgrdn.tab");
 
 	// allocate world
-	world = new Voxel::World("maps/orbb.vrx");
-	//world = new Voxel::World("Map", 1024, 1024, 256);
+	//world = new Voxel::World("maps/orbb.vrx");
+	world = new Voxel::World("Map", 1024, 1024, 256);
 
 	// add an actor
 	Voxel::Actor object01;
 	object01.origin.x = REX_SCALAR(16);
 	object01.origin.y = REX_SCALAR(32);
 	object01.origin.z = REX_SCALAR(4);
+	Rex::SurfaceLoadBMP(&object01.color, "gfx/trooper.bmp");
 	rex_int object01_id = world->AddActor(object01);
 
 	//Heightmap_Generate();
 	//Heightmap_Load("voxel/m1c_mg.dat", "voxel/m1h.dat", 1024, 1024);
-	//Tilemap_Load("maps/casino.tmj");
+	Tilemap_Load("maps/casino.tmj");
 
 	//world->Save("maps/orbb.vrx");
 
