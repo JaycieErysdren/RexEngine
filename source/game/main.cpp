@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/testbed/main.cpp
+// FILE:			/source/game/main.cpp
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -14,8 +14,8 @@
 //
 // ========================================================
 
-// Testbed header
-#include "testbed.hpp"
+// Game header
+#include "game.hpp"
 
 #define CYCLES 30
 

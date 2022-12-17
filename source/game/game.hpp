@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/testbed/testbed.hpp
+// FILE:			/source/game/game.hpp
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -8,14 +8,14 @@
 //
 // LICENSE:			TBD
 //
-// DESCRIPTION:		Testbed main program header
+// DESCRIPTION:		Game main program header
 //
-// LAST EDITED:		December 16th, 2022
+// LAST EDITED:		December 17th, 2022
 //
 // ========================================================
 
-#ifndef __TESTBED_H__
-#define __TESTBED_H__
+#ifndef __GAME_H__
+#define __GAME_H__
 
 // Rex Engine modules
 #define RENDERER_VOXEL 1
@@ -23,6 +23,6 @@
 // Rex Engine headers
 #include "rex/rex.hpp"
 
-// Testbed headers
+// Game headers
 
-#endif // __TESTBED_H__
+#endif // __GAME_H__
