@@ -136,7 +136,7 @@ void Tilemap_Load(string filename)
 	// variables
 	cJSON *json, *json_array, *json_arrayitem, *json_child, *json_mapdata;
 	FILE *file;
-	rex_int file_len, map_w, map_h, mapdata, mapdata_len, x, y;
+	rex_int file_len, map_w, map_h, mapdata, mapdata_len, x, y, x1, y1;
 	char *buffer;
 
 	// open file
@@ -214,7 +214,13 @@ void Tilemap_Load(string filename)
 			slab.drawn = CLAMP(mapdata, 0, 1);
 			slab.skipped = 256 - CLAMP(mapdata, 0, 1);
 
-			world->AddSlab(x, y, slab);
+			for (y1 = 0; y1 < 4; y1++)
+			{
+				for (x1 = 0; x1 < 4; x1++)
+				{
+					world->AddSlab((x * 4) + x1, (y * 4) + y1, slab);
+				}
+			}
 		}
 	}
 }
