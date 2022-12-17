@@ -42,7 +42,7 @@ Slab::Slab()
 }
 
 // Constructor with variables
-Slab::Slab(rex_uint8 skipped_voxels, rex_uint8 drawn_voxels, rex_color side_color, rex_color top_color, rex_color bottom_color)
+Slab::Slab(rex_uint8 skipped_voxels, rex_uint8 drawn_voxels, rex_uint8 side_color, rex_uint8 top_color, rex_uint8 bottom_color)
 {
 	skipped = skipped_voxels;
 	drawn = drawn_voxels;
@@ -158,11 +158,11 @@ World::World(string filename)
 
 			Slab slab;
 
-			fread(&slab.skipped, sizeof(rex_uint16), 1, file);
-			fread(&slab.drawn, sizeof(rex_uint16), 1, file);
-			fread(&slab.color_side, sizeof(rex_color), 1, file);
-			fread(&slab.color_top, sizeof(rex_color), 1, file);
-			fread(&slab.color_bottom, sizeof(rex_color), 1, file);
+			fread(&slab.skipped, sizeof(rex_uint8), 1, file);
+			fread(&slab.drawn, sizeof(rex_uint8), 1, file);
+			fread(&slab.color_side, sizeof(rex_uint8), 1, file);
+			fread(&slab.color_top, sizeof(rex_uint8), 1, file);
+			fread(&slab.color_bottom, sizeof(rex_uint8), 1, file);
 
 			AddSlab(x, y, slab);
 		}
@@ -242,13 +242,13 @@ void World::Save(string filename)
 				fwrite(voxel_file_slab_magic, sizeof(char), 4, file);
 
 				// write skipped & drawn voxels
-				fwrite(&slab.skipped, sizeof(rex_uint16), 1, file);
-				fwrite(&slab.drawn, sizeof(rex_uint16), 1, file);
+				fwrite(&slab.skipped, sizeof(rex_uint8), 1, file);
+				fwrite(&slab.drawn, sizeof(rex_uint8), 1, file);
 
 				// write colors
-				fwrite(&slab.color_side, sizeof(rex_color), 1, file);
-				fwrite(&slab.color_top, sizeof(rex_color), 1, file);
-				fwrite(&slab.color_bottom, sizeof(rex_color), 1, file);
+				fwrite(&slab.color_side, sizeof(rex_uint8), 1, file);
+				fwrite(&slab.color_top, sizeof(rex_uint8), 1, file);
+				fwrite(&slab.color_bottom, sizeof(rex_uint8), 1, file);
 			}
 		}
 	}

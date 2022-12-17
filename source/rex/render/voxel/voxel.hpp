@@ -49,19 +49,19 @@ class Slab
 		//
 
 		// Number of air voxels above the drawn voxels
-		rex_uint16 skipped;
+		rex_uint8 skipped;
 
 		// Number of drawn voxels
-		rex_uint16 drawn;
+		rex_uint8 drawn;
 
 		// Side color
-		rex_color color_side;
+		rex_uint8 color_side;
 
 		// Top color
-		rex_color color_top;
+		rex_uint8 color_top;
 
 		// Bottom color
-		rex_color color_bottom;
+		rex_uint8 color_bottom;
 
 		//
 		// Functions
@@ -71,7 +71,7 @@ class Slab
 		Slab();
 
 		// Constructor with variables
-		Slab(rex_uint8 skipped_voxels, rex_uint8 drawn_voxels, rex_color side_color, rex_color top_color, rex_color bottom_color);
+		Slab(rex_uint8 skipped_voxels, rex_uint8 drawn_voxels, rex_uint8 side_color, rex_uint8 top_color, rex_uint8 bottom_color);
 };
 
 

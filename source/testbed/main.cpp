@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Testbed program entry point
 //
-// LAST EDITED:		December 15th, 2022
+// LAST EDITED:		December 17th, 2022
 //
 // ========================================================
 
@@ -242,7 +242,7 @@ void Initialize()
 	//Heightmap_Load("voxel/m1c_mg.dat", "voxel/m1h.dat", 1024, 1024);
 	//Tilemap_Load("maps/casino.tmj");
 
-	//world->Save("world.vrx");
+	//world->Save("maps/orbb.vrx");
 
 	// Initialize math table
 	mathtable = new Rex::MathTable;
@@ -294,16 +294,16 @@ void CameraController()
 	// Keyboard look
 	{
 		// Rotate leftwards
-		if (Rex::KeyTest(REX_KB_LEFT)) camera.angles.y += camera.anglespeedkey;
+		if (Rex::KeyTest(REX_SC_LEFT)) camera.angles.y += camera.anglespeedkey;
 
 		// Rotate rightwards
-		if (Rex::KeyTest(REX_KB_RIGHT)) camera.angles.y -= camera.anglespeedkey;
+		if (Rex::KeyTest(REX_SC_RIGHT)) camera.angles.y -= camera.anglespeedkey;
 
 		// Look upwards
-		if (Rex::KeyTest(REX_KB_UP)) camera.angles.x += camera.anglespeedkey;
+		if (Rex::KeyTest(REX_SC_UP)) camera.angles.x += camera.anglespeedkey;
 
 		// Look downwards
-		if (Rex::KeyTest(REX_KB_DOWN)) camera.angles.x -= camera.anglespeedkey;
+		if (Rex::KeyTest(REX_SC_DOWN)) camera.angles.x -= camera.anglespeedkey;
 	}
 
 	// Pitch angle sanity checks
@@ -315,7 +315,7 @@ void CameraController()
 	if (camera.angles.y > 359) camera.angles.y -= 360;
 
 	// Check if sprinting
-	if (Rex::KeyTest(REX_KB_LSHIFT))
+	if (Rex::KeyTest(REX_SC_LSHIFT))
 		camera.movespeedkey = 2;
 	else
 		camera.movespeedkey = 1;
@@ -326,39 +326,39 @@ void CameraController()
 	camera.velocity.z = REX_SCALAR(1.0f) * camera.movespeedkey;
 
 	// Move forwards
-	if (Rex::KeyTest(REX_KB_W))
+	if (Rex::KeyTest(REX_SC_W))
 	{
 		camera.origin.x += camera.velocity.x;
 		camera.origin.y += camera.velocity.y;
 	}
 
 	// Move backwards
-	if (Rex::KeyTest(REX_KB_S))
+	if (Rex::KeyTest(REX_SC_S))
 	{
 		camera.origin.x -= camera.velocity.x;
 		camera.origin.y -= camera.velocity.y;
 	}
 
 	// Move leftwards
-	if (Rex::KeyTest(REX_KB_A))
+	if (Rex::KeyTest(REX_SC_A))
 	{
 		camera.origin.x += camera.velocity.y;
 		camera.origin.y -= camera.velocity.x;
 	}
 
 	// Move rightwards
-	if (Rex::KeyTest(REX_KB_D))
+	if (Rex::KeyTest(REX_SC_D))
 	{
 		camera.origin.x -= camera.velocity.y;
 		camera.origin.y += camera.velocity.x;
 	}
 
 	// Move upwards
-	if (Rex::KeyTest(REX_KB_Q))
+	if (Rex::KeyTest(REX_SC_Q))
 		camera.origin.z += camera.velocity.z;
 
 	// Move downwards
-	if (Rex::KeyTest(REX_KB_E))
+	if (Rex::KeyTest(REX_SC_E))
 		camera.origin.z -= camera.velocity.z;
 
 	mx_prev = mx;
@@ -431,7 +431,7 @@ int main(int argc, char *argv[])
 	frame_end = Rex::GetTicks64();
 
 	// Main loop
-	while (!Rex::KeyTest(REX_KB_ESCAPE))
+	while (!Rex::KeyTest(REX_SC_ESCAPE))
 	{
 		// Get start of frame time
 		frame_start = Rex::GetTicks64();

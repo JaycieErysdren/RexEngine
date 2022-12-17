@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Duke4Ever program entry point
 //
-// LAST EDITED:		December 16th, 2022
+// LAST EDITED:		December 17th, 2022
 //
 // ========================================================
 
@@ -343,16 +343,16 @@ void PlayerController()
 	// Keyboard look
 	{
 		// Rotate leftwards
-		if (Rex::KeyTest(REX_KB_LEFT)) player.angles.y += player.anglespeedkey;
+		if (Rex::KeyTest(REX_SC_LEFT)) player.angles.y += player.anglespeedkey;
 
 		// Rotate rightwards
-		if (Rex::KeyTest(REX_KB_RIGHT)) player.angles.y -= player.anglespeedkey;
+		if (Rex::KeyTest(REX_SC_RIGHT)) player.angles.y -= player.anglespeedkey;
 
 		// Look upwards
-		if (Rex::KeyTest(REX_KB_UP)) player.angles.x += player.anglespeedkey;
+		if (Rex::KeyTest(REX_SC_UP)) player.angles.x += player.anglespeedkey;
 
 		// Look downwards
-		if (Rex::KeyTest(REX_KB_DOWN)) player.angles.x -= player.anglespeedkey;
+		if (Rex::KeyTest(REX_SC_DOWN)) player.angles.x -= player.anglespeedkey;
 	}
 
 	// Pitch angle sanity checks
@@ -364,7 +364,7 @@ void PlayerController()
 	if (player.angles.y > 359) player.angles.y -= 360;
 
 	// Check if sprinting
-	if (Rex::KeyTest(REX_KB_LSHIFT))
+	if (Rex::KeyTest(REX_SC_LSHIFT))
 		player.movespeedkey = 6;
 	else
 		player.movespeedkey = 4;
@@ -375,39 +375,39 @@ void PlayerController()
 	player.velocity.z = REX_SCALAR(1.0f) * player.movespeedkey;
 
 	// Move forwards
-	if (Rex::KeyTest(REX_KB_W))
+	if (Rex::KeyTest(REX_SC_W))
 	{
 		player.origin.x += player.velocity.x;
 		player.origin.y += player.velocity.y;
 	}
 
 	// Move backwards
-	if (Rex::KeyTest(REX_KB_S))
+	if (Rex::KeyTest(REX_SC_S))
 	{
 		player.origin.x -= player.velocity.x;
 		player.origin.y -= player.velocity.y;
 	}
 
 	// Move leftwards
-	if (Rex::KeyTest(REX_KB_A))
+	if (Rex::KeyTest(REX_SC_A))
 	{
 		player.origin.x += player.velocity.y;
 		player.origin.y -= player.velocity.x;
 	}
 
 	// Move rightwards
-	if (Rex::KeyTest(REX_KB_D))
+	if (Rex::KeyTest(REX_SC_D))
 	{
 		player.origin.x -= player.velocity.y;
 		player.origin.y += player.velocity.x;
 	}
 
 	// Move upwards
-	if (Rex::KeyTest(REX_KB_Q))
+	if (Rex::KeyTest(REX_SC_Q))
 		player.origin.z += player.velocity.z;
 
 	// Move downwards
-	if (Rex::KeyTest(REX_KB_E))
+	if (Rex::KeyTest(REX_SC_E))
 		player.origin.z -= player.velocity.z;
 
 	mx_prev = mx;
@@ -555,7 +555,7 @@ int main(int argc, char *argv[])
 	frame_end = Rex::GetTicks64();
 
 	// Main loop
-	while (!Rex::KeyTest(REX_KB_ESCAPE))
+	while (!Rex::KeyTest(REX_SC_ESCAPE))
 	{
 		// Get start of frame time
 		frame_start = Rex::GetTicks64();
