@@ -133,6 +133,9 @@ using namespace std;
 // Graphics
 #include "core/graphics.hpp"
 
+// Scene
+#include "core/scene.hpp"
+
 // Surface
 #include "core/surface.hpp"
 

@@ -10,7 +10,7 @@
 ##
 ## DESCRIPTION:		Rex Engine CMake project definition
 ##
-## LAST EDITED:		December 16th, 2022
+## LAST EDITED:		December 18th, 2022
 ##
 ## ========================================================
 
@@ -126,6 +126,7 @@ set(REX_CORE_SRC
 	core/mathtabl.cpp
 	core/mempool.cpp
 	core/mouse.cpp
+	core/scene.cpp
 	core/surface.cpp
 )
 
