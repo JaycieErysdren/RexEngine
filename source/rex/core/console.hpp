@@ -47,6 +47,8 @@ void ConsoleAddTextF(rex_int32 x, rex_int32 y, const char *fmt, ...);
 // Render the console to the given buffer
 void ConsoleRender(Surface *dst, Surface *font, rex_int32 font_size);
 
+void ConsoleTextF(Surface *dst, Surface *font, rex_int32 font_size, rex_int32 x, rex_int32 y, const char *fmt, ...);
+
 } // namespace Rex
 
 #endif // __REX_CONSOLE_H__

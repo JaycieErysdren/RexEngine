@@ -27,9 +27,6 @@ Rex::Actor *root;
 Rex::Actor *worldspawn;
 Rex::Actor *camera;
 
-// Console buffer
-char console_buffer[256];
-
 // Heightmap generator
 void Heightmap_Generate(Voxel::VoxelModel *model)
 {
@@ -400,8 +397,8 @@ int main(int argc, char *argv[])
 	// Picture buffers
 	Rex::Surface pic_font;
 	Rex::Surface pic_bbuffer;
-	//Rex::Surface pic_background;
 	Rex::Surface pic_cursor;
+	Rex::Surface pic_text;
 
 	// Initialize Rex Engine
 	Rex::Initialize();
@@ -418,6 +415,7 @@ int main(int argc, char *argv[])
 	Rex::SurfaceLoadBMP(&pic_font, "gfx/font8x8.bmp");
 	Rex::SurfaceLoadBMP(&pic_cursor, "local/cursor.bmp");
 	Rex::SurfaceCreate(&pic_bbuffer, vidinfo.width, vidinfo.height, vidinfo.bpp, 0, 0);
+	Rex::SurfaceCreate(&pic_text, 40, 10, 8, 0, 0);
 
 	Voxel::Initialize(vidinfo.width, vidinfo.height);
 	Initialize();
@@ -464,15 +462,8 @@ int main(int argc, char *argv[])
 			Voxel::Render(&pic_bbuffer, worldspawn, camera, REX_SCALAR(160));
 		}
 
-		sprintf(console_buffer, "x: %d y: %d z %d", RexScalarToInteger(camera->origin.x), RexScalarToInteger(camera->origin.y), RexScalarToInteger(camera->origin.z));
-		Rex::ConsoleAddText(0, 0, console_buffer);
-		sprintf(console_buffer, "pitch: %d yaw: %d roll %d", camera->angles.x, camera->angles.y, camera->angles.z);
-		Rex::ConsoleAddText(0, 1, console_buffer);
-		sprintf(console_buffer, "%s", worldspawn->identifier.c_str());
-		Rex::ConsoleAddText(40 - worldspawn->identifier.length(), 0, console_buffer);
-
-		// Render the console text
-		Rex::ConsoleRender(&pic_bbuffer, &pic_font, 8);
+		Rex::ConsoleTextF(&pic_bbuffer, &pic_font, 8, 0, 0, "x: %d y: %d z %d", RexScalarToInteger(camera->origin.x), RexScalarToInteger(camera->origin.y), RexScalarToInteger(camera->origin.z));
+		Rex::ConsoleTextF(&pic_bbuffer, &pic_font, 8, 0, 1, "pitch: %d yaw: %d roll %d", camera->angles.x, camera->angles.y, camera->angles.z);
 
 		// Flip the rendering buffers
 		Rex::SurfaceToFrontBuffer(&pic_bbuffer);
@@ -500,6 +491,7 @@ int main(int argc, char *argv[])
 	Rex::SurfaceDestroy(&pic_font);
 	Rex::SurfaceDestroy(&pic_bbuffer);
 	Rex::SurfaceDestroy(&pic_cursor);
+	Rex::SurfaceDestroy(&pic_text);
 
 	Rex::FreeActor(root);
 
