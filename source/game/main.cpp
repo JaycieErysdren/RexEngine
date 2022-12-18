@@ -234,20 +234,20 @@ void Initialize()
 	Rex::ColormapLoad("gfx/mindgrdn.tab");
 
 	// allocate world
-	world = new Voxel::World("maps/m3.vrx");
-	//world = new Voxel::World("HEIGHTMAP 3", 256, 256, 256);
+	//world = new Voxel::World("maps/m3.vrx");
+	world = new Voxel::World("CASINO", 256, 256, 256);
 
 	// add an actor
-	//Voxel::Actor object01;
-	//object01.origin.x = REX_SCALAR(16);
-	//object01.origin.y = REX_SCALAR(32);
-	//object01.origin.z = REX_SCALAR(4);
-	//Rex::SurfaceLoadBMP(&object01.color, "gfx/trooper.bmp");
-	//rex_int object01_id = world->AddActor(object01);
+	Voxel::Actor object01;
+	object01.origin.x = REX_SCALAR(16);
+	object01.origin.y = REX_SCALAR(32);
+	object01.origin.z = REX_SCALAR(4);
+	Rex::SurfaceLoadBMP(&object01.color, "gfx/trooper.bmp");
+	rex_int object01_id = world->AddActor(object01);
 
 	//Heightmap_Generate();
 	//Heightmap_Load("heightm/m3.col", "heightm/m3.hei", 256, 256);
-	//Tilemap_Load("maps/casino.tmj");
+	Tilemap_Load("maps/casino.tmj");
 
 	//world->Save("maps/m3.vrx");
 
