@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		MathTable class header
 //
-// LAST EDITED:		December 15th, 2022
+// LAST EDITED:		December 18th, 2022
 //
 // ========================================================
 
@@ -33,5 +33,7 @@ class MathTable
 		// Constructor
 		MathTable();
 };
+
+extern MathTable *math_table;
 
 } // namespace Rex

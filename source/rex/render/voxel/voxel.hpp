@@ -32,6 +32,98 @@ namespace Voxel
 //
 //
 
+// VoxelSlab class definition
+class VoxelSlab
+{
+	public:
+
+		//
+		// Variables
+		//
+
+		// Number of "air" voxels above the drawn voxels
+		rex_uint8 voxels_skipped;
+
+		// Number of drawn voxels
+		rex_uint8 voxels_drawn;
+
+		// Side color
+		rex_uint8 color_side;
+
+		// Top color
+		rex_uint8 color_top;
+
+		// Bottom color
+		rex_uint8 color_bottom;
+
+		//
+		// Functions
+		//
+
+		// Constructors
+		VoxelSlab();
+};
+
+// VoxelColumn class definition
+class VoxelColumn
+{
+	public:
+
+		//
+		// Variables
+		//
+
+		// Array of VoxelSlab elemnts
+		vector<VoxelSlab> slabs;
+
+		//
+		// Functions
+		//
+
+		// Constructors
+		VoxelColumn();
+
+		// Add a slab to the slab array
+		void AddSlab(VoxelSlab slab);
+};
+
+// VoxelModel class definition
+class VoxelModel
+{
+	public:
+
+		//
+		// Variables
+		//
+
+		// Dimensions (x, y, z)
+		rex_vec3i dimensions;
+
+		// Array of VoxelColumn elements
+		vector<VoxelColumn> columns;
+
+		//
+		// Danger zone
+		//
+
+		// Pointer to the allocated memory for this VoxelModel
+		void *memory;
+
+		//
+		// Functions
+		//
+
+		// Constructors
+		VoxelModel();
+		VoxelModel(rex_int size_x, rex_int size_y, rex_int size_z);
+
+		// Add a slab to the specified column's slab array
+		void AddSlabToColumn(rex_int x, rex_int y, VoxelSlab slab);
+
+		// Get the column at the specificed x and y coordinate
+		VoxelColumn GetColumn(rex_int x, rex_int y);
+};
+
 // Actor class definition
 class Actor
 {
@@ -114,7 +206,7 @@ class World
 		// Array of world columns (x * y)
 		vector<Column> columns;
 
-		// Array of actors in the worldf
+		// Array of actors in the world
 		vector<Actor> actors;
 
 		//
@@ -156,6 +248,16 @@ class World
 //
 
 //
+// Add / free
+//
+
+// Add a VoxelModel to memory
+VoxelModel *AddVoxelModel(rex_int size_x, rex_int size_y, rex_int size_z);
+
+// Free a VoxelModel from memory
+void FreeVoxelModel(VoxelModel *model);
+
+//
 // Rendering
 //
 
@@ -166,7 +268,8 @@ void Initialize(rex_int render_width, rex_int render_height);
 void Shutdown();
 
 // Render an image to the specified surface
-void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixel_height_scale);
+//void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixel_height_scale);
+void Render(Rex::Surface *dst, Rex::Actor *camera, VoxelModel *model, rex_scalar pixel_height_scale);
 
 // Set render dimensions
 void SetRenderDimensions(rex_int w, rex_int h);

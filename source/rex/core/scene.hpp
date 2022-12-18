@@ -36,8 +36,7 @@ typedef enum
 {
 	ACTOR_NONE,
 	ACTOR_CAMERA,
-	ACTOR_VOXELMODEL,
-	ACTOR_POLYMODEL,
+	ACTOR_MODEL,
 } rex_actor_type;
 
 //
@@ -57,6 +56,10 @@ class Actor
 		rex_vec3s origin;			// Origin (x, y, z)
 		rex_vec3s velocity;			// Velocity (x, y, z)
 		rex_vec3i angles;			// Angles (pitch, yaw, roll)
+		rex_int fov;				// Field of view from this actor
+		rex_scalar draw_distance;	// How far this actor can "see"
+		rex_int anglespeedkey;		// Multiplier for move speed
+		rex_int movespeedkey;		// Multiplier for turn speed
 
 		//
 		// Type variables
@@ -70,7 +73,31 @@ class Actor
 
 		Actor *parent;				// Parent in the scene
 		vector<Actor *> children;	// Children in the scene
+
+		//
+		// Model data
+		//
+
+		void *model;
+	
+		//
+		// Danger zone
+		//
+
+		void *memory;				// Pointer to the allocated memory for this actor
 };
+
+//
+//
+// Functions
+//
+//
+
+// Allocates the memory associated with an actor, and returns a pointer to it
+Actor *AddActor(Actor *parent, rex_actor_type type);
+
+// Frees the memory associated with an actor, as well as all children actors
+void FreeActor(Actor *actor);
 
 } // namespace Rex
 

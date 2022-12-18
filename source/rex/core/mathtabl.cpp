@@ -43,4 +43,6 @@ MathTable::MathTable()
 	}	
 }
 
+MathTable *math_table;
+
 } // namespace Rex

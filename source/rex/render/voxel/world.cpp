@@ -29,6 +29,107 @@
 namespace Voxel
 {
 
+// Add a VoxelModel to memory
+VoxelModel *AddVoxelModel(rex_int size_x, rex_int size_y, rex_int size_z)
+{
+	Rex::Log("voxel.log", "adding voxel model");
+
+	void *model_memory = Rex::MemPool_Alloc(Rex::MEMORY_RENDERER, sizeof(VoxelModel));
+	VoxelModel *model = new(model_memory) VoxelModel(size_x, size_y, size_z);
+
+	model->memory = model_memory;
+
+	return model;
+}
+
+// Free a VoxelModel from memory
+void FreeVoxelModel(VoxelModel *model)
+{
+	if (model == NULL) return;
+
+	Rex::Log("voxel.log", "freeing voxel model");
+
+	void *model_memory = model->memory;
+
+	// Call destructor
+	model->~VoxelModel();
+
+	// Free the actor
+	Rex::MemPool_Free(Rex::MEMORY_RENDERER, model_memory);
+}
+
+//===========================================
+//
+// VoxelSlab
+//
+//===========================================
+
+// Constructor
+VoxelSlab::VoxelSlab()
+{
+
+}
+
+//===========================================
+//
+// VoxelColumn
+//
+//===========================================
+
+// Constructor
+VoxelColumn::VoxelColumn()
+{
+
+}
+
+// Add a slab to the slab array
+void VoxelColumn::AddSlab(VoxelSlab slab)
+{
+	slabs.push_back(slab);
+}
+
+//===========================================
+//
+// VoxelModel
+//
+//===========================================
+
+// Constructor with defaults
+VoxelModel::VoxelModel()
+{
+	// Set model dimensions
+	dimensions.x = 16;
+	dimensions.y = 16;
+	dimensions.z = 16;
+
+	// Fill up the columns array
+	columns.resize(dimensions.x * dimensions.y);
+}
+
+// Constructor with size
+VoxelModel::VoxelModel(rex_int size_x, rex_int size_y, rex_int size_z)
+{
+	// Set model dimensions
+	dimensions.x = size_x;
+	dimensions.y = size_y;
+	dimensions.z = size_z;
+
+	// Fill up the columns array
+	columns.resize(dimensions.x * dimensions.y);
+}
+
+// Add a slab to the specified column's slab array
+void VoxelModel::AddSlabToColumn(rex_int x, rex_int y, VoxelSlab slab)
+{
+	columns[(y * dimensions.y) + x].AddSlab(slab);
+}
+
+// Get the column at the specificed x and y coordinate
+VoxelColumn VoxelModel::GetColumn(rex_int x, rex_int y)
+{
+	return columns[(y * dimensions.y) + x];
+}
+
 //===========================================
 //
 // Slab

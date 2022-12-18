@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex namespace: Bootstrap implementation
 //
-// LAST EDITED:		December 11th, 2022
+// LAST EDITED:		December 18th, 2022
 //
 // ========================================================
 
@@ -25,6 +25,9 @@
 
 namespace Rex
 {
+
+// blegh
+void *math_table_memory;
 
 //
 //
@@ -45,6 +48,12 @@ bool Initialize()
 
 	frame_end_time = GetTicks64();
 
+	MemPool_Init();
+
+	// allocate math table
+	math_table_memory = MemPool_Alloc(MEMORY_PRIVATE, sizeof(MathTable));
+	math_table = new(math_table_memory)MathTable;
+
 	return true;
 }
 
@@ -58,6 +67,10 @@ bool Shutdown()
 	#endif
 
 	ConsoleShutdown();
+
+	// shutdown math table
+	math_table->~MathTable();
+	MemPool_Free(MEMORY_PRIVATE, math_table_memory);
 
 	return true;
 }

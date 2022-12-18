@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/rex/core_io/types.hpp
+// FILE:			/source/rex/core/types.hpp
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -8,14 +8,22 @@
 //
 // LICENSE:			ACSL v1.4
 //
-// DESCRIPTION:		Rex3D engine types
+// DESCRIPTION:		Rex Engine base types
 //
-// LAST EDITED:		December 11th, 2022
+// LAST EDITED:		December 18th, 2022
 //
 // ========================================================
 
 #ifndef __REX_TYPES_H__
 #define __REX_TYPES_H__
+
+//
+//
+// Engine limits
+//
+//
+
+#define REX_MAX_ACTOR 128
 
 //
 //

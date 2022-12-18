@@ -35,8 +35,11 @@ namespace Rex
 // Allocates the memory associated with an actor, and returns a pointer to it
 Actor *AddActor(Actor *parent, rex_actor_type type)
 {
-	// Allocate memory
-	Actor *actor = new Actor;
+	// Allocate memory and assign actor to it
+	void *actor_memory = MemPool_Alloc(MEMORY_ACTORS, sizeof(Actor));
+	Actor *actor = new(actor_memory) Actor;
+
+	actor->memory = actor_memory;
 
 	// If parent, add them
 	if (parent)
@@ -57,6 +60,8 @@ void FreeActor(Actor *actor)
 {
 	if (actor == NULL) return;
 
+	void *actor_memory = actor->memory;
+
 	// Free all the children of this actor
 	for (rex_int i = 0; i < actor->children.size(); i++)
 	{
@@ -69,8 +74,11 @@ void FreeActor(Actor *actor)
 		remove(actor->parent->children.begin(), actor->parent->children.end(), actor);
 	}
 
-	// Delete the actor
-	delete actor;
+	// Call destructor
+	actor->~Actor();
+
+	// Free the actor
+	MemPool_Free(MEMORY_ACTORS, actor_memory);
 }
 
 } // namespace Rex

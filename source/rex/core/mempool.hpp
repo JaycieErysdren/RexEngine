@@ -26,7 +26,26 @@
 namespace Rex
 {
 
+typedef enum
+{
+	MEMORY_PRIVATE = 1,
+	MEMORY_PUBLIC,
+	MEMORY_ACTORS,
+	MEMORY_RENDERER,
+	MEMORY_APPLICATION,
+} rex_mempool;
 
+// Initialize memory pools
+void MemPool_Init();
+
+// Allocate a number of bytes from the specified memory pool
+void *MemPool_Alloc(rex_mempool pool, size_t size);
+
+// Free the memory allocated from a pool
+void MemPool_Free(rex_mempool pool, void *memory);
+
+// Print status of the specified memory pool
+void MemPool_PrintStatus(rex_mempool pool);
 
 } // namespace Rex
 

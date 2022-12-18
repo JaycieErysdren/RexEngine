@@ -127,6 +127,9 @@ using namespace std;
 // Bootstrap
 #include "core/bootstrap.hpp"
 
+// Log
+#include "core/log.hpp"
+
 // Clock
 #include "core/clock.hpp"
 

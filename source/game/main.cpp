@@ -23,20 +23,15 @@
 // Globals
 //
 
-// Voxel world
-Voxel::World *world;
-
-// Camera
-Rex::Camera camera;
-
-// Math tables
-Rex::MathTable *mathtable;
+Rex::Actor *root;
+Rex::Actor *world;
+Rex::Actor *camera;
 
 // Console buffer
 char console_buffer[256];
 
 // Heightmap generator
-void Heightmap_Generate()
+void Heightmap_Generate(Voxel::VoxelModel *model)
 {
 	rex_int x, y;
 
@@ -50,16 +45,16 @@ void Heightmap_Generate()
 			rex_int sphere_hei;
 			rex_uint8 sphere_col;
 
-			rex_int ground_hei;
-			rex_color ground_col;
+			rex_uint8 ground_hei;
+			rex_uint8 ground_col;
 
-			Voxel::Slab ground_slab;
-			Voxel::Slab sphere_slab;
+			Voxel::VoxelSlab ground_slab;
+			Voxel::VoxelSlab sphere_slab;
 
 			ground_hei = 1;
 			ground_col = (cos(x * 0.2f) + sin(y * 0.3f)) * 3 + 88;
 
-			ground_slab.drawn = ground_hei;
+			ground_slab.voxels_drawn = ground_hei;
 			ground_slab.color_side = ground_col;
 			ground_slab.color_top = ground_col;
 			ground_slab.color_bottom = ground_col;
@@ -70,32 +65,34 @@ void Heightmap_Generate()
 				sphere_hei = REX_SQRT(d);
 				sphere_col = (x + y) * 0.5f;
 
-				sphere_slab.drawn = sphere_hei;
-				sphere_slab.skipped = (256 - sphere_hei) - 32;
+				sphere_slab.voxels_drawn = sphere_hei;
+				sphere_slab.voxels_skipped = (256 - sphere_hei) - 32;
 				sphere_slab.color_side = sphere_col;
 				sphere_slab.color_top = sphere_col;
 				sphere_slab.color_bottom = sphere_col;
 
 				// top half of sphere
-				world->AddSlab(x, y, sphere_slab);
+				model->AddSlabToColumn(x, y, sphere_slab);
 
 				// bottom half of sphere
-				sphere_slab.skipped = 0;
-				world->AddSlab(x, y, sphere_slab);
+				sphere_slab.voxels_skipped = 0;
+				model->AddSlabToColumn(x, y, sphere_slab);
 
 				// ground
-				ground_slab.skipped = 31 - sphere_hei;
-				world->AddSlab(x, y, ground_slab);
+				ground_slab.voxels_skipped = 31 - sphere_hei;
+				model->AddSlabToColumn(x, y, ground_slab);
 			}
 			else
 			{
 				// we're just drawing the ground
-				ground_slab.skipped = 256 - ground_hei;
-				world->AddSlab(x, y, ground_slab);
+				ground_slab.voxels_skipped = 256 - ground_hei;
+				model->AddSlabToColumn(x, y, ground_slab);
 			}
 		}
 	}
 }
+
+#ifdef BLARGH
 
 // Heightmap loader
 void Heightmap_Load(string filename_color, string filename_height, rex_int size_x, rex_int size_y)
@@ -225,51 +222,39 @@ void Tilemap_Load(string filename)
 	}
 }
 
+#endif
+
 // Initialize testbed
 void Initialize()
 {
-	printf("loading...\n");
+	Rex::Log("gamed.log", "loading...");
 
 	Rex::SetGraphicsPalette("gfx/mindgrdn.pal");
 	Rex::ColormapLoad("gfx/mindgrdn.tab");
 
-	// allocate world
-	//world = new Voxel::World("maps/m3.vrx");
-	world = new Voxel::World("CASINO", 256, 256, 256);
+	// Make an actor
+	root = Rex::AddActor(NULL, Rex::ACTOR_NONE);
+	world = Rex::AddActor(root, Rex::ACTOR_MODEL);
+	camera = Rex::AddActor(root, Rex::ACTOR_CAMERA);
 
-	// add an actor
-	Voxel::Actor object01;
-	object01.origin.x = REX_SCALAR(16);
-	object01.origin.y = REX_SCALAR(32);
-	object01.origin.z = REX_SCALAR(4);
-	Rex::SurfaceLoadBMP(&object01.color, "gfx/trooper.bmp");
-	rex_int object01_id = world->AddActor(object01);
-
-	//Heightmap_Generate();
-	//Heightmap_Load("heightm/m3.col", "heightm/m3.hei", 256, 256);
-	Tilemap_Load("maps/casino.tmj");
-
-	//world->Save("maps/m3.vrx");
-
-	// Initialize math table
-	mathtable = new Rex::MathTable;
+	world->model = Voxel::AddVoxelModel(128, 128, 256);
+	Heightmap_Generate((Voxel::VoxelModel *)world->model);
 
 	// Initialize camera info
-	camera.draw_distance = REX_SCALAR(128);
+	camera->draw_distance = REX_SCALAR(128);
 
-	camera.origin.x = REX_SCALAR(0);
-	camera.origin.y = REX_SCALAR(0);
-	camera.origin.z = REX_SCALAR(4);
+	camera->origin.x = REX_SCALAR(0);
+	camera->origin.y = REX_SCALAR(0);
+	camera->origin.z = REX_SCALAR(4);
 
-	camera.angles.x = 0;
-	camera.angles.y = 0;
-	camera.angles.z = 0;
+	camera->angles.x = 0;
+	camera->angles.y = 0;
+	camera->angles.z = 0;
 }
 
 void Shutdown()
 {
-	if (world) delete world;
-	if (mathtable) delete mathtable;
+
 }
 
 //
@@ -289,84 +274,84 @@ void CameraController()
 	delta_my = my_prev - my;
 
 	// Mouse look
-	if (mb == 1 && delta_mx != 0) camera.angles.y += delta_mx;
-	if (mb == 2 && delta_my != 0) camera.angles.x -= delta_my;
+	if (mb == 1 && delta_mx != 0) camera->angles.y += delta_mx;
+	if (mb == 2 && delta_my != 0) camera->angles.x -= delta_my;
 
 	// Reset pitch
 	if (mb == 3)
-		camera.angles.x = 0;
+		camera->angles.x = 0;
 
-	camera.anglespeedkey = 2;
+	camera->anglespeedkey = 2;
 
 	// Keyboard look
 	{
 		// Rotate leftwards
-		if (Rex::KeyTest(REX_SC_LEFT)) camera.angles.y += camera.anglespeedkey;
+		if (Rex::KeyTest(REX_SC_LEFT)) camera->angles.y += camera->anglespeedkey;
 
 		// Rotate rightwards
-		if (Rex::KeyTest(REX_SC_RIGHT)) camera.angles.y -= camera.anglespeedkey;
+		if (Rex::KeyTest(REX_SC_RIGHT)) camera->angles.y -= camera->anglespeedkey;
 
 		// Look upwards
-		if (Rex::KeyTest(REX_SC_UP)) camera.angles.x += camera.anglespeedkey;
+		if (Rex::KeyTest(REX_SC_UP)) camera->angles.x += camera->anglespeedkey;
 
 		// Look downwards
-		if (Rex::KeyTest(REX_SC_DOWN)) camera.angles.x -= camera.anglespeedkey;
+		if (Rex::KeyTest(REX_SC_DOWN)) camera->angles.x -= camera->anglespeedkey;
 	}
 
 	// Pitch angle sanity checks
-	if (camera.angles.x < -90) camera.angles.x = -90;
-	if (camera.angles.x > 90) camera.angles.x = 90;
+	if (camera->angles.x < -90) camera->angles.x = -90;
+	if (camera->angles.x > 90) camera->angles.x = 90;
 
 	// Yaw angle sanity checks
-	if (camera.angles.y < 0) camera.angles.y += 360;
-	if (camera.angles.y > 359) camera.angles.y -= 360;
+	if (camera->angles.y < 0) camera->angles.y += 360;
+	if (camera->angles.y > 359) camera->angles.y -= 360;
 
 	// Check if sprinting
 	if (Rex::KeyTest(REX_SC_LSHIFT))
-		camera.movespeedkey = 2;
+		camera->movespeedkey = 2;
 	else
-		camera.movespeedkey = 1;
+		camera->movespeedkey = 1;
 
 	// Set velocity
-	camera.velocity.x = mathtable->sin[camera.angles.y] * camera.movespeedkey;
-	camera.velocity.y = mathtable->cos[camera.angles.y] * camera.movespeedkey;
-	camera.velocity.z = REX_SCALAR(1.0f) * camera.movespeedkey;
+	camera->velocity.x = Rex::math_table->sin[camera->angles.y] * camera->movespeedkey;
+	camera->velocity.y = Rex::math_table->cos[camera->angles.y] * camera->movespeedkey;
+	camera->velocity.z = REX_SCALAR(1.0f) * camera->movespeedkey;
 
 	// Move forwards
 	if (Rex::KeyTest(REX_SC_W))
 	{
-		camera.origin.x += camera.velocity.x;
-		camera.origin.y += camera.velocity.y;
+		camera->origin.x += camera->velocity.x;
+		camera->origin.y += camera->velocity.y;
 	}
 
 	// Move backwards
 	if (Rex::KeyTest(REX_SC_S))
 	{
-		camera.origin.x -= camera.velocity.x;
-		camera.origin.y -= camera.velocity.y;
+		camera->origin.x -= camera->velocity.x;
+		camera->origin.y -= camera->velocity.y;
 	}
 
 	// Move leftwards
 	if (Rex::KeyTest(REX_SC_A))
 	{
-		camera.origin.x += camera.velocity.y;
-		camera.origin.y -= camera.velocity.x;
+		camera->origin.x += camera->velocity.y;
+		camera->origin.y -= camera->velocity.x;
 	}
 
 	// Move rightwards
 	if (Rex::KeyTest(REX_SC_D))
 	{
-		camera.origin.x -= camera.velocity.y;
-		camera.origin.y += camera.velocity.x;
+		camera->origin.x -= camera->velocity.y;
+		camera->origin.y += camera->velocity.x;
 	}
 
 	// Move upwards
 	if (Rex::KeyTest(REX_SC_Q))
-		camera.origin.z += camera.velocity.z;
+		camera->origin.z += camera->velocity.z;
 
 	// Move downwards
 	if (Rex::KeyTest(REX_SC_E))
-		camera.origin.z -= camera.velocity.z;
+		camera->origin.z -= camera->velocity.z;
 
 	mx_prev = mx;
 	my_prev = my;
@@ -473,15 +458,16 @@ int main(int argc, char *argv[])
 			// watcom...
 			rex_rect screen_area = {0, 0, pic_bbuffer.width, pic_bbuffer.height};
 
-			Voxel::Render(&pic_bbuffer, camera, world, REX_SCALAR(160));
+			Voxel::Render(&pic_bbuffer, camera, ((Voxel::VoxelModel *)world->model), REX_SCALAR(160));
+			//Voxel::Render(&pic_bbuffer, camera, world, REX_SCALAR(160));
 		}
 
-		sprintf(console_buffer, "x: %d y: %d z %d", RexScalarToInteger(camera.origin.x), RexScalarToInteger(camera.origin.y), RexScalarToInteger(camera.origin.z));
+		sprintf(console_buffer, "x: %d y: %d z %d", RexScalarToInteger(camera->origin.x), RexScalarToInteger(camera->origin.y), RexScalarToInteger(camera->origin.z));
 		Rex::ConsoleAddText(0, 0, console_buffer);
-		sprintf(console_buffer, "pitch: %d yaw: %d roll %d", camera.angles.x, camera.angles.y, camera.angles.z);
+		sprintf(console_buffer, "pitch: %d yaw: %d roll %d", camera->angles.x, camera->angles.y, camera->angles.z);
 		Rex::ConsoleAddText(0, 1, console_buffer);
-		sprintf(console_buffer, "%s", world->name.c_str());
-		Rex::ConsoleAddText(40 - world->name.length(), 0, console_buffer);
+		//sprintf(console_buffer, "%s", world->name.c_str());
+		//Rex::ConsoleAddText(40 - world->name.length(), 0, console_buffer);
 
 		// Render the console text
 		Rex::ConsoleRender(&pic_bbuffer, &pic_font, 8);
@@ -511,8 +497,9 @@ int main(int argc, char *argv[])
 	// Cleanup memory
 	Rex::SurfaceDestroy(&pic_font);
 	Rex::SurfaceDestroy(&pic_bbuffer);
-	//Rex::SurfaceDestroy(&pic_background);
 	Rex::SurfaceDestroy(&pic_cursor);
+
+	Rex::FreeActor(root);
 
 	// Exit gracefully
 	return EXIT_SUCCESS;

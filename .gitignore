@@ -11,3 +11,7 @@ cmake-build-*/
 # DJGPP
 CWSDPMI.SWP
 cwsdpmi.swp
+
+# engine
+*.LOG
+*.log

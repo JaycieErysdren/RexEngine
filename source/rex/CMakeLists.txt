@@ -120,6 +120,7 @@ set(REX_CORE_SRC
 	core/console.cpp
 	core/graphics.cpp
 	core/keyboard.cpp
+	core/log.cpp
 	core/math_i.cpp
 	core/math_sin.cpp
 	core/math_x.cpp

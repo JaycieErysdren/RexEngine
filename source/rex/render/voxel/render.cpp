@@ -36,7 +36,6 @@ namespace Voxel
 //
 
 rex_uint8 *zbuffer;
-Rex::MathTable *mathtable;
 
 rex_int draw_w;
 rex_int draw_h;
@@ -50,36 +49,34 @@ rex_int draw_h;
 // Initialize renderer
 void Initialize(rex_int render_width, rex_int render_height)
 {
-	mathtable = new Rex::MathTable;
-
 	SetRenderDimensions(render_width, render_height);
 }
 
 // Shutdown renderer
 void Shutdown()
 {
-	if (mathtable) delete mathtable;
 	if (zbuffer) delete zbuffer;
 }
 
 // Render an image to the specified surface
-void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixel_height_scale)
+//void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixel_height_scale)
+void Render(Rex::Surface *dst, Rex::Actor *camera, VoxelModel *model, rex_scalar pixel_height_scale)
 {
 	// General variables
 	rex_int i;
 
 	// Sin and cos of the camera's yaw
-	rex_scalar sn = mathtable->sin[camera.angles.y];
-	rex_scalar cs = mathtable->cos[camera.angles.y];
+	rex_scalar sn = Rex::math_table->sin[camera->angles.y];
+	rex_scalar cs = Rex::math_table->cos[camera->angles.y];
 
 	// Screen coords
 	rex_vec2i s;
 
 	// meh
-	rex_vec3s p = camera.origin;
+	rex_vec3s p = camera->origin;
 
 	// meh
-	rex_int horizon = -camera.angles.x + (draw_h / 2);
+	rex_int horizon = -camera->angles.x + (draw_h / 2);
 
 	// Draw left to right
 	for (s.x = 0; s.x < draw_w; s.x++)
@@ -162,30 +159,30 @@ void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixe
 			}
 
 			// if it goes beyond the draw distance, cut off the ray
-			if (dist > camera.draw_distance) break;
+			if (dist > camera->draw_distance) break;
 
 			// if out of bounds, keep going in hopes of finding something in-bounds again
 			// this allows rendering the map from an out of bounds location
-			if (map_pos.x > (world->size.x - 1) || map_pos.x < 0) continue;
-			if (map_pos.y > (world->size.y - 1) || map_pos.y < 0) continue;
+			if (map_pos.x > (model->dimensions.x - 1) || map_pos.x < 0) continue;
+			if (map_pos.y > (model->dimensions.y - 1) || map_pos.y < 0) continue;
 
 			// voxel draw loop
 			if (dist > REX_SCALAR(1) && dist2 > REX_SCALAR(1))
 			{
-				Column column = world->GetColumn(map_pos.x, map_pos.y);
+				VoxelColumn column = model->GetColumn(map_pos.x, map_pos.y);
 
 				rex_int column_height = 256;
 
 				// draw the slabs from top to bottom
 				for (i = 0; i < column.slabs.size(); i++)
 				{
-					Slab slab = column.slabs[i];
+					VoxelSlab slab = column.slabs[i];
 
 					// z position of the slab
-					rex_scalar slab_z = REX_SCALAR(column_height - slab.skipped);
+					rex_scalar slab_z = REX_SCALAR(column_height - slab.voxels_skipped);
 
 					// height of the slab
-					rex_scalar slab_height = REX_SCALAR(slab.drawn);
+					rex_scalar slab_height = REX_SCALAR(slab.voxels_drawn);
 
 					// height delta 1 & 2
 					rex_scalar height_delta1 = p.z - slab_z;
@@ -243,15 +240,17 @@ void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixe
 					}
 
 					// overall height of this column
-					column_height -= (slab.skipped + slab.drawn);
+					column_height -= (slab.voxels_skipped + slab.voxels_drawn);
 				}
 			}
 		}
 
+		#ifdef OLD_ACTORS
+
 		// draw actors
-		for (i = 0; i < world->actors.size(); i++)
+		for (i = 0; i < model->actors.size(); i++)
 		{
-			Actor actor = world->actors[i];
+			Actor actor = model->actors[i];
 
 			rex_vec3s v, pv;
 			rex_vec2i sv;
@@ -259,20 +258,20 @@ void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixe
 			rex_int line_startx, line_endx;
 
 			// transform the sprite into the player's view
-			v.x = actor.origin.x - camera.origin.x;
-			v.y = actor.origin.y - camera.origin.y;
-			v.z = -actor.origin.z + camera.origin.z;
+			v.x = actor.origin.x - camera->origin.x;
+			v.y = actor.origin.y - camera->origin.y;
+			v.z = -actor.origin.z + camera->origin.z;
 
 			// rotate the y coordinate into the player's view
 			pv.y = REX_MUL(v.x, sn) + REX_MUL(v.y, cs);
 
 			// if behind the player, don't draw
 			// if beyond the draw distance, don't draw
-			if (pv.y < REX_SCALAR(1) || pv.y > camera.draw_distance) continue;
+			if (pv.y < REX_SCALAR(1) || pv.y > camera->draw_distance) continue;
 
 			// rotate the x and z coordinates into the player's view
 			pv.x = REX_MUL(-v.x, cs) - REX_MUL(-v.y, sn);
-			pv.z = v.z - REX_DIV(REX_MUL(REX_SCALAR(camera.angles.x), pv.y), pixel_height_scale);
+			pv.z = v.z - REX_DIV(REX_MUL(REX_SCALAR(camera->angles.x), pv.y), pixel_height_scale);
 
 			// get screen coordinates
 			sv.x = RexScalarToInteger(REX_DIV(REX_MUL(pv.x, pixel_height_scale), pv.y)) + (draw_w / 2);
@@ -313,6 +312,8 @@ void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixe
 				}
 			}
 		}
+
+		#endif
 	}
 }
 
