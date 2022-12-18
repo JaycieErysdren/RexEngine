@@ -118,8 +118,8 @@ void Heightmap_Load(string filename_color, string filename_height, rex_int size_
 			slab.drawn = height + 1;
 			slab.skipped = 256 - height;
 
-			slab.color_top = color - 2;
-			slab.color_bottom = color - 2;
+			slab.color_top = color;
+			slab.color_bottom = color;
 			slab.color_side = color;
 
 			world->AddSlab(x, y, slab);
@@ -234,22 +234,22 @@ void Initialize()
 	Rex::ColormapLoad("gfx/mindgrdn.tab");
 
 	// allocate world
-	//world = new Voxel::World("maps/orbb.vrx");
-	world = new Voxel::World("Map", 1024, 1024, 256);
+	world = new Voxel::World("maps/m3.vrx");
+	//world = new Voxel::World("HEIGHTMAP 3", 256, 256, 256);
 
 	// add an actor
-	Voxel::Actor object01;
-	object01.origin.x = REX_SCALAR(16);
-	object01.origin.y = REX_SCALAR(32);
-	object01.origin.z = REX_SCALAR(4);
-	Rex::SurfaceLoadBMP(&object01.color, "gfx/trooper.bmp");
-	rex_int object01_id = world->AddActor(object01);
+	//Voxel::Actor object01;
+	//object01.origin.x = REX_SCALAR(16);
+	//object01.origin.y = REX_SCALAR(32);
+	//object01.origin.z = REX_SCALAR(4);
+	//Rex::SurfaceLoadBMP(&object01.color, "gfx/trooper.bmp");
+	//rex_int object01_id = world->AddActor(object01);
 
 	//Heightmap_Generate();
-	//Heightmap_Load("voxel/m1c_mg.dat", "voxel/m1h.dat", 1024, 1024);
-	Tilemap_Load("maps/casino.tmj");
+	//Heightmap_Load("heightm/m3.col", "heightm/m3.hei", 256, 256);
+	//Tilemap_Load("maps/casino.tmj");
 
-	//world->Save("maps/orbb.vrx");
+	//world->Save("maps/m3.vrx");
 
 	// Initialize math table
 	mathtable = new Rex::MathTable;
@@ -480,6 +480,8 @@ int main(int argc, char *argv[])
 		Rex::ConsoleAddText(0, 0, console_buffer);
 		sprintf(console_buffer, "pitch: %d yaw: %d roll %d", camera.angles.x, camera.angles.y, camera.angles.z);
 		Rex::ConsoleAddText(0, 1, console_buffer);
+		sprintf(console_buffer, "%s", world->name.c_str());
+		Rex::ConsoleAddText(40 - world->name.length(), 0, console_buffer);
 
 		// Render the console text
 		Rex::ConsoleRender(&pic_bbuffer, &pic_font, 8);
