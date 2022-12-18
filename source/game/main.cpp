@@ -24,7 +24,7 @@
 //
 
 Rex::Actor *root;
-Rex::Actor *world;
+Rex::Actor *worldspawn;
 Rex::Actor *camera;
 
 // Console buffer
@@ -232,13 +232,16 @@ void Initialize()
 	Rex::SetGraphicsPalette("gfx/mindgrdn.pal");
 	Rex::ColormapLoad("gfx/mindgrdn.tab");
 
-	// Make an actor
+	// Make some actors
 	root = Rex::AddActor(NULL, Rex::ACTOR_NONE);
-	world = Rex::AddActor(root, Rex::ACTOR_MODEL);
-	camera = Rex::AddActor(root, Rex::ACTOR_CAMERA);
+	worldspawn = Rex::AddActor(root, Rex::ACTOR_MODEL);
+	camera = Rex::AddActor(worldspawn, Rex::ACTOR_CAMERA);
 
-	world->model = Voxel::AddVoxelModel(128, 128, 256);
-	Heightmap_Generate((Voxel::VoxelModel *)world->model);
+	// Initialize worldspawn
+	worldspawn->model = Voxel::AddVoxelModel(128, 128, 256);
+	worldspawn->identifier = "ORBB FIELD";
+
+	Heightmap_Generate((Voxel::VoxelModel *)worldspawn->model);
 
 	// Initialize camera info
 	camera->draw_distance = REX_SCALAR(128);
@@ -458,16 +461,15 @@ int main(int argc, char *argv[])
 			// watcom...
 			rex_rect screen_area = {0, 0, pic_bbuffer.width, pic_bbuffer.height};
 
-			Voxel::Render(&pic_bbuffer, camera, ((Voxel::VoxelModel *)world->model), REX_SCALAR(160));
-			//Voxel::Render(&pic_bbuffer, camera, world, REX_SCALAR(160));
+			Voxel::Render(&pic_bbuffer, worldspawn, camera, REX_SCALAR(160));
 		}
 
 		sprintf(console_buffer, "x: %d y: %d z %d", RexScalarToInteger(camera->origin.x), RexScalarToInteger(camera->origin.y), RexScalarToInteger(camera->origin.z));
 		Rex::ConsoleAddText(0, 0, console_buffer);
 		sprintf(console_buffer, "pitch: %d yaw: %d roll %d", camera->angles.x, camera->angles.y, camera->angles.z);
 		Rex::ConsoleAddText(0, 1, console_buffer);
-		//sprintf(console_buffer, "%s", world->name.c_str());
-		//Rex::ConsoleAddText(40 - world->name.length(), 0, console_buffer);
+		sprintf(console_buffer, "%s", worldspawn->identifier.c_str());
+		Rex::ConsoleAddText(40 - worldspawn->identifier.length(), 0, console_buffer);
 
 		// Render the console text
 		Rex::ConsoleRender(&pic_bbuffer, &pic_font, 8);

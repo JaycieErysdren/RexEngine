@@ -60,6 +60,7 @@ class Actor
 		rex_scalar draw_distance;	// How far this actor can "see"
 		rex_int anglespeedkey;		// Multiplier for move speed
 		rex_int movespeedkey;		// Multiplier for turn speed
+		rex_string identifier;		// Identifier name
 
 		//
 		// Type variables

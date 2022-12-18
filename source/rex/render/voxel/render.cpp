@@ -60,7 +60,7 @@ void Shutdown()
 
 // Render an image to the specified surface
 //void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixel_height_scale)
-void Render(Rex::Surface *dst, Rex::Actor *camera, VoxelModel *model, rex_scalar pixel_height_scale)
+void Render(Rex::Surface *dst, Rex::Actor *model, Rex::Actor *camera, rex_scalar pixel_height_scale)
 {
 	// General variables
 	rex_int i;
@@ -77,6 +77,9 @@ void Render(Rex::Surface *dst, Rex::Actor *camera, VoxelModel *model, rex_scalar
 
 	// meh
 	rex_int horizon = -camera->angles.x + (draw_h / 2);
+
+	// meh
+	VoxelModel *voxelmodel = (VoxelModel *)model->model;
 
 	// Draw left to right
 	for (s.x = 0; s.x < draw_w; s.x++)
@@ -163,13 +166,13 @@ void Render(Rex::Surface *dst, Rex::Actor *camera, VoxelModel *model, rex_scalar
 
 			// if out of bounds, keep going in hopes of finding something in-bounds again
 			// this allows rendering the map from an out of bounds location
-			if (map_pos.x > (model->dimensions.x - 1) || map_pos.x < 0) continue;
-			if (map_pos.y > (model->dimensions.y - 1) || map_pos.y < 0) continue;
+			if (map_pos.x > (voxelmodel->dimensions.x - 1) || map_pos.x < 0) continue;
+			if (map_pos.y > (voxelmodel->dimensions.y - 1) || map_pos.y < 0) continue;
 
 			// voxel draw loop
 			if (dist > REX_SCALAR(1) && dist2 > REX_SCALAR(1))
 			{
-				VoxelColumn column = model->GetColumn(map_pos.x, map_pos.y);
+				VoxelColumn column = voxelmodel->GetColumn(map_pos.x, map_pos.y);
 
 				rex_int column_height = 256;
 
