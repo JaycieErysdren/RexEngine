@@ -269,7 +269,7 @@ void Shutdown();
 
 // Render an image to the specified surface
 //void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixel_height_scale);
-void Render(Rex::Surface *dst, Rex::Actor *world, Rex::Actor *camera, rex_scalar pixel_height_scale);
+void Render(Rex::Surface *dst, Rex::Actor3D *world, Rex::Actor3D *camera, rex_scalar pixel_height_scale);
 
 // Set render dimensions
 void SetRenderDimensions(rex_int w, rex_int h);

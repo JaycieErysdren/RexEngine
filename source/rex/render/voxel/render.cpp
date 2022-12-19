@@ -60,7 +60,7 @@ void Shutdown()
 
 // Render an image to the specified surface
 //void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixel_height_scale)
-void Render(Rex::Surface *dst, Rex::Actor *model, Rex::Actor *camera, rex_scalar pixel_height_scale)
+void Render(Rex::Surface *dst, Rex::Actor3D *model, Rex::Actor3D *camera, rex_scalar pixel_height_scale)
 {
 	// General variables
 	rex_int i;

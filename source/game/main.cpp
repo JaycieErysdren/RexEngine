@@ -23,18 +23,21 @@
 // Globals
 //
 
-Rex::Actor *root;
-Rex::Actor *worldspawn;
-Rex::Actor *camera;
+Rex::Actor3D *actor3d_root;
+Rex::Actor3D *actor3d_camera;
+
+Rex::Actor2D *actor2d_root;
+Rex::Actor2D *actor2d_mouse;
+Rex::Actor2D *actor2d_window;
 
 // Heightmap generator
 void Heightmap_Generate(Voxel::VoxelModel *model)
 {
 	rex_int x, y;
 
-	for (y = 0; y < 128; y++)
+	for (y = 0; y < model->dimensions.y; y++)
 	{
-		for (x = 0; x < 128; x++)
+		for (x = 0; x < model->dimensions.x; x++)
 		{
 			rex_int d1 = ((x & 31) - 16);
 			rex_int d2 = ((y & 31) - 16);
@@ -226,35 +229,50 @@ void Initialize()
 {
 	Rex::Log("gamed.log", "loading...");
 
-	Rex::SetGraphicsPalette("gfx/mindgrdn.pal");
-	Rex::ColormapLoad("gfx/mindgrdn.tab");
+	Rex::SetGraphicsPalette("gfx/duke3d.pal");
+	Rex::ColormapLoad("gfx/duke3d.tab");
 
-	// Make some actors
-	root = Rex::AddActor(NULL, Rex::ACTOR_NONE);
-	worldspawn = Rex::AddActor(root, Rex::ACTOR_MODEL);
-	camera = Rex::AddActor(worldspawn, Rex::ACTOR_CAMERA);
+	// 2D Actors
+	actor2d_root = Rex::AddActor2D(NULL, Rex::ACTOR2D_NONE);
+	actor2d_mouse = Rex::AddActor2D(actor2d_root, Rex::ACTOR2D_CURSOR);
+	actor2d_window = Rex::AddActor2D(actor2d_root, Rex::ACTOR2D_WINDOW);
 
-	// Initialize worldspawn
-	worldspawn->model = Voxel::AddVoxelModel(128, 128, 256);
-	worldspawn->identifier = "ORBB FIELD";
+	Rex::SurfaceLoadBMP(&actor2d_mouse->color, "gfx/cursor.bmp");
+	Rex::SurfaceLoadBMP(&actor2d_window->color, "gfx/bg1.bmp");
 
-	Heightmap_Generate((Voxel::VoxelModel *)worldspawn->model);
+	// 3D actors
+	actor3d_root = Rex::AddActor3D(NULL, Rex::ACTOR3D_MODEL);
+	actor3d_camera = Rex::AddActor3D(actor3d_root, Rex::ACTOR3D_CAMERA);
+
+	actor3d_root->model = Voxel::AddVoxelModel(64, 64, 256);
+	actor3d_root->identifier = "ORBB FIELD";
+
+	Heightmap_Generate((Voxel::VoxelModel *)actor3d_root->model);
 
 	// Initialize camera info
-	camera->draw_distance = REX_SCALAR(128);
+	actor3d_camera->draw_distance = REX_SCALAR(128);
 
-	camera->origin.x = REX_SCALAR(0);
-	camera->origin.y = REX_SCALAR(0);
-	camera->origin.z = REX_SCALAR(4);
+	actor3d_camera->origin.x = REX_SCALAR(0);
+	actor3d_camera->origin.y = REX_SCALAR(0);
+	actor3d_camera->origin.z = REX_SCALAR(4);
 
-	camera->angles.x = 0;
-	camera->angles.y = 0;
-	camera->angles.z = 0;
+	actor3d_camera->angles.x = 0;
+	actor3d_camera->angles.y = 0;
+	actor3d_camera->angles.z = 0;
 }
 
 void Shutdown()
 {
+	// Tell log we're shutting down
+	Rex::Log("gamed.log", "shutting down...");
 
+	// Free world hierarchy
+	Rex::Log("gamed.log", "freeing 3D world hierarchy");
+	Rex::FreeActor3D(actor3d_root);
+
+	// Free screen hierarchy
+	Rex::Log("gamed.log", "freeing 2D world hierarchy");
+	Rex::FreeActor2D(actor2d_root);
 }
 
 //
@@ -262,99 +280,97 @@ void Shutdown()
 //
 
 // Camera controller
-void CameraController()
+void CameraController(rex_int32 mb, rex_vec2i mp)
 {
 	// Mouse read
 	static rex_int32 mx_prev, my_prev;
 	rex_int32 delta_mx, delta_my;
-	rex_int32 mb, mx, my;
-	Rex::MouseRead(&mb, &mx, &my);
 
-	delta_mx = mx_prev - mx;
-	delta_my = my_prev - my;
+	delta_mx = mx_prev - mp.x;
+	delta_my = my_prev - mp.y;
 
 	// Mouse look
-	if (mb == 1 && delta_mx != 0) camera->angles.y += delta_mx;
-	if (mb == 2 && delta_my != 0) camera->angles.x -= delta_my;
+	if (mb == 1 && delta_mx != 0) actor3d_camera->angles.y += delta_mx;
+	if (mb == 2 && delta_my != 0) actor3d_camera->angles.x -= delta_my;
 
 	// Reset pitch
 	if (mb == 3)
-		camera->angles.x = 0;
+		actor3d_camera->angles.x = 0;
 
-	camera->anglespeedkey = 2;
+	actor3d_camera->anglespeedkey = 2;
 
 	// Keyboard look
 	{
 		// Rotate leftwards
-		if (Rex::KeyTest(REX_SC_LEFT)) camera->angles.y += camera->anglespeedkey;
+		if (Rex::KeyTest(REX_SC_LEFT)) actor3d_camera->angles.y += actor3d_camera->anglespeedkey;
 
 		// Rotate rightwards
-		if (Rex::KeyTest(REX_SC_RIGHT)) camera->angles.y -= camera->anglespeedkey;
+		if (Rex::KeyTest(REX_SC_RIGHT)) actor3d_camera->angles.y -= actor3d_camera->anglespeedkey;
 
 		// Look upwards
-		if (Rex::KeyTest(REX_SC_UP)) camera->angles.x += camera->anglespeedkey;
+		if (Rex::KeyTest(REX_SC_UP)) actor3d_camera->angles.x += actor3d_camera->anglespeedkey;
 
 		// Look downwards
-		if (Rex::KeyTest(REX_SC_DOWN)) camera->angles.x -= camera->anglespeedkey;
+		if (Rex::KeyTest(REX_SC_DOWN)) actor3d_camera->angles.x -= actor3d_camera->anglespeedkey;
 	}
 
 	// Pitch angle sanity checks
-	if (camera->angles.x < -90) camera->angles.x = -90;
-	if (camera->angles.x > 90) camera->angles.x = 90;
+	if (actor3d_camera->angles.x < -90) actor3d_camera->angles.x = -90;
+	if (actor3d_camera->angles.x > 90) actor3d_camera->angles.x = 90;
 
 	// Yaw angle sanity checks
-	if (camera->angles.y < 0) camera->angles.y += 360;
-	if (camera->angles.y > 359) camera->angles.y -= 360;
+	if (actor3d_camera->angles.y < 0) actor3d_camera->angles.y += 360;
+	if (actor3d_camera->angles.y > 359) actor3d_camera->angles.y -= 360;
 
 	// Check if sprinting
 	if (Rex::KeyTest(REX_SC_LSHIFT))
-		camera->movespeedkey = 2;
+		actor3d_camera->movespeedkey = 2;
 	else
-		camera->movespeedkey = 1;
+		actor3d_camera->movespeedkey = 1;
 
 	// Set velocity
-	camera->velocity.x = Rex::math_table->sin[camera->angles.y] * camera->movespeedkey;
-	camera->velocity.y = Rex::math_table->cos[camera->angles.y] * camera->movespeedkey;
-	camera->velocity.z = REX_SCALAR(1.0f) * camera->movespeedkey;
+	actor3d_camera->velocity.x = Rex::math_table->sin[actor3d_camera->angles.y] * actor3d_camera->movespeedkey;
+	actor3d_camera->velocity.y = Rex::math_table->cos[actor3d_camera->angles.y] * actor3d_camera->movespeedkey;
+	actor3d_camera->velocity.z = REX_SCALAR(1.0f) * actor3d_camera->movespeedkey;
 
 	// Move forwards
 	if (Rex::KeyTest(REX_SC_W))
 	{
-		camera->origin.x += camera->velocity.x;
-		camera->origin.y += camera->velocity.y;
+		actor3d_camera->origin.x += actor3d_camera->velocity.x;
+		actor3d_camera->origin.y += actor3d_camera->velocity.y;
 	}
 
 	// Move backwards
 	if (Rex::KeyTest(REX_SC_S))
 	{
-		camera->origin.x -= camera->velocity.x;
-		camera->origin.y -= camera->velocity.y;
+		actor3d_camera->origin.x -= actor3d_camera->velocity.x;
+		actor3d_camera->origin.y -= actor3d_camera->velocity.y;
 	}
 
 	// Move leftwards
 	if (Rex::KeyTest(REX_SC_A))
 	{
-		camera->origin.x += camera->velocity.y;
-		camera->origin.y -= camera->velocity.x;
+		actor3d_camera->origin.x += actor3d_camera->velocity.y;
+		actor3d_camera->origin.y -= actor3d_camera->velocity.x;
 	}
 
 	// Move rightwards
 	if (Rex::KeyTest(REX_SC_D))
 	{
-		camera->origin.x -= camera->velocity.y;
-		camera->origin.y += camera->velocity.x;
+		actor3d_camera->origin.x -= actor3d_camera->velocity.y;
+		actor3d_camera->origin.y += actor3d_camera->velocity.x;
 	}
 
 	// Move upwards
 	if (Rex::KeyTest(REX_SC_Q))
-		camera->origin.z += camera->velocity.z;
+		actor3d_camera->origin.z += actor3d_camera->velocity.z;
 
 	// Move downwards
 	if (Rex::KeyTest(REX_SC_E))
-		camera->origin.z -= camera->velocity.z;
+		actor3d_camera->origin.z -= actor3d_camera->velocity.z;
 
-	mx_prev = mx;
-	my_prev = my;
+	mx_prev = mp.x;
+	my_prev = mp.y;
 }
 
 // Mouse helper function
@@ -390,6 +406,10 @@ void ReadMouse(rex_int32 *buttons, rex_vec2i *pos, rex_int32 speedlimit, rex_rec
 
 int main(int argc, char *argv[])
 {
+	// General variables
+	rex_bool running = true;
+	rex_int game_state = 1;
+
 	// Cycle variables
 	rex_int64 frame_start, frame_end;
 	rex_int32 cycles, c;
@@ -397,7 +417,6 @@ int main(int argc, char *argv[])
 	// Picture buffers
 	Rex::Surface pic_font;
 	Rex::Surface pic_bbuffer;
-	Rex::Surface pic_cursor;
 	Rex::Surface pic_text;
 
 	// Initialize Rex Engine
@@ -413,7 +432,6 @@ int main(int argc, char *argv[])
 
 	// Create picture buffers
 	Rex::SurfaceLoadBMP(&pic_font, "gfx/font8x8.bmp");
-	Rex::SurfaceLoadBMP(&pic_cursor, "local/cursor.bmp");
 	Rex::SurfaceCreate(&pic_bbuffer, vidinfo.width, vidinfo.height, vidinfo.bpp, 0, 0);
 	Rex::SurfaceCreate(&pic_text, 40, 10, 8, 0, 0);
 
@@ -424,7 +442,7 @@ int main(int argc, char *argv[])
 	frame_end = Rex::GetTicks64();
 
 	// Main loop
-	while (!Rex::KeyTest(REX_SC_ESCAPE))
+	while (running == true && !Rex::KeyTest(REX_SC_ESCAPE))
 	{
 		// Get start of frame time
 		frame_start = Rex::GetTicks64();
@@ -437,33 +455,61 @@ int main(int argc, char *argv[])
 			cycles = CYCLES * (frame_start - frame_end) / CLOCKS_PER_SEC;
 		#endif
 
-		// Cycles
-		for (c = 0; c < cycles; c++)
+		rex_int32 mouse_buttons;
+		rex_rect mouse_area = {0, 0, pic_bbuffer.width - actor2d_mouse->color.width, pic_bbuffer.height - actor2d_mouse->color.height};
+		ReadMouse(&mouse_buttons, &actor2d_mouse->origin, 16, mouse_area);
+
+		// Clear back buffer
+		Rex::SurfaceClear(&pic_bbuffer, 0);
+
+		if (game_state == 1)
 		{
 			//
 			// User inputs
 			//
 
-			CameraController();
+			// Return to game
+			if (mouse_buttons == 1) game_state = 2;
+			if (mouse_buttons == 2) running = false;
+
+			// Render window background
+			Rex::SurfaceDraw8(&pic_bbuffer, &actor2d_window->color, 0, 0, Rex::COPY);
+
+			// Render mouse
+			Rex::SurfaceDraw8(&pic_bbuffer, &actor2d_mouse->color, actor2d_mouse->origin.x, actor2d_mouse->origin.y, Rex::COLORKEY);
 		}
-
-		//
-		// Rendering
-		//
-
-		// Clear back buffer
-		Rex::SurfaceClear(&pic_bbuffer, 241);
-
-		// Voxels
+		else if (game_state == 2)
 		{
-			// watcom...
+			//
+			// User inputs
+			//
+
+			// Return to menu
+			if (Rex::KeyTest(REX_SC_TILDE)) game_state = 1;
+
+			// Cycles
+			for (c = 0; c < cycles; c++)
+			{
+				// Camera controller
+				CameraController(mouse_buttons, actor2d_mouse->origin);
+			}
+
+			//
+			// Rendering
+			//
+
+			// Render 3D scene
 			rex_rect screen_area = {0, 0, pic_bbuffer.width, pic_bbuffer.height};
+			Voxel::Render(&pic_bbuffer, actor3d_root, actor3d_camera, REX_SCALAR(160));
 
-			Voxel::Render(&pic_bbuffer, worldspawn, camera, REX_SCALAR(160));
+			// Render onscreen text
+			Rex::ConsoleTextF(&pic_bbuffer, &pic_font, 8, 0, 0, "x: %d y: %d z %d", RexScalarToInteger(actor3d_camera->origin.x), RexScalarToInteger(actor3d_camera->origin.y), RexScalarToInteger(actor3d_camera->origin.z));
+			Rex::ConsoleTextF(&pic_bbuffer, &pic_font, 8, 0, 1, "pitch: %d yaw: %d roll %d", actor3d_camera->angles.x, actor3d_camera->angles.y, actor3d_camera->angles.z);
 		}
-
-		Rex::ConsoleTextF(&pic_bbuffer, &pic_font, 8, 0, 0, "x: %d y: %d z %d", RexScalarToInteger(camera->origin.x), RexScalarToInteger(camera->origin.y), RexScalarToInteger(camera->origin.z));
-		Rex::ConsoleTextF(&pic_bbuffer, &pic_font, 8, 0, 1, "pitch: %d yaw: %d roll %d", camera->angles.x, camera->angles.y, camera->angles.z);
+		else
+		{
+			running = false;
+		}
 
 		// Flip the rendering buffers
 		Rex::SurfaceToFrontBuffer(&pic_bbuffer);
@@ -490,10 +536,7 @@ int main(int argc, char *argv[])
 	// Cleanup memory
 	Rex::SurfaceDestroy(&pic_font);
 	Rex::SurfaceDestroy(&pic_bbuffer);
-	Rex::SurfaceDestroy(&pic_cursor);
 	Rex::SurfaceDestroy(&pic_text);
-
-	Rex::FreeActor(root);
 
 	// Exit gracefully
 	return EXIT_SUCCESS;

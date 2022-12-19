@@ -136,11 +136,11 @@ using namespace std;
 // Graphics
 #include "core/graphics.hpp"
 
-// Scene
-#include "core/scene.hpp"
-
 // Surface
 #include "core/surface.hpp"
+
+// Scene
+#include "core/scene.hpp"
 
 // Keyboard
 #include "core/keyboard.hpp"

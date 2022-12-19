@@ -34,10 +34,19 @@ namespace Rex
 
 typedef enum
 {
-	ACTOR_NONE,
-	ACTOR_CAMERA,
-	ACTOR_MODEL,
-} rex_actor_type;
+	ACTOR2D_NONE,
+	ACTOR2D_WINDOW,
+	ACTOR2D_BUTTON,
+	ACTOR2D_TEXT,
+	ACTOR2D_CURSOR,
+} rex_actor2d_type;
+
+typedef enum
+{
+	ACTOR3D_NONE,
+	ACTOR3D_CAMERA,
+	ACTOR3D_MODEL,
+} rex_actor3d_type;
 
 //
 //
@@ -45,7 +54,8 @@ typedef enum
 //
 //
 
-class Actor
+// Actor3D
+class Actor3D
 {
 	public:
 
@@ -60,27 +70,67 @@ class Actor
 		rex_scalar draw_distance;	// How far this actor can "see"
 		rex_int anglespeedkey;		// Multiplier for move speed
 		rex_int movespeedkey;		// Multiplier for turn speed
-		rex_string identifier;		// Identifier name
+		rex_string identifier;		// Identifier
 
 		//
 		// Type variables
 		//
 
-		rex_actor_type type;		// Type enum
+		rex_actor3d_type type;		// Type enum
 
 		//
 		// Scene hierarchy
 		//
 
-		Actor *parent;				// Parent in the scene
-		vector<Actor *> children;	// Children in the scene
+		Actor3D *parent;				// Parent in the scene
+		vector<Actor3D *> children;	// Children in the scene
 
 		//
 		// Model data
 		//
 
 		void *model;
-	
+
+		//
+		// Danger zone
+		//
+
+		void *memory;				// Pointer to the allocated memory for this actor
+};
+
+// Actor2D
+class Actor2D
+{
+	public:
+
+		//
+		// General variables
+		//
+
+		rex_vec2i origin;			// Origin (x, y)
+		rex_vec2s velocity;			// Velocity (x, y)
+		rex_int angle;				// Angle of rotation (0 - 359)
+		rex_string identifier;		// Identifier
+
+		//
+		// Type variables
+		//
+
+		rex_actor2d_type type;		// Type enum
+
+		//
+		// Scene hierarchy
+		//
+
+		Actor2D *parent;				// Parent in the scene
+		vector<Actor2D *> children;		// Children in the scene
+
+		//
+		// Color data
+		//
+
+		Surface color;
+
 		//
 		// Danger zone
 		//
@@ -94,11 +144,25 @@ class Actor
 //
 //
 
+//
+// Actor3D
+//
+
 // Allocates the memory associated with an actor, and returns a pointer to it
-Actor *AddActor(Actor *parent, rex_actor_type type);
+Actor3D *AddActor3D(Actor3D *parent, rex_actor3d_type type);
 
 // Frees the memory associated with an actor, as well as all children actors
-void FreeActor(Actor *actor);
+void FreeActor3D(Actor3D *actor);
+
+//
+// Actor2D
+//
+
+// Allocates the memory associated with an Actor2D, and returns a pointer to it
+Actor2D *AddActor2D(Actor2D *parent, rex_actor2d_type type);
+
+// Frees the memory associated with an Actor2D, as well as all children actors
+void FreeActor2D(Actor2D *actor);
 
 } // namespace Rex
 
