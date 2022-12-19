@@ -29,6 +29,8 @@ Rex::Actor3D *actor3d_camera;
 Rex::Actor2D *actor2d_root;
 Rex::Actor2D *actor2d_mouse;
 Rex::Actor2D *actor2d_window;
+Rex::Actor2D *actor2d_button_exit;
+Rex::Actor2D *actor2d_button_return;
 
 // Heightmap generator
 void Heightmap_Generate(Voxel::VoxelModel *model)
@@ -234,11 +236,10 @@ void Initialize()
 
 	// 2D Actors
 	actor2d_root = Rex::AddActor2D(NULL, Rex::ACTOR2D_NONE);
-	actor2d_mouse = Rex::AddActor2D(actor2d_root, Rex::ACTOR2D_CURSOR);
-	actor2d_window = Rex::AddActor2D(actor2d_root, Rex::ACTOR2D_WINDOW);
-
-	Rex::SurfaceLoadBMP(&actor2d_mouse->color, "gfx/cursor.bmp");
-	Rex::SurfaceLoadBMP(&actor2d_window->color, "gfx/bg1.bmp");
+	actor2d_mouse = Rex::AddActor2D(actor2d_root, Rex::ACTOR2D_CURSOR, "gfx/cursor.bmp");
+	actor2d_window = Rex::AddActor2D(actor2d_root, Rex::ACTOR2D_WINDOW, "gfx/bg2.bmp");
+	actor2d_button_exit = Rex::AddActor2D(actor2d_window, Rex::ACTOR2D_BUTTON, "gfx/btn_exit.bmp");
+	actor2d_button_return = Rex::AddActor2D(actor2d_window, Rex::ACTOR2D_BUTTON, "gfx/btn_clck.bmp");
 
 	// 3D actors
 	actor3d_root = Rex::AddActor3D(NULL, Rex::ACTOR3D_MODEL);
@@ -469,14 +470,86 @@ int main(int argc, char *argv[])
 			//
 
 			// Return to game
-			if (mouse_buttons == 1) game_state = 2;
-			if (mouse_buttons == 2) running = false;
+			if (mouse_buttons == 1) actor2d_mouse->events |= Rex::ACTOR2D_EVENT01;
 
-			// Render window background
-			Rex::SurfaceDraw8(&pic_bbuffer, &actor2d_window->color, 0, 0, Rex::COPY);
+			//
+			// Background elements
+			//
 
-			// Render mouse
-			Rex::SurfaceDraw8(&pic_bbuffer, &actor2d_mouse->color, actor2d_mouse->origin.x, actor2d_mouse->origin.y, Rex::COLORKEY);
+			// Draw window background
+			actor2d_window->Draw(&pic_bbuffer, Rex::COPY);
+
+			// Position logic
+			actor2d_button_return->origin.x = 96;
+			actor2d_button_return->origin.y = 32;
+			actor2d_button_return->draw_area.x1 = 0;
+			actor2d_button_return->draw_area.y1 = 0;
+			actor2d_button_return->draw_area.x2 = 48;
+			actor2d_button_return->draw_area.y2 = 24;
+
+			// Mouse hover logic
+			if (actor2d_mouse->OriginInside(actor2d_button_return))
+			{
+				actor2d_button_return->draw_area.x1 = 48;
+				actor2d_button_return->draw_area.y1 = 0;
+				actor2d_button_return->draw_area.x2 = 96;
+				actor2d_button_return->draw_area.y2 = 24;
+
+				if (actor2d_mouse->events && Rex::ACTOR2D_EVENT01)
+				{
+					actor2d_button_return->draw_area.x1 = 96;
+					actor2d_button_return->draw_area.y1 = 0;
+					actor2d_button_return->draw_area.x2 = 144;
+					actor2d_button_return->draw_area.y2 = 24;
+
+					game_state = 2;
+				}
+			}
+
+			// Draw button
+			actor2d_button_return->Draw(&pic_bbuffer, Rex::COPY);
+
+			//
+			// Exit button
+			//
+
+			// Position logic
+			actor2d_button_exit->origin.x = 32;
+			actor2d_button_exit->origin.y = 32;
+			actor2d_button_exit->draw_area.x1 = 0;
+			actor2d_button_exit->draw_area.y1 = 0;
+			actor2d_button_exit->draw_area.x2 = 48;
+			actor2d_button_exit->draw_area.y2 = 24;
+
+			// Mouse hover logic
+			if (actor2d_mouse->OriginInside(actor2d_button_exit))
+			{
+				actor2d_button_exit->draw_area.x1 = 48;
+				actor2d_button_exit->draw_area.y1 = 0;
+				actor2d_button_exit->draw_area.x2 = 96;
+				actor2d_button_exit->draw_area.y2 = 24;
+
+				if (actor2d_mouse->events && Rex::ACTOR2D_EVENT01)
+				{
+					actor2d_button_exit->draw_area.x1 = 96;
+					actor2d_button_exit->draw_area.y1 = 0;
+					actor2d_button_exit->draw_area.x2 = 144;
+					actor2d_button_exit->draw_area.y2 = 24;
+
+					running = false;
+				}
+			}
+
+			// Draw button
+			actor2d_button_exit->Draw(&pic_bbuffer, Rex::COPY);
+
+			//
+			// Mouse
+			//
+
+			// Draw mouse
+			actor2d_mouse->Draw(&pic_bbuffer, Rex::COLORKEY);
+			actor2d_mouse->ClearEvents();
 		}
 		else if (game_state == 2)
 		{

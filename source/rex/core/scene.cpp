@@ -28,6 +28,33 @@ namespace Rex
 
 //
 //
+// Class functions
+//
+//
+
+// Draw the actor on another surface
+void Actor2D::Draw(Surface *dst, blit_mode flags)
+{
+	SurfaceBlit8(dst, origin.x, origin.y, origin.x + (draw_area.x2 - draw_area.x1), origin.y + (draw_area.y2 - draw_area.y1), &color, draw_area.x1, draw_area.y1, draw_area.x2, draw_area.y2, flags);
+}
+
+// Returns true if the actor is overtop or underneath another actor
+bool Actor2D::OriginInside(Actor2D *actor)
+{
+	return (origin.x > actor->origin.x + actor->draw_area.x1 &&
+			origin.x < actor->origin.x + actor->draw_area.x2 &&
+			origin.y > actor->origin.y + actor->draw_area.y1 &&
+			origin.y < actor->origin.y + actor->draw_area.y2) ? true : false;
+}
+
+// Clear the events bitmask in the actor
+void Actor2D::ClearEvents()
+{
+	events = 0;
+}
+
+//
+//
 // Functions
 //
 //
@@ -101,6 +128,24 @@ Actor2D *AddActor2D(Actor2D *parent, rex_actor2d_type type)
 	actor->type = type;
 
 	// Return pointer
+	return actor;
+}
+
+// Allocates the memory associated with an Actor2D, and returns a pointer to it
+Actor2D *AddActor2D(Actor2D *parent, rex_actor2d_type type, string filename)
+{
+	Actor2D *actor = AddActor2D(parent, type);
+
+	SurfaceLoadBMP(&actor->color, filename);
+
+	actor->dimensions.x = actor->color.width;
+	actor->dimensions.y = actor->color.height;
+
+	actor->draw_area.x1 = 0;
+	actor->draw_area.y1 = 0;
+	actor->draw_area.x2 = actor->dimensions.x;
+	actor->draw_area.y2 = actor->dimensions.y;
+
 	return actor;
 }
 
