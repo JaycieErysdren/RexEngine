@@ -184,7 +184,7 @@ void RenderVoxelModel(Rex::Surface *dst, Rex::Surface *zbuffer, VoxelModel *mode
 							if (REX_SCALAR(s.z) > dist)
 							{
 								rex_uint8 c = slab.color_side;
-								//c = Rex::ColormapLookup(c, RexScalarToInteger(dist));
+								c = Rex::ColormapLookup(c, RexScalarToInteger(dist));
 								Rex::SurfaceDrawPixel(dst, s.x, s.y, c);
 								Rex::SurfaceDrawPixel(zbuffer, s.x, s.y, RexScalarToInteger(dist));
 							}
@@ -212,7 +212,7 @@ void RenderVoxelModel(Rex::Surface *dst, Rex::Surface *zbuffer, VoxelModel *mode
 							if (REX_SCALAR(s.z) > dist2)
 							{
 								rex_uint8 c = origin.z > slab_z ? slab.color_top : slab.color_bottom;
-								//c = Rex::ColormapLookup(c, RexScalarToInteger(dist));
+								c = Rex::ColormapLookup(c, RexScalarToInteger(dist));
 								Rex::SurfaceDrawPixel(dst, s.x, s.y, c);
 								Rex::SurfaceDrawPixel(zbuffer, s.x, s.y, RexScalarToInteger(dist2));
 							}

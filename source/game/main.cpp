@@ -269,16 +269,28 @@ void Initialize()
 	actor3d_camera = Rex::AddActor3D(actor3d_root, Rex::ACTOR3D_CAMERA);
 
 	actor3d_model = Rex::AddActor3D(actor3d_root, Rex::ACTOR3D_VOXELMODEL);
-	actor3d_model->model = Voxel::AddVoxelModel(16, 16, 1);
+	actor3d_model->model = Voxel::AddVoxelModel(32, 32, 8);
 
 	// initialize voxel model
 	Voxel::VoxelSlab slab;
 	slab.voxels_drawn = 1;
 	slab.voxels_skipped = 0;
 	slab.color_side = 255;
-	slab.color_top = 15;
-	slab.color_bottom = 15;
-	((Voxel::VoxelModel *)actor3d_model->model)->AddSlabToColumn(7, 7, slab);
+	slab.color_top = 255;
+	slab.color_bottom = 255;
+	((Voxel::VoxelModel *)actor3d_model->model)->AddSlabToColumn(24, 24, slab);
+	slab.voxels_drawn = 6;
+	slab.voxels_skipped = 1;
+	slab.color_side = 31;
+	slab.color_top = 31;
+	slab.color_bottom = 31;
+	((Voxel::VoxelModel *)actor3d_model->model)->AddSlabToColumn(24, 24, slab);
+	slab.voxels_drawn = 8;
+	slab.voxels_skipped = 0;
+	((Voxel::VoxelModel *)actor3d_model->model)->AddSlabToColumn(16, 20, slab);
+	slab.voxels_drawn = 4;
+	slab.voxels_skipped = 4;
+	((Voxel::VoxelModel *)actor3d_model->model)->AddSlabToColumn(24, 16, slab);
 
 	// initialize raycast model
 	rex_int x, y;

@@ -223,7 +223,7 @@ void RenderRaycastModel(Rex::Surface *dst, Rex::Surface *zbuffer, RaycastModel *
 			line_end = CLAMP(line_end, 0, draw_h);
 
 			//choose wall color
-			uint8_t color;
+			rex_uint8 color;
 			switch (model->GetTile(map_pos.x, map_pos.y))
 			{
 				case 1: color = 31; break;
@@ -237,6 +237,8 @@ void RenderRaycastModel(Rex::Surface *dst, Rex::Surface *zbuffer, RaycastModel *
 			// Lookup in colormap for brightness
 			//if (side == true) color = Rex::ColormapLookup(color, RexScalarToInteger(REX_MUL(dist, REX_SCALAR(2))) - 4);
 			//else color = Rex::ColormapLookup(color, RexScalarToInteger(REX_MUL(dist, REX_SCALAR(2))));
+
+			color = Rex::ColormapLookup(color, RexScalarToInteger(dist));
 
 			// draw with zbuffer
 			for (s.y = line_start; s.y < line_end; s.y++)
