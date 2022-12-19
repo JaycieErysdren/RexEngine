@@ -39,6 +39,7 @@ set(MODULE_VGA TRUE)
 ## Set the renderers we want
 set(RENDERER_VOXEL TRUE)
 set(RENDERER_RAYCAST TRUE)
+set(RENDERER_SECTOR TRUE)
 
 ## Rex Engine platform & compiler determinator
 include(cmake/rex_determinator.cmake)

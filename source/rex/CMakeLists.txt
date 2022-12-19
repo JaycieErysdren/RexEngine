@@ -68,9 +68,9 @@ if(${RENDERER_RAYCAST})
 	add_compile_definitions("RENDERER_RAYCAST=1")
 endif()
 
-## Portal2D
-if(${RENDERER_PORTAL2D})
-	add_compile_definitions("RENDERER_PORTAL2D=1")
+## Sector
+if(${RENDERER_SECTOR})
+	add_compile_definitions("RENDERER_SECTOR=1")
 endif()
 
 ## Voxel
@@ -197,14 +197,14 @@ if(${RENDERER_RAYCAST})
 
 endif()
 
-## Portal2D
-if(${RENDERER_PORTAL2D})
+## Sector
+if(${RENDERER_SECTOR})
 
-	set(REX_PORTAL2D_SRC
-		render/portal2d/portal2d.cpp
+	set(REX_SECTOR_SRC
+		render/sector/render.cpp
 	)
 
-	add_library(portal2d STATIC ${REX_PORTAL2D_SRC})
+	add_library(sector STATIC ${REX_SECTOR_SRC})
 
 endif()
 
@@ -264,8 +264,8 @@ if(${RENDERER_RAYCAST})
 	target_link_libraries(rex INTERFACE raycast)
 endif()
 
-if(${RENDERER_PORTAL2D})
-	target_link_libraries(rex INTERFACE portal2d)
+if(${RENDERER_SECTOR})
+	target_link_libraries(rex INTERFACE sector)
 endif()
 
 if(${RENDERER_VOXEL})

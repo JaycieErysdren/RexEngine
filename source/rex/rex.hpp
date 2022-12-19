@@ -166,9 +166,9 @@ using namespace std;
 #include "render/raycast/render.hpp"
 #endif
 
-// Portal2D
-#if RENDERER_PORTAL2D
-#include "render/portal2d/portal2d.hpp"
+// Sector
+#if RENDERER_SECTOR
+#include "render/sector/render.hpp"
 #endif
 
 // Voxel
