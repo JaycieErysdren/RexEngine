@@ -23,9 +23,15 @@
 // Globals
 //
 
+// 3D Actors
 Rex::Actor3D *actor3d_root;
 Rex::Actor3D *actor3d_camera;
 
+// 2D Actors (HUD)
+Rex::Actor2D *actor2d_hud_root;
+Rex::Actor2D *actor2d_hud_gun;
+
+// 2D Actors (menu)
 Rex::Actor2D *actor2d_root;
 Rex::Actor2D *actor2d_mouse;
 Rex::Actor2D *actor2d_window;
@@ -234,7 +240,7 @@ void Initialize()
 	Rex::SetGraphicsPalette("gfx/duke3d.pal");
 	Rex::ColormapLoad("gfx/duke3d.tab");
 
-	// 2D Actors
+	// 2D Actors (menu)
 	actor2d_root = Rex::AddActor2D(NULL, Rex::ACTOR2D_NONE);
 
 	actor2d_window = Rex::AddActor2D(actor2d_root, Rex::ACTOR2D_WINDOW, "gfx/bg2.bmp");
@@ -244,17 +250,23 @@ void Initialize()
 	actor2d_mouse = Rex::AddActor2D(actor2d_root, Rex::ACTOR2D_CURSOR, "gfx/cursor.bmp");
 	actor2d_mouse->color_blit_mode = Rex::COLORKEY;
 
+	// 2D Actors (HUD)
+	actor2d_hud_root = Rex::AddActor2D(NULL, Rex::ACTOR2D_NONE);
+
+	actor2d_hud_gun = Rex::AddActor2D(actor2d_hud_root, Rex::ACTOR2D_VIEWMODEL, "gfx/shotgun.bmp");
+	actor2d_hud_gun->color_blit_mode = Rex::COLORKEY;
+
 	// 3D actors
 	actor3d_root = Rex::AddActor3D(NULL, Rex::ACTOR3D_VOXELMODEL);
 	actor3d_camera = Rex::AddActor3D(actor3d_root, Rex::ACTOR3D_CAMERA);
 
-	actor3d_root->model = Voxel::AddVoxelModel(128, 128, 256);
+	actor3d_root->model = Voxel::AddVoxelModel(64, 64, 256);
 	actor3d_root->identifier = "ORBB FIELD";
 
 	Heightmap_Generate((Voxel::VoxelModel *)actor3d_root->model);
 
 	// Initialize camera info
-	actor3d_camera->draw_distance = REX_SCALAR(32);
+	actor3d_camera->draw_distance = REX_SCALAR(64);
 
 	actor3d_camera->origin.x = REX_SCALAR(0);
 	actor3d_camera->origin.y = REX_SCALAR(0);
@@ -459,7 +471,7 @@ int main(int argc, char *argv[])
 		ReadMouse(&mouse_buttons, &actor2d_mouse->origin, 16, mouse_area);
 
 		// Clear back buffer
-		Rex::SurfaceClear(&pic_bbuffer, 31); // 242
+		Rex::SurfaceClear(&pic_bbuffer, 15); // 242
 
 		// Clear z buffer
 		Rex::SurfaceClear(&pic_zbuffer, 255);
@@ -567,6 +579,12 @@ int main(int argc, char *argv[])
 
 			// Render 3D scene
 			Rex::RenderScene3D(&pic_bbuffer, &pic_zbuffer, actor3d_root, actor3d_camera, REX_SCALAR(160));
+
+			// Render 2D scene
+			actor2d_hud_gun->origin.x = pic_bbuffer.width / 2;
+			actor2d_hud_gun->origin.y = pic_bbuffer.height - actor2d_hud_gun->color.height;
+
+			Rex::RenderScene2D(&pic_bbuffer, &pic_zbuffer, actor2d_hud_root, REX_SCALAR(160));
 
 			// Render onscreen text
 			Rex::ConsoleTextF(&pic_bbuffer, &pic_font, 8, 0, 0, "x: %d y: %d z %d", RexScalarToInteger(actor3d_camera->origin.x), RexScalarToInteger(actor3d_camera->origin.y), RexScalarToInteger(actor3d_camera->origin.z));

@@ -69,7 +69,7 @@ void RenderScene2D(Surface *dst, Surface *zbuffer, Actor2D *root, rex_scalar pix
 	if (root == NULL) return;
 
 	// Render this actor
-	root->Draw(dst, root->color_blit_mode);
+	if (root->type != ACTOR2D_NONE) root->Draw(dst, root->color_blit_mode);
 
 	// Render children
 	for (rex_int i = 0; i < root->children.size(); i++)

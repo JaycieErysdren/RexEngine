@@ -39,6 +39,7 @@ typedef enum
 	ACTOR2D_BUTTON,
 	ACTOR2D_TEXT,
 	ACTOR2D_CURSOR,
+	ACTOR2D_VIEWMODEL,
 } rex_actor2d_type;
 
 typedef enum
