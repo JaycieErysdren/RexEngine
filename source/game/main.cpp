@@ -25,6 +25,7 @@
 
 // 3D Actors
 Rex::Actor3D *actor3d_root;
+Rex::Actor3D *actor3d_model;
 Rex::Actor3D *actor3d_camera;
 
 // 2D Actors (HUD)
@@ -257,19 +258,47 @@ void Initialize()
 	actor2d_hud_gun->color_blit_mode = Rex::COLORKEY;
 
 	// 3D actors
-	actor3d_root = Rex::AddActor3D(NULL, Rex::ACTOR3D_VOXELMODEL);
+	//actor3d_root = Rex::AddActor3D(NULL, Rex::ACTOR3D_VOXELMODEL);
+
+	//actor3d_root->model = Voxel::AddVoxelModel(32, 32, 256);
+	//actor3d_root->identifier = "RAY";
+	//Heightmap_Generate((Voxel::VoxelModel *)actor3d_root->model);
+
+	actor3d_root = Rex::AddActor3D(NULL, Rex::ACTOR3D_RAYCASTMODEL);
+	actor3d_root->model = Raycast::AddRaycastModel(16, 16);
 	actor3d_camera = Rex::AddActor3D(actor3d_root, Rex::ACTOR3D_CAMERA);
 
-	actor3d_root->model = Voxel::AddVoxelModel(32, 32, 256);
-	actor3d_root->identifier = "RAY";
-	Heightmap_Generate((Voxel::VoxelModel *)actor3d_root->model);
+	actor3d_model = Rex::AddActor3D(actor3d_root, Rex::ACTOR3D_VOXELMODEL);
+	actor3d_model->model = Voxel::AddVoxelModel(16, 16, 1);
+
+	// initialize voxel model
+	Voxel::VoxelSlab slab;
+	slab.voxels_drawn = 1;
+	slab.voxels_skipped = 0;
+	slab.color_side = 255;
+	slab.color_top = 15;
+	slab.color_bottom = 15;
+	((Voxel::VoxelModel *)actor3d_model->model)->AddSlabToColumn(7, 7, slab);
+
+	// initialize raycast model
+	rex_int x, y;
+	for (y = 0; y < 16; y++)
+	{
+		for (x = 0; x < 16; x++)
+		{
+			if (x == 0 || y == 0 || x == 15 || y == 15)
+				((Raycast::RaycastModel *)actor3d_root->model)->SetTile(x, y, 1);
+			else
+				((Raycast::RaycastModel *)actor3d_root->model)->SetTile(x, y, 0);
+		}
+	}
 
 	// Initialize camera info
 	actor3d_camera->draw_distance = REX_SCALAR(64);
 
-	actor3d_camera->origin.x = REX_SCALAR(16);
-	actor3d_camera->origin.y = REX_SCALAR(16);
-	actor3d_camera->origin.z = REX_SCALAR(4);
+	actor3d_camera->origin.x = REX_SCALAR(8);
+	actor3d_camera->origin.y = REX_SCALAR(8);
+	actor3d_camera->origin.z = REX_SCALAR(0.5f);
 
 	actor3d_camera->angles.x = 0;
 	actor3d_camera->angles.y = 0;

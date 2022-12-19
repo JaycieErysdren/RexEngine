@@ -32,8 +32,6 @@ namespace Voxel
 // Add a VoxelModel to memory
 VoxelModel *AddVoxelModel(rex_int size_x, rex_int size_y, rex_int size_z)
 {
-	Rex::Log("voxel.log", "adding voxel model");
-
 	void *model_memory = Rex::MemPool_Alloc(Rex::MEMORY_RENDERER, sizeof(VoxelModel));
 	VoxelModel *model = new(model_memory) VoxelModel(size_x, size_y, size_z);
 
@@ -46,8 +44,6 @@ VoxelModel *AddVoxelModel(rex_int size_x, rex_int size_y, rex_int size_z)
 void FreeVoxelModel(VoxelModel *model)
 {
 	if (model == NULL) return;
-
-	Rex::Log("voxel.log", "freeing voxel model");
 
 	void *model_memory = model->memory;
 

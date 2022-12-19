@@ -63,7 +63,7 @@ class RaycastModel
 		rex_vec2i dimensions;
 
 		// Array of tile elements
-		vector<RaycastTile> tiles;
+		vector<rex_int8> tiles;
 
 		//
 		// Danger zone
@@ -81,8 +81,8 @@ class RaycastModel
 		RaycastModel(rex_int size_x, rex_int size_y);
 
 		// Get and set wall
-		RaycastTile GetTile(rex_int x, rex_int y);
-		void SetTile(rex_int x, rex_int y, RaycastTile tile);
+		rex_int8 GetTile(rex_int x, rex_int y);
+		void SetTile(rex_int x, rex_int y, rex_int8 val);
 };
 
 //

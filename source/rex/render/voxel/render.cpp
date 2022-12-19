@@ -147,7 +147,7 @@ void RenderVoxelModel(Rex::Surface *dst, Rex::Surface *zbuffer, VoxelModel *mode
 			{
 				VoxelColumn column = model->GetColumn(map_pos.x, map_pos.y);
 
-				rex_int column_height = 256;
+				rex_int column_height = model->dimensions.z;
 
 				// draw the slabs from top to bottom
 				for (i = 0; i < column.slabs.size(); i++)
@@ -221,6 +221,9 @@ void RenderVoxelModel(Rex::Surface *dst, Rex::Surface *zbuffer, VoxelModel *mode
 
 					// overall height of this column
 					column_height -= (slab.voxels_skipped + slab.voxels_drawn);
+
+					if (column_height < 1) break;
+					if (i >= column.slabs.size()) break;
 				}
 			}
 		}

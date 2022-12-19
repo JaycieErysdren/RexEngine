@@ -58,15 +58,15 @@ RaycastModel::RaycastModel(rex_int size_x, rex_int size_y)
 }
 
 // Get the tile data at the specified coordinate
-RaycastTile RaycastModel::GetTile(rex_int x, rex_int y)
+rex_int8 RaycastModel::GetTile(rex_int x, rex_int y)
 {
 	return tiles[(y * dimensions.y) + x];
 }
 
 // Set the tile data at the specified coordinate
-void RaycastModel::SetTile(rex_int x, rex_int y, RaycastTile tile)
+void RaycastModel::SetTile(rex_int x, rex_int y, rex_int8 val)
 {
-	tiles[(y * dimensions.y) + x] = tile;
+	tiles[(y * dimensions.y) + x] = val;
 }
 
 //
@@ -105,50 +105,48 @@ void FreeRaycastModel(RaycastModel *model)
 // Render an image to the specified surface
 void RenderRaycastModel(Rex::Surface *dst, Rex::Surface *zbuffer, RaycastModel *model, rex_vec3s origin, rex_vec3i angles, rex_scalar draw_distance, rex_scalar pixel_height_scale)
 {
-	// General variables
-	rex_int i;
+	// Draw bounds
+	rex_int32 draw_w = dst->width;
+	rex_int32 draw_h = dst->height;
 
-	// Sin and cos of the camera's yaw
-	rex_scalar sn = Rex::math_table->sin[angles.y];
-	rex_scalar cs = Rex::math_table->cos[angles.y];
-
-	// Drawable area
-	rex_int draw_w = dst->width;
-	rex_int draw_h = dst->height;
-
-	// Screen coords
+	// The positions of the pixels we'll be drawing
 	rex_vec3i s;
 
 	// Horizon
 	rex_int horizon = -angles.x + (draw_h / 2);
 
-	// Draw left to right
+	// Current sin, cos and tan of player's yaw
+	rex_scalar sn = Rex::math_table->sin[angles.y];
+	rex_scalar cs = Rex::math_table->cos[angles.y];
+
+	// Ray sweep loop
 	for (s.x = 0; s.x < draw_w; s.x++)
 	{
-		// variables
-		rex_vec2s ray_dir, delta_dist, side_dist;
-		rex_vec2i step, map_pos;
-
-		// map pos (int)
+		rex_vec2s raydir;
+		rex_vec2s delta_dist;
+		rex_vec2s side_dist;
+		rex_vec3i map_pos, step;
 		map_pos.x = RexScalarToInteger(origin.x);
 		map_pos.y = RexScalarToInteger(origin.y);
+		bool hit = false, side = false;
+		bool oob = false;
 
 		// calculate ray direction
-		ray_dir.x = REX_MUL(REX_DIV(REX_SCALAR(2.0f), REX_SCALAR(draw_w)), REX_SCALAR(s.x)) - REX_SCALAR(1.0f);
-		ray_dir.y = REX_SCALAR(1.0f);
+		raydir.x = REX_MUL(REX_DIV(REX_SCALAR(2.0f), REX_SCALAR(draw_w)), REX_SCALAR(s.x)) - REX_SCALAR(1.0f);
+		raydir.y = REX_SCALAR(1.0f);
 
-		// rotate around (0, 0) by camera yaw
-		rex_vec2s temp = ray_dir;
+		// rotate around 0,0 by player.angles.y
+		rex_vec2s temp = raydir;
 
-		ray_dir.x = REX_MUL(-temp.x, cs) - REX_MUL(-temp.y, sn);
-		ray_dir.y = REX_MUL(temp.x, sn) + REX_MUL(temp.y, cs);
+		raydir.x = REX_MUL(-temp.x, cs) - REX_MUL(-temp.y, sn);
+		raydir.y = REX_MUL(temp.x, sn) + REX_MUL(temp.y, cs);
 
-		// get delta of ray (prevent div by 0)
-		delta_dist.x = (ray_dir.x == 0) ? REX_SCALAR_MIN : ABS(REX_DIV(REX_SCALAR(1.0f), ray_dir.x));
-		delta_dist.y = (ray_dir.y == 0) ? REX_SCALAR_MIN : ABS(REX_DIV(REX_SCALAR(1.0f), ray_dir.y));
+		// prevent div by 0
+		delta_dist.x = (raydir.x == 0) ? REX_SCALAR_MAX : ABS(REX_DIV(REX_SCALAR(1.0f), raydir.x));
+		delta_dist.y = (raydir.y == 0) ? REX_SCALAR_MAX : ABS(REX_DIV(REX_SCALAR(1.0f), raydir.y));
 
 		// calculate step and initial side_dist
-		if (ray_dir.x < 0)
+		if (raydir.x < 0)
 		{
 			step.x = -1;
 			side_dist.x = REX_MUL((origin.x - REX_SCALAR(map_pos.x)), delta_dist.x);
@@ -159,7 +157,7 @@ void RenderRaycastModel(Rex::Surface *dst, Rex::Surface *zbuffer, RaycastModel *
 			side_dist.x = REX_MUL((REX_SCALAR(map_pos.x) + REX_SCALAR(1) - origin.x), delta_dist.x);
 		}
 
-		if (ray_dir.y < 0)
+		if (raydir.y < 0)
 		{
 			step.y = -1;
 			side_dist.y = REX_MUL((origin.y - REX_SCALAR(map_pos.y)), delta_dist.y);
@@ -170,75 +168,82 @@ void RenderRaycastModel(Rex::Surface *dst, Rex::Surface *zbuffer, RaycastModel *
 			side_dist.y = REX_MUL((REX_SCALAR(map_pos.y) + REX_SCALAR(1) - origin.y), delta_dist.y);
 		}
 
-		bool casting = true;
-		bool hit = false;
-		rex_int side;
-		rex_scalar dist;
-
-		// perform DDA to draw voxels
-		while (casting == true)
+		//perform DDA
+		while (hit == false && oob == false)
 		{
 			if (side_dist.x < side_dist.y)
 			{
 				side_dist.x += delta_dist.x;
 				map_pos.x += step.x;
-				side = 1;
+				side = false;
 			}
 			else
 			{
 				side_dist.y += delta_dist.y;
 				map_pos.y += step.y;
-				side = 2;
+				side = true;
 			}
 
-			switch (side)
-			{
-				case 1: dist = side_dist.x - delta_dist.x; break;
-
-				case 2: dist = side_dist.y - delta_dist.y; break;
-
-				default: break;
-			}
-
-			// if it goes beyond the draw distance, cut off the ray
-			if (dist > draw_distance) break;
-
-			// if out of bounds, keep going in hopes of finding something in-bounds again
-			// this allows rendering the map from an out of bounds location
-			if (map_pos.x > (model->dimensions.x - 1) || map_pos.x < 0) continue;
-			if (map_pos.y > (model->dimensions.y - 1) || map_pos.y < 0) continue;
-
-			if (model->GetTile(map_pos.x, map_pos.y).height > REX_SCALAR(0))
-			{
+			//Check if ray has hit a wall
+			if (model->GetTile(map_pos.x, map_pos.y) > 0)
 				hit = true;
-				break;
-			}
+
+			// Check if ray is out of bounds
+			if (map_pos.y >= model->dimensions.y || map_pos.y < 0 || map_pos.x >= model->dimensions.x || map_pos.x < 0)
+				oob = true;
 		}
 
-		if (hit == true && dist > REX_SCALAR(1))
+		if (oob == true) continue;
+
+		rex_scalar dist;
+
+		if (side == false) dist = (side_dist.x - delta_dist.x);
+		else dist = (side_dist.y - delta_dist.y);
+
+		if (dist > REX_SCALAR(1))
 		{
-			RaycastTile tile = model->GetTile(map_pos.x, map_pos.y);
+			//Calculate height of line to draw on screen
+			rex_int line_height = RexScalarToInteger(REX_DIV(REX_SCALAR(draw_h), dist));
 
-			rex_int line_start, line_end, line_height;
+			// calculate lowest and highest pixel to fill in current stripe
+			rex_int line_start = -line_height / 2 + draw_h / 2;
+			rex_int line_end = line_height / 2 + draw_h / 2;
 
-			// height of the line on screen
-			line_height = RexScalarToInteger(REX_MUL(REX_DIV(REX_SCALAR(draw_h), dist), pixel_height_scale)) + horizon;
+			// height delta 1 & 2
+			rex_scalar tile_z = REX_SCALAR(1);
+			rex_scalar tile_height = REX_SCALAR(1);
+			rex_scalar height_delta1 = origin.z - tile_z;
+			rex_scalar height_delta2 = origin.z - (tile_z - tile_height);
 
-			line_start = -line_height / 2 + draw_h / 2;
-			line_end = line_height / 2 + draw_h / 2;
+			line_start = RexScalarToInteger(REX_MUL(REX_DIV(height_delta1, dist), pixel_height_scale)) + horizon;
+			line_end = RexScalarToInteger(REX_MUL(REX_DIV(height_delta2, dist), pixel_height_scale)) + horizon;
 
-			// clamp the line to the visible region
+			// clamp to vertical area
 			line_start = CLAMP(line_start, 0, draw_h);
 			line_end = CLAMP(line_end, 0, draw_h);
 
+			//choose wall color
+			uint8_t color;
+			switch (model->GetTile(map_pos.x, map_pos.y))
+			{
+				case 1: color = 31; break;
+				case 2: color = 47; break;
+				case 3: color = 63; break;
+				case 4: color = 79; break;
+				case 5: color = 95; break;
+				default: color = 255; break;
+			}
+
+			// Lookup in colormap for brightness
+			//if (side == true) color = Rex::ColormapLookup(color, RexScalarToInteger(REX_MUL(dist, REX_SCALAR(2))) - 4);
+			//else color = Rex::ColormapLookup(color, RexScalarToInteger(REX_MUL(dist, REX_SCALAR(2))));
+
+			// draw with zbuffer
 			for (s.y = line_start; s.y < line_end; s.y++)
 			{
-				s.z = Rex::SurfaceGetPixel(zbuffer, s.x, s.y);
-
-				if (REX_SCALAR(s.z) > dist)
+				if (REX_SCALAR(Rex::SurfaceGetPixel(zbuffer, s.x, s.y)) > dist)
 				{
-					rex_uint8 c = tile.color_ew;
-					Rex::SurfaceDrawPixel(dst, s.x, s.y, c);
+					Rex::SurfaceDrawPixel(dst, s.x, s.y, color);
 					Rex::SurfaceDrawPixel(zbuffer, s.x, s.y, RexScalarToInteger(dist));
 				}
 			}

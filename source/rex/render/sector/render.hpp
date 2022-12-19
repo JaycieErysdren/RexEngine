@@ -57,11 +57,13 @@ class Linedef
 		// Variables
 		//
 
-		// The vertices that makes up this linedef
-		vector<Vertex *> vertices;
+		// The vertex IDs that makes up this linedef
+		rex_uint16 v0;
+		rex_uint16 v1;
 
-		// The sectors that makes up this linedef portal
-		vector<Sector *> sectors;
+		// The sector IDs that makes up this linedef portal
+		rex_uint16 s0;
+		rex_uint16 s1;
 
 		// The color of this wall
 		rex_uint8 color;
@@ -84,8 +86,8 @@ class Sector
 		rex_uint8 color_floor;
 		rex_uint8 color_ceiling;
 
-		// Array of linedefs that make up this sector
-		vector<Linedef *> linedefs;
+		// The linedef IDs that make up this sector
+		vector<rex_uint16> linedefs;
 };
 
 // SectorModel class
@@ -97,9 +99,9 @@ class SectorModel
 		// Variables
 		//
 
-		vector<Vertex *> vertices;
-		vector<Linedef *> linedefs;
-		vector<Sector *> sectors;
+		vector<Vertex> vertices;
+		vector<Linedef> linedefs;
+		vector<Sector> sectors;
 
 		//
 		// Danger zone
@@ -111,8 +113,8 @@ class SectorModel
 		// Functions
 		//
 
-		Vertex *AddVertex(rex_scalar x, rex_scalar y);
-		Linedef *AddLinedef(Vertex *v0, Vertex *v1, rex_uint8 color);
+		void AddVertexAtIndex(rex_int i, rex_scalar x, rex_scalar y);
+		void AddLinedefAtIndex(rex_int i, rex_uint16 v0, rex_uint16 v1, rex_uint8 color);
 };
 
 //

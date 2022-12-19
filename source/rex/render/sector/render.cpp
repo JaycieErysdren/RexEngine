@@ -68,5 +68,27 @@ void FreeSectorModel(SectorModel *model)
 // SectorModel
 //
 
+// Add a vertex at the specified index
+void SectorModel::AddVertexAtIndex(rex_int i, rex_scalar x, rex_scalar y)
+{
+	// Resize vertices struct to fit
+	if (i >= vertices.size()) vertices.resize(i);
+
+	// Add vertex positions to it
+	vertices[i].origin.x = x;
+	vertices[i].origin.y = y;
+}
+
+// Add a linedef at the specified index
+void SectorModel::AddLinedefAtIndex(rex_int i, rex_uint16 v0, rex_uint16 v1, rex_uint8 color)
+{
+	// Resize linedefs struct to fit
+	if (i >= linedefs.size()) linedefs.resize(i + 1);
+
+	// Add linedef data to it
+	linedefs[i].color = color;
+	linedefs[i].v0 = v0;
+	linedefs[i].v1 = v1;
+}
 
 } // namespace Sector
