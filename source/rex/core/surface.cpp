@@ -64,8 +64,10 @@ void SurfaceCreate(Surface *picture, int width, int height, int bpp, int bytes_p
 	picture->bpp				= bpp;
 	picture->bytes_per_row		= bytes_per_row;
 	picture->buffer				= buffer ? buffer : calloc(height, bytes_per_row);
+	//picture->buffer			= buffer ? buffer : MemPool_Alloc(MEMORY_SURFACES, height * bytes_per_row);
 	picture->shared				= buffer != 0;
 	picture->scanlines.b		= (rex_uint8 **)malloc(height * sizeof(void *));
+	//picture->scanlines.b		= (rex_uint8 **)MemPool_Alloc(MEMORY_SURFACES, height * sizeof(void *));
 
 	#if (REX_TARGET == PLATFORM_DOS)
 
@@ -137,6 +139,10 @@ void SurfaceCreateMip(Surface *dst, Surface *src, clut_t blender)
 // destroys the resources allocated to a picture.
 void SurfaceDestroy(Surface *picture)
 {
+	//MemPool_Free(MEMORY_SURFACES, picture->buffer);
+	//MemPool_Free(MEMORY_SURFACES, picture->scanlines.b);
+	//MemPool_Free(MEMORY_SURFACES, picture->scanlines.w);
+	//MemPool_Free(MEMORY_SURFACES, picture->scanlines.l);
 	assert(picture);
 	if (!picture->shared) free(picture->buffer);
 	free(picture->scanlines.b);

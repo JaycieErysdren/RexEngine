@@ -231,8 +231,8 @@ void Initialize()
 {
 	Rex::Log("gamed.log", "loading...");
 
-	Rex::SetGraphicsPalette("gfx/mindgrdn.pal");
-	Rex::ColormapLoad("gfx/mindgrdn.tab");
+	Rex::SetGraphicsPalette("gfx/duke3d.pal");
+	Rex::ColormapLoad("gfx/duke3d.tab");
 
 	// 2D Actors
 	actor2d_root = Rex::AddActor2D(NULL, Rex::ACTOR2D_NONE);
@@ -459,7 +459,7 @@ int main(int argc, char *argv[])
 		ReadMouse(&mouse_buttons, &actor2d_mouse->origin, 16, mouse_area);
 
 		// Clear back buffer
-		Rex::SurfaceClear(&pic_bbuffer, 0); // 242
+		Rex::SurfaceClear(&pic_bbuffer, 31); // 242
 
 		// Clear z buffer
 		Rex::SurfaceClear(&pic_zbuffer, 255);

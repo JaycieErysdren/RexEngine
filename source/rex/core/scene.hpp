@@ -129,6 +129,7 @@ class Actor2D
 		rex_int32 angle;			// Angle of rotation (0 - 359)
 		rex_string identifier;		// Identifier
 		rex_int32 events;			// Event mask
+		rex_uint8 z;				// Z distance (0 = top, 255 = bottom)
 
 		//
 		// Type variables
@@ -162,6 +163,9 @@ class Actor2D
 
 		// Draw the actor on another surface
 		void Draw(Surface *dst, blit_mode flags);
+
+		// Draw the actor on another surface, with z-buffering
+		void DrawZB(Surface *dst, Surface *zbuffer);
 
 		// Returns true if the actor is overtop or underneath another actor
 		bool OriginInside(Actor2D *actor);

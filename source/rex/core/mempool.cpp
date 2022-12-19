@@ -53,6 +53,12 @@ rex_int8 *buffer_renderer;
 rex_int buffer_renderer_min_alloc = 16;
 rex_int buffer_renderer_size = 16384;
 
+// Surface data
+mplite_t mempool_surfaces;
+rex_int8 *buffer_surfaces;
+rex_int buffer_surfaces_min_alloc = 16;
+rex_int buffer_surfaces_size = 16384;
+
 // Application data
 mplite_t mempool_application;
 rex_int8 *buffer_application;
@@ -80,9 +86,22 @@ void MemPool_Init()
 	buffer_renderer = (rex_int8 *)calloc(buffer_renderer_size, sizeof(rex_int8));
 	mplite_init(&mempool_renderer, buffer_renderer, buffer_renderer_size, buffer_renderer_min_alloc, NULL);
 
+	// Surface data
+	buffer_surfaces = (rex_int8 *)calloc(buffer_surfaces_size, sizeof(rex_int8));
+	mplite_init(&mempool_surfaces, buffer_surfaces, buffer_surfaces_size, buffer_surfaces_min_alloc, NULL);
+
 	// Application data
 	buffer_application = (rex_int8 *)calloc(buffer_actors_size, sizeof(rex_int8));
 	mplite_init(&mempool_application, buffer_application, buffer_application_size, buffer_application_min_alloc, NULL);
+}
+
+void MemPool_Shutdown()
+{
+	if (buffer_private) free(buffer_private);
+	if (buffer_actors) free(buffer_actors);
+	if (buffer_renderer) free(buffer_renderer);
+	if (buffer_surfaces) free(buffer_surfaces);
+	if (buffer_application) free(buffer_application);
 }
 
 // Allocate a number of bytes from the specified memory pool
@@ -100,6 +119,10 @@ void *MemPool_Alloc(rex_mempool pool, size_t size)
 
 		case MEMORY_RENDERER:
 			return mplite_malloc(&mempool_renderer, size);
+			break;
+
+		case MEMORY_SURFACES:
+			return mplite_malloc(&mempool_surfaces, size);
 			break;
 
 		case MEMORY_APPLICATION:
@@ -128,6 +151,10 @@ void MemPool_Free(rex_mempool pool, void *memory)
 			mplite_free(&mempool_renderer, memory);
 			break;
 
+		case MEMORY_SURFACES:
+			mplite_free(&mempool_surfaces, memory);
+			break;
+
 		case MEMORY_APPLICATION:
 			mplite_free(&mempool_application, memory);
 			break;
@@ -151,6 +178,10 @@ void MemPool_PrintStatus(rex_mempool pool)
 
 		case MEMORY_RENDERER:
 			mplite_print_stats(&mempool_renderer, puts);
+			break;
+
+		case MEMORY_SURFACES:
+			mplite_print_stats(&mempool_surfaces, puts);
 			break;
 
 		case MEMORY_APPLICATION:

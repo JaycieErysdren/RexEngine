@@ -38,6 +38,36 @@ void Actor2D::Draw(Surface *dst, blit_mode flags)
 	SurfaceBlit8(dst, origin.x, origin.y, origin.x + (draw_area.x2 - draw_area.x1), origin.y + (draw_area.y2 - draw_area.y1), &color, draw_area.x1, draw_area.y1, draw_area.x2, draw_area.y2, flags);
 }
 
+// Draw the actor on another surface, with z-buffering
+void Actor2D::DrawZB(Surface *dst, Surface *zbuffer)
+{
+	rex_int ystart = parent->origin.y + origin.y + draw_area.y1;
+	rex_int yend = parent->origin.y + origin.y + draw_area.y2;
+	rex_int xstart = parent->origin.x + origin.x + draw_area.x1;
+	rex_int xend = parent->origin.x + origin.x + draw_area.x2;
+
+	// this is probably gonna be slow as shit
+	for (rex_int y = ystart; y < yend; y++)
+	{
+		for (rex_int x = xstart; x < xend; x++)
+		{
+			if (x < 0 || x > dst->width || y < 0 || y > dst->width) continue;
+
+			rex_uint8 zb = SurfaceGetPixel(zbuffer, x, y);
+
+			if (zb < z)
+			{
+				SurfaceDrawPixel(zbuffer, x, y, z);
+				SurfaceDrawPixel(dst, x, y, SurfaceGetPixel(&color, x, y));
+			}
+			else
+			{
+				continue;
+			}
+		}
+	}
+}
+
 // Returns true if the actor is overtop or underneath another actor
 bool Actor2D::OriginInside(Actor2D *actor)
 {

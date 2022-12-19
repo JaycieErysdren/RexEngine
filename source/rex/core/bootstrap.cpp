@@ -72,6 +72,8 @@ bool Shutdown()
 	math_table->~MathTable();
 	MemPool_Free(MEMORY_PRIVATE, math_table_memory);
 
+	MemPool_Shutdown();
+
 	return true;
 }
 
