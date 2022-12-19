@@ -515,7 +515,7 @@ int main(int argc, char *argv[])
 		ReadMouse(&mouse_buttons, &actor2d_mouse->origin, 16, mouse_area);
 
 		// Clear back buffer
-		Rex::SurfaceClear(&pic_bbuffer, 0); // 242
+		Rex::SurfaceClear(&pic_bbuffer, 0); // 242 or 176
 
 		// Clear z buffer
 		Rex::SurfaceClear(&pic_zbuffer, 255);

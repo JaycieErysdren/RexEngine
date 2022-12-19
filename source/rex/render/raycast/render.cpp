@@ -200,7 +200,7 @@ void RenderRaycastModel(Rex::Surface *dst, Rex::Surface *zbuffer, RaycastModel *
 		if (side == false) dist = (side_dist.x - delta_dist.x);
 		else dist = (side_dist.y - delta_dist.y);
 
-		if (dist > REX_SCALAR(1))
+		if (dist > REX_SCALAR(0))
 		{
 			//Calculate height of line to draw on screen
 			rex_int line_height = RexScalarToInteger(REX_DIV(REX_SCALAR(draw_h), dist));
