@@ -68,27 +68,46 @@ void FreeSectorModel(SectorModel *model)
 // SectorModel
 //
 
-// Add a vertex at the specified index
-void SectorModel::AddVertexAtIndex(rex_int i, rex_scalar x, rex_scalar y)
+// Add a vertex. Returns the index of the vertex
+rex_int SectorModel::AddVertex(rex_scalar x, rex_scalar y)
 {
-	// Resize vertices struct to fit
-	if (i >= vertices.size()) vertices.resize(i);
+	Vertex vertex;
 
-	// Add vertex positions to it
-	vertices[i].origin.x = x;
-	vertices[i].origin.y = y;
+	vertex.origin.x = x;
+	vertex.origin.y = y;
+
+	vertices.push_back(vertex);
+
+	return vertices.size() - 1;
 }
 
-// Add a linedef at the specified index
-void SectorModel::AddLinedefAtIndex(rex_int i, rex_uint16 v0, rex_uint16 v1, rex_uint8 color)
+// Add a linedef. Returns the index of the linedef
+rex_int SectorModel::AddLinedef(rex_uint16 v0, rex_uint16 v1, rex_uint8 color)
 {
-	// Resize linedefs struct to fit
-	if (i >= linedefs.size()) linedefs.resize(i + 1);
+	Linedef linedef;
 
-	// Add linedef data to it
-	linedefs[i].color = color;
-	linedefs[i].v0 = v0;
-	linedefs[i].v1 = v1;
+	linedef.color = color;
+	linedef.v0 = v0;
+	linedef.v1 = v1;
+
+	linedefs.push_back(linedef);
+
+	return linedefs.size() - 1;
+}
+
+// Add a sector. Returns the index of the sector
+rex_int SectorModel::AddSector(rex_scalar height_floor, rex_scalar height_ceiling, rex_uint8 color_floor, rex_uint8 color_ceiling)
+{
+	Sector sector;
+
+	sector.height_floor = height_floor;
+	sector.height_ceiling = height_ceiling;
+	sector.color_floor = color_floor;
+	sector.color_ceiling = color_ceiling;
+
+	sectors.push_back(sector);
+
+	return sectors.size() - 1;
 }
 
 } // namespace Sector

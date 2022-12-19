@@ -113,8 +113,9 @@ class SectorModel
 		// Functions
 		//
 
-		void AddVertexAtIndex(rex_int i, rex_scalar x, rex_scalar y);
-		void AddLinedefAtIndex(rex_int i, rex_uint16 v0, rex_uint16 v1, rex_uint8 color);
+		rex_int AddVertex(rex_scalar x, rex_scalar y);
+		rex_int AddLinedef(rex_uint16 v0, rex_uint16 v1, rex_uint8 color);
+		rex_int AddSector(rex_scalar height_floor, rex_scalar height_ceiling, rex_uint8 color_floor, rex_uint8 color_ceiling);
 };
 
 //
