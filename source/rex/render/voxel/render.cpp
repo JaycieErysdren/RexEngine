@@ -188,6 +188,8 @@ void RenderVoxelModel(Rex::Surface *dst, Rex::Surface *zbuffer, VoxelModel *mode
 								Rex::SurfaceDrawPixel(dst, s.x, s.y, c);
 								Rex::SurfaceDrawPixel(zbuffer, s.x, s.y, RexScalarToInteger(dist));
 							}
+
+							if (s.y > draw_h || s.y < 0) break;
 						}
 					}
 
@@ -216,6 +218,8 @@ void RenderVoxelModel(Rex::Surface *dst, Rex::Surface *zbuffer, VoxelModel *mode
 								Rex::SurfaceDrawPixel(dst, s.x, s.y, c);
 								Rex::SurfaceDrawPixel(zbuffer, s.x, s.y, RexScalarToInteger(dist2));
 							}
+
+							if (s.y > draw_h || s.y < 0) break;
 						}
 					}
 

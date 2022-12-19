@@ -58,13 +58,13 @@ RaycastModel::RaycastModel(rex_int size_x, rex_int size_y)
 }
 
 // Get the tile data at the specified coordinate
-rex_int8 RaycastModel::GetTile(rex_int x, rex_int y)
+rex_uint8 RaycastModel::GetTile(rex_int x, rex_int y)
 {
 	return tiles[(y * dimensions.y) + x];
 }
 
 // Set the tile data at the specified coordinate
-void RaycastModel::SetTile(rex_int x, rex_int y, rex_int8 val)
+void RaycastModel::SetTile(rex_int x, rex_int y, rex_uint8 val)
 {
 	tiles[(y * dimensions.y) + x] = val;
 }
@@ -223,16 +223,7 @@ void RenderRaycastModel(Rex::Surface *dst, Rex::Surface *zbuffer, RaycastModel *
 			line_end = CLAMP(line_end, 0, draw_h);
 
 			//choose wall color
-			rex_uint8 color;
-			switch (model->GetTile(map_pos.x, map_pos.y))
-			{
-				case 1: color = 31; break;
-				case 2: color = 47; break;
-				case 3: color = 63; break;
-				case 4: color = 79; break;
-				case 5: color = 95; break;
-				default: color = 255; break;
-			}
+			rex_uint8 color = model->GetTile(map_pos.x, map_pos.y);
 
 			// Lookup in colormap for brightness
 			//if (side == true) color = Rex::ColormapLookup(color, RexScalarToInteger(REX_MUL(dist, REX_SCALAR(2))) - 4);
@@ -248,6 +239,8 @@ void RenderRaycastModel(Rex::Surface *dst, Rex::Surface *zbuffer, RaycastModel *
 					Rex::SurfaceDrawPixel(dst, s.x, s.y, color);
 					Rex::SurfaceDrawPixel(zbuffer, s.x, s.y, RexScalarToInteger(dist));
 				}
+
+				if (s.y > draw_h || s.y < 0) break;
 			}
 		}
 	}

@@ -299,7 +299,7 @@ void Initialize()
 		for (x = 0; x < 16; x++)
 		{
 			if (x == 0 || y == 0 || x == 15 || y == 15)
-				((Raycast::RaycastModel *)actor3d_root->model)->SetTile(x, y, 1);
+				((Raycast::RaycastModel *)actor3d_root->model)->SetTile(x, y, 176);
 			else
 				((Raycast::RaycastModel *)actor3d_root->model)->SetTile(x, y, 0);
 		}
@@ -599,7 +599,7 @@ int main(int argc, char *argv[])
 			actor2d_mouse->ClearEvents();
 
 			// Render 2D scene
-			Rex::RenderScene2D(&pic_bbuffer, &pic_zbuffer, actor2d_root, REX_SCALAR(160));
+			Rex::RenderScene2D(&pic_bbuffer, &pic_zbuffer, actor2d_root, REX_SCALAR(vidinfo.width / 2));
 		}
 		else if (game_state == 2)
 		{
@@ -622,7 +622,7 @@ int main(int argc, char *argv[])
 			//
 
 			// Render 3D scene
-			Rex::RenderScene3D(&pic_bbuffer, &pic_zbuffer, actor3d_root, actor3d_camera, REX_SCALAR(160));
+			Rex::RenderScene3D(&pic_bbuffer, &pic_zbuffer, actor3d_root, actor3d_camera, REX_SCALAR(vidinfo.width / 2));
 
 			// Render 2D scene
 			actor2d_hud_gun->origin.x = pic_bbuffer.width / 2;
