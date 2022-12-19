@@ -421,7 +421,6 @@ int main(int argc, char *argv[])
 	// Picture buffers
 	Rex::Surface pic_font;
 	Rex::Surface pic_bbuffer;
-	Rex::Surface pic_text;
 
 	// Initialize Rex Engine
 	Rex::Initialize();
@@ -430,14 +429,9 @@ int main(int argc, char *argv[])
 	if (Rex::InitializeGraphics(320, 200, 8) == false) return EXIT_FAILURE;
 	Rex::VidInfo vidinfo = Rex::GetVidInfo();
 
-	// Set palette & colormap
-	Rex::SetGraphicsPalette("gfx/mindgrdn.pal");
-	Rex::ColormapLoad("gfx/mindgrdn.tab");
-
 	// Create picture buffers
 	Rex::SurfaceLoadBMP(&pic_font, "gfx/font8x8.bmp");
 	Rex::SurfaceCreate(&pic_bbuffer, vidinfo.width, vidinfo.height, vidinfo.bpp, 0, 0);
-	Rex::SurfaceCreate(&pic_text, 40, 10, 8, 0, 0);
 
 	Voxel::Initialize(vidinfo.width, vidinfo.height);
 	Initialize();
@@ -608,7 +602,6 @@ int main(int argc, char *argv[])
 	// Cleanup memory
 	Rex::SurfaceDestroy(&pic_font);
 	Rex::SurfaceDestroy(&pic_bbuffer);
-	Rex::SurfaceDestroy(&pic_text);
 
 	// Exit gracefully
 	return EXIT_SUCCESS;
