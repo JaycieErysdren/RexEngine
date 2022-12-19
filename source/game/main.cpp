@@ -236,10 +236,13 @@ void Initialize()
 
 	// 2D Actors
 	actor2d_root = Rex::AddActor2D(NULL, Rex::ACTOR2D_NONE);
-	actor2d_mouse = Rex::AddActor2D(actor2d_root, Rex::ACTOR2D_CURSOR, "gfx/cursor.bmp");
+
 	actor2d_window = Rex::AddActor2D(actor2d_root, Rex::ACTOR2D_WINDOW, "gfx/bg2.bmp");
 	actor2d_button_exit = Rex::AddActor2D(actor2d_window, Rex::ACTOR2D_BUTTON, "gfx/btn_exit.bmp");
 	actor2d_button_return = Rex::AddActor2D(actor2d_window, Rex::ACTOR2D_BUTTON, "gfx/btn_clck.bmp");
+
+	actor2d_mouse = Rex::AddActor2D(actor2d_root, Rex::ACTOR2D_CURSOR, "gfx/cursor.bmp");
+	actor2d_mouse->color_blit_mode = Rex::COLORKEY;
 
 	// 3D actors
 	actor3d_root = Rex::AddActor3D(NULL, Rex::ACTOR3D_MODEL);
@@ -473,11 +476,8 @@ int main(int argc, char *argv[])
 			if (mouse_buttons == 1) actor2d_mouse->events |= Rex::ACTOR2D_EVENT01;
 
 			//
-			// Background elements
+			// Return-to-game button
 			//
-
-			// Draw window background
-			actor2d_window->Draw(&pic_bbuffer, Rex::COPY);
 
 			// Position logic
 			actor2d_button_return->origin.x = 96;
@@ -505,9 +505,6 @@ int main(int argc, char *argv[])
 					game_state = 2;
 				}
 			}
-
-			// Draw button
-			actor2d_button_return->Draw(&pic_bbuffer, Rex::COPY);
 
 			//
 			// Exit button
@@ -540,16 +537,18 @@ int main(int argc, char *argv[])
 				}
 			}
 
-			// Draw button
-			actor2d_button_exit->Draw(&pic_bbuffer, Rex::COPY);
-
 			//
 			// Mouse
 			//
 
-			// Draw mouse
-			actor2d_mouse->Draw(&pic_bbuffer, Rex::COLORKEY);
+			// Clear mouse events
 			actor2d_mouse->ClearEvents();
+
+			//
+			// Draw 2D actors
+			//
+
+			Rex::RenderActor2D(&pic_bbuffer, actor2d_root);
 		}
 		else if (game_state == 2)
 		{

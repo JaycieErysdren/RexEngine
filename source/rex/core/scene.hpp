@@ -145,6 +145,7 @@ class Actor2D
 		//
 
 		Surface color;
+		blit_mode color_blit_mode;
 
 		//
 		// Danger zone
@@ -194,6 +195,9 @@ Actor2D *AddActor2D(Actor2D *parent, rex_actor2d_type type, string filename);
 
 // Frees the memory associated with an Actor2D, as well as all children actors
 void FreeActor2D(Actor2D *actor);
+
+// Renders an Actor2D to the specified surface, along with all its children
+void RenderActor2D(Surface *dst, Actor2D *actor);
 
 } // namespace Rex
 

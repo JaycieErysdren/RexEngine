@@ -59,6 +59,10 @@ void Actor2D::ClearEvents()
 //
 //
 
+//
+// Actor3D
+//
+
 // Allocates the memory associated with an actor, and returns a pointer to it
 Actor3D *AddActor3D(Actor3D *parent, rex_actor3d_type type)
 {
@@ -108,6 +112,10 @@ void FreeActor3D(Actor3D *actor)
 	MemPool_Free(MEMORY_ACTORS, actor_memory);
 }
 
+//
+// Actor2D
+//
+
 // Allocates the memory associated with an Actor2D, and returns a pointer to it
 Actor2D *AddActor2D(Actor2D *parent, rex_actor2d_type type)
 {
@@ -124,8 +132,9 @@ Actor2D *AddActor2D(Actor2D *parent, rex_actor2d_type type)
 		parent->children.push_back(actor);
 	}
 
-	// Set type
+	// Set type & blit mode
 	actor->type = type;
+	actor->color_blit_mode = COPY;
 
 	// Return pointer
 	return actor;
@@ -176,6 +185,19 @@ void FreeActor2D(Actor2D *actor)
 
 	// Free the actor
 	MemPool_Free(MEMORY_ACTORS, actor_memory);
+}
+
+// Renders an Actor2D to the specified surface, along with all its children
+void RenderActor2D(Surface *dst, Actor2D *actor)
+{
+	if (actor == NULL) return;
+
+	actor->Draw(dst, actor->color_blit_mode);
+
+	for (rex_int i = 0; i < actor->children.size(); i++)
+	{
+		RenderActor2D(dst, actor->children[i]);
+	}
 }
 
 } // namespace Rex
