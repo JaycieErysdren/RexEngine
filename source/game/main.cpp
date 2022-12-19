@@ -231,8 +231,8 @@ void Initialize()
 {
 	Rex::Log("gamed.log", "loading...");
 
-	Rex::SetGraphicsPalette("gfx/duke3d.pal");
-	Rex::ColormapLoad("gfx/duke3d.tab");
+	Rex::SetGraphicsPalette("gfx/mindgrdn.pal");
+	Rex::ColormapLoad("gfx/mindgrdn.tab");
 
 	// 2D Actors
 	actor2d_root = Rex::AddActor2D(NULL, Rex::ACTOR2D_NONE);
@@ -245,16 +245,16 @@ void Initialize()
 	actor2d_mouse->color_blit_mode = Rex::COLORKEY;
 
 	// 3D actors
-	actor3d_root = Rex::AddActor3D(NULL, Rex::ACTOR3D_MODEL);
+	actor3d_root = Rex::AddActor3D(NULL, Rex::ACTOR3D_VOXELMODEL);
 	actor3d_camera = Rex::AddActor3D(actor3d_root, Rex::ACTOR3D_CAMERA);
 
-	actor3d_root->model = Voxel::AddVoxelModel(64, 64, 256);
+	actor3d_root->model = Voxel::AddVoxelModel(128, 128, 256);
 	actor3d_root->identifier = "ORBB FIELD";
 
 	Heightmap_Generate((Voxel::VoxelModel *)actor3d_root->model);
 
 	// Initialize camera info
-	actor3d_camera->draw_distance = REX_SCALAR(128);
+	actor3d_camera->draw_distance = REX_SCALAR(32);
 
 	actor3d_camera->origin.x = REX_SCALAR(0);
 	actor3d_camera->origin.y = REX_SCALAR(0);
@@ -421,6 +421,7 @@ int main(int argc, char *argv[])
 	// Picture buffers
 	Rex::Surface pic_font;
 	Rex::Surface pic_bbuffer;
+	Rex::Surface pic_zbuffer;
 
 	// Initialize Rex Engine
 	Rex::Initialize();
@@ -432,8 +433,8 @@ int main(int argc, char *argv[])
 	// Create picture buffers
 	Rex::SurfaceLoadBMP(&pic_font, "gfx/font8x8.bmp");
 	Rex::SurfaceCreate(&pic_bbuffer, vidinfo.width, vidinfo.height, vidinfo.bpp, 0, 0);
+	Rex::SurfaceCreate(&pic_zbuffer, vidinfo.width, vidinfo.height, 8, 0, 0);
 
-	Voxel::Initialize(vidinfo.width, vidinfo.height);
 	Initialize();
 
 	// Start counting time
@@ -458,7 +459,10 @@ int main(int argc, char *argv[])
 		ReadMouse(&mouse_buttons, &actor2d_mouse->origin, 16, mouse_area);
 
 		// Clear back buffer
-		Rex::SurfaceClear(&pic_bbuffer, 0);
+		Rex::SurfaceClear(&pic_bbuffer, 0); // 242
+
+		// Clear z buffer
+		Rex::SurfaceClear(&pic_zbuffer, 255);
 
 		if (game_state == 1)
 		{
@@ -538,11 +542,8 @@ int main(int argc, char *argv[])
 			// Clear mouse events
 			actor2d_mouse->ClearEvents();
 
-			//
-			// Draw 2D actors
-			//
-
-			Rex::RenderActor2D(&pic_bbuffer, actor2d_root);
+			// Render 2D scene
+			Rex::RenderScene2D(&pic_bbuffer, &pic_zbuffer, actor2d_root, REX_SCALAR(160));
 		}
 		else if (game_state == 2)
 		{
@@ -565,8 +566,7 @@ int main(int argc, char *argv[])
 			//
 
 			// Render 3D scene
-			rex_rect screen_area = {0, 0, pic_bbuffer.width, pic_bbuffer.height};
-			Voxel::Render(&pic_bbuffer, actor3d_root, actor3d_camera, REX_SCALAR(160));
+			Rex::RenderScene3D(&pic_bbuffer, &pic_zbuffer, actor3d_root, actor3d_camera, REX_SCALAR(160));
 
 			// Render onscreen text
 			Rex::ConsoleTextF(&pic_bbuffer, &pic_font, 8, 0, 0, "x: %d y: %d z %d", RexScalarToInteger(actor3d_camera->origin.x), RexScalarToInteger(actor3d_camera->origin.y), RexScalarToInteger(actor3d_camera->origin.z));
@@ -602,6 +602,7 @@ int main(int argc, char *argv[])
 	// Cleanup memory
 	Rex::SurfaceDestroy(&pic_font);
 	Rex::SurfaceDestroy(&pic_bbuffer);
+	Rex::SurfaceDestroy(&pic_zbuffer);
 
 	// Exit gracefully
 	return EXIT_SUCCESS;

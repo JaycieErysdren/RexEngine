@@ -261,18 +261,8 @@ void FreeVoxelModel(VoxelModel *model);
 // Rendering
 //
 
-// Initialize renderer
-void Initialize(rex_int render_width, rex_int render_height);
-
-// Shutdown renderer
-void Shutdown();
-
 // Render an image to the specified surface
-//void Render(Rex::Surface *dst, Rex::Camera camera, World *world, rex_scalar pixel_height_scale);
-void Render(Rex::Surface *dst, Rex::Actor3D *world, Rex::Actor3D *camera, rex_scalar pixel_height_scale);
-
-// Set render dimensions
-void SetRenderDimensions(rex_int w, rex_int h);
+void RenderVoxelModel(Rex::Surface *dst, Rex::Surface *zbuffer, VoxelModel *model, rex_vec3s origin, rex_vec3i angles, rex_scalar draw_distance, rex_scalar pixel_height_scale);
 
 } // namespace Voxel
 

@@ -142,6 +142,9 @@ using namespace std;
 // Scene
 #include "core/scene.hpp"
 
+// Render
+#include "core/render.hpp"
+
 // Keyboard
 #include "core/keyboard.hpp"
 

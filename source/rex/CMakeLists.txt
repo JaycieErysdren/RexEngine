@@ -127,6 +127,7 @@ set(REX_CORE_SRC
 	core/mathtabl.cpp
 	core/mempool.cpp
 	core/mouse.cpp
+	core/render.cpp
 	core/scene.cpp
 	core/surface.cpp
 )
