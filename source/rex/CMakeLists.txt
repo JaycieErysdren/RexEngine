@@ -190,7 +190,7 @@ endif()
 if(${RENDERER_RAYCAST})
 
 	set(REX_RAYCAST_SRC
-		render/raycast/raycast.cpp
+		render/raycast/render.cpp
 	)
 
 	add_library(raycast STATIC ${REX_RAYCAST_SRC})

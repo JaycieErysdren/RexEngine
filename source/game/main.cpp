@@ -260,16 +260,15 @@ void Initialize()
 	actor3d_root = Rex::AddActor3D(NULL, Rex::ACTOR3D_VOXELMODEL);
 	actor3d_camera = Rex::AddActor3D(actor3d_root, Rex::ACTOR3D_CAMERA);
 
-	actor3d_root->model = Voxel::AddVoxelModel(64, 64, 256);
-	actor3d_root->identifier = "ORBB FIELD";
-
+	actor3d_root->model = Voxel::AddVoxelModel(32, 32, 256);
+	actor3d_root->identifier = "RAY";
 	Heightmap_Generate((Voxel::VoxelModel *)actor3d_root->model);
 
 	// Initialize camera info
 	actor3d_camera->draw_distance = REX_SCALAR(64);
 
-	actor3d_camera->origin.x = REX_SCALAR(0);
-	actor3d_camera->origin.y = REX_SCALAR(0);
+	actor3d_camera->origin.x = REX_SCALAR(16);
+	actor3d_camera->origin.y = REX_SCALAR(16);
 	actor3d_camera->origin.z = REX_SCALAR(4);
 
 	actor3d_camera->angles.x = 0;
@@ -282,13 +281,17 @@ void Shutdown()
 	// Tell log we're shutting down
 	Rex::Log("gamed.log", "shutting down...");
 
-	// Free world hierarchy
-	Rex::Log("gamed.log", "freeing 3D world hierarchy");
+	// Free 3D scene hierarchy
+	Rex::Log("gamed.log", "freeing 3D scene hierarchy");
 	Rex::FreeActor3D(actor3d_root);
 
-	// Free screen hierarchy
-	Rex::Log("gamed.log", "freeing 2D world hierarchy");
+	// Free 2D scene hierarchy
+	Rex::Log("gamed.log", "freeing 2D scene hierarchy");
 	Rex::FreeActor2D(actor2d_root);
+
+	// Free 2D HUD hierarchy
+	Rex::Log("gamed.log", "freeing 2D HUD hierarchy");
+	Rex::FreeActor2D(actor2d_hud_root);
 }
 
 //
@@ -471,7 +474,7 @@ int main(int argc, char *argv[])
 		ReadMouse(&mouse_buttons, &actor2d_mouse->origin, 16, mouse_area);
 
 		// Clear back buffer
-		Rex::SurfaceClear(&pic_bbuffer, 15); // 242
+		Rex::SurfaceClear(&pic_bbuffer, 0); // 242
 
 		// Clear z buffer
 		Rex::SurfaceClear(&pic_zbuffer, 255);

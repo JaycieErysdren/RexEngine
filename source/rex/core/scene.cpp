@@ -135,13 +135,20 @@ void FreeActor3D(Actor3D *actor)
 		remove(actor->parent->children.begin(), actor->parent->children.end(), actor);
 	}
 
-	// free model
-	#if RENDERER_VOXEL
-	if (actor->type == ACTOR3D_VOXELMODEL)
+	// Free model
+	switch (actor->type)
 	{
-		Voxel::FreeVoxelModel((Voxel::VoxelModel *)actor->model);
+		case ACTOR3D_VOXELMODEL:
+			Voxel::FreeVoxelModel((Voxel::VoxelModel *)actor->model);
+			break;
+
+		case ACTOR3D_RAYCASTMODEL:
+			Raycast::FreeRaycastModel((Raycast::RaycastModel *)actor->model);
+			break;
+
+		default:
+			break;
 	}
-	#endif
 
 	// Call destructor
 	actor->~Actor3D();

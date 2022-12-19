@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/rex/modules/voxel/voxel.hpp
+// FILE:			/source/rex/render/voxel/voxel.hpp
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Voxel renderer header
 //
-// LAST EDITED:		December 17th, 2022
+// LAST EDITED:		December 18th, 2022
 //
 // ========================================================
 

@@ -56,12 +56,13 @@ typedef enum
 
 typedef enum
 {
-	ACTOR3D_NONE,
-	ACTOR3D_CAMERA,
-	ACTOR3D_VOXELMODEL,
-	ACTOR3D_POLYMODEL,
-	ACTOR3D_SECTORMODEL,
-	ACTOR3D_SPRITEMODEL,
+	ACTOR3D_NONE,			// Generic actor - usually root of scene
+	ACTOR3D_CAMERA,			// Camera actor
+	ACTOR3D_VOXELMODEL,		// Voxel model actor
+	ACTOR3D_POLYMODEL,		// Polygon model actor
+	ACTOR3D_SECTORMODEL,	// Sector model actor
+	ACTOR3D_SPRITEMODEL,	// Sprite model actor
+	ACTOR3D_RAYCASTMODEL,	// Raycast model actor
 } rex_actor3d_type;
 
 //

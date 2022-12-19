@@ -163,7 +163,7 @@ using namespace std;
 
 // Raycast
 #if RENDERER_RAYCAST
-#include "render/raycast/raycast.hpp"
+#include "render/raycast/render.hpp"
 #endif
 
 // Portal2D

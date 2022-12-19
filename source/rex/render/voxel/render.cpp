@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/rex/modules/voxel/render.cpp
+// FILE:			/source/rex/render/voxel/render.cpp
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Voxel namespace: Render implementation
 //
-// LAST EDITED:		December 16th, 2022
+// LAST EDITED:		December 18th, 2022
 //
 // ========================================================
 
@@ -38,6 +38,8 @@ namespace Voxel
 // Render an image to the specified surface
 void RenderVoxelModel(Rex::Surface *dst, Rex::Surface *zbuffer, VoxelModel *model, rex_vec3s origin, rex_vec3i angles, rex_scalar draw_distance, rex_scalar pixel_height_scale)
 {
+	if (model == NULL) return;
+
 	// General variables
 	rex_int i;
 
@@ -52,7 +54,7 @@ void RenderVoxelModel(Rex::Surface *dst, Rex::Surface *zbuffer, VoxelModel *mode
 	// Screen coords
 	rex_vec3i s;
 
-	// meh
+	// Horizon
 	rex_int horizon = -angles.x + (draw_h / 2);
 
 	// Draw left to right

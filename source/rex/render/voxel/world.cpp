@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/rex/modules/voxel/world.cpp
+// FILE:			/source/rex/render/voxel/world.cpp
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Voxel namespace: World implementation
 //
-// LAST EDITED:		December 15th, 2022
+// LAST EDITED:		December 18th, 2022
 //
 // ========================================================
 

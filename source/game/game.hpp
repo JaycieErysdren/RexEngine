@@ -19,6 +19,7 @@
 
 // Rex Engine modules
 #define RENDERER_VOXEL 1
+#define RENDERER_RAYCAST 1
 
 // Rex Engine headers
 #include "rex/rex.hpp"
