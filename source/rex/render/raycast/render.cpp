@@ -205,18 +205,14 @@ void RenderRaycastModel(Rex::Surface *dst, Rex::Surface *zbuffer, RaycastModel *
 			//Calculate height of line to draw on screen
 			rex_int line_height = RexScalarToInteger(REX_DIV(REX_SCALAR(draw_h), dist));
 
-			// calculate lowest and highest pixel to fill in current stripe
-			rex_int line_start = -line_height / 2 + draw_h / 2;
-			rex_int line_end = line_height / 2 + draw_h / 2;
-
 			// height delta 1 & 2
 			rex_scalar tile_z = REX_SCALAR(1);
 			rex_scalar tile_height = REX_SCALAR(1);
 			rex_scalar height_delta1 = origin.z - tile_z;
 			rex_scalar height_delta2 = origin.z - (tile_z - tile_height);
 
-			line_start = RexScalarToInteger(REX_MUL(REX_DIV(height_delta1, dist), pixel_height_scale)) + horizon;
-			line_end = RexScalarToInteger(REX_MUL(REX_DIV(height_delta2, dist), pixel_height_scale)) + horizon;
+			rex_int line_start = RexScalarToInteger(REX_MUL(REX_DIV(height_delta1, dist), pixel_height_scale)) + horizon;
+			rex_int line_end = RexScalarToInteger(REX_MUL(REX_DIV(height_delta2, dist), pixel_height_scale)) + horizon;
 
 			// clamp to vertical area
 			line_start = CLAMP(line_start, 0, draw_h);
