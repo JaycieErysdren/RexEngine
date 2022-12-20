@@ -53,6 +53,7 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/source/rex)
 ## Game
 set(VIVADUKE_SRC
 	${CMAKE_SOURCE_DIR}/source/vivaduke/vivaduke.cpp
+	${CMAKE_SOURCE_DIR}/source/vivaduke/level.cpp
 )
 
 set(VIVADUKE vivaduke)

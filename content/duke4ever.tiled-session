@@ -3,12 +3,12 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "mapsrc/yasha/Casino_Map.tmj",
+    "activeFile": "mapsrc/yasha/Casino_Map.tmx",
     "expandedProjectPaths": [
-        ".",
-        "mapsrc/yasha",
         "mapsrc",
-        "tilesrc"
+        "mapsrc/yasha",
+        "tilesrc",
+        "."
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
@@ -31,12 +31,25 @@
             "scale": 0.55478515625,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 513.7123745819399,
+                "x": 515.5148741418765,
                 "y": 513.7123745819398
             }
         },
+        "mapsrc/yasha/Casino_Map.tmx": {
+            "expandedGroupLayers": [
+                4,
+                6
+            ],
+            "scale": 4,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 461,
+                "y": 221.25
+            }
+        },
         "mapsrc/yasha/test_kenney.tsx": {
-            "scaleInDock": 1
+            "scaleInDock": 1,
+            "scaleInEditor": 1
         },
         "tilesrc/duke4ever.tsx": {
             "dynamicWrapping": true,
@@ -58,20 +71,21 @@
             "scaleInEditor": 1
         }
     },
-    "last.imagePath": "/home/jaycie/Projects/duke4ever/content/tilesrc",
+    "last.externalTilesetPath": "/home/jaycie/Projects/duke4ever/content/mapsrc/yasha",
+    "last.imagePath": "/home/jaycie/Projects/duke4ever/content/mapsrc/yasha",
     "map.height": 32,
     "map.lastUsedFormat": "json",
     "map.tileHeight": 128,
     "map.tileWidth": 128,
     "map.width": 32,
     "openFiles": [
-        "mapsrc/test2.tmj",
-        "tilesrc/heightmaps.tsx",
-        "mapsrc/yasha/Casino_Map.tmj"
+        "mapsrc/yasha/Casino_Map.tmx"
     ],
     "project": "duke4ever.tiled-project",
     "property.type": "int",
     "recentFiles": [
+        "mapsrc/yasha/Casino_Map.tmx",
+        "mapsrc/yasha/test_kenney.tsx",
         "mapsrc/test2.tmj",
         "tilesrc/heightmaps.tsx",
         "mapsrc/yasha/Casino_Map.tmj",

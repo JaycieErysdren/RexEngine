@@ -464,7 +464,7 @@ void SurfaceDrawVerticalLine(Surface *dst, int x, int y1, int y2, rex_uint8 colo
 void SurfaceDrawRectangle(Surface *dst, int x, int y, int w, int h, rex_uint8 color, bool filled)
 {
 	// Sanity check
-	if (x < 0 || y < 0 || x >= dst->width || y >= dst->height || (x + w) >= dst->width || (y + h) >= dst->height)
+	if (x < 0 || y < 0 || x > dst->width || y > dst->height || (x + w) > dst->width || (y + h) > dst->height)
 		return;
 
 	if (filled == true)

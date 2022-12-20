@@ -25,7 +25,8 @@
 
 // 3D Actors
 Rex::Actor3D *actor3d_root;
-Rex::Actor3D *actor3d_model;
+Rex::Actor3D *actor3d_geo_voxels;
+Rex::Actor3D *actor3d_geo_tiles;
 Rex::Actor3D *actor3d_camera;
 
 // 2D Actors (HUD)
@@ -257,59 +258,49 @@ void Initialize()
 	actor2d_hud_gun = Rex::AddActor2D(actor2d_hud_root, Rex::ACTOR2D_VIEWMODEL, "gfx/shotgun.bmp");
 	actor2d_hud_gun->color_blit_mode = Rex::COLORKEY;
 
+	//
 	// 3D actors
-	//actor3d_root = Rex::AddActor3D(NULL, Rex::ACTOR3D_VOXELMODEL);
+	//
 
-	//actor3d_root->model = Voxel::AddVoxelModel(32, 32, 256);
-	//actor3d_root->identifier = "RAY";
-	//Heightmap_Generate((Voxel::VoxelModel *)actor3d_root->model);
+	// scene root
+	actor3d_root = Rex::AddActor3D(NULL, Rex::ACTOR3D_NONE);
 
-	actor3d_root = Rex::AddActor3D(NULL, Rex::ACTOR3D_RAYCASTMODEL);
-	actor3d_root->model = Raycast::AddRaycastModel(16, 16);
+	// camera
 	actor3d_camera = Rex::AddActor3D(actor3d_root, Rex::ACTOR3D_CAMERA);
 
-	actor3d_model = Rex::AddActor3D(actor3d_root, Rex::ACTOR3D_VOXELMODEL);
-	actor3d_model->model = Voxel::AddVoxelModel(32, 32, 8);
+	// tile model
+	actor3d_geo_tiles = Rex::AddActor3D(actor3d_root, Rex::ACTOR3D_RAYCASTMODEL);
+	actor3d_geo_tiles->model = Raycast::AddRaycastModel(128, 128);
 
-	// initialize voxel model
-	Voxel::VoxelSlab slab;
-	slab.voxels_drawn = 1;
-	slab.voxels_skipped = 0;
-	slab.color_side = 255;
-	slab.color_top = 255;
-	slab.color_bottom = 255;
-	((Voxel::VoxelModel *)actor3d_model->model)->AddSlabToColumn(24, 24, slab);
-	slab.voxels_drawn = 6;
-	slab.voxels_skipped = 1;
-	slab.color_side = 31;
-	slab.color_top = 31;
-	slab.color_bottom = 31;
-	((Voxel::VoxelModel *)actor3d_model->model)->AddSlabToColumn(24, 24, slab);
-	slab.voxels_drawn = 8;
-	slab.voxels_skipped = 0;
-	((Voxel::VoxelModel *)actor3d_model->model)->AddSlabToColumn(16, 20, slab);
-	slab.voxels_drawn = 4;
-	slab.voxels_skipped = 4;
-	((Voxel::VoxelModel *)actor3d_model->model)->AddSlabToColumn(24, 16, slab);
+	char fname_c[16];
+	string fname;
+	Rex::Surface surf;
 
-	// initialize raycast model
-	rex_int x, y;
-	for (y = 0; y < 16; y++)
+	// load in surfaces
+	for (rex_int i = 1; i < 11; i++)
 	{
-		for (x = 0; x < 16; x++)
-		{
-			if (x == 0 || y == 0 || x == 15 || y == 15)
-				((Raycast::RaycastModel *)actor3d_root->model)->SetTile(x, y, 176);
-			else
-				((Raycast::RaycastModel *)actor3d_root->model)->SetTile(x, y, 0);
-		}
+		sprintf(fname_c, "tex/%03d.bmp", i);
+		fname = fname_c;
+
+		((Raycast::RaycastModel *)actor3d_geo_tiles->model)->surfaces.push_back(surf);
+		Rex::SurfaceLoadBMP(&((Raycast::RaycastModel *)actor3d_geo_tiles->model)->surfaces[i - 1], fname);
 	}
 
+	// voxel model
+	actor3d_geo_voxels = Rex::AddActor3D(actor3d_root, Rex::ACTOR3D_VOXELMODEL);
+	actor3d_geo_voxels->model = Voxel::AddVoxelModel(128, 128, 128);
+
+	// generate a level in code
+	Generate_Level01((Raycast::RaycastModel *)actor3d_geo_tiles->model, (Voxel::VoxelModel *)actor3d_geo_voxels->model);
+
+	//
 	// Initialize camera info
+	//
+
 	actor3d_camera->draw_distance = REX_SCALAR(64);
 
-	actor3d_camera->origin.x = REX_SCALAR(8);
-	actor3d_camera->origin.y = REX_SCALAR(8);
+	actor3d_camera->origin.x = REX_SCALAR(35);
+	actor3d_camera->origin.y = REX_SCALAR(35);
 	actor3d_camera->origin.z = REX_SCALAR(0.5f);
 
 	actor3d_camera->angles.x = 0;
@@ -515,7 +506,8 @@ int main(int argc, char *argv[])
 		ReadMouse(&mouse_buttons, &actor2d_mouse->origin, 16, mouse_area);
 
 		// Clear back buffer
-		Rex::SurfaceClear(&pic_bbuffer, 0); // 242 or 176
+		Rex::SurfaceClear(&pic_bbuffer, 7); // ceiling
+		Rex::SurfaceDrawRectangle(&pic_bbuffer, 0, pic_bbuffer.height / 2, pic_bbuffer.width, pic_bbuffer.height / 2, 11, true);
 
 		// Clear z buffer
 		Rex::SurfaceClear(&pic_zbuffer, 255);

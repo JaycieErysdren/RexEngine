@@ -91,6 +91,12 @@ void FreeRaycastModel(RaycastModel *model)
 
 	void *model_memory = model->memory;
 
+	// Free surfaces
+	for (rex_int i = 0; i < model->surfaces.size(); i++)
+	{
+		Rex::SurfaceDestroy(&model->surfaces[i]);
+	}
+
 	// Call destructor
 	model->~RaycastModel();
 
@@ -202,41 +208,87 @@ void RenderRaycastModel(Rex::Surface *dst, Rex::Surface *zbuffer, RaycastModel *
 
 		if (dist > REX_SCALAR(0))
 		{
-			//Calculate height of line to draw on screen
-			rex_int line_height = RexScalarToInteger(REX_DIV(REX_SCALAR(draw_h), dist));
-
 			// height delta 1 & 2
 			rex_scalar tile_z = REX_SCALAR(1);
 			rex_scalar tile_height = REX_SCALAR(1);
 			rex_scalar height_delta1 = origin.z - tile_z;
 			rex_scalar height_delta2 = origin.z - (tile_z - tile_height);
 
+			//Calculate height of line to draw on screen
 			rex_int line_start = RexScalarToInteger(REX_MUL(REX_DIV(height_delta1, dist), pixel_height_scale)) + horizon;
 			rex_int line_end = RexScalarToInteger(REX_MUL(REX_DIV(height_delta2, dist), pixel_height_scale)) + horizon;
+
+			rex_int line_height = line_end - line_start;
 
 			// clamp to vertical area
 			line_start = CLAMP(line_start, 0, draw_h);
 			line_end = CLAMP(line_end, 0, draw_h);
 
-			//choose wall color
-			rex_uint8 color = model->GetTile(map_pos.x, map_pos.y);
+			bool tmap = true;
 
-			// Lookup in colormap for brightness
-			//if (side == true) color = Rex::ColormapLookup(color, RexScalarToInteger(REX_MUL(dist, REX_SCALAR(2))) - 4);
-			//else color = Rex::ColormapLookup(color, RexScalarToInteger(REX_MUL(dist, REX_SCALAR(2))));
-
-			color = Rex::ColormapLookup(color, RexScalarToInteger(dist));
-
-			// draw with zbuffer
-			for (s.y = line_start; s.y < line_end; s.y++)
+			if (tmap == true)
 			{
-				if (REX_SCALAR(Rex::SurfaceGetPixel(zbuffer, s.x, s.y)) > dist)
-				{
-					Rex::SurfaceDrawPixel(dst, s.x, s.y, color);
-					Rex::SurfaceDrawPixel(zbuffer, s.x, s.y, RexScalarToInteger(dist));
-				}
+				rex_uint8 tindex = model->GetTile(map_pos.x, map_pos.y) - 1;
 
-				if (s.y > draw_h || s.y < 0) break;
+				// calculate value of wallX
+				rex_scalar wall_x; // where exactly the wall was hit
+
+				if (side == false) wall_x = origin.y + REX_MUL(dist, raydir.y);
+				else wall_x = origin.x + REX_MUL(dist, raydir.x);
+
+				wall_x -= REX_FLOOR(wall_x);
+
+				//x coordinate on the texture
+				rex_int32 tex_x = RexScalarToInteger(REX_MUL(wall_x, REX_SCALAR(64)));
+				if (side == false && raydir.x > 0) tex_x = 64 - tex_x - 1;
+				if (side == true && raydir.y < 0) tex_x = 64 - tex_x - 1;
+
+				// How much to increase the texture coordinate per screen pixel
+				rex_scalar step = REX_SAFEDIV(REX_MUL(REX_SCALAR(1.0f), REX_SCALAR(64)), REX_SCALAR(line_height));
+
+				// Starting texture coordinate
+				rex_scalar texcoord = REX_MUL(REX_SCALAR(line_start - (draw_h / 2) + (line_height / 2)), step);
+
+				for (s.y = line_start; s.y < line_end; s.y++)
+				{
+					if (REX_SCALAR(Rex::SurfaceGetPixel(zbuffer, s.x, s.y)) > dist)
+					{
+						// Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
+						rex_int32 tex_y = RexScalarToInteger(texcoord) & (64 - 1);
+						texcoord += step;
+						uint8_t color = Rex::SurfaceGetPixel(&model->surfaces[tindex], tex_x, tex_y);
+
+						// Lookup in colormap for brightness
+						if (side == true) color = Rex::ColormapLookup(color, RexScalarToInteger(dist) - 4);
+						else color = Rex::ColormapLookup(color, RexScalarToInteger(dist));
+
+						Rex::SurfaceDrawPixel(dst, s.x, s.y, color);
+						Rex::SurfaceDrawPixel(zbuffer, s.x, s.y, RexScalarToInteger(dist));
+					}
+
+					if (s.y > draw_h || s.y < 0) break;
+				}
+			}
+			else
+			{
+				// choose wall color
+				rex_uint8 color = model->GetTile(map_pos.x, map_pos.y);
+
+				// Lookup in colormap for brightness
+				if (side == true) color = Rex::ColormapLookup(color, RexScalarToInteger(dist) - 4);
+				else color = Rex::ColormapLookup(color, RexScalarToInteger(dist));
+
+				// draw with zbuffer
+				for (s.y = line_start; s.y < line_end; s.y++)
+				{
+					if (REX_SCALAR(Rex::SurfaceGetPixel(zbuffer, s.x, s.y)) > dist)
+					{
+						Rex::SurfaceDrawPixel(dst, s.x, s.y, color);
+						Rex::SurfaceDrawPixel(zbuffer, s.x, s.y, RexScalarToInteger(dist));
+					}
+
+					if (s.y > draw_h || s.y < 0) break;
+				}
 			}
 		}
 	}

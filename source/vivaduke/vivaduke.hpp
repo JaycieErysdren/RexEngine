@@ -25,6 +25,7 @@
 // Rex Engine headers
 #include "rex/rex.hpp"
 
-// Game headers
+// Level.cpp
+void Generate_Level01(Raycast::RaycastModel *tilemodel, Voxel::VoxelModel *voxelmodel);
 
 #endif // __VIVADUKE_H__
