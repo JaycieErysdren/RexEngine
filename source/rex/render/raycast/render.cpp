@@ -258,8 +258,8 @@ void RenderRaycastModel(Rex::Surface *dst, Rex::Surface *zbuffer, RaycastModel *
 						uint8_t color = Rex::SurfaceGetPixel(&model->surfaces[tindex], tex_x, tex_y);
 
 						// Lookup in colormap for brightness
-						if (side == true) color = Rex::ColormapLookup(color, RexScalarToInteger(dist) * 3);
-						else color = Rex::ColormapLookup(color, RexScalarToInteger(dist) * 2);
+						if (side == true) color = Rex::ColormapLookup(color, RexScalarToInteger(dist) * 2);
+						else color = Rex::ColormapLookup(color, RexScalarToInteger(dist));
 
 						Rex::SurfaceDrawPixel(dst, s.x, s.y, color);
 						Rex::SurfaceDrawPixel(zbuffer, s.x, s.y, RexScalarToInteger(dist));

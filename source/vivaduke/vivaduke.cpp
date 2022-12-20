@@ -471,6 +471,7 @@ int main(int argc, char *argv[])
 	Rex::Surface pic_font;
 	Rex::Surface pic_bbuffer;
 	Rex::Surface pic_zbuffer;
+	Rex::Surface pic_bg;
 
 	// Initialize Rex Engine
 	Rex::Initialize();
@@ -481,6 +482,7 @@ int main(int argc, char *argv[])
 
 	// Create picture buffers
 	Rex::SurfaceLoadBMP(&pic_font, "gfx/font8x8.bmp");
+	Rex::SurfaceLoadBMP(&pic_bg, "gfx/grad.bmp");
 	Rex::SurfaceCreate(&pic_bbuffer, vidinfo.width, vidinfo.height, vidinfo.bpp, 0, 0);
 	Rex::SurfaceCreate(&pic_zbuffer, vidinfo.width, vidinfo.height, 8, 0, 0);
 
@@ -508,8 +510,9 @@ int main(int argc, char *argv[])
 		ReadMouse(&mouse_buttons, &actor2d_mouse->origin, 16, mouse_area);
 
 		// Clear back buffer
-		Rex::SurfaceClear(&pic_bbuffer, 7); // ceiling
-		Rex::SurfaceDrawRectangle(&pic_bbuffer, 0, pic_bbuffer.height / 2, pic_bbuffer.width, pic_bbuffer.height / 2, 11, true);
+		//Rex::SurfaceClear(&pic_bbuffer, 7); // ceiling
+		//Rex::SurfaceDrawRectangle(&pic_bbuffer, 0, pic_bbuffer.height / 2, pic_bbuffer.width, pic_bbuffer.height / 2, 11, true);
+		Rex::SurfaceCopy(&pic_bbuffer, &pic_bg);
 
 		// Clear z buffer
 		Rex::SurfaceClear(&pic_zbuffer, 255);
