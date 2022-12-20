@@ -291,7 +291,9 @@ void Initialize()
 	actor3d_geo_voxels->model = Voxel::AddVoxelModel(128, 128, 128);
 
 	// generate a level in code
-	Generate_Level01((Raycast::RaycastModel *)actor3d_geo_tiles->model, (Voxel::VoxelModel *)actor3d_geo_voxels->model);
+	//Generate_Level01((Raycast::RaycastModel *)actor3d_geo_tiles->model, (Voxel::VoxelModel *)actor3d_geo_voxels->model);
+
+	Tilemap_Load((Raycast::RaycastModel *)actor3d_geo_tiles->model, (Voxel::VoxelModel *)actor3d_geo_voxels->model, "maps/casino.tmj");
 
 	//
 	// Initialize camera info
@@ -299,8 +301,8 @@ void Initialize()
 
 	actor3d_camera->draw_distance = REX_SCALAR(64);
 
-	actor3d_camera->origin.x = REX_SCALAR(35);
-	actor3d_camera->origin.y = REX_SCALAR(35);
+	actor3d_camera->origin.x = REX_SCALAR(34.5f);
+	actor3d_camera->origin.y = REX_SCALAR(34.5f);
 	actor3d_camera->origin.z = REX_SCALAR(0.5f);
 
 	actor3d_camera->angles.x = 0;

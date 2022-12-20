@@ -27,5 +27,6 @@
 
 // Level.cpp
 void Generate_Level01(Raycast::RaycastModel *tilemodel, Voxel::VoxelModel *voxelmodel);
+void Tilemap_Load(Raycast::RaycastModel *tilemodel, Voxel::VoxelModel *voxelmodel, string filename);
 
 #endif // __VIVADUKE_H__
