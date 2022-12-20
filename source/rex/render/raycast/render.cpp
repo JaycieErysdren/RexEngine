@@ -232,7 +232,6 @@ void RenderRaycastModel(Rex::Surface *dst, Rex::Surface *zbuffer, RaycastModel *
 
 				// calculate value of wallX
 				rex_scalar wall_x; // where exactly the wall was hit
-
 				if (side == false) wall_x = origin.y + REX_MUL(dist, raydir.y);
 				else wall_x = origin.x + REX_MUL(dist, raydir.x);
 
