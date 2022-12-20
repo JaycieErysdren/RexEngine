@@ -1,16 +1,16 @@
 // ========================================================
 //
-// FILE:			/source/game/main.cpp
+// FILE:			/source/vivaduke/vivaduke.cpp
 //
 // AUTHORS:			Jaycie Ewald
 //
-// PROJECT:			Duke4Ever
+// PROJECT:			Viva Duke Nukem
 //
-// LICENSE:			TBD
+// LICENSE:			ACSL v1.4
 //
-// DESCRIPTION:		Testbed program entry point
+// DESCRIPTION:		Main game entry point
 //
-// LAST EDITED:		December 17th, 2022
+// LAST EDITED:		December 19th, 2022
 //
 // ========================================================
 

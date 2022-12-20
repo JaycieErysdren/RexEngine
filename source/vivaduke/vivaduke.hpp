@@ -4,11 +4,11 @@
 //
 // AUTHORS:			Jaycie Ewald
 //
-// PROJECT:			Duke4Ever
+// PROJECT:			Viva Duke Nukem
 //
-// LICENSE:			TBD
+// LICENSE:			ACSL v1.4
 //
-// DESCRIPTION:		Game main program header
+// DESCRIPTION:		Main game header
 //
 // LAST EDITED:		December 19th, 2022
 //

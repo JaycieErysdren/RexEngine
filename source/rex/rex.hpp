@@ -4,13 +4,13 @@
 //
 // AUTHORS:			Jaycie Ewald
 //
-// PROJECT:			Duke4Ever
+// PROJECT:			Rex Engine
 //
-// LICENSE:			TBD
+// LICENSE:			ACSL v1.4
 //
 // DESCRIPTION:		Rex Engine public header
 //
-// LAST EDITED:		December 16th, 2022
+// LAST EDITED:		December 19th, 2022
 //
 // ========================================================
 

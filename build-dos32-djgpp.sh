@@ -4,13 +4,13 @@
 ##
 ## AUTHORS:			Jaycie Ewald
 ##
-## PROJECT:			Duke4Ever
+## PROJECT:			Rex Engine
 ##
-## LICENSE:			TBD
+## LICENSE:			ACSL v1.4
 ##
 ## DESCRIPTION:		Bash compile script (DOS32, DJGPP)
 ##
-## LAST EDITED:		November 29th, 2022
+## LAST EDITED:		December 19th, 2022
 ##
 ## ========================================================
 

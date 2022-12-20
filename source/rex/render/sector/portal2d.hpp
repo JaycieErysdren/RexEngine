@@ -4,9 +4,9 @@
 //
 // AUTHORS:			Jaycie Ewald
 //
-// PROJECT:			Duke4Ever
+// PROJECT:			Rex Engine
 //
-// LICENSE:			TBD
+// LICENSE:			ACSL v1.4
 //
 // DESCRIPTION:		Portrend namespace header
 //

@@ -4,25 +4,25 @@
 ##
 ## AUTHORS:			Jaycie Ewald
 ##
-## PROJECT:			Duke4Ever
+## PROJECT:			Viva Duke Nukem
 ##
-## LICENSE:			TBD
+## LICENSE:			ACSL v1.4
 ##
-## DESCRIPTION:		Duke4Ever CMake project definition
+## DESCRIPTION:		Viva Duke Nukem CMake project definition
 ##
 ## LAST EDITED:		December 18th, 2022
 ##
 ## ========================================================
 
 ##
-## Duke4Ever definitions
+## Viva Duke Nukem definitions
 ##
 
 ## CMake version gate
 cmake_minimum_required(VERSION 3.13)
 
 ## Project definition
-project(Duke4Ever LANGUAGES C CXX)
+project(VivaDukeNukem LANGUAGES C CXX)
 
 ## Build type
 set(CMAKE_BUILD_TYPE Release)
