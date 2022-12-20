@@ -14,8 +14,8 @@
 //
 // ========================================================
 
-#ifndef __GAME_H__
-#define __GAME_H__
+#ifndef __VIVADUKE_H__
+#define __VIVADUKE_H__
 
 // Rex Engine modules
 #define RENDERER_VOXEL 1
@@ -27,4 +27,4 @@
 
 // Game headers
 
-#endif // __GAME_H__
+#endif // __VIVADUKE_H__

@@ -110,7 +110,7 @@ void RenderVoxelModel(Rex::Surface *dst, Rex::Surface *zbuffer, VoxelModel *mode
 		rex_scalar dist, dist2;
 
 		// perform DDA to draw voxels
-		while (casting == true)
+		for (rex_int scan = 0; scan < RexScalarToInteger(draw_distance); scan++)
 		{
 			if (side_dist.x < side_dist.y)
 			{

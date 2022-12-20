@@ -51,16 +51,16 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/source/rex)
 ##
 
 ## Game
-set(GAME_SRC
-	${CMAKE_SOURCE_DIR}/source/game/main.cpp
+set(VIVADUKE_SRC
+	${CMAKE_SOURCE_DIR}/source/vivaduke/vivaduke.cpp
 )
 
-set(GAME game${REX_EXECUTABLE_SUFFIX})
+set(VIVADUKE vivaduke)
 
-add_executable(${GAME} ${GAME_SRC})
-target_link_libraries(${GAME} rex)
-target_include_directories(${GAME} PUBLIC ${CMAKE_SOURCE_DIR}/source)
-set_target_properties(${GAME}
+add_executable(${VIVADUKE} ${VIVADUKE_SRC})
+target_link_libraries(${VIVADUKE} rex)
+target_include_directories(${VIVADUKE} PUBLIC ${CMAKE_SOURCE_DIR}/source)
+set_target_properties(${VIVADUKE}
 	PROPERTIES
 	ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/builddos"
 	LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/builddos"
