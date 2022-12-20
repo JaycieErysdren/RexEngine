@@ -382,9 +382,9 @@ void CameraController(rex_int32 mb, rex_vec2i mp)
 		actor3d_camera->movespeedkey = 1;
 
 	// Set velocity
-	actor3d_camera->velocity.x = REX_MUL(Rex::math_table->sin[actor3d_camera->angles.y], REX_SCALAR(0.25f));
-	actor3d_camera->velocity.y = REX_MUL(Rex::math_table->cos[actor3d_camera->angles.y], REX_SCALAR(0.25f));
-	actor3d_camera->velocity.z = REX_SCALAR(0.25f);
+	actor3d_camera->velocity.x = REX_MUL(Rex::math_table->sin[actor3d_camera->angles.y], REX_SCALAR(0.125f));
+	actor3d_camera->velocity.y = REX_MUL(Rex::math_table->cos[actor3d_camera->angles.y], REX_SCALAR(0.125f));
+	actor3d_camera->velocity.z = REX_SCALAR(0.125f);
 
 	// Move forwards
 	if (Rex::KeyTest(REX_SC_W))
