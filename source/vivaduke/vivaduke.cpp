@@ -276,14 +276,24 @@ void Initialize()
 	string fname;
 	Rex::Surface surf;
 
-	// load in surfaces
+	// load in wall surfaces
 	for (rex_int i = 1; i < 11; i++)
 	{
-		sprintf(fname_c, "tex/%03d.bmp", i);
+		sprintf(fname_c, "tex/w%03d.bmp", i);
 		fname = fname_c;
 
-		((Raycast::RaycastModel *)actor3d_geo_tiles->model)->surfaces.push_back(surf);
-		Rex::SurfaceLoadBMP(&((Raycast::RaycastModel *)actor3d_geo_tiles->model)->surfaces[i - 1], fname);
+		((Raycast::RaycastModel *)actor3d_geo_tiles->model)->wall_surfaces.push_back(surf);
+		Rex::SurfaceLoadBMP(&((Raycast::RaycastModel *)actor3d_geo_tiles->model)->wall_surfaces[i - 1], fname);
+	}
+
+	// load in floor surfaces
+	for (rex_int i = 1; i < 7; i++)
+	{
+		sprintf(fname_c, "tex/f%03d.bmp", i);
+		fname = fname_c;
+
+		((Raycast::RaycastModel *)actor3d_geo_tiles->model)->floor_surfaces.push_back(surf);
+		Rex::SurfaceLoadBMP(&((Raycast::RaycastModel *)actor3d_geo_tiles->model)->floor_surfaces[i - 1], fname);
 	}
 
 	// voxel model

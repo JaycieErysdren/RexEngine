@@ -92,10 +92,11 @@ void FreeRaycastModel(RaycastModel *model)
 	void *model_memory = model->memory;
 
 	// Free surfaces
-	for (rex_int i = 0; i < model->surfaces.size(); i++)
-	{
-		Rex::SurfaceDestroy(&model->surfaces[i]);
-	}
+	for (rex_int i = 0; i < model->wall_surfaces.size(); i++)
+		Rex::SurfaceDestroy(&model->wall_surfaces[i]);
+
+	for (rex_int i = 0; i < model->floor_surfaces.size(); i++)
+		Rex::SurfaceDestroy(&model->floor_surfaces[i]);
 
 	// Call destructor
 	model->~RaycastModel();
@@ -255,7 +256,7 @@ void RenderRaycastModel(Rex::Surface *dst, Rex::Surface *zbuffer, RaycastModel *
 						// Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
 						rex_int32 tex_y = RexScalarToInteger(texcoord) & (64 - 1);
 						texcoord += step;
-						uint8_t color = Rex::SurfaceGetPixel(&model->surfaces[tindex], tex_x, tex_y);
+						uint8_t color = Rex::SurfaceGetPixel(&model->wall_surfaces[tindex], tex_x, tex_y);
 
 						// Lookup in colormap for brightness
 						if (side == true) color = Rex::ColormapLookup(color, RexScalarToInteger(dist) * 2);

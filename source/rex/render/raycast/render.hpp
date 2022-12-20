@@ -65,8 +65,9 @@ class RaycastModel
 		// Array of tile elements
 		vector<rex_uint8> tiles;
 
-		// Array of textures
-		vector<Rex::Surface> surfaces;
+		// Arrays of textures
+		vector<Rex::Surface> wall_surfaces;
+		vector<Rex::Surface> floor_surfaces;
 
 		//
 		// Danger zone
