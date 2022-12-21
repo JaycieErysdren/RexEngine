@@ -21,3 +21,10 @@ cwsdpmi.swp
 
 # python
 __pycache__/
+
+# bash
+run_*.bat
+run_*.sh
+
+# dosbox-x
+dosbox-x.conf
