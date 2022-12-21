@@ -1,33 +1,20 @@
 # Rex Engine
 
-Multi-purpose multi-target multi-use game engine, written in C.
+A multi-purpose multi-target 2D and 3D game engine, written in C and C++.
+
+The engine is made up of modules that aid in interfacing with various libraries and hardware that vary for various platform targets.
+
+At the moment it's primarily focused towards DOS, using software rendering for the 2D and 3D aspects. A Linux version is possible to compile, but the graphics modules are still using 8-bit color so it won't work properly on any modern system. Windows support is pending.
 
 ## Building
 
-Can be easily built with CMake and GCC, though it currently only supports Linux. Windows support is pending.
-
-`build-amd64.sh` is a good starting point for building on Linux, but to summarize:
-
-```
-git clone https://github.com/JaycieErysdren/RexEngine
-cd RexEngine
-git submodule init
-git submodule update
-mkdir cmake-build-amd64
-cd cmake-build-amd64
-cmake ../source
-make
-```
+Can be easily built with the bash and batch scripts in the main directory of this repository.
 
 ## External Dependencies
 
 [SDL2](https://www.libsdl.org/)
 
-[BRender](https://github.com/crocguy0688/CrocDE-BRender/)
-
-[Nuklear](https://github.com/Immediate-Mode-UI/Nuklear/)
-
-[tinyfiledialogs](https://sourceforge.net/projects/tinyfiledialogs/)
+[DJGPP](https://www.delorie.com/djgpp/)
 
 ## Special Thanks
 

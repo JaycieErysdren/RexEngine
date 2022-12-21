@@ -1,22 +1,23 @@
-/_local/
-/install/
-*.blend1
-/**/__pycache__/
+# unversioned files
+local/
 
-/**/cmake-build-*/
-
-/**/.vscode/
+# vscode
+.vscode/
 *.code-workspace
 
-*.o
-*.O
-*.obj
-*.OBJ
-*.err
-*.ERR
-*.lnk
-*.LNK
-*.rsp
-*.RSP
-*.bak
-*.BAK
+# cmake
+cmake-build-*/
+
+# DJGPP
+CWSDPMI.SWP
+cwsdpmi.swp
+
+# engine
+*.LOG
+*.log
+
+# blender
+*.blend1
+
+# python
+__pycache__/
