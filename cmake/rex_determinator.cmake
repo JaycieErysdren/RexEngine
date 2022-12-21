@@ -10,7 +10,7 @@
 ##
 ## DESCRIPTION:		Rex Engine platform & compiler determinator
 ##
-## LAST EDITED:		December 11th, 2022
+## LAST EDITED:		December 21st, 2022
 ##
 ## ========================================================
 
@@ -108,3 +108,10 @@ if(CMAKE_BUILD_TYPE STREQUAL Release)
 
 endif()
 
+##
+##
+## Variables
+##
+##
+
+set(REX_ENGINE_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/source)
