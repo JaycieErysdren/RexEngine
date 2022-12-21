@@ -6,6 +6,13 @@ The engine is made up of modules that aid in interfacing with various libraries 
 
 At the moment it's primarily focused towards DOS, using software rendering for the 2D and 3D aspects. A Linux version is possible to compile, but the graphics modules are still using 8-bit color so it won't work properly on any modern system. Windows support is pending.
 
+## Media
+
+![A screenshot of a 3D game engine demonstrating raycaster rendering.](./.github/rayc00.png)
+![A screenshot of a 3D game engine demonstrating portal-sector rendering.](./.github/sector00.png)
+![A screenshot of a 3D game engine demonstrating voxels.](./.github/voxel00.png)
+![A screenshot of a 3D game engine demonstrating voxels.](./.github/voxel01.png)
+
 ## Building
 
 Can be easily built with the bash and batch scripts in the main directory of this repository.

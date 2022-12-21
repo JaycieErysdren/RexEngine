@@ -28,3 +28,4 @@ run_*.sh
 
 # dosbox-x
 dosbox-x.conf
+/capture/
