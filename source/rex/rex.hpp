@@ -155,9 +155,6 @@ using namespace std;
 // Console
 #include "core/console.hpp"
 
-// Camera
-#include "core/camera.hpp"
-
 //
 // Renderers
 //
@@ -175,6 +172,15 @@ using namespace std;
 // Voxel
 #if RENDERER_VOXEL
 #include "render/voxel/voxel.hpp"
+#endif
+
+//
+// File I/O modules
+//
+
+// PAK
+#if MODULE_PAK
+#include "modules/fileio/pak/pak.hpp"
 #endif
 
 #endif // __REX_ENGINE_H__

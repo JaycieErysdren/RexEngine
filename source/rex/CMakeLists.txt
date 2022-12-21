@@ -60,6 +60,15 @@ if(REX_TARGET STREQUAL "DOS")
 endif()
 
 ##
+## File I/O modules
+##
+
+## PAK
+if(${MODULE_PAK})
+	add_compile_definitions("MODULE_PAK=1")
+endif()
+
+##
 ## Renderer modules
 ##
 
@@ -115,7 +124,6 @@ add_library(mplite STATIC ${MPLITE_SRC})
 
 set(REX_CORE_SRC
 	core/bootstrap.cpp
-	core/camera.cpp
 	core/clock.cpp
 	core/console.cpp
 	core/graphics.cpp
@@ -179,6 +187,21 @@ if(REX_TARGET STREQUAL "DOS")
 		add_library(vga STATIC ${REX_VGA_SRC})
 
 	endif()
+
+endif()
+
+##
+## File I/O modules
+##
+
+## PAK
+if(${MODULE_PAK})
+
+	set(REX_PAK_SRC
+		modules/fileio/pak/pak.cpp
+	)
+
+	add_library(pak STATIC ${REX_PAK_SRC})
 
 endif()
 
@@ -270,4 +293,12 @@ endif()
 
 if(${RENDERER_VOXEL})
 	target_link_libraries(rex INTERFACE voxel)
+endif()
+
+##
+## File I/O modules
+##
+
+if(${MODULE_PAK})
+	target_link_libraries(rex INTERFACE pak)
 endif()

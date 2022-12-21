@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Main game entry point
 //
-// LAST EDITED:		December 19th, 2022
+// LAST EDITED:		December 21st, 2022
 //
 // ========================================================
 
@@ -52,20 +52,6 @@ void Generate_Tile_Line_V(Raycast::RaycastModel *tilemodel, rex_int x, rex_int y
 void Generate_Tile(Raycast::RaycastModel *tilemodel, rex_int x, rex_int y, rex_uint8 c)
 {
 	tilemodel->SetTile(x, y, c);
-}
-
-// make a level in code
-void Generate_Level01(Raycast::RaycastModel *tilemodel, Voxel::VoxelModel *voxelmodel)
-{
-	// variables
-	rex_int x, y;
-
-	// start room
-	Generate_Tile_Rect(tilemodel, 32, 32, 5, 6, 8, false); // 47
-	Generate_Tile_Line_H(tilemodel, 33, 37, 3, 0);
-	Generate_Tile(tilemodel, 34, 37, 8);
-
-	// next room
 }
 
 // load a tilemap

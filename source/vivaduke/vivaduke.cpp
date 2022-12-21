@@ -23,6 +23,9 @@
 // Globals
 //
 
+// PAK archive
+PAK::Handle pak;
+
 // 3D Actors
 Rex::Actor3D *actor3d_root;
 Rex::Actor3D *actor3d_geo_voxels;
@@ -237,7 +240,13 @@ void Tilemap_Load(string filename)
 // Initialize testbed
 void Initialize()
 {
-	Rex::Log("gamed.log", "loading...");
+	// PAKfile test
+
+	if (pak.Open("vivaduke.pak", PAK::READ) == false)
+	{
+		cout << "failed to open \"vivaduke.pak\"" << endl;
+		exit(1);
+	}
 
 	Rex::SetGraphicsPalette("gfx/duke3d.pal");
 	Rex::ColormapLoad("gfx/duke3d.tab");
@@ -322,20 +331,17 @@ void Initialize()
 
 void Shutdown()
 {
-	// Tell log we're shutting down
-	Rex::Log("gamed.log", "shutting down...");
-
 	// Free 3D scene hierarchy
-	Rex::Log("gamed.log", "freeing 3D scene hierarchy");
 	Rex::FreeActor3D(actor3d_root);
 
 	// Free 2D scene hierarchy
-	Rex::Log("gamed.log", "freeing 2D scene hierarchy");
 	Rex::FreeActor2D(actor2d_root);
 
 	// Free 2D HUD hierarchy
-	Rex::Log("gamed.log", "freeing 2D HUD hierarchy");
 	Rex::FreeActor2D(actor2d_hud_root);
+
+	// Close PAK file
+	pak.Close();
 }
 
 //

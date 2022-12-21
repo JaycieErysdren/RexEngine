@@ -35,6 +35,7 @@ set(CMAKE_BUILD_TYPE Release)
 set(MODULE_DOS TRUE)
 set(MODULE_VESA TRUE)
 set(MODULE_VGA TRUE)
+set(MODULE_PAK TRUE)
 
 ## Set the renderers we want to compile
 set(RENDERER_VOXEL TRUE)
