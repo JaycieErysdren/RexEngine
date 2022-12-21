@@ -520,9 +520,9 @@ int main(int argc, char *argv[])
 		ReadMouse(&mouse_buttons, &actor2d_mouse->origin, 16, mouse_area);
 
 		// Clear back buffer
-		//Rex::SurfaceClear(&pic_bbuffer, 7); // ceiling
-		//Rex::SurfaceDrawRectangle(&pic_bbuffer, 0, pic_bbuffer.height / 2, pic_bbuffer.width, pic_bbuffer.height / 2, 11, true);
-		Rex::SurfaceCopy(&pic_bbuffer, &pic_bg);
+		Rex::SurfaceClear(&pic_bbuffer, 6); // ceiling
+		Rex::SurfaceDrawRectangle(&pic_bbuffer, 0, pic_bbuffer.height / 2, pic_bbuffer.width, pic_bbuffer.height / 2, 16, true); // floor
+		//Rex::SurfaceCopy(&pic_bbuffer, &pic_bg);
 
 		// Clear z buffer
 		Rex::SurfaceClear(&pic_zbuffer, 255);
@@ -670,6 +670,7 @@ int main(int argc, char *argv[])
 
 	// Cleanup memory
 	Rex::SurfaceDestroy(&pic_font);
+	Rex::SurfaceDestroy(&pic_bg);
 	Rex::SurfaceDestroy(&pic_bbuffer);
 	Rex::SurfaceDestroy(&pic_zbuffer);
 
