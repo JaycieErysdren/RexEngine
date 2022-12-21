@@ -2,6 +2,8 @@
 
 Multi-purpose multi-target multi-use game engine, written in C.
 
+NOTE: this is the old branch of the engine, before it was entirely refactored.
+
 ## Building
 
 Can be easily built with CMake and GCC, though it currently only supports Linux. Windows support is pending.
