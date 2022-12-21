@@ -23,6 +23,14 @@ Can be easily built with the bash and batch scripts in the main directory of thi
 
 [DJGPP](https://www.delorie.com/djgpp/)
 
+
+The following thirdparty packages are already included in this repository:
+
+
+[mempoolite](https://github.com/jefyt/mempoolite/)
+
+[cJSON](https://github.com/DaveGamble/cJSON)
+
 ## Special Thanks
 
 [Kaitai Struct](http://kaitai.io/)
