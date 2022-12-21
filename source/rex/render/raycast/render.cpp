@@ -31,6 +31,14 @@ namespace Raycast
 
 //
 //
+// Globals
+//
+//
+
+Rex::Surface pic_grad;
+
+//
+//
 // Functions
 //
 //
@@ -81,6 +89,9 @@ RaycastModel *AddRaycastModel(rex_int size_x, rex_int size_y)
 
 	model->memory = model_memory;
 
+	// blaghglh
+	Rex::SurfaceLoadBMP(&pic_grad, "gfx/grad2.bmp");
+
 	return model;
 }
 
@@ -103,6 +114,9 @@ void FreeRaycastModel(RaycastModel *model)
 
 	// Free the actor
 	Rex::MemPool_Free(Rex::MEMORY_RENDERER, model_memory);
+
+	// blaghglh
+	Rex::SurfaceDestroy(&pic_grad);
 }
 
 //
@@ -268,6 +282,10 @@ void RenderRaycastModel(Rex::Surface *dst, Rex::Surface *zbuffer, RaycastModel *
 
 					if (s.y > draw_h || s.y < 0) break;
 				}
+
+				// draw gradient
+				Rex::SurfaceBlit8(dst, s.x, 0, s.x + 1, line_start, &pic_grad, s.x, line_start, s.x + 1, draw_h - 1, Rex::COPY);
+				Rex::SurfaceBlit8(dst, s.x, line_end, s.x + 1, draw_h, &pic_grad, s.x, draw_h - 1, s.x + 1, line_end, Rex::COPY);
 			}
 			else
 			{
