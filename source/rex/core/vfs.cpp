@@ -204,9 +204,9 @@ void RemoveAllVFS()
 // Open file
 bool File::Open(string fname)
 {
-	// assign filename
+	// assign variables
 	filename = fname;
-	vfs = false;
+	ptr_offset = 0;
 
 	//
 	// check vfs
@@ -222,8 +222,7 @@ bool File::Open(string fname)
 			if (filename.compare(vfs_handles[i].files[f].filename) == 0)
 			{
 				filesize = vfs_handles[i].files[f].filesize;
-				ptr_offset = 0;
-				vfs = true;
+				file_handle = NULL;
 
 				return true;
 			}
@@ -240,9 +239,6 @@ bool File::Open(string fname)
 	// get length of file
 	fseek(file_handle, 0L, SEEK_END);
 	filesize = ftell(file_handle);
-	ptr_offset = 0;
-
-	// seek back to start
 	fseek(file_handle, 0L, SEEK_SET);
 
 	return true;
@@ -258,68 +254,59 @@ void File::Close()
 // Get current offset in file
 rex_int File::Tell()
 {
-	if (vfs == true)
-	{
-		// VFS
-		return ptr_offset;
-	}
-	else if (file_handle != NULL)
-	{
-		// HDD
+	// HDD
+	if (file_handle != NULL)
 		return ftell(file_handle);
-	}
 
-	// failed
-	return -1;
+	// VFS
+	return ptr_offset;
 }
 
 // Read data from file
 bool File::Read(size_t size, size_t n, void *ptr)
 {
-	if (vfs == true)
+	//
+	// check VFS
+	//
+
+	rex_int bytes_read = size * n;
+
+	// inside the bounds of the file
+	if (Tell() + bytes_read <= filesize)
 	{
-		//
-		// check VFS
-		//
+		rex_int i, f;
 
-		rex_int bytes_read = size * n;
-
-		// still within the bounds of the file
-		if (ptr_offset + bytes_read <= filesize)
+		// check VFS handles for file
+		for (i = vfs_handles.size() - 1; i > -1; i--)
 		{
-			rex_int i, f;
-
-			// check VFS handles for file
-			for (i = vfs_handles.size() - 1; i > -1; i--)
+			for (f = 0; f < vfs_handles[i].files.size(); f++)
 			{
-				for (f = 0; f < vfs_handles[i].files.size(); f++)
+				if (filename.compare(vfs_handles[i].files[f].filename) == 0)
 				{
-					if (filename.compare(vfs_handles[i].files[f].filename) == 0)
-					{
-						rex_int ofs = vfs_handles[i].files[f].fileofs;
+					rex_int ofs = vfs_handles[i].files[f].fileofs;
 
-						// read file data
-						fseek(vfs_handles[i].file_handle, ofs + ptr_offset, SEEK_SET);
-						fread(ptr, size, n, vfs_handles[i].file_handle);
+					// read file data
+					fseek(vfs_handles[i].file_handle, ofs + ptr_offset, SEEK_SET);
+					fread(ptr, size, n, vfs_handles[i].file_handle);
 
-						ptr_offset += bytes_read;
+					ptr_offset += bytes_read;
 
-						return true;
-					}
+					return true;
 				}
 			}
-
-			// if we couldn't find it in any VFS handle, then the VFS probably changed.
-			vfs = false;
 		}
 	}
+	else
+	{
+		return false;
+	}
+
+	//
+	// check HDD
+	//
 
 	if (file_handle != NULL)
 	{
-		//
-		// check HDD
-		//
-
 		if (fread(ptr, size, n, file_handle) == n)
 			return true;
 	}
@@ -331,36 +318,32 @@ bool File::Read(size_t size, size_t n, void *ptr)
 // Seek to position in file
 bool File::Seek(rex_int offset, rex_int whence)
 {
-	if (vfs == true)
-	{
-		// check VFS
-		switch (whence)
-		{
-			case SEEK_SET:
-				ptr_offset = offset;
-				return true;
-
-			case SEEK_CUR:
-				ptr_offset += offset;
-				return true;
-
-			case SEEK_END:
-				ptr_offset = filesize;
-				return true;
-
-			default:
-				return false;
-		}
-	}
-	else if (file_handle != NULL)
+	// check HDD
+	if (file_handle != NULL)
 	{
 		// check HDD
 		if (fseek(file_handle, offset, whence) == 0)
 			return true;
 	}
 
-	// failed
-	return false;
+	// check VFS
+	switch (whence)
+	{
+		case SEEK_SET:
+			ptr_offset = offset;
+			return true;
+
+		case SEEK_CUR:
+			ptr_offset += offset;
+			return true;
+
+		case SEEK_END:
+			ptr_offset = filesize;
+			return true;
+
+		default:
+			return false;
+	}
 }
 
 } // namespace Rex

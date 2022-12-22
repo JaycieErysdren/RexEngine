@@ -91,9 +91,6 @@ class File
 		// Variables
 		//
 
-		// Offset in VFS
-		rex_bool vfs;
-
 		// Where to read from in the file
 		rex_int32 ptr_offset;
 
