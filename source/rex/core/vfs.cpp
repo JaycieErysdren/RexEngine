@@ -284,21 +284,9 @@ bool File::Read(size_t size, size_t n, void *ptr)
 
 		rex_int bytes_read = size * n;
 
-		if (ptr_offset + bytes_read > filesize)
+		// still within the bounds of the file
+		if (ptr_offset + bytes_read <= filesize)
 		{
-			//
-			// going past the end of the file
-			//
-
-			ptr_offset = filesize;
-			return false;
-		}
-		else
-		{
-			//
-			// still within the bounds of the file
-			//
-
 			rex_int i, f;
 
 			// check VFS handles for file
@@ -320,9 +308,13 @@ bool File::Read(size_t size, size_t n, void *ptr)
 					}
 				}
 			}
+
+			// if we couldn't find it in any VFS handle, then the VFS probably changed.
+			vfs = false;
 		}
 	}
-	else if (file_handle != NULL)
+
+	if (file_handle != NULL)
 	{
 		//
 		// check HDD
