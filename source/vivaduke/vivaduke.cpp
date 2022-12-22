@@ -250,9 +250,9 @@ void VDN_Initialize()
 	Rex::Initialize();
 
 	// PAK file
-	if (Rex::VFS_Open("gfx.zip") == false)
+	if (Rex::VFS_Open("vivaduke.zip") == false)
 	{
-		cout << "failed to open \"gfx.zip\"" << endl;
+		cout << "failed to open \"vivaduke.zip\"" << endl;
 		exit(EXIT_FAILURE);
 	}
 
