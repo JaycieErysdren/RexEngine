@@ -142,8 +142,11 @@ bool AddVFS(string filename, vfs_format format)
 		// ART
 		case VFS_FORMAT_ART:
 		{
-			// not yet implemented
-			return false;
+			if (ART::CreateFileTable(&handle) == false)
+				return false;
+
+			vfs_handles.push_back(handle);
+			return true;
 		}
 
 		// WAD

@@ -92,4 +92,9 @@ extern rex_uint32 frame_target_cycles;
 #include "modules/fileio/wad/wad.hpp"
 #endif
 
+// ART
+#if MODULE_ART
+#include "modules/fileio/art/art.hpp"
+#endif
+
 #endif // __REX_ENGINE_PRIVATE_H__

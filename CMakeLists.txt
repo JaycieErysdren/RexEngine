@@ -10,7 +10,7 @@
 ##
 ## DESCRIPTION:		Rex Engine CMake project definition
 ##
-## LAST EDITED:		December 21st, 2022
+## LAST EDITED:		December 22nd, 2022
 ##
 ## ========================================================
 
@@ -40,6 +40,7 @@ set(MODULE_PAK TRUE)
 set(MODULE_ZIP TRUE)
 set(MODULE_GRP TRUE)
 set(MODULE_WAD TRUE)
+set(MODULE_ART TRUE)
 
 ## Set the renderers we want to compile
 set(RENDERER_VOXEL TRUE)

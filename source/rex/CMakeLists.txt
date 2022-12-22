@@ -10,7 +10,7 @@
 ##
 ## DESCRIPTION:		Rex Engine CMake project definition
 ##
-## LAST EDITED:		December 18th, 2022
+## LAST EDITED:		December 22nd, 2022
 ##
 ## ========================================================
 
@@ -81,6 +81,11 @@ endif()
 ## WAD
 if(${MODULE_WAD})
 	add_compile_definitions("MODULE_WAD=1")
+endif()
+
+## ART
+if(${MODULE_ART})
+	add_compile_definitions("MODULE_ART=1")
 endif()
 
 ##
@@ -254,6 +259,17 @@ if(${MODULE_WAD})
 
 endif()
 
+## ART
+if(${MODULE_ART})
+
+	set(REX_ART_SRC
+		modules/fileio/art/art.cpp
+	)
+
+	add_library(art STATIC ${REX_ART_SRC})
+
+endif()
+
 ##
 ## Renderer modules
 ##
@@ -362,4 +378,8 @@ endif()
 
 if(${MODULE_WAD})
 	target_link_libraries(rex INTERFACE wad)
+endif()
+
+if(${MODULE_ART})
+	target_link_libraries(rex INTERFACE art)
 endif()
