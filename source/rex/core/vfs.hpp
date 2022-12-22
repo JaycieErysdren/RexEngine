@@ -51,6 +51,56 @@ typedef enum
 //
 //
 
+// File class
+class File
+{
+	public:
+
+		//
+		// Variables
+		//
+
+		// File name
+		rex_string filename;
+
+		// File size (bytes)
+		rex_int32 filesize;
+
+		//
+		// Functions
+		//
+
+		// Open file
+		bool Open(string fname);
+
+		// Close file
+		void Close();
+
+		// Get current offset in file
+		rex_int Tell();
+
+		// Read bytes from file
+		bool Read(size_t size, size_t n, void *ptr);
+
+		// Seek
+		bool Seek(rex_int offset, rex_int whence);
+
+	private:
+
+		//
+		// Variables
+		//
+
+		// Offset in VFS
+		rex_bool vfs;
+
+		// Where to read from in the file
+		rex_int32 ptr_offset;
+
+		// FILE handle
+		FILE *file_handle;
+};
+
 // VFS file
 class VFS_File
 {
@@ -78,30 +128,20 @@ class VFS_Handle
 		vfs_format format;
 		vector<VFS_File> files;
 		FILE *file_handle;
-
-		//
-		// Functions
-		//
-
-		void Close();
 };
 
 //
 // Functions
 //
 
-// Open or close a VFS archive
-bool VFS_Open(string filename, vfs_format format);
-bool VFS_Close(string filename);
+// Add a new VFS handle
+bool AddVFS(string filename, vfs_format format);
 
-// Close all VFS archives
-void VFS_CloseAll();
+// Close a VFS handle
+bool RemoveVFS(string filename);
 
-// Get the size of the file in the VFS. Returns -1 if the file doesn't exist
-rex_int VFS_GetFileSize(string filename);
-
-// Read file data into the specified buffer. Returns false if it failed.
-bool VFS_ReadFile(string filename, size_t offset, size_t size, size_t n, void *ptr);
+// Close all VFS handles
+void RemoveAllVFS();
 
 } // namespace Rex
 

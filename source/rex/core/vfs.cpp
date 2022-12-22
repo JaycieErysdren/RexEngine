@@ -45,8 +45,8 @@ vector<VFS_Handle> vfs_handles;
 // VFS handles
 //
 
-// Open a new VFS handle
-bool VFS_Open(string filename, vfs_format format)
+// Add a new VFS handle
+bool AddVFS(string filename, vfs_format format)
 {
 	if (filename.empty()) return false;
 
@@ -61,14 +61,16 @@ bool VFS_Open(string filename, vfs_format format)
 		}
 	}
 
+	// create handle
 	VFS_Handle handle;
 
-	// open for reading and writing
+	// open for reading
 	handle.file_handle = fopen(filename.c_str(), "rb");
 	if (handle.file_handle == NULL) return false;
 
 	// set handle variables
 	handle.filename = filename;
+	handle.format = format;
 
 	//
 	// determine file type
@@ -77,7 +79,7 @@ bool VFS_Open(string filename, vfs_format format)
 	char magic[16];
 	fread(magic, sizeof(char), 16, handle.file_handle);
 
-	if (format == VFS_FORMAT_DETERMINE)
+	if (handle.format == VFS_FORMAT_DETERMINE)
 	{
 		// PAK
 		if (memcmp(magic, "PACK", 4) == 0) handle.format = VFS_FORMAT_PAK;
@@ -99,10 +101,6 @@ bool VFS_Open(string filename, vfs_format format)
 
 		// WAD3
 		else if (memcmp(magic, "WAD3", 4) == 0) handle.format = VFS_FORMAT_WAD3;
-	}
-	else
-	{
-		handle.format = format;
 	}
 
 	//
@@ -161,14 +159,14 @@ bool VFS_Open(string filename, vfs_format format)
 			return true;
 		}
 
-		// invalid
+		// failed
 		default:
 			return false;
 	}
 }
 
 // Close a VFS handle
-bool VFS_Close(string filename)
+bool RemoveVFS(string filename)
 {
 	rex_int i;
 
@@ -176,104 +174,201 @@ bool VFS_Close(string filename)
 	{
 		if (filename.compare(vfs_handles[i].filename) == 0)
 		{
-			vfs_handles[i].Close();
+			fclose(vfs_handles[i].file_handle);
+			vfs_handles.erase(vfs_handles.begin() + i);
 			return true;
 		}
 	}
 
+	// failed
 	return false;
 }
 
 // Close all VFS handles
-void VFS_CloseAll()
+void RemoveAllVFS()
 {
 	rex_int i;
 
 	for (i = 0; i < vfs_handles.size(); i++)
 	{
-		vfs_handles[i].Close();
+		fclose(vfs_handles[i].file_handle);
 	}
+
+	vfs_handles.erase(vfs_handles.begin(), vfs_handles.end());
 }
 
 //
-// VFS files
+// File class
 //
 
-// Get the size of the file in the VFS. Returns -1 if the file doesn't exist
-rex_int VFS_GetFileSize(string filename)
+// Open file
+bool File::Open(string fname)
 {
-	rex_int i, f, size;
-	bool file_found = false;
+	// assign filename
+	filename = fname;
+	vfs = false;
 
-	// find out if file exists in the VFS
-	for (i = vfs_handles.size() - 1; i > -1; i--)
-	{
-		for (f = 0; f < vfs_handles[i].files.size(); f++)
-		{
-			if (filename.compare(vfs_handles[i].files[f].filename) == 0)
-			{
-				return vfs_handles[i].files[f].filesize;
-			}
-		}
-	}
+	//
+	// check vfs
+	//
 
-	return -1;
-}
-
-// Read file data into the specified buffer. Returns false if it failed.
-bool VFS_ReadFile(string filename, size_t offset, size_t size, size_t n, void *ptr)
-{
 	rex_int i, f;
-	bool file_found = false;
 
-	rex_int han;
-	rex_int ofs;
-	rex_int len;
-
-	// find out if file exists in the VFS
+	// loop through VFS handles
 	for (i = vfs_handles.size() - 1; i > -1; i--)
 	{
-		if (file_found == true) break;
-
 		for (f = 0; f < vfs_handles[i].files.size(); f++)
 		{
 			if (filename.compare(vfs_handles[i].files[f].filename) == 0)
 			{
-				han = i;
-				ofs = vfs_handles[i].files[f].fileofs;
-				len = vfs_handles[i].files[f].filesize;
+				filesize = vfs_handles[i].files[f].filesize;
+				ptr_offset = 0;
+				vfs = true;
 
-				file_found = true;
-				break;
+				return true;
 			}
 		}
 	}
 
-	// couldn't find the file
-	if (file_found == false)
-		return false;
+	//
+	// well, it wasn't in the VFS, so try the HDD
+	//
 
-	// sanity checks
-	if (offset > len) return false;
-	if (offset + (size * n) > len) size = offset - len;
+	file_handle = fopen(fname.c_str(), "rb");
+	if (file_handle == NULL) return false;
 
-	// seek to file
-	fseek(vfs_handles[han].file_handle, ofs + offset, SEEK_SET);
+	// get length of file
+	fseek(file_handle, 0L, SEEK_END);
+	filesize = ftell(file_handle);
+	ptr_offset = 0;
 
-	// read file data
-	fread(ptr, size, n, vfs_handles[han].file_handle);
+	// seek back to start
+	fseek(file_handle, 0L, SEEK_SET);
 
 	return true;
 }
 
-//
-// VFS_Handle class
-//
-
-void VFS_Handle::Close()
+// Close file
+void File::Close()
 {
 	if (file_handle)
 		fclose(file_handle);
+}
+
+// Get current offset in file
+rex_int File::Tell()
+{
+	if (vfs == true)
+	{
+		// VFS
+		return ptr_offset;
+	}
+	else if (file_handle != NULL)
+	{
+		// HDD
+		return ftell(file_handle);
+	}
+
+	// failed
+	return -1;
+}
+
+// Read data from file
+bool File::Read(size_t size, size_t n, void *ptr)
+{
+	if (vfs == true)
+	{
+		//
+		// check VFS
+		//
+
+		rex_int bytes_read = size * n;
+
+		if (ptr_offset + bytes_read > filesize)
+		{
+			//
+			// going past the end of the file
+			//
+
+			ptr_offset = filesize;
+			return false;
+		}
+		else
+		{
+			//
+			// still within the bounds of the file
+			//
+
+			rex_int i, f;
+
+			// check VFS handles for file
+			for (i = vfs_handles.size() - 1; i > -1; i--)
+			{
+				for (f = 0; f < vfs_handles[i].files.size(); f++)
+				{
+					if (filename.compare(vfs_handles[i].files[f].filename) == 0)
+					{
+						rex_int ofs = vfs_handles[i].files[f].fileofs;
+
+						// read file data
+						fseek(vfs_handles[i].file_handle, ofs + ptr_offset, SEEK_SET);
+						fread(ptr, size, n, vfs_handles[i].file_handle);
+
+						ptr_offset += bytes_read;
+
+						return true;
+					}
+				}
+			}
+		}
+	}
+	else if (file_handle != NULL)
+	{
+		//
+		// check HDD
+		//
+
+		if (fread(ptr, size, n, file_handle) == n)
+			return true;
+	}
+
+	// failed
+	return false;
+}
+
+// Seek to position in file
+bool File::Seek(rex_int offset, rex_int whence)
+{
+	if (vfs == true)
+	{
+		// check VFS
+		switch (whence)
+		{
+			case SEEK_SET:
+				ptr_offset = offset;
+				return true;
+
+			case SEEK_CUR:
+				ptr_offset += offset;
+				return true;
+
+			case SEEK_END:
+				ptr_offset = filesize;
+				return true;
+
+			default:
+				return false;
+		}
+	}
+	else if (file_handle != NULL)
+	{
+		// check HDD
+		if (fseek(file_handle, offset, whence) == 0)
+			return true;
+	}
+
+	// failed
+	return false;
 }
 
 } // namespace Rex

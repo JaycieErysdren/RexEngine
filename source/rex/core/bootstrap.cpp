@@ -74,7 +74,7 @@ bool Shutdown()
 
 	MemPool_Shutdown();
 
-	VFS_CloseAll();
+	RemoveAllVFS();
 
 	return true;
 }
