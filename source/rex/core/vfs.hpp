@@ -34,7 +34,8 @@ namespace Rex
 
 typedef enum
 {
-	VFS_FORMAT_PAK = 1,		// Quake PAK
+	VFS_FORMAT_DETERMINE,	// Determine format for me
+	VFS_FORMAT_PAK,			// Quake PAK
 	VFS_FORMAT_ZIP,			// ZIP / Quake PK3
 	VFS_FORMAT_GRP,			// BUILD GRP
 	VFS_FORMAT_ART,			// BUILD ART
@@ -90,7 +91,7 @@ class VFS_Handle
 //
 
 // Open or close a VFS archive
-bool VFS_Open(string filename);
+bool VFS_Open(string filename, vfs_format format);
 bool VFS_Close(string filename);
 
 // Close all VFS archives

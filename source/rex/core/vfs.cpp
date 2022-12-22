@@ -46,7 +46,7 @@ vector<VFS_Handle> vfs_handles;
 //
 
 // Open a new VFS handle
-bool VFS_Open(string filename)
+bool VFS_Open(string filename, vfs_format format)
 {
 	if (filename.empty()) return false;
 
@@ -77,28 +77,38 @@ bool VFS_Open(string filename)
 	char magic[16];
 	fread(magic, sizeof(char), 16, handle.file_handle);
 
-	// PAK
-	if (memcmp(magic, "PACK", 4) == 0) handle.format = VFS_FORMAT_PAK;
+	if (format == VFS_FORMAT_DETERMINE)
+	{
+		// PAK
+		if (memcmp(magic, "PACK", 4) == 0) handle.format = VFS_FORMAT_PAK;
 
-	// ZIP
-	else if (memcmp(magic, "PK", 2) == 0) handle.format = VFS_FORMAT_ZIP;
+		// ZIP
+		else if (memcmp(magic, "PK", 2) == 0) handle.format = VFS_FORMAT_ZIP;
 
-	// GRP
-	else if (memcmp(magic, "KenSilverman", 12) == 0) handle.format = VFS_FORMAT_GRP;
+		// GRP
+		else if (memcmp(magic, "KenSilverman", 12) == 0) handle.format = VFS_FORMAT_GRP;
 
-	// IWAD
-	else if (memcmp(magic, "IWAD", 4) == 0) handle.format = VFS_FORMAT_IWAD;
+		// IWAD
+		else if (memcmp(magic, "IWAD", 4) == 0) handle.format = VFS_FORMAT_IWAD;
 
-	// PWAD
-	else if (memcmp(magic, "PWAD", 4) == 0) handle.format = VFS_FORMAT_PWAD;
+		// PWAD
+		else if (memcmp(magic, "PWAD", 4) == 0) handle.format = VFS_FORMAT_PWAD;
 
-	// WAD2
-	else if (memcmp(magic, "WAD2", 4) == 0) handle.format = VFS_FORMAT_WAD2;
+		// WAD2
+		else if (memcmp(magic, "WAD2", 4) == 0) handle.format = VFS_FORMAT_WAD2;
 
-	// WAD3
-	else if (memcmp(magic, "WAD3", 4) == 0) handle.format = VFS_FORMAT_WAD3;
+		// WAD3
+		else if (memcmp(magic, "WAD3", 4) == 0) handle.format = VFS_FORMAT_WAD3;
+	}
+	else
+	{
+		handle.format = format;
+	}
 
+	//
 	// fill up file list
+	//
+
 	switch (handle.format)
 	{
 		// PAK
@@ -131,6 +141,13 @@ bool VFS_Open(string filename)
 			return true;
 		}
 
+		// ART
+		case VFS_FORMAT_ART:
+		{
+			// not yet implemented
+			return false;
+		}
+
 		// WAD
 		case VFS_FORMAT_IWAD:
 		case VFS_FORMAT_PWAD:
@@ -146,9 +163,7 @@ bool VFS_Open(string filename)
 
 		// invalid
 		default:
-		{
 			return false;
-		}
 	}
 }
 
