@@ -73,6 +73,16 @@ if(${MODULE_ZIP})
 	add_compile_definitions("MODULE_ZIP=1")
 endif()
 
+## GRP
+if(${MODULE_GRP})
+	add_compile_definitions("MODULE_GRP=1")
+endif()
+
+## IWAD
+if(${MODULE_IWAD})
+	add_compile_definitions("MODULE_IWAD=1")
+endif()
+
 ##
 ## Renderer modules
 ##
@@ -222,6 +232,28 @@ if(${MODULE_ZIP})
 
 endif()
 
+## GRP
+if(${MODULE_GRP})
+
+	set(REX_GRP_SRC
+		modules/fileio/grp/grp.cpp
+	)
+
+	add_library(grp STATIC ${REX_GRP_SRC})
+
+endif()
+
+## IWAD
+if(${MODULE_IWAD})
+
+	set(REX_IWAD_SRC
+		modules/fileio/iwad/iwad.cpp
+	)
+
+	add_library(iwad STATIC ${REX_IWAD_SRC})
+
+endif()
+
 ##
 ## Renderer modules
 ##
@@ -322,4 +354,12 @@ endif()
 
 if(${MODULE_ZIP})
 	target_link_libraries(rex INTERFACE zip)
+endif()
+
+if(${MODULE_GRP})
+	target_link_libraries(rex INTERFACE grp)
+endif()
+
+if(${MODULE_IWAD})
+	target_link_libraries(rex INTERFACE iwad)
 endif()

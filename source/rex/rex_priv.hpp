@@ -82,4 +82,14 @@ extern rex_uint32 frame_target_cycles;
 #include "modules/fileio/zip/zip.hpp"
 #endif
 
+// GRP
+#if MODULE_GRP
+#include "modules/fileio/grp/grp.hpp"
+#endif
+
+// IWAD
+#if MODULE_IWAD
+#include "modules/fileio/iwad/iwad.hpp"
+#endif
+
 #endif // __REX_ENGINE_PRIVATE_H__

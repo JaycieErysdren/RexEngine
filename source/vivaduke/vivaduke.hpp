@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Main game header
 //
-// LAST EDITED:		December 19th, 2022
+// LAST EDITED:		December 21st, 2022
 //
 // ========================================================
 
@@ -21,8 +21,10 @@
 #define RENDERER_VOXEL 1
 #define RENDERER_RAYCAST 1
 #define RENDERER_SECTOR 1
+
 #define MODULE_PAK 1
 #define MODULE_ZIP 1
+#define MODULE_GRP 1
 
 // Rex Engine headers
 #include "rex/rex.hpp"

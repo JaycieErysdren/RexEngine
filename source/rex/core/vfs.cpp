@@ -70,25 +70,32 @@ bool VFS_Open(string filename)
 	// set handle variables
 	handle.filename = filename;
 
+	//
 	// determine file type
-	char magic[4];
-	fread(magic, sizeof(char), 4, handle.file_handle);
+	//
 
-	// PAK file
-	if (memcmp(magic, "PACK", 4) == 0)
-	{
-		handle.format = VFS_FORMAT_PAK;
-	}
+	char magic[16];
+	fread(magic, sizeof(char), 16, handle.file_handle);
 
-	// ZIP file
-	if (memcmp(magic, "PK", 2) == 0)
-	{
-		handle.format = VFS_FORMAT_ZIP;
-	}
+	// PAK
+	if (memcmp(magic, "PACK", 4) == 0) handle.format = VFS_FORMAT_PAK;
+
+	// ZIP
+	if (memcmp(magic, "PK", 2) == 0) handle.format = VFS_FORMAT_ZIP;
+
+	// GRP
+	if (memcmp(magic, "KenSilverman", 12) == 0) handle.format = VFS_FORMAT_GRP;
+
+	// IWAD
+	if (memcmp(magic, "IWAD", 4) == 0) handle.format = VFS_FORMAT_IWAD;
+
+	// PWAD
+	if (memcmp(magic, "PWAD", 4) == 0) handle.format = VFS_FORMAT_PWAD;
 
 	// fill up file list
 	switch (handle.format)
 	{
+		// PAK
 		case VFS_FORMAT_PAK:
 		{
 			if (PAK::CreateFileTable(&handle) == false)
@@ -97,7 +104,8 @@ bool VFS_Open(string filename)
 			vfs_handles.push_back(handle);
 			return true;
 		}
-		
+
+		// ZIP / PK3
 		case VFS_FORMAT_ZIP:
 		{
 			if (ZIP::CreateFileTable(&handle) == false)
@@ -106,7 +114,29 @@ bool VFS_Open(string filename)
 			vfs_handles.push_back(handle);
 			return true;
 		}
-		
+
+		// GRP
+		case VFS_FORMAT_GRP:
+		{
+			if (GRP::CreateFileTable(&handle) == false)
+				return false;
+
+			vfs_handles.push_back(handle);
+			return true;
+		}
+
+		// IWAD / PWAD
+		case VFS_FORMAT_IWAD:
+		case VFS_FORMAT_PWAD:
+		{
+			if (IWAD::CreateFileTable(&handle) == false)
+				return false;
+
+			vfs_handles.push_back(handle);
+			return true;
+		}
+
+		// invalid
 		default:
 		{
 			return false;

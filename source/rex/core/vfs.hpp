@@ -36,6 +36,10 @@ typedef enum
 {
 	VFS_FORMAT_PAK = 1,
 	VFS_FORMAT_ZIP,
+	VFS_FORMAT_GRP,
+	VFS_FORMAT_ART,
+	VFS_FORMAT_IWAD,
+	VFS_FORMAT_PWAD,
 } vfs_format;
 
 //
