@@ -78,9 +78,9 @@ if(${MODULE_GRP})
 	add_compile_definitions("MODULE_GRP=1")
 endif()
 
-## IWAD
-if(${MODULE_IWAD})
-	add_compile_definitions("MODULE_IWAD=1")
+## WAD
+if(${MODULE_WAD})
+	add_compile_definitions("MODULE_WAD=1")
 endif()
 
 ##
@@ -243,14 +243,14 @@ if(${MODULE_GRP})
 
 endif()
 
-## IWAD
-if(${MODULE_IWAD})
+## WAD
+if(${MODULE_WAD})
 
-	set(REX_IWAD_SRC
-		modules/fileio/iwad/iwad.cpp
+	set(REX_WAD_SRC
+		modules/fileio/wad/wad.cpp
 	)
 
-	add_library(iwad STATIC ${REX_IWAD_SRC})
+	add_library(wad STATIC ${REX_WAD_SRC})
 
 endif()
 
@@ -360,6 +360,6 @@ if(${MODULE_GRP})
 	target_link_libraries(rex INTERFACE grp)
 endif()
 
-if(${MODULE_IWAD})
-	target_link_libraries(rex INTERFACE iwad)
+if(${MODULE_WAD})
+	target_link_libraries(rex INTERFACE wad)
 endif()

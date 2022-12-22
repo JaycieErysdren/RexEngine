@@ -81,16 +81,22 @@ bool VFS_Open(string filename)
 	if (memcmp(magic, "PACK", 4) == 0) handle.format = VFS_FORMAT_PAK;
 
 	// ZIP
-	if (memcmp(magic, "PK", 2) == 0) handle.format = VFS_FORMAT_ZIP;
+	else if (memcmp(magic, "PK", 2) == 0) handle.format = VFS_FORMAT_ZIP;
 
 	// GRP
-	if (memcmp(magic, "KenSilverman", 12) == 0) handle.format = VFS_FORMAT_GRP;
+	else if (memcmp(magic, "KenSilverman", 12) == 0) handle.format = VFS_FORMAT_GRP;
 
 	// IWAD
-	if (memcmp(magic, "IWAD", 4) == 0) handle.format = VFS_FORMAT_IWAD;
+	else if (memcmp(magic, "IWAD", 4) == 0) handle.format = VFS_FORMAT_IWAD;
 
 	// PWAD
-	if (memcmp(magic, "PWAD", 4) == 0) handle.format = VFS_FORMAT_PWAD;
+	else if (memcmp(magic, "PWAD", 4) == 0) handle.format = VFS_FORMAT_PWAD;
+
+	// WAD2
+	else if (memcmp(magic, "WAD2", 4) == 0) handle.format = VFS_FORMAT_WAD2;
+
+	// WAD3
+	else if (memcmp(magic, "WAD3", 4) == 0) handle.format = VFS_FORMAT_WAD3;
 
 	// fill up file list
 	switch (handle.format)
@@ -125,11 +131,13 @@ bool VFS_Open(string filename)
 			return true;
 		}
 
-		// IWAD / PWAD
+		// WAD
 		case VFS_FORMAT_IWAD:
 		case VFS_FORMAT_PWAD:
+		case VFS_FORMAT_WAD2:
+		case VFS_FORMAT_WAD3:
 		{
-			if (IWAD::CreateFileTable(&handle) == false)
+			if (WAD::CreateFileTable(&handle) == false)
 				return false;
 
 			vfs_handles.push_back(handle);

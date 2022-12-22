@@ -25,6 +25,7 @@
 #define MODULE_PAK 1
 #define MODULE_ZIP 1
 #define MODULE_GRP 1
+#define MODULE_IWAD 1
 
 // Rex Engine headers
 #include "rex/rex.hpp"

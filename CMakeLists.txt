@@ -39,7 +39,7 @@ set(MODULE_VGA TRUE)
 set(MODULE_PAK TRUE)
 set(MODULE_ZIP TRUE)
 set(MODULE_GRP TRUE)
-set(MODULE_IWAD TRUE)
+set(MODULE_WAD TRUE)
 
 ## Set the renderers we want to compile
 set(RENDERER_VOXEL TRUE)

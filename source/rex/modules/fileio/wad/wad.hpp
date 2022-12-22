@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/rex/modules/fileio/iwad/iwad.hpp
+// FILE:			/source/rex/modules/fileio/wad/wad.hpp
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -8,22 +8,22 @@
 //
 // LICENSE:			ACSL v1.4
 //
-// DESCRIPTION:		IWAD namespace: header
+// DESCRIPTION:		WAD namespace: header
 //
 // LAST EDITED:		December 21st, 2022
 //
 // ========================================================
 
-#ifndef __IWAD_H__
-#define __IWAD_H__
+#ifndef __WAD_H__
+#define __WAD_H__
 
 //
 //
-// IWAD namespace: Header
+// WAD namespace: Header
 //
 //
 
-namespace IWAD
+namespace WAD
 {
 
 //
@@ -34,6 +34,6 @@ namespace IWAD
 
 bool CreateFileTable(Rex::VFS_Handle *handle);
 
-} // namespace IWAD
+} // namespace WAD
 
-#endif // __IWAD_H__
+#endif // __WAD_H__
