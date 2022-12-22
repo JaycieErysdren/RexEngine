@@ -22,6 +22,7 @@
 #define RENDERER_RAYCAST 1
 #define RENDERER_SECTOR 1
 #define MODULE_PAK 1
+#define MODULE_ZIP 1
 
 // Rex Engine headers
 #include "rex/rex.hpp"

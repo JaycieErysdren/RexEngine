@@ -111,9 +111,7 @@ typedef rex_uint32 rex_uint;						// Basic unsigned integer
 
 #define ATTR_PACKED					__attribute__ ((packed))
 
-#endif
-
-#if (REX_COMPILER == COMPILER_WATCOM)
+#else
 
 #define ATTR_PACKED
 

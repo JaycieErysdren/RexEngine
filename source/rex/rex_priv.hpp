@@ -68,5 +68,18 @@ extern rex_uint32 frame_target_cycles;
 
 #endif
 
+//
+// File I/O modules
+//
+
+// PAK
+#if MODULE_PAK
+#include "modules/fileio/pak/pak.hpp"
+#endif
+
+// ZIP
+#if MODULE_ZIP
+#include "modules/fileio/zip/zip.hpp"
+#endif
 
 #endif // __REX_ENGINE_PRIVATE_H__

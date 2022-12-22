@@ -36,6 +36,7 @@ set(MODULE_DOS TRUE)
 set(MODULE_VESA TRUE)
 set(MODULE_VGA TRUE)
 set(MODULE_PAK TRUE)
+set(MODULE_ZIP TRUE)
 
 ## Set the renderers we want to compile
 set(RENDERER_VOXEL TRUE)

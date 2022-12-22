@@ -23,8 +23,14 @@
 // Globals
 //
 
-// PAK archive
-PAK::Handle pak;
+// Picture buffers
+Rex::Surface pic_font;
+Rex::Surface pic_bbuffer;
+Rex::Surface pic_zbuffer;
+Rex::Surface pic_bg;
+
+// Video info
+Rex::VidInfo vidinfo;
 
 // 3D Actors
 Rex::Actor3D *actor3d_root;
@@ -237,16 +243,33 @@ void Tilemap_Load(string filename)
 
 #endif
 
-// Initialize testbed
-void Initialize()
+// VDN intiialization function
+void VDN_Initialize()
 {
-	// PAKfile test
+	// Initialize Rex Engine
+	Rex::Initialize();
 
-	if (pak.Open("vivaduke.pak", PAK::READ) == false)
+	// PAK file
+	if (Rex::VFS_Open("gfx.zip") == false)
 	{
-		cout << "failed to open \"vivaduke.pak\"" << endl;
-		exit(1);
+		cout << "failed to open \"gfx.zip\"" << endl;
+		exit(EXIT_FAILURE);
 	}
+
+	// Initialize Graphics
+	if (Rex::InitializeGraphics(320, 200, 8) == false)
+	{
+		cout << "failed to initialize graphics driver" << endl;
+		exit(EXIT_FAILURE);
+	}
+
+	vidinfo = Rex::GetVidInfo();
+
+	// Create picture buffers
+	Rex::SurfaceLoadBMP(&pic_font, "gfx/font8x8.bmp");
+	Rex::SurfaceLoadBMP(&pic_bg, "gfx/grad.bmp");
+	Rex::SurfaceCreate(&pic_bbuffer, vidinfo.width, vidinfo.height, vidinfo.bpp, 0, 0);
+	Rex::SurfaceCreate(&pic_zbuffer, vidinfo.width, vidinfo.height, 8, 0, 0);
 
 	Rex::SetGraphicsPalette("gfx/duke3d.pal");
 	Rex::ColormapLoad("gfx/duke3d.tab");
@@ -309,9 +332,7 @@ void Initialize()
 	actor3d_geo_voxels = Rex::AddActor3D(actor3d_root, Rex::ACTOR3D_VOXELMODEL);
 	actor3d_geo_voxels->model = Voxel::AddVoxelModel(128, 128, 128);
 
-	// generate a level in code
-	//Generate_Level01((Raycast::RaycastModel *)actor3d_geo_tiles->model, (Voxel::VoxelModel *)actor3d_geo_voxels->model);
-
+	// load a tilemap
 	Tilemap_Load((Raycast::RaycastModel *)actor3d_geo_tiles->model, (Voxel::VoxelModel *)actor3d_geo_voxels->model, "maps/casino.tmj");
 
 	//
@@ -329,8 +350,14 @@ void Initialize()
 	actor3d_camera->angles.z = 0;
 }
 
-void Shutdown()
+void VDN_Shutdown()
 {
+	// Cleanup picture buffers
+	Rex::SurfaceDestroy(&pic_font);
+	Rex::SurfaceDestroy(&pic_bg);
+	Rex::SurfaceDestroy(&pic_bbuffer);
+	Rex::SurfaceDestroy(&pic_zbuffer);
+
 	// Free 3D scene hierarchy
 	Rex::FreeActor3D(actor3d_root);
 
@@ -340,8 +367,11 @@ void Shutdown()
 	// Free 2D HUD hierarchy
 	Rex::FreeActor2D(actor2d_hud_root);
 
-	// Close PAK file
-	pak.Close();
+	// Shutdown Graphics
+	Rex::ShutdownGraphics();
+
+	// Shutdown Rex Engine
+	Rex::Shutdown();
 }
 
 //
@@ -483,26 +513,8 @@ int main(int argc, char *argv[])
 	rex_int64 frame_start, frame_end;
 	rex_int32 cycles, c;
 
-	// Picture buffers
-	Rex::Surface pic_font;
-	Rex::Surface pic_bbuffer;
-	Rex::Surface pic_zbuffer;
-	Rex::Surface pic_bg;
-
-	// Initialize Rex Engine
-	Rex::Initialize();
-
-	// Initialize Graphics
-	if (Rex::InitializeGraphics(320, 200, 8) == false) return EXIT_FAILURE;
-	Rex::VidInfo vidinfo = Rex::GetVidInfo();
-
-	// Create picture buffers
-	Rex::SurfaceLoadBMP(&pic_font, "gfx/font8x8.bmp");
-	Rex::SurfaceLoadBMP(&pic_bg, "gfx/grad.bmp");
-	Rex::SurfaceCreate(&pic_bbuffer, vidinfo.width, vidinfo.height, vidinfo.bpp, 0, 0);
-	Rex::SurfaceCreate(&pic_zbuffer, vidinfo.width, vidinfo.height, 8, 0, 0);
-
-	Initialize();
+	// initialize engine, allocate memory, etc
+	VDN_Initialize();
 
 	// Start counting time
 	frame_end = Rex::GetTicks64();
@@ -665,20 +677,8 @@ int main(int argc, char *argv[])
 		#endif
 	}
 
-	// Shutdown game features, free up memory
-	Shutdown();
-
-	// Shutdown Graphics
-	Rex::ShutdownGraphics();
-
-	// Shutdown Rex Engine
-	Rex::Shutdown();
-
-	// Cleanup memory
-	Rex::SurfaceDestroy(&pic_font);
-	Rex::SurfaceDestroy(&pic_bg);
-	Rex::SurfaceDestroy(&pic_bbuffer);
-	Rex::SurfaceDestroy(&pic_zbuffer);
+	// Shutdown engine, free up memory, etc
+	VDN_Shutdown();
 
 	// Exit gracefully
 	return EXIT_SUCCESS;

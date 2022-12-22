@@ -68,6 +68,11 @@ if(${MODULE_PAK})
 	add_compile_definitions("MODULE_PAK=1")
 endif()
 
+## ZIP
+if(${MODULE_ZIP})
+	add_compile_definitions("MODULE_ZIP=1")
+endif()
+
 ##
 ## Renderer modules
 ##
@@ -138,6 +143,7 @@ set(REX_CORE_SRC
 	core/render.cpp
 	core/scene.cpp
 	core/surface.cpp
+	core/vfs.cpp
 )
 
 add_library(rex_core STATIC ${REX_CORE_SRC})
@@ -202,6 +208,17 @@ if(${MODULE_PAK})
 	)
 
 	add_library(pak STATIC ${REX_PAK_SRC})
+
+endif()
+
+## ZIP
+if(${MODULE_ZIP})
+
+	set(REX_ZIP_SRC
+		modules/fileio/zip/zip.cpp
+	)
+
+	add_library(zip STATIC ${REX_ZIP_SRC})
 
 endif()
 
@@ -301,4 +318,8 @@ endif()
 
 if(${MODULE_PAK})
 	target_link_libraries(rex INTERFACE pak)
+endif()
+
+if(${MODULE_ZIP})
+	target_link_libraries(rex INTERFACE zip)
 endif()

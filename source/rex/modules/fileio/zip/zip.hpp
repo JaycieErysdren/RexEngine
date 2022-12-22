@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/rex/modules/fileio/pak/pak.hpp
+// FILE:			/source/rex/modules/fileio/zip/zip.hpp
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -8,22 +8,22 @@
 //
 // LICENSE:			ACSL v1.4
 //
-// DESCRIPTION:		PAK namespace: header
+// DESCRIPTION:		ZIP namespace: header
 //
 // LAST EDITED:		December 21st, 2022
 //
 // ========================================================
 
-#ifndef __PAK_H__
-#define __PAK_H__
+#ifndef __ZIP_H__
+#define __ZIP_H__
 
 //
 //
-// PAK namespace: Header
+// ZIP namespace: Header
 //
 //
 
-namespace PAK
+namespace ZIP
 {
 
 //
@@ -32,8 +32,9 @@ namespace PAK
 //
 //
 
+// Generate file table for the specified VFS handle
 bool CreateFileTable(Rex::VFS_Handle *handle);
 
-} // namespace PAK
+} // namespace ZIP
 
-#endif // __PAK_H__
+#endif // __ZIP_H__
