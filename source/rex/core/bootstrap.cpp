@@ -60,20 +60,29 @@ bool Initialize()
 // Shutdown basic functions of Rex Engine
 bool Shutdown()
 {
-	#if (REX_TARGET == PLATFORM_DOS) && (MODULE_DOS)
+	// shutdown DOS interrupts
+	#if (REX_TARGET == PLATFORM_DOS)
 
-	DOS::Shutdown();
+		#if (MODULE_DOS)
+			DOS::Shutdown();
+		#endif
 
 	#endif
 
+	// shutdown console (hack)
 	ConsoleShutdown();
+
+	// shutdown sound driver
+	ShutdownSound();
 
 	// shutdown math table
 	math_table->~MathTable();
 	MemPool_Free(MEMORY_PRIVATE, math_table_memory);
 
+	// shutdown mempool
 	MemPool_Shutdown();
 
+	// shutdown vfs
 	RemoveAllVFS();
 
 	return true;

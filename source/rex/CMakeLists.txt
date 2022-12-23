@@ -57,6 +57,11 @@ if(REX_TARGET STREQUAL "DOS")
 		add_compile_definitions("MODULE_VGA=1")
 	endif()
 
+	## ADLIB
+	if(${MODULE_ADLIB})
+		add_compile_definitions("MODULE_ADLIB=1")
+	endif()
+
 endif()
 
 ##
@@ -86,6 +91,11 @@ endif()
 ## ART
 if(${MODULE_ART})
 	add_compile_definitions("MODULE_ART=1")
+endif()
+
+## IMF
+if(${MODULE_IMF})
+	add_compile_definitions("MODULE_IMF=1")
 endif()
 
 ##
@@ -157,6 +167,7 @@ set(REX_CORE_SRC
 	core/mouse.cpp
 	core/render.cpp
 	core/scene.cpp
+	core/sound.cpp
 	core/surface.cpp
 	core/vfs.cpp
 )
@@ -206,6 +217,17 @@ if(REX_TARGET STREQUAL "DOS")
 		)
 
 		add_library(vga STATIC ${REX_VGA_SRC})
+
+	endif()
+
+	## ADLIB
+	if(${MODULE_ADLIB})
+
+		set(REX_ADLIB_SRC
+			modules/hwio/adlib/adlib.cpp
+		)
+
+		add_library(adlib STATIC ${REX_ADLIB_SRC})
 
 	endif()
 
@@ -267,6 +289,17 @@ if(${MODULE_ART})
 	)
 
 	add_library(art STATIC ${REX_ART_SRC})
+
+endif()
+
+## IMF
+if(${MODULE_IMF})
+
+	set(REX_IMF_SRC
+		modules/fileio/imf/imf.cpp
+	)
+
+	add_library(imf STATIC ${REX_IMF_SRC})
 
 endif()
 
@@ -342,6 +375,10 @@ if(REX_TARGET STREQUAL "DOS")
 		target_link_libraries(rex INTERFACE vga)
 	endif()
 
+	if(${MODULE_ADLIB})
+		target_link_libraries(rex INTERFACE adlib)
+	endif()
+
 endif()
 
 ##
@@ -382,4 +419,8 @@ endif()
 
 if(${MODULE_ART})
 	target_link_libraries(rex INTERFACE art)
+endif()
+
+if(${MODULE_IMF})
+	target_link_libraries(rex INTERFACE imf)
 endif()

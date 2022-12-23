@@ -283,8 +283,10 @@ void RenderRaycastModel(Rex::Surface *dst, Rex::Surface *zbuffer, RaycastModel *
 					if (s.y > draw_h || s.y < 0) break;
 				}
 
-				// draw gradient
-				Rex::SurfaceBlit8(dst, s.x, 0, s.x + 1, line_start, &pic_grad, s.x, line_start, s.x + 1, draw_h - 1, Rex::COPY);
+				// draw ceiling gradient
+				//Rex::SurfaceBlit8(dst, s.x, 0, s.x + 1, line_start, &pic_grad, s.x, line_start, s.x + 1, draw_h - 1, Rex::COPY);
+				
+				// draw floor gradient
 				Rex::SurfaceBlit8(dst, s.x, line_end, s.x + 1, draw_h, &pic_grad, s.x, draw_h - 1, s.x + 1, line_end, Rex::COPY);
 			}
 			else

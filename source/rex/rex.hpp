@@ -158,6 +158,9 @@ using namespace std;
 // Virtual File System
 #include "core/vfs.hpp"
 
+// Sound
+#include "core/sound.hpp"
+
 //
 // Renderers
 //

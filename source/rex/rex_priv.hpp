@@ -66,6 +66,11 @@ extern rex_uint32 frame_target_cycles;
 	#include "modules/hwio/vesa/vesa.hpp"
 	#endif
 
+	// ADLIB
+	#if MODULE_ADLIB
+	#include "modules/hwio/adlib/adlib.hpp"
+	#endif
+
 #endif
 
 //
@@ -95,6 +100,11 @@ extern rex_uint32 frame_target_cycles;
 // ART
 #if MODULE_ART
 #include "modules/fileio/art/art.hpp"
+#endif
+
+// IMF
+#if MODULE_IMF
+#include "modules/fileio/imf/imf.hpp"
 #endif
 
 #endif // __REX_ENGINE_PRIVATE_H__

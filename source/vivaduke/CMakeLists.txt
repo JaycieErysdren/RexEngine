@@ -24,23 +24,26 @@ cmake_minimum_required(VERSION 3.13)
 ## Project definition
 project(VivaDukeNukem LANGUAGES C CXX)
 
-## Build type
-set(CMAKE_BUILD_TYPE Release)
-
 ##
 ## VivaDukeNukem source
 ##
 
 set(VIVADUKE_SRC
-	${CMAKE_SOURCE_DIR}/source/vivaduke/vivaduke.cpp
-	${CMAKE_SOURCE_DIR}/source/vivaduke/level.cpp
+	bootstrp.cpp
+	camera.cpp
+	endscreen.cpp
+	frame.cpp
+	level.cpp
+	mouse.cpp
+	tick.cpp
+	vivaduke.cpp
 )
 
 set(VIVADUKE vivaduke)
 
 add_executable(${VIVADUKE} ${VIVADUKE_SRC})
 target_link_libraries(${VIVADUKE} rex)
-target_include_directories(${VIVADUKE} PUBLIC ${CMAKE_SOURCE_DIR}/source)
+target_include_directories(${VIVADUKE} PUBLIC ../)
 set_target_properties(${VIVADUKE}
 	PROPERTIES
 	ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/build"
