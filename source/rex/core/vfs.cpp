@@ -327,6 +327,8 @@ bool File::Seek(rex_int offset, rex_int whence)
 		// check HDD
 		if (fseek(file_handle, offset, whence) == 0)
 			return true;
+		else
+			return false;
 	}
 
 	// check VFS
