@@ -57,3 +57,6 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/source/rex)
 
 ## VivaDukeNukem
 add_subdirectory(${CMAKE_SOURCE_DIR}/source/vivaduke)
+
+## Decker
+add_subdirectory(${CMAKE_SOURCE_DIR}/source/decker)

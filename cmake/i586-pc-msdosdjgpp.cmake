@@ -10,11 +10,10 @@
 ##
 ## DESCRIPTION:		CMake toolchain file for DJGPP
 ##
-## LAST EDITED:		December 19th, 2022
+## LAST EDITED:		December 23rd, 2022
 ##
 ## ========================================================
 
-set(CMAKE_SYSTEM_NAME DOS)
 set(TOOLCHAIN_PREFIX i586-pc-msdosdjgpp)
 set(DJGPP TRUE)
 
