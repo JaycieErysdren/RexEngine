@@ -18,7 +18,7 @@
 #include "vivaduke.hpp"
 
 // Camera controller
-void CameraController(rex_int32 mb, rex_vec2i mp, rex_vec2i md)
+void VDN_Control_Camera(rex_int32 mb, rex_vec2i mp, rex_vec2i md)
 {
 	// Mouse look
 	if (md.x != 0) actor3d_camera->angles.y -= md.x;

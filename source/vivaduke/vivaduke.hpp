@@ -90,7 +90,7 @@ void VDN_Initialize();
 void VDN_Shutdown();
 
 // camera.cpp
-void CameraController(rex_int32 mb, rex_vec2i mp, rex_vec2i md);
+void VDN_Control_Camera(rex_int32 mb, rex_vec2i mp, rex_vec2i md);
 
 // endscreen.cpp
 void VDN_EndScreen();
@@ -104,7 +104,7 @@ void Generate_Level01(Raycast::RaycastModel *tilemodel, Voxel::VoxelModel *voxel
 void Tilemap_Load(Raycast::RaycastModel *tilemodel, Voxel::VoxelModel *voxelmodel, string filename);
 
 // mouse.cpp
-void ReadMouse(rex_int32 *buttons, rex_vec2i *pos, rex_vec2i *delta, rex_int32 speedlimit, rex_rect area);
+void VDN_ReadMouse(rex_int32 *buttons, rex_vec2i *pos, rex_vec2i *delta, rex_int32 speedlimit, rex_rect area);
 
 // tick.cpp
 void VDN_MainMenuTick();

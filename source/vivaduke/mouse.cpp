@@ -18,7 +18,7 @@
 #include "vivaduke.hpp"
 
 // Mouse helper function
-void ReadMouse(rex_int32 *buttons, rex_vec2i *pos, rex_vec2i *delta, rex_int32 speedlimit, rex_rect area)
+void VDN_ReadMouse(rex_int32 *buttons, rex_vec2i *pos, rex_vec2i *delta, rex_int32 speedlimit, rex_rect area)
 {
 	rex_int32 mb, mx, my, dmx, dmy;
 	rex_int32 halfx = 160, halfy = 100;

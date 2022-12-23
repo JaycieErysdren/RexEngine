@@ -106,7 +106,7 @@ void VDN_GameTick()
 	for (c = 0; c < cycles; c++)
 	{
 		// Camera controller
-		CameraController(mouse_buttons, actor2d_mouse->origin, mouse_delta);
+		VDN_Control_Camera(mouse_buttons, actor2d_mouse->origin, mouse_delta);
 	}
 
 	//

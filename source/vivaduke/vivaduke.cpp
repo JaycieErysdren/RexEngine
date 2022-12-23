@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
 		VDN_FrameStart();
 
 		// Read mouse
-		ReadMouse(&mouse_buttons, &actor2d_mouse->origin, &mouse_delta, 16, mouse_bounds);
+		VDN_ReadMouse(&mouse_buttons, &actor2d_mouse->origin, &mouse_delta, 16, mouse_bounds);
 
 		// Clear back buffer
 		Rex::SurfaceClear(&pic_bbuffer, 6);
