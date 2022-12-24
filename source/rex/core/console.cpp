@@ -51,8 +51,8 @@ char *console_text_buffer_backup;
 // Initialize console buffer
 void ConsoleInitialize()
 {
-	SurfaceCreate(&pic_console, 40, 10, 8, 0, 0);
-	console_text_buffer = (char *)calloc(256, sizeof(char));
+	SurfaceCreate(&pic_console, 80, 60, 8, 0, 0);
+	console_text_buffer = (char *)calloc(pic_console.width * pic_console.height, sizeof(char));
 	console_text_buffer_backup = console_text_buffer;
 }
 
