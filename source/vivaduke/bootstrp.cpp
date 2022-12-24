@@ -121,6 +121,7 @@ void VDN_Initialize()
 	//
 
 	actor3d_camera->draw_distance = REX_SCALAR(64);
+	actor3d_camera->anglespeedkey = 4;
 
 	actor3d_camera->origin.x = REX_SCALAR(34.5f);
 	actor3d_camera->origin.y = REX_SCALAR(34.5f);

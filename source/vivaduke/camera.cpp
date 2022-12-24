@@ -23,8 +23,6 @@ void VDN_Control_Camera(rex_int32 mb, rex_vec2i mp, rex_vec2i md)
 	// Mouse look
 	if (md.x != 0) actor3d_camera->angles.y -= md.x;
 
-	actor3d_camera->anglespeedkey = 4;
-
 	//
 	// Keyboard look
 	//
@@ -71,12 +69,4 @@ void VDN_Control_Camera(rex_int32 mb, rex_vec2i mp, rex_vec2i md)
 		actor3d_camera->origin.x -= actor3d_camera->velocity.y;
 		actor3d_camera->origin.y += actor3d_camera->velocity.x;
 	}
-
-	// Move upwards
-	if (Rex::KeyTest(REX_SC_Q))
-		actor3d_camera->origin.z += actor3d_camera->velocity.z;
-
-	// Move downwards
-	if (Rex::KeyTest(REX_SC_E))
-		actor3d_camera->origin.z -= actor3d_camera->velocity.z;
 }
