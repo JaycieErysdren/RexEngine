@@ -26,10 +26,28 @@
 // Picture buffers
 Rex::Surface pic_font;
 Rex::Surface pic_bbuffer;
-Rex::Surface pic_decker;
 
 // Video info
 Rex::VidInfo vidinfo;
+
+// HTML tag attribute
+class Attribute
+{
+	public:
+		string type;
+		string content;
+};
+
+// HTML tag
+class Tag
+{
+	public:
+		string type;
+		string content;
+
+		vector<Tag> children;
+		vector<Attribute> attributes;
+};
 
 // Intiialization function
 void Initialize()
@@ -48,7 +66,6 @@ void Initialize()
 
 	// Create picture buffers
 	Rex::SurfaceLoadBMP(&pic_font, "gfx/font8x8.bmp");
-	Rex::SurfaceLoadBMP(&pic_decker, "decker/0b.bmp");
 	Rex::SurfaceCreate(&pic_bbuffer, vidinfo.width, vidinfo.height, vidinfo.bpp, 0, 0);
 }
 
@@ -56,7 +73,6 @@ void Shutdown()
 {
 	// Cleanup picture buffers
 	Rex::SurfaceDestroy(&pic_font);
-	Rex::SurfaceDestroy(&pic_decker);
 	Rex::SurfaceDestroy(&pic_bbuffer);
 
 	// Shutdown Graphics
@@ -72,23 +88,20 @@ void Shutdown()
 
 int main(int argc, char *argv[])
 {
-	// initialize engine, allocate memory, etc
+	// hello
 	Initialize();
 
 	// Main loop
 	while (!Rex::KeyTest(REX_SC_ESCAPE))
 	{
 		// Clear back buffer
-		Rex::SurfaceClear(&pic_bbuffer, 0); // ceiling
-
-		// Decker
-		Rex::SurfaceCopy(&pic_bbuffer, &pic_decker);
+		Rex::SurfaceClear(&pic_bbuffer, 0);
 
 		// Flip the rendering buffers
 		Rex::SurfaceToFrontBuffer(&pic_bbuffer);
 	}
 
-	// Shutdown engine, free up memory, etc
+	// goodbye
 	Shutdown();
 
 	// Exit gracefully
