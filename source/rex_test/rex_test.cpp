@@ -82,6 +82,26 @@ void Shutdown()
 	Rex::Shutdown();
 }
 
+// render HTML
+void RenderHTML(Tag root, rex_int row, rex_int column)
+{
+	rex_int font_size;
+
+	if (root.type.compare("h1") == 0)
+		font_size = 16;
+	else
+		font_size = 12;
+
+	// add the text
+	Rex::ConsoleTextF(&pic_bbuffer, &pic_font, font_size, column, row, root.content.c_str());
+
+	// render children
+	for (rex_int i = 0; i < root.children.size(); i++)
+	{
+		RenderHTML(root.children[i], row + 1, column);
+	}
+}
+
 //
 // Main entry point
 //
@@ -91,11 +111,30 @@ int main(int argc, char *argv[])
 	// hello
 	Initialize();
 
+	// tags
+	Tag root;
+	root.type = "html";
+
+	Tag child1;
+	child1.content = "Header 1";
+	child1.type = "h1";
+
+	root.children.push_back(child1);
+
+	Tag child2;
+	child2.content = "Paragraph";
+	child2.type = "p";
+
+	root.children.push_back(child2);
+
 	// Main loop
 	while (!Rex::KeyTest(REX_SC_ESCAPE))
 	{
 		// Clear back buffer
 		Rex::SurfaceClear(&pic_bbuffer, 0);
+
+		// Render HTML
+		RenderHTML(root, 0, 0);
 
 		// Flip the rendering buffers
 		Rex::SurfaceToFrontBuffer(&pic_bbuffer);
