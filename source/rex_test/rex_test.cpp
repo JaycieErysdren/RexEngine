@@ -45,7 +45,7 @@ class Tag
 		string type;
 		string content;
 
-		vector<Tag> children;
+		vector<Tag*> children;
 		vector<Attribute> attributes;
 };
 
@@ -62,6 +62,7 @@ typedef enum
 	TAG_P,		// <p>
 	TAG_BR,		// <br>
 	TAG_HR,		// <hr>
+	TAG_SPAN,	// <span>
 } html_tags;
 
 // Intiialization function
@@ -97,24 +98,164 @@ void Shutdown()
 	Rex::Shutdown();
 }
 
-rex_int HTML_DetermineTagType(Tag tag)
+rex_int HTML_ParseString(Tag *parent, char *str, rex_int start, rex_int end)
 {
-	if (tag.type.compare("html") == 0) return TAG_HTML;
-	if (tag.type.compare("h1") == 0) return TAG_H1;
-	if (tag.type.compare("h2") == 0) return TAG_H2;
-	if (tag.type.compare("h3") == 0) return TAG_H3;
-	if (tag.type.compare("h4") == 0) return TAG_H4;
-	if (tag.type.compare("h5") == 0) return TAG_H5;
-	if (tag.type.compare("h6") == 0) return TAG_H6;
-	if (tag.type.compare("h7") == 0) return TAG_P;
-	if (tag.type.compare("br") == 0) return TAG_BR;
-	if (tag.type.compare("hr") == 0) return TAG_HR;
+	// variables
+	rex_int buffer_size = 80 * 40;
+	rex_int i = 0;
+	rex_int c = 0;
+	ostringstream oss;
+	bool child = false;
+	bool closed = false;
+
+	Tag *tag = new Tag;
+
+	// parse the characters in the string
+	while (start + i < end)
+	{
+		// clear our stream string
+		oss.str("");
+		oss.clear();
+		c = 0;
+
+		//cout << tag.content << endl;
+		//cout << tag.type << endl;
+		//cout << i << " - " << str[start + i] << endl;
+
+		// parse tags
+		if (str[start + i] == '<' && str[start + i + 1] == '/')
+		{
+			// parse closing tag
+			i += 2;
+			while (str[start + i] != '>' && str[start + i] != ' ')
+			{
+				oss << str[start + i];
+				i++;
+			}
+
+			// print
+			//cout << "OPENING TAG: " << tag->type << endl;
+			//cout << "CONTENT: " << tag->content << endl;
+			cout << "CLOSING TAG: " << oss.str() << endl << endl;
+
+			// check if malformed tag
+			if (tag->type.compare(oss.str()) == 0)
+			{
+				parent->children.push_back(tag);
+				return i;
+			}
+		}
+		else if (str[start + i] == '<')
+		{
+			// parse opening tag
+			i++;
+			while (str[start + i] != '>' && str[start + i] != ' ')
+			{
+				oss << str[start + i];
+				i++;
+			}
+
+			i++;
+
+			// set the tag type
+			tag->type = oss.str();
+
+			// print
+			cout << "OPENING TAG: " <<  tag->type << endl;
+		}
+		else if (tag->type.empty() == false)
+		{
+			// parse content inside tag
+			while (str[start + i] != '<')
+			{
+				if ((str[start + i] != '\t') && // tab
+					(str[start + i] != '\r') && // carriage return
+					(str[start + i] != '\n')) // newline
+				{
+					oss << str[start + i];
+				}
+				
+				i++;
+			}
+
+			// set the tag content
+			tag->content += oss.str();
+
+			// print
+			cout << "TAG CONTENT: " <<  tag->content << endl;
+
+			// parse the children
+			if (str[start + i] != '/')
+			{
+				c = HTML_ParseString(tag, str, start + i, end);
+			}
+
+			// iterate
+			i += c;
+		}
+		else
+		{
+			i++;
+		}
+	}
+
+	// return end position of this str
+	return i;
+}
+
+Tag *HTML_ParseFile(string filename)
+{
+	// variables
+	Tag *document = new Tag;
+	char *filebuffer;
+	rex_int filesize;
+	FILE *file;
+
+	// open file
+	file = fopen(filename.c_str(), "rb");
+	if (file == NULL) return NULL;
+
+	// get filesize
+	fseek(file, 0L, SEEK_END);
+	filesize = ftell(file);
+	fseek(file, 0L, SEEK_SET);
+
+	// allocate buffer
+	filebuffer = (char *)malloc(filesize);
+	if (filebuffer == NULL) return NULL;
+
+	// read text into buffer
+	fread(filebuffer, sizeof(char), filesize, file);
+
+	// parse the buffer recursively
+	HTML_ParseString(document, filebuffer, 0, filesize);
+
+	// free buffer
+	free(filebuffer);
+
+	// return document
+	return document;
+}
+
+rex_int HTML_DetermineTagType(Tag *tag)
+{
+	if (tag->type.compare("html") == 0) return TAG_HTML;
+	if (tag->type.compare("h1") == 0) return TAG_H1;
+	if (tag->type.compare("h2") == 0) return TAG_H2;
+	if (tag->type.compare("h3") == 0) return TAG_H3;
+	if (tag->type.compare("h4") == 0) return TAG_H4;
+	if (tag->type.compare("h5") == 0) return TAG_H5;
+	if (tag->type.compare("h6") == 0) return TAG_H6;
+	if (tag->type.compare("h7") == 0) return TAG_P;
+	if (tag->type.compare("br") == 0) return TAG_BR;
+	if (tag->type.compare("hr") == 0) return TAG_HR;
+	if (tag->type.compare("span") == 0) return TAG_SPAN;
 
 	return TAG_NONE;
 }
 
 // render HTML
-rex_int RenderHTML(Tag tag, rex_int row, rex_int col)
+rex_int RenderHTML(Tag *tag, rex_int row, rex_int col)
 {
 	rex_int i;
 	rex_int font_size = 1;
@@ -152,14 +293,14 @@ rex_int RenderHTML(Tag tag, rex_int row, rex_int col)
 		default:
 		{
 			// if the element has text content, render it
-			if (tag.content.empty() == false)
+			if (tag->content.empty() == false)
 			{
-				Rex::ConsoleTextF(&pic_bbuffer, &pic_font, 8 * font_size, col, row, tag.content.c_str());
+				Rex::ConsoleTextF(&pic_bbuffer, &pic_font, 8 * font_size, col, row, tag->content.c_str());
 
-				rex_int num_lines = ceil(float(tag.content.length()) / 80);
+				rex_int num_lines = ceil(float(tag->content.length()) / 80);
 
 				next_row = row + (font_size * num_lines);
-				next_col = col + (font_size * tag.content.length());
+				next_col = col + (font_size * tag->content.length());
 			}
 			else
 			{
@@ -171,9 +312,9 @@ rex_int RenderHTML(Tag tag, rex_int row, rex_int col)
 	}
 
 	// render children
-	for (i = 0; i < tag.children.size(); i++)
+	for (i = 0; i < tag->children.size(); i++)
 	{
-		next_row = RenderHTML(tag.children[i], next_row, next_col);
+		next_row = RenderHTML(tag->children[i], next_row, next_col);
 	}
 
 	return next_row;
@@ -185,42 +326,13 @@ rex_int RenderHTML(Tag tag, rex_int row, rex_int col)
 
 int main(int argc, char *argv[])
 {
+	// document
+	Tag *document = HTML_ParseFile("html/test.htm");
+
+	exit(1);
+
 	// hello
 	Initialize();
-
-	// document root
-	Tag document;
-	document.type = "html";
-
-	// header
-	Tag h1;
-	h1.content = " Lorem Ipsum";
-	h1.type = "h1";
-
-	// line break
-	Tag br;
-	br.type = "br";	
-
-	// horizontal ruler
-	Tag hr;
-	hr.type = "hr";	
-
-	// lorem ipsum
-	Tag p_lorem;
-	p_lorem.content = "  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
-	p_lorem.type = "p";
-
-	// assemble document
-	document.children.push_back(h1);
-	document.children.push_back(br);
-	document.children.push_back(hr);
-	document.children.push_back(br);
-	document.children.push_back(p_lorem);
-	document.children.push_back(br);
-	document.children.push_back(hr);
-	document.children.push_back(br);
-	document.children.push_back(p_lorem);
-	document.children.push_back(br);
 
 	// Main loop
 	while (!Rex::KeyTest(REX_SC_ESCAPE))
