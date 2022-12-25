@@ -69,36 +69,14 @@ void Shutdown()
 
 int main(int argc, char *argv[])
 {
+
 	// hello
 	Initialize();
 
-	// Make a page
 	Tag document;
-	Tag h1;
-	Tag p;
-	Tag hr;
-	Tag br;
+	string html_str = "<html><h1>hello world</h1><br><hr><br><p>lorem ipsum</p></html>";
 
-	document.type = "html";
-	h1.type = "h1";
-	p.type = "p";
-	hr.type = "hr";
-	br.type = "br";
-
-	h1.content = "Header";
-	p.content = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
-
-	document.children.push_back(h1);
-	document.children.push_back(br);
-	document.children.push_back(hr);
-	document.children.push_back(br);
-	document.children.push_back(p);
-	document.children.push_back(br);
-	document.children.push_back(hr);
-	document.children.push_back(br);
-	document.children.push_back(p);
-	document.children.push_back(br);
-	document.children.push_back(p);
+	HTML_Parse(&document, html_str);
 
 	// Main loop
 	while (!Rex::KeyTest(REX_SC_ESCAPE))

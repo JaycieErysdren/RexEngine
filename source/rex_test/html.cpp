@@ -17,6 +17,96 @@
 // Header
 #include "rex_test.hpp"
 
+rex_int HTML_Parse(Tag *parent, string str)
+{
+	// variables
+	Tag child;
+	rex_int i, c;
+	bool closing_tag = false;
+
+	string tag_open = "";
+	string tag_close = "";
+	ostringstream tag_content;
+
+	ostringstream tempstr;
+
+	// parse the string
+	for (i = 0, c = 0; i < str.length(); i++)
+	{
+		// clear tempstr
+		tempstr.str("");
+		tempstr.clear();
+
+		// parse opening and closing tags
+		if (str[i] == '<')
+		{
+			// if its not a closing tag and the open tag is already filled, it must be a child
+			// otherwise just parse the tag
+			if (str[i + 1] != '/' && tag_open.empty() == false)
+			{
+				c = HTML_Parse(&child, str.substr(i));
+				if (c == -1) break;
+				i += c;
+			}
+			else
+			{
+				// advance i
+				i++;
+
+				// parse the tag
+				while (str[i] != '>')
+				{
+					// if there's a slash, its a closing tag
+					if (str[i] == '/')
+					{
+						closing_tag = true;
+						i++;
+					}
+
+					// put the character into the tempstr
+					tempstr << str[i];
+
+					// advance i
+					i++;
+				}
+
+				// put in results
+				if (closing_tag == false)
+				{
+					tag_open = tempstr.str();
+
+					if (tag_open.compare("hr") == 0 || tag_open.compare("br") == 0)
+					{
+						child.type = tag_open;
+						child.content = "";
+						parent->children.push_back(child);
+						return i;
+					}
+				}
+				else
+				{
+					tag_close = tempstr.str();
+
+					if (tag_open.empty() == false && tag_open.compare(tag_open) == 0)
+					{
+						child.type = tag_open;
+						child.content = tag_content.str();
+						parent->children.push_back(child);
+						return i;
+					}
+				}
+			}
+		}
+		else if (tag_open.empty() == false)
+		{
+			tag_content << str[i];
+		}
+	}
+
+	// error
+	return -1;
+}
+
 #ifdef UGH
 
 // Parse a string
@@ -96,7 +186,7 @@ rex_int HTML_ParseString(Tag *parent, char *str, rex_int start, rex_int end)
 				{
 					oss << str[start + i];
 				}
-				
+
 				i++;
 			}
 
@@ -226,7 +316,7 @@ rex_int HTML_Render(Rex::Surface *dst, Rex::Surface *font, Tag tag, rex_int row,
 				rex_int num_lines = ceil(float(tag.content.length()) / 80);
 
 				next_row = row + (font_size * num_lines);
-				next_col = col + (font_size * tag.content.length());
+				next_col = col /* + (font_size * tag.content.length()) */;
 			}
 			else
 			{

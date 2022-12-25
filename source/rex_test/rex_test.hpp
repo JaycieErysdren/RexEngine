@@ -64,6 +64,7 @@ extern Rex::VidInfo vidinfo;
 //rex_int HTML_ParseString(Tag *parent, char *str, rex_int start, rex_int end);
 //Tag *HTML_ParseFile(string filename);
 //rex_int HTML_DetermineTagType(Tag *tag);
+rex_int HTML_Parse(Tag *parent, string str);
 rex_int HTML_Render(Rex::Surface *dst, Rex::Surface *font, Tag tag, rex_int row, rex_int col);
 
 #endif // __REX_TEST_H__
