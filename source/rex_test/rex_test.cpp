@@ -20,6 +20,19 @@
 #define CYCLES 30
 
 //
+// New surface type
+
+class NewSurface
+{
+	public:
+		rex_uint16 width;			// width of surface
+		rex_uint16 height;			// height of surface
+		rex_uint16 bpp;				// bits per pixel
+		rex_uint16 bytes_per_row;	// bytes per row (includes padding)
+		void *buffer;				// allocated pixel buffer
+};
+
+//
 // Globals
 //
 
