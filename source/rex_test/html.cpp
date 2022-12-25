@@ -17,41 +17,9 @@
 // Header
 #include "rex_test.hpp"
 
-// HTML tag attribute
-class Attribute
-{
-	public:
-		string type;
-		string content;
-};
+#ifdef UGH
 
-// HTML tag
-class Tag
-{
-	public:
-		string type;
-		string content;
-
-		vector<Tag*> children;
-		vector<Attribute> attributes;
-};
-
-typedef enum
-{
-	TAG_NONE,	// unrecognized
-	TAG_HTML,	// <html>
-	TAG_H1,		// <h1>
-	TAG_H2,		// <h2>
-	TAG_H3,		// <h3>
-	TAG_H4,		// <h4>
-	TAG_H5,		// <h5>
-	TAG_H6,		// <h6>
-	TAG_P,		// <p>
-	TAG_BR,		// <br>
-	TAG_HR,		// <hr>
-	TAG_SPAN,	// <span>
-} html_tags;
-
+// Parse a string
 rex_int HTML_ParseString(Tag *parent, char *str, rex_int start, rex_int end)
 {
 	// variables
@@ -157,6 +125,7 @@ rex_int HTML_ParseString(Tag *parent, char *str, rex_int start, rex_int end)
 	return i;
 }
 
+// Parse a HTML file
 Tag *HTML_ParseFile(string filename)
 {
 	// variables
@@ -191,25 +160,28 @@ Tag *HTML_ParseFile(string filename)
 	return document;
 }
 
-rex_int HTML_DetermineTagType(Tag *tag)
+#endif
+
+// Determine file type (lazy)
+rex_int HTML_DetermineTagType(Tag tag)
 {
-	if (tag->type.compare("html") == 0) return TAG_HTML;
-	if (tag->type.compare("h1") == 0) return TAG_H1;
-	if (tag->type.compare("h2") == 0) return TAG_H2;
-	if (tag->type.compare("h3") == 0) return TAG_H3;
-	if (tag->type.compare("h4") == 0) return TAG_H4;
-	if (tag->type.compare("h5") == 0) return TAG_H5;
-	if (tag->type.compare("h6") == 0) return TAG_H6;
-	if (tag->type.compare("h7") == 0) return TAG_P;
-	if (tag->type.compare("br") == 0) return TAG_BR;
-	if (tag->type.compare("hr") == 0) return TAG_HR;
-	if (tag->type.compare("span") == 0) return TAG_SPAN;
+	if (tag.type.compare("html") == 0) return TAG_HTML;
+	if (tag.type.compare("h1") == 0) return TAG_H1;
+	if (tag.type.compare("h2") == 0) return TAG_H2;
+	if (tag.type.compare("h3") == 0) return TAG_H3;
+	if (tag.type.compare("h4") == 0) return TAG_H4;
+	if (tag.type.compare("h5") == 0) return TAG_H5;
+	if (tag.type.compare("h6") == 0) return TAG_H6;
+	if (tag.type.compare("h7") == 0) return TAG_P;
+	if (tag.type.compare("br") == 0) return TAG_BR;
+	if (tag.type.compare("hr") == 0) return TAG_HR;
+	if (tag.type.compare("span") == 0) return TAG_SPAN;
 
 	return TAG_NONE;
 }
 
 // render HTML
-rex_int RenderHTML(Tag *tag, rex_int row, rex_int col)
+rex_int HTML_Render(Rex::Surface *dst, Rex::Surface *font, Tag tag, rex_int row, rex_int col)
 {
 	rex_int i;
 	rex_int font_size = 1;
@@ -232,7 +204,7 @@ rex_int RenderHTML(Tag *tag, rex_int row, rex_int col)
 		case TAG_HR:
 		{
 			string ruler (80 - col - 4, 196);
-			Rex::ConsoleTextF(&pic_bbuffer, &pic_font, 8 * font_size, col + 2, row, ruler.c_str());
+			Rex::ConsoleTextF(dst, font, 8 * font_size, col + 2, row, ruler.c_str());
 
 			next_row = row + font_size;
 			next_col = col;
@@ -247,14 +219,14 @@ rex_int RenderHTML(Tag *tag, rex_int row, rex_int col)
 		default:
 		{
 			// if the element has text content, render it
-			if (tag->content.empty() == false)
+			if (tag.content.empty() == false)
 			{
-				Rex::ConsoleTextF(&pic_bbuffer, &pic_font, 8 * font_size, col, row, tag->content.c_str());
+				Rex::ConsoleTextF(dst, font, 8 * font_size, col, row, tag.content.c_str());
 
-				rex_int num_lines = ceil(float(tag->content.length()) / 80);
+				rex_int num_lines = ceil(float(tag.content.length()) / 80);
 
 				next_row = row + (font_size * num_lines);
-				next_col = col + (font_size * tag->content.length());
+				next_col = col + (font_size * tag.content.length());
 			}
 			else
 			{
@@ -266,9 +238,9 @@ rex_int RenderHTML(Tag *tag, rex_int row, rex_int col)
 	}
 
 	// render children
-	for (i = 0; i < tag->children.size(); i++)
+	for (i = 0; i < tag.children.size(); i++)
 	{
-		next_row = RenderHTML(tag->children[i], next_row, next_col);
+		next_row = HTML_Render(dst, font, tag.children[i], next_row, next_col);
 	}
 
 	return next_row;

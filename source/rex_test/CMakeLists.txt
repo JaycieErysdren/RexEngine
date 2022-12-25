@@ -32,6 +32,7 @@ set(CMAKE_BUILD_TYPE Release)
 ##
 
 set(REX_TEST_SRC
+	html.cpp
 	rex_test.cpp
 )
 
