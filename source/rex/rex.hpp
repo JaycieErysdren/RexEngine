@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex Engine public header
 //
-// LAST EDITED:		December 21st, 2022
+// LAST EDITED:		December 25th, 2022
 //
 // ========================================================
 
@@ -139,6 +139,9 @@ using namespace std;
 
 // Surface
 #include "core/surface.hpp"
+
+// Model
+#include "core/model.hpp"
 
 // Scene
 #include "core/scene.hpp"
