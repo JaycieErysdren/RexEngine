@@ -29,3 +29,12 @@ run_*.sh
 # dosbox-x
 dosbox-x.conf
 /capture/
+
+# qrex
+/build/conhistory.txt
+/build/maptimes.txt
+/build/**/fte.cfg
+/build/**/*.sav
+/build/**/*.lno
+/build/**/csqccore.txt
+/build/**/ssqccore.txt

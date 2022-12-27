@@ -1,0 +1,23 @@
+// ========================================================
+//
+// FILE:			/source/qrex/definitions.src
+//
+// AUTHORS:			Jaycie Ewald
+//
+// PROJECT:			Rex Engine
+//
+// LICENSE:			ACSL v1.4
+//
+// DESCRIPTION:		Q-Rex: Compile definitions
+//
+// LAST EDITED:		December 27th, 2022
+//
+// ========================================================
+
+#if defined(CSQC)
+	#pragma progs_dat "../../build/qrex/csprogs.dat"
+#elif defined(SSQC)
+	#pragma progs_dat "../../build/qrex/progs.dat"
+#elif defined(MENU)
+	#pragma progs_dat "../../build/qrex/menu.dat"
+#endif

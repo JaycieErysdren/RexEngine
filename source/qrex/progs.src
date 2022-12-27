@@ -1,0 +1,19 @@
+// ========================================================
+//
+// FILE:			/source/qrex/progs.src
+//
+// AUTHORS:			Jaycie Ewald
+//
+// PROJECT:			Rex Engine
+//
+// LICENSE:			ACSL v1.4
+//
+// DESCRIPTION:		Q-Rex: Compile script for all progs
+//
+// LAST EDITED:		December 27th, 2022
+//
+// ========================================================
+
+// #pragma sourcefile progs_menu.src
+#pragma sourcefile progs_client.src
+#pragma sourcefile progs_server.src

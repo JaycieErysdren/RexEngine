@@ -1,0 +1,30 @@
+// ========================================================
+//
+// FILE:			/source/qrex/progs_menu.src
+//
+// AUTHORS:			Jaycie Ewald
+//
+// PROJECT:			Rex Engine
+//
+// LICENSE:			ACSL v1.4
+//
+// DESCRIPTION:		Q-Rex: Compile script for menu.dat
+//
+// LAST EDITED:		December 27th, 2022
+//
+// ========================================================
+
+#pragma target fte
+
+#define MENU
+
+#include "definitions.src"
+
+#includelist
+	// shared
+	shared/fteextensions.qc
+	shared/defs.qc
+
+	// entrypoints
+	menu/entrypoints.qc
+#endlist
