@@ -140,8 +140,8 @@ using namespace std;
 // Surface
 #include "core/surface.hpp"
 
-// Model
-#include "core/model.hpp"
+// Models
+#include "core/model/types.hpp"
 
 // Scene
 #include "core/scene.hpp"

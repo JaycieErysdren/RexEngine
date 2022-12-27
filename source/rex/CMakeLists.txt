@@ -164,7 +164,6 @@ set(REX_CORE_SRC
 	core/math_x.cpp
 	core/mathtabl.cpp
 	core/mempool.cpp
-	core/model.cpp
 	core/mouse.cpp
 	core/render.cpp
 	core/scene.cpp

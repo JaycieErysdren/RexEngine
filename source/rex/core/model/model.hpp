@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/rex/core/model.hpp
+// FILE:			/source/rex/core/model/model.hpp
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -26,43 +26,15 @@
 namespace Rex
 {
 
-// Voxel model data
-class VoxelData
-{
-
-};
-
-// Poly model data
-class PolyData
-{
-
-};
-
-// Tile model data
-class TileData
-{
-
-};
-
-// Sector model data
-class SectorData
-{
-
-};
-
-// Sprite model data
-class SpriteData
-{
-	public:
-		Surface color;
-};
-
+//
 // Model container object
+//
+
 class Model
 {
 	public:
 
-		// model data type
+		// Model data type
 		union
 		{
 			VoxelData *voxel;
@@ -72,7 +44,7 @@ class Model
 			SpriteData *sprite;
 		} data;
 
-		// selector for model data
+		// Selector for model data
 		enum
 		{
 			Voxel,
