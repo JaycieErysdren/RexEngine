@@ -300,8 +300,8 @@ int FindMode(rex_int32 w, rex_int32 h, rex_int32 bpp)
 
 			// check that it is a packed-pixel mode (other values are used for
 			// * different memory layouts, eg. 6 for a truecolor resolution)
-			if (mib.MemoryModel != 4)
-				continue;
+			//if (mib.MemoryModel != 4)
+			//	continue;
 
 			// check that this is an 8-bit (256 color) mode
 			if (mib.BitsPerPixel != bpp)
@@ -349,11 +349,7 @@ bool SetMode(rex_int32 w, rex_int32 h, rex_int32 bpp)
 
 	#endif
 
-	#if (REX_COMPILER == COMPILER_WATCOM)
-
-		return false;
-
-	#endif
+	return false;
 }
 
 // Set the bank that the pixel functions are currently writing to
@@ -412,8 +408,6 @@ void PlaceBuffer(rex_uint8 *buffer, rex_int32 buffer_size)
 		int todo = buffer_size;
 		int copy_size = 0;
 		int buffer_pos = 0;
-
-		void *fuck = buffer;
 
 		while (todo > 0)
 		{
@@ -490,7 +484,7 @@ void SetPalette(rex_string filename)
 	file = fopen(filename.c_str(), "rb");
 
 	// Tell VGA that palette data is coming
-	outp(0x3c8, 0);
+	outportb(0x3c8, 0);
 
 	// Install the palette
 	for (i = 0; i < 256; i++)
@@ -500,9 +494,9 @@ void SetPalette(rex_string filename)
 		unsigned char b = getc(file);
 
 		// stupid
-		outp(0x3c9, (r * 63) / 255);
-		outp(0x3c9, (g * 63) / 255);
-		outp(0x3c9, (b * 63) / 255);
+		outportb(0x3c9, (r * 63) / 255);
+		outportb(0x3c9, (g * 63) / 255);
+		outportb(0x3c9, (b * 63) / 255);
 	}
 
 	fclose(file);

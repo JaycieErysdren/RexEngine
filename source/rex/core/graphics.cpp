@@ -57,46 +57,30 @@ bool InitializeGraphics(rex_int32 w, rex_int32 h, rex_int32 bpp)
 {
 	#if (REX_TARGET == PLATFORM_DOS)
 
-		#if (MODULE_VESA) && (MODULE_VGA)
+		#if (MODULE_VESA)
 
-			// If VESA fails, try VGA
 			if (VESA::Initialize(w, h, bpp) == true)
 			{
 				vid_info = GetVidInfo();
 				return true;
 			}
-			else
-			{
-				if (VGA::Initialize(w, h, bpp) == true)
-				{
-					vid_info = GetVidInfo();
-					return true;
-				}
-				else
-				{
-					return false;
-				}
-			}
 
-		#elif (MODULE_VGA)
+		#endif
+
+		#if (MODULE_VGA)
 
 			if (VGA::Initialize(w, h, bpp) == true)
 			{
 				vid_info = GetVidInfo();
 				return true;
 			}
-			else
-			{
-				return false;
-			}
 
 		#endif
 
-	#else
+	#endif
 
 	return false;
 
-	#endif
 }
 
 // Shutdown graphics
