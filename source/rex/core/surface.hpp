@@ -78,6 +78,7 @@ class Surface
 // Front buffer
 //
 
+void PlaceBuffer(void *buffer, rex_int32 buffer_size);
 void SurfaceToFrontBuffer(Surface *src);
 
 //

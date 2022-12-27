@@ -33,6 +33,33 @@ class NewSurface
 		void *buffer;				// allocated pixel buffer
 };
 
+NewSurface *AddNewSurface(rex_uint16 width, rex_uint16 height, rex_uint16 bpp, void *buffer)
+{
+	NewSurface *surf = new NewSurface;
+
+	surf->width = width;
+	surf->height = height;
+	surf->bpp = bpp;
+	surf->bytes_per_row = (bpp / 8) * width;
+
+	if (buffer == NULL)
+	{
+		surf->buffer = calloc(width * height, bpp / 8);
+	}
+	else
+	{
+		surf->buffer = buffer;
+	}
+
+	return surf;
+}
+
+void FreeNewSurface(NewSurface *surf)
+{
+	if (surf->buffer) free(surf->buffer);
+	if (surf) delete surf;
+}
+
 //
 // Globals
 //
@@ -51,7 +78,7 @@ void Initialize()
 	Rex::Initialize();
 
 	// Initialize graphics
-	if (Rex::InitializeGraphics(640, 480, 8) == false)
+	if (Rex::InitializeGraphics(640, 480, 32) == false)
 	{
 		cout << "failed to initialize graphics driver" << endl;
 		exit(EXIT_FAILURE);
@@ -83,7 +110,6 @@ void Shutdown()
 
 int main(int argc, char *argv[])
 {
-
 	// hello
 	Initialize();
 
@@ -92,18 +118,32 @@ int main(int argc, char *argv[])
 
 	HTML_Parse(&document, html_str);
 
+	FILE *file = fopen("test/forest.dat", "rb");
+	void *buffer = calloc(640 * 480, sizeof(rex_int32));
+	fread(buffer, sizeof(rex_int32), 640 * 480, file);
+	fclose(file);
+
+	NewSurface *surf = AddNewSurface(640, 480, 32, buffer);
+
 	// Main loop
 	while (!Rex::KeyTest(REX_SC_ESCAPE))
 	{
-		// Clear back buffer
-		Rex::SurfaceClear(&pic_bbuffer, 0);
+		Rex::PlaceBuffer(surf->buffer, surf->width * surf->height * (surf->bpp / 8));
 
-		// Render HTML
-		HTML_Render(&pic_bbuffer, &pic_font, document, 0, 0);
+		if (false)
+		{
+			// Clear back buffer
+			Rex::SurfaceClear(&pic_bbuffer, 0);
 
-		// Flip the rendering buffers
-		Rex::SurfaceToFrontBuffer(&pic_bbuffer);
+			// Render HTML
+			HTML_Render(&pic_bbuffer, &pic_font, document, 0, 0);
+
+			// Flip the rendering buffers
+			Rex::SurfaceToFrontBuffer(&pic_bbuffer);
+		}
 	}
+
+	FreeNewSurface(surf);
 
 	// goodbye
 	Shutdown();

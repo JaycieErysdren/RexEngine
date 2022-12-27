@@ -36,6 +36,15 @@ namespace Rex
 // Front buffer
 //
 
+void PlaceBuffer(void *buffer, rex_int32 buffer_size)
+{
+	#if (REX_TARGET == PLATFORM_DOS) && (MODULE_VESA)
+
+		VESA::PlaceBuffer((rex_uint8 *)buffer, buffer_size);
+
+	#endif
+}
+
 void SurfaceToFrontBuffer(Surface *src)
 {
 	#if (REX_TARGET == PLATFORM_DOS) && (MODULE_VESA)
