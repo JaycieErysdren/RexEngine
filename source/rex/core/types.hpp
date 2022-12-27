@@ -55,6 +55,36 @@ typedef rex_uint32 rex_color;						// Packed color
 typedef rex_int32 rex_int;							// Basic signed integer
 typedef rex_uint32 rex_uint;						// Basic unsigned integer
 
+// Color union type
+typedef union
+{
+	rex_uint8 indexed;
+	rex_uint16 rgb565;
+	rex_uint32 rgb8888;
+} rex_color_u;
+
+// 8-bit color creation
+#define REX_COLOR_INDEXED(c)		((rex_uint8)(c))
+
+// 16-bit color creation
+#define REX_COLOR_RGB_565(r, g, b)				\
+	((rex_uint16)((((r) >> 3) & 0x1f) << 11) |	\
+	(rex_uint16)((((g) >> 2) & 0x3f) << 5) |	\
+	(rex_uint16)((((b) >> 3) & 0x1f)))
+
+// 32-bit color creation
+#define REX_COLOR_RGB_8888(r, g, b, a)			\
+	((((rex_uint8)(a)) << 24) |					\
+	(((rex_uint8)(r)) << 16) |					\
+	(((rex_uint8)(g)) << 8) |					\
+	((rex_uint8)(b)))
+
+// 32-bit color extraction
+#define REX_COLOR_RED_8888(c)		((rex_uint8)(((c) >> 16) & 0xFF))
+#define REX_COLOR_GREEN_8888(c)		((rex_uint8)(((c) >> 8) & 0xFF))
+#define REX_COLOR_BLUE_8888(c)		((rex_uint8)((c) & 0xFF))
+#define REX_COLOR_ALPHA_8888(c)		((rex_uint8)(((c) >> 24) & 0xFF))
+
 //
 //
 // Color
