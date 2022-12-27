@@ -21,6 +21,7 @@
 
 //
 // New surface type
+//
 
 class NewSurface
 {
