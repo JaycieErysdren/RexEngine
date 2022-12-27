@@ -23,28 +23,4 @@
 #includelist
 	// shared
 	shared/fteextensions.qc
-	shared/defs.qc
-
-	// utilities
-	server/utilities.qc
-
-	// server base classes
-	server/classes/CBaseEntity.qc
-	server/classes/CBaseBrushEntity.qc
-
-	// player class
-	server/classes/player.qc
-
-	// server entities
-	server/entities/decore_model.qc
-	server/entities/func_door.qc
-	server/entities/func_brush.qc
-	server/entities/info_lighting.qc
-	server/entities/info_player_start.qc
-
-	// client -> server events
-	server/csevents.qc
-
-	// entrypoints
-	server/entrypoints.qc
 #endlist

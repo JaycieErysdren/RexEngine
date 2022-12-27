@@ -14,6 +14,6 @@
 //
 // ========================================================
 
-// #pragma sourcefile progs_menu.src
+#pragma sourcefile progs_menu.src
 #pragma sourcefile progs_client.src
 #pragma sourcefile progs_server.src

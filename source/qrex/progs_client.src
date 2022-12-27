@@ -23,42 +23,4 @@
 #includelist
 	// shared
 	shared/fteextensions.qc
-	shared/defs.qc
-
-	// view functions
-	client/view.qc
-
-	// inventory functions
-	client/inventory.qc
-
-	// per-frame update functions
-	client/updates.qc
-
-	// camera system functions
-	client/camera.qc
-
-	// input functions
-	client/inputs.qc
-
-	// startup functions
-	client/startup.qc
-
-	// stress system functions
-	client/stress.qc
-
-	// client base classes
-	client/classes/CBaseSprite.qc
-
-	// client entities
-	client/entities/func_clickable.qc
-	client/entities/point_camera.qc
-	client/entities/prop_bag.qc
-	client/entities/prop_food.qc
-	client/entities/prop_money.qc
-
-	// parse map entities
-	client/parsemapentity.qc
-
-	// entrypoints
-	client/entrypoints.qc
 #endlist
