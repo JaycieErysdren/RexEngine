@@ -78,7 +78,7 @@ void Initialize()
 	Rex::Initialize();
 
 	// Initialize graphics
-	if (Rex::InitializeGraphics(640, 480, 32) == false)
+	if (Rex::InitializeGraphics(640, 480, 16) == false)
 	{
 		cout << "failed to initialize graphics driver" << endl;
 		exit(EXIT_FAILURE);
@@ -118,12 +118,32 @@ int main(int argc, char *argv[])
 
 	HTML_Parse(&document, html_str);
 
+	// load RGB8888 file
 	FILE *file = fopen("test/forest.dat", "rb");
-	void *buffer = calloc(640 * 480, sizeof(rex_int32));
-	fread(buffer, sizeof(rex_int32), 640 * 480, file);
+	rex_uint16 *buffer = (rex_uint16 *)calloc(640 * 480, sizeof(rex_uint16));
+
+	// convert to RGB565
+	for (rex_int i = 0; i < 640 * 480; i++)
+	{
+		rex_uint8 r = getc(file);
+		rex_uint8 g = getc(file);
+		rex_uint8 b = getc(file);
+		rex_uint8 a = getc(file);
+
+		rex_uint16 r1 = ((r >> 3) & 0x1f) << 11;
+		rex_uint16 g1 = ((g >> 2) & 0x3f) << 5;
+		rex_uint16 b1 = ((b >> 3) & 0x1f);
+
+		rex_uint16 c = r1 | g1 | b1;
+
+		buffer[i] = c;
+	}
+
+	// close handle
 	fclose(file);
 
-	NewSurface *surf = AddNewSurface(640, 480, 32, buffer);
+	// create surf
+	NewSurface *surf = AddNewSurface(640, 480, 16, buffer);
 
 	// Main loop
 	while (!Rex::KeyTest(REX_SC_ESCAPE))
