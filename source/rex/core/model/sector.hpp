@@ -57,11 +57,11 @@ class Sidedef
 class Sector
 {
 	public:
-		rex_scalar floor_height;
-		rex_scalar ceiling_height;
-		rex_uint8 floor_color;
-		rex_uint8 ceiling_color;
-		rex_uint8 light_level;
+		rex_scalar floor_height;	// Height of floor
+		rex_scalar ceiling_height;	// Height of ceiling
+		rex_uint8 floor_color;		// Color of floor
+		rex_uint8 ceiling_color;	// Color of ceiling
+		rex_uint8 light_level;		// Light level modifier
 };
 
 //

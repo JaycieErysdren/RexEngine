@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex namespace: Sector Renderer header
 //
-// LAST EDITED:		December 11th, 2022
+// LAST EDITED:		December 27th, 2022
 //
 // ========================================================
 
@@ -27,7 +27,7 @@ namespace Rex
 {
 
 // Renders a SectorData object
-void RenderSectorData(Surface *dst, Surface *zbuffer, SectorData *data, rex_vec3s origin, rex_vec3i angles, rex_scalar draw_distance, rex_scalar pixel_height_scale);
+void RenderSectorData_SoftRend(Surface *dst, Surface *zbuffer, SectorData *data, rex_vec3s origin, rex_vec3i angles, rex_scalar draw_distance, rex_scalar pixel_height_scale);
 
 } // namespace Rex
 
