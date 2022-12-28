@@ -27,24 +27,14 @@ namespace Rex
 {
 
 //
-// Linedef
+// Wall
 //
 
-class Linedef
+class Wall
 {
 	public:
-		rex_int32 vert1, vert2;		// Vertex IDs
-		rex_int32 side1, side2;		// Sidedef IDs
-};
-
-//
-// Sidedef
-//
-
-class Sidedef
-{
-	public:
-		rex_int32 sector;			// Sector ID
+		rex_int32 vert1, vert2;		// Vertex IDs (wall)
+		rex_int32 sect1, sect2;		// Sector IDs (portal)
 		rex_uint8 color_upper;		// Upper color
 		rex_uint8 color_middle;		// Middle color
 		rex_uint8 color_lower;		// Lower color
@@ -62,19 +52,19 @@ class Sector
 		rex_uint8 floor_color;		// Color of floor
 		rex_uint8 ceiling_color;	// Color of ceiling
 		rex_uint8 light_level;		// Light level modifier
+		vector<rex_int32> walls;	// Wall IDs
 };
 
 //
-// Arrays of sectors, linedefs and vertices
+// Arrays of vertices, walls, and sectors
 //
 
 class SectorData
 {
 	public:
-		vector<Vertex> vertices;
-		vector<Sector> sectors;
-		vector<Linedef> linedefs;
-		vector<Sidedef> sidedefs;
+		vector<Vertex> vertices;	// Array of vertices
+		vector<Wall> walls;			// Array of walls
+		vector<Sector> sectors;		// Array of sectors
 };
 
 } // namespace Rex
