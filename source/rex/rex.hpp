@@ -171,6 +171,9 @@ using namespace std;
 // SectorData
 #include "core/softrend/sector.hpp"
 
+// TileData
+#include "core/softrend/tile.hpp"
+
 //
 // GL renderers
 //

@@ -14,8 +14,8 @@
 //
 // ========================================================
 
-#ifndef __REX_SOFTREND_sECTOR_H__
-#define __REX_SOFTREND_sECTOR_H__
+#ifndef __REX_SOFTREND_SECTOR_H__
+#define __REX_SOFTREND_SECTOR_H__
 
 //
 //
@@ -31,4 +31,4 @@ void RenderSectorData_SoftRend(Surface *dst, Surface *zbuffer, SectorData *data,
 
 } // namespace Rex
 
-#endif // __REX_SOFTREND_sECTOR_H__
+#endif // __REX_SOFTREND_SECTOR_H__
