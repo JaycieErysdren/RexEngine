@@ -10,7 +10,7 @@
 ##
 ## DESCRIPTION:		Rex Engine CMake project definition
 ##
-## LAST EDITED:		December 25th, 2022
+## LAST EDITED:		December 27th, 2022
 ##
 ## ========================================================
 
@@ -125,6 +125,7 @@ endif()
 
 ## For rex_priv.hpp
 include_directories(.)
+include_directories(thrdprty/osmesa)
 
 ##
 ##
@@ -153,6 +154,8 @@ add_library(mplite STATIC ${MPLITE_SRC})
 ##
 
 set(REX_CORE_SRC
+	core/softrend/sector.cpp
+	core/glrend/test.cpp
 	core/bootstrap.cpp
 	core/clock.cpp
 	core/console.cpp
@@ -424,3 +427,8 @@ endif()
 if(${MODULE_IMF})
 	target_link_libraries(rex INTERFACE imf)
 endif()
+
+## OSMesa
+target_link_libraries(rex INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/thrdprty/osmesa/libGLU.a)
+target_link_libraries(rex INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/thrdprty/osmesa/libOSMesa.a)
+target_link_libraries(rex INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/thrdprty/osmesa/libOSMesa32.a)

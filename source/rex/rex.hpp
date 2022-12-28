@@ -165,6 +165,20 @@ using namespace std;
 #include "core/sound.hpp"
 
 //
+// Software renderers
+//
+
+// SectorData
+#include "core/softrend/sector.hpp"
+
+//
+// GL renderers
+//
+
+// Test
+#include "core/glrend/test.hpp"
+
+//
 // Renderers
 //
 

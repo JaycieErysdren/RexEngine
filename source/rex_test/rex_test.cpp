@@ -74,6 +74,10 @@ Rex::VidInfo vidinfo;
 // Intiialization function
 void Initialize()
 {
+	Rex::GL_Test();
+
+	exit(1);
+
 	// Initialize Rex Engine
 	Rex::Initialize();
 
