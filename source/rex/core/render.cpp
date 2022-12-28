@@ -45,11 +45,11 @@ void RenderScene3D(Surface *dst, Surface *zbuffer, Actor3D *root, Actor3D *camer
 	switch (root->type)
 	{
 		case ACTOR3D_VOXELMODEL:
-			Voxel::RenderVoxelModel(dst, zbuffer, (Voxel::VoxelModel *)root->model, camera->origin, camera->angles, camera->draw_distance, pixel_height_scale);
+			//Voxel::RenderVoxelModel(dst, zbuffer, (Voxel::VoxelModel *)root->model, camera->origin, camera->angles, camera->draw_distance, pixel_height_scale);
 			break;
 
 		case ACTOR3D_RAYCASTMODEL:
-			Raycast::RenderRaycastModel(dst, zbuffer, (Raycast::RaycastModel *)root->model, camera->origin, camera->angles, camera->draw_distance, pixel_height_scale);
+			//Raycast::RenderRaycastModel(dst, zbuffer, (Raycast::RaycastModel *)root->model, camera->origin, camera->angles, camera->draw_distance, pixel_height_scale);
 			break;
 
 		default:
@@ -73,7 +73,7 @@ void RenderScene2D(Surface *dst, Surface *zbuffer, Actor2D *root, rex_scalar pix
 	if (root == NULL) return;
 
 	// Render this actor
-	root->Draw(dst, root->color_blit_mode);
+	//root->Draw(dst, root->color_blit_mode);
 
 	// Render children
 	for (rex_int i = 0; i < root->children.size(); i++)

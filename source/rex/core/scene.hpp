@@ -150,8 +150,7 @@ class Actor2D
 		// Color data
 		//
 
-		Surface color;
-		blit_mode color_blit_mode;
+		Surface *color;
 
 		//
 		// Danger zone
@@ -162,12 +161,6 @@ class Actor2D
 		//
 		// Functions
 		//
-
-		// Draw the actor on another surface
-		void Draw(Surface *dst, blit_mode flags);
-
-		// Draw the actor on another surface, with z-buffering
-		void DrawZB(Surface *dst, Surface *zbuffer);
 
 		// Returns true if the actor is overtop or underneath another actor
 		bool OriginInside(Actor2D *actor);
@@ -198,9 +191,6 @@ void FreeActor3D(Actor3D *actor);
 
 // Allocates the memory associated with an Actor2D, and returns a pointer to it
 Actor2D *AddActor2D(Actor2D *parent, rex_actor2d_type type);
-
-// Allocates the memory associated with an Actor2D, and returns a pointer to it
-Actor2D *AddActor2D(Actor2D *parent, rex_actor2d_type type, string filename);
 
 // Frees the memory associated with an Actor2D, as well as all children actors
 void FreeActor2D(Actor2D *actor);

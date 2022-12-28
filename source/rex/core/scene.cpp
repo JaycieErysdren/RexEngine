@@ -32,42 +32,6 @@ namespace Rex
 //
 //
 
-// Draw the actor on another surface
-void Actor2D::Draw(Surface *dst, blit_mode flags)
-{
-	SurfaceBlit8(dst, origin.x, origin.y, origin.x + (draw_area.x2 - draw_area.x1), origin.y + (draw_area.y2 - draw_area.y1), &color, draw_area.x1, draw_area.y1, draw_area.x2, draw_area.y2, flags);
-}
-
-// Draw the actor on another surface, with z-buffering
-void Actor2D::DrawZB(Surface *dst, Surface *zbuffer)
-{
-	rex_int ystart = parent->origin.y + origin.y + draw_area.y1;
-	rex_int yend = parent->origin.y + origin.y + draw_area.y2;
-	rex_int xstart = parent->origin.x + origin.x + draw_area.x1;
-	rex_int xend = parent->origin.x + origin.x + draw_area.x2;
-
-	// this is probably gonna be slow as shit
-	for (rex_int y = ystart; y < yend; y++)
-	{
-		for (rex_int x = xstart; x < xend; x++)
-		{
-			if (x < 0 || x > dst->width || y < 0 || y > dst->width) continue;
-
-			rex_uint8 zb = SurfaceGetPixel(zbuffer, x, y);
-
-			if (zb < z)
-			{
-				SurfaceDrawPixel(zbuffer, x, y, z);
-				SurfaceDrawPixel(dst, x, y, SurfaceGetPixel(&color, x, y));
-			}
-			else
-			{
-				continue;
-			}
-		}
-	}
-}
-
 // Returns true if the actor is overtop or underneath another actor
 bool Actor2D::OriginInside(Actor2D *actor)
 {
@@ -139,11 +103,11 @@ void FreeActor3D(Actor3D *actor)
 	switch (actor->type)
 	{
 		case ACTOR3D_VOXELMODEL:
-			Voxel::FreeVoxelModel((Voxel::VoxelModel *)actor->model);
+			//Voxel::FreeVoxelModel((Voxel::VoxelModel *)actor->model);
 			break;
 
 		case ACTOR3D_RAYCASTMODEL:
-			Raycast::FreeRaycastModel((Raycast::RaycastModel *)actor->model);
+			//Raycast::FreeRaycastModel((Raycast::RaycastModel *)actor->model);
 			break;
 
 		default:
@@ -179,27 +143,8 @@ Actor2D *AddActor2D(Actor2D *parent, rex_actor2d_type type)
 
 	// Set type & blit mode
 	actor->type = type;
-	actor->color_blit_mode = COPY;
 
 	// Return pointer
-	return actor;
-}
-
-// Allocates the memory associated with an Actor2D, and returns a pointer to it
-Actor2D *AddActor2D(Actor2D *parent, rex_actor2d_type type, string filename)
-{
-	Actor2D *actor = AddActor2D(parent, type);
-
-	SurfaceLoadBMP(&actor->color, filename);
-
-	actor->dimensions.x = actor->color.width;
-	actor->dimensions.y = actor->color.height;
-
-	actor->draw_area.x1 = 0;
-	actor->draw_area.y1 = 0;
-	actor->draw_area.x2 = actor->dimensions.x;
-	actor->draw_area.y2 = actor->dimensions.y;
-
 	return actor;
 }
 
@@ -223,7 +168,7 @@ void FreeActor2D(Actor2D *actor)
 	}
 
 	// Remove the color buffer
-	SurfaceDestroy(&actor->color);
+	FreeSurface(actor->color);
 
 	// Call destructor
 	actor->~Actor2D();
@@ -237,7 +182,7 @@ void RenderActor2D(Surface *dst, Actor2D *actor)
 {
 	if (actor == NULL) return;
 
-	actor->Draw(dst, actor->color_blit_mode);
+	//actor->Draw(dst, actor->color_blit_mode);
 
 	for (rex_int i = 0; i < actor->children.size(); i++)
 	{

@@ -44,7 +44,7 @@ bool Initialize()
 
 	#endif
 
-	ConsoleInitialize();
+	//ConsoleInitialize();
 
 	frame_end_time = GetTicks64();
 
@@ -70,7 +70,7 @@ bool Shutdown()
 	#endif
 
 	// shutdown console (hack)
-	ConsoleShutdown();
+	//ConsoleShutdown();
 
 	// shutdown sound driver
 	ShutdownSound();

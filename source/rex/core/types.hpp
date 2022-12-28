@@ -50,18 +50,16 @@ typedef bool rex_bool;								// Boolean
 
 typedef string rex_string;							// String
 
-typedef rex_uint32 rex_color;						// Packed color
-
 typedef rex_int32 rex_int;							// Basic signed integer
 typedef rex_uint32 rex_uint;						// Basic unsigned integer
 
 // Color union type
 typedef union
 {
-	rex_uint8 indexed;
-	rex_uint16 rgb565;
-	rex_uint32 rgb8888;
-} rex_color_u;
+	rex_uint8 u8;
+	rex_uint16 u16;
+	rex_uint32 u32;
+} rex_color;
 
 // 8-bit color creation
 #define REX_COLOR_INDEXED(c)		((rex_uint8)(c))
@@ -74,10 +72,10 @@ typedef union
 
 // 32-bit color creation
 #define REX_COLOR_RGB_8888(r, g, b, a)			\
-	((((rex_uint8)(a)) << 24) |					\
-	(((rex_uint8)(r)) << 16) |					\
-	(((rex_uint8)(g)) << 8) |					\
-	((rex_uint8)(b)))
+	((rex_uint8)(((a) << 24) & 0xFF) |			\
+	(rex_uint8)(((r) << 16) & 0xFF) |			\
+	(rex_uint8)(((g) << 8) & 0xFF) |			\
+	(rex_uint8)((b) & 0xFF))
 
 // 32-bit color extraction
 #define REX_COLOR_RED_8888(c)		((rex_uint8)(((c) >> 16) & 0xFF))

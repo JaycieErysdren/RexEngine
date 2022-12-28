@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex namespace: Surface implementation
 //
-// LAST EDITED:		December 14th, 2022
+// LAST EDITED:		December 27th, 2022
 //
 // ========================================================
 
@@ -25,6 +25,273 @@
 
 namespace Rex
 {
+
+//
+//
+// Add / free
+//
+//
+
+// Add a new surface
+Surface *AddSurface(rex_uint16 width, rex_uint16 height, rex_uint16 bpp, void *buffer)
+{
+	if (bpp != 32 && bpp != 16 && bpp != 8)
+		return NULL;
+
+	// Allocate memory and assign actor to it
+	void *surface_memory = MemPool_Alloc(MEMORY_SURFACES, sizeof(Surface));
+	Surface *surface = new(surface_memory) Surface;
+	surface->memory = surface_memory;
+
+	// assign variables
+	surface->width = width;
+	surface->height = height;
+	surface->bpp = bpp;
+	surface->bytes_per_row = (bpp / 8) * width;
+
+	// assign or allocate pixel buffer
+	if (buffer == NULL)
+	{
+		//surface->buffer = MemPool_Alloc(MEMORY_SURFACES, surface->height * surface->bytes_per_row);
+		surface->buffer = malloc(surface->height * surface->bytes_per_row);
+		surface->Clear();
+	}
+	else
+	{
+		surface->buffer = buffer;
+	}
+
+	// return ptr
+	return surface;
+}
+
+// Free a surface and all associated memory
+void FreeSurface(Surface *surface)
+{
+	if (surface == NULL)
+		return;
+
+	void *surface_memory = surface->memory;
+
+	// Free buffer memory
+	//MemPool_Free(MEMORY_SURFACES, surface->buffer);
+	if (surface->buffer) free(surface->buffer);
+
+	// Call destructor
+	surface->~Surface();
+
+	// Free the actor
+	MemPool_Free(MEMORY_SURFACES, surface_memory);
+}
+
+//
+//
+// Surface class
+//
+//
+
+//
+// Drawing functions
+//
+
+// Clear the picture with the specified color
+void Surface::Clear(rex_color color)
+{
+	switch (bpp)
+	{
+		case 8:
+			memset(buffer, color.u8, bytes_per_row * height);
+			break;
+
+		case 16:
+			memset(buffer, color.u16, bytes_per_row * height);
+			break;
+
+		case 32:
+			memset(buffer, color.u32, bytes_per_row * height);
+			break;
+		
+		default:
+			break;
+	}
+}
+
+// Clear the picture
+void Surface::Clear()
+{
+	switch (bpp)
+	{
+		case 8:
+			memset(buffer, 0, bytes_per_row * height);
+			break;
+
+		case 16:
+			memset(buffer, 0, bytes_per_row * height);
+			break;
+
+		case 32:
+			memset(buffer, 0, bytes_per_row * height);
+			break;
+		
+		default:
+			break;
+	}
+}
+
+// Plot a pixel at the specified coordinate
+void Surface::DrawPixel(rex_uint16 x, rex_uint16 y, rex_color color)
+{
+	// sanity check
+	if (x < 0 || x > width - 1 || y < 0 || y > height - 1)
+		return;
+
+	switch (bpp)
+	{
+		case 8:
+			memset((rex_uint8 *)(buffer) + (y * bytes_per_row + x), color.u8, sizeof(rex_uint8));
+			break;
+
+		case 16:
+			memset((rex_uint16 *)(buffer) + (y * bytes_per_row + x), color.u16, sizeof(rex_uint16));
+			break;
+
+		case 32:
+			memset((rex_uint32 *)(buffer) + (y * bytes_per_row + x), color.u32, sizeof(rex_uint32));
+			break;
+		
+		default:
+			break;
+	}
+}
+
+// Draw a horizontal line
+void Surface::DrawLineHorizontal(rex_uint16 x1, rex_uint16 x2, rex_uint16 y, rex_color color)
+{
+	rex_int x;
+	rex_int len;
+
+	// sanity checks
+	if (y < 0 || y > height - 1) return;
+	if ((x1 < 0 && x2 < 0) || (x1 > width - 1 && x2 > width - 1)) return;
+
+	if (x1 < 0) x1 = 0;
+	if (x1 > width - 1) x1 = width - 1;
+
+	if (x2 < 0) x2 = 0;
+	if (x2 > width - 1) x2 = width - 1;
+
+	// if x1 and x2 are equal, just plot a pixel
+	if (x1 == x2)
+	{
+		DrawPixel(x1, y, color);
+		return;
+	}
+	else if (x1 > x2)
+	{
+		x = x2;
+		len = x1 - x2;
+	}
+	else
+	{
+		x = x1;
+		len = x2 - x1;
+	}
+
+	// memset the line for extra speed
+	switch (bpp)
+	{
+		case 8:
+			memset((rex_uint8 *)(buffer) + (y * bytes_per_row + x), color.u8, sizeof(rex_uint8) * len);
+			break;
+
+		case 16:
+			memset((rex_uint16 *)(buffer) + (y * bytes_per_row + x), color.u16, sizeof(rex_uint16) * len);
+			break;
+
+		case 32:
+			memset((rex_uint32 *)(buffer) + (y * bytes_per_row + x), color.u32, sizeof(rex_uint32) * len);
+			break;
+		
+		default:
+			break;
+	}
+}
+
+// Draw a vertical line
+void Surface::DrawLineVertical(rex_uint16 x, rex_uint16 y1, rex_uint16 y2, rex_color color)
+{
+	// variables
+	rex_int y, ystart, yend;
+
+	// if y1 and y2 are equal, just plot a pixel
+	if (y1 == y2)
+	{
+		DrawPixel(x, y1, color);
+		return;
+	}
+	else if (y1 > y2)
+	{
+		ystart = y2;
+		yend = y1;
+	}
+	else
+	{
+		ystart = y1;
+		yend = y2;
+	}
+
+	// Draw the line
+	for (y = ystart; y < yend; y++)
+	{
+		DrawPixel(x, y, color);
+	}
+}
+
+//
+// Utility functions
+//
+
+// Return the color under the specified pixel
+rex_color Surface::GetPixel(rex_uint16 x, rex_uint16 y)
+{
+	// return value
+	rex_color c;
+
+	// sanity check
+	if (x < 0 || x > width - 1 || y < 0 || y > height - 1)
+		return c;
+
+	switch (bpp)
+	{
+		case 8:
+			c.u8 = *(((rex_uint8 *)buffer) + ((y * bytes_per_row) + x));
+			break;
+
+		case 16:
+			c.u16 = *(((rex_uint16 *)buffer) + ((y * bytes_per_row) + x));
+			break;
+
+		case 32:
+			c.u32 = *(((rex_uint32 *)buffer) + ((y * bytes_per_row) + x));
+			break;
+		
+		default:
+			break;
+	}
+
+	return c;
+}
+
+void Surface::Flip()
+{
+	#if (REX_TARGET == PLATFORM_DOS) && (MODULE_VESA)
+
+		VESA::PlaceBuffer((rex_uint8 *)buffer, height * bytes_per_row);
+
+	#endif
+}
+
+#ifdef OLD_SURFACE_CLASS
 
 //
 //
@@ -531,5 +798,7 @@ void SurfaceDrawPolygon(Surface *dst, int n, int *v, rex_uint8 color, bool fille
 		SurfaceDrawLine(dst, v[0], v[1], v[(n << 1) - 2], v[(n << 1) - 1], color);
 	}
 }
+
+#endif
 
 } // namespace Rex

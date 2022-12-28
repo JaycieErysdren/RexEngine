@@ -166,9 +166,9 @@ void ColormapSave(string filename)
 }
 
 // Lookup a value with a given light level
-rex_color ColormapLookup(rex_color color, int light)
+rex_uint8 ColormapLookup(rex_color color, int light)
 {
-	return (rex_color)colormap[((CLAMP(light, -32, 31) + 32) * 256) + CLAMP(color, 0, 255)];
+	return (rex_uint8)colormap[((CLAMP(light, -32, 31) + 32) * 256) + CLAMP(color.u8, 0, 255)];
 }
 
 // https://quakewiki.org/wiki/Quake_palette#Generating_the_colormap
@@ -181,9 +181,9 @@ rex_uint8 RGB24_To_Index8(rex_uint8 palette[768], rex_color col)
 
 	rex_int32 rgb[3];
 
-	rgb[0] = REX_COLOR_RED(col);
-	rgb[1] = REX_COLOR_GRN(col);
-	rgb[2] = REX_COLOR_BLU(col);
+	rgb[0] = REX_COLOR_RED_8888(col.u32);
+	rgb[1] = REX_COLOR_GREEN_8888(col.u32);
+	rgb[2] = REX_COLOR_BLUE_8888(col.u32);
 
 	for (i = 0; i < 256; i++)
 	{
@@ -236,7 +236,7 @@ void ColormapGenerate(rex_string palette_filename, rex_int32 num_fullbrights)
 					if (rgb[i] > 255) rgb[i] = 255;
 				}
 
-				col = REX_COLOR_RGB(rgb[0], rgb[1], rgb[2]);
+				col.u32 = REX_COLOR_RGB_8888(rgb[0], rgb[1], rgb[2], 255);
 
 				colormap[y * 256 + x] = RGB24_To_Index8(palette, col);
 			}

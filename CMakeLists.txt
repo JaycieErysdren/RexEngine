@@ -45,9 +45,9 @@ set(MODULE_ART TRUE)
 set(MODULE_IMF TRUE)
 
 ## Set the renderers we want to compile
-set(RENDERER_VOXEL TRUE)
-set(RENDERER_RAYCAST TRUE)
-set(RENDERER_SECTOR TRUE)
+## set(RENDERER_VOXEL TRUE)
+## set(RENDERER_RAYCAST TRUE)
+## set(RENDERER_SECTOR TRUE)
 
 ## Rex Engine platform & compiler determinator
 include(${CMAKE_SOURCE_DIR}/cmake/rex_determinator.cmake)
@@ -58,7 +58,7 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/source/rex)
 ##
 
 ## VivaDukeNukem
-add_subdirectory(${CMAKE_SOURCE_DIR}/source/vivaduke)
+## add_subdirectory(${CMAKE_SOURCE_DIR}/source/vivaduke)
 
 ## RexTest
 add_subdirectory(${CMAKE_SOURCE_DIR}/source/rex_test)

@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex namespace: Surface header
 //
-// LAST EDITED:		December 14th, 2022
+// LAST EDITED:		December 27th, 2022
 //
 // ========================================================
 
@@ -25,6 +25,53 @@
 
 namespace Rex
 {
+
+// New surface class
+class Surface
+{
+	public:
+		rex_uint16 width;			// width of surface
+		rex_uint16 height;			// height of surface
+		rex_uint16 bpp;				// bits per pixel
+		rex_uint16 bytes_per_row;	// bytes per row (includes padding)
+		void *buffer;				// allocated pixel buffer
+		void *memory;				// pointer to the memory for this surface
+
+		//
+		// Drawing functions
+		//
+
+		// Clear the picture with the specified color
+		void Clear(rex_color color);
+		void Clear();
+
+		// Plot a pixel at the specified coordinate
+		void DrawPixel(rex_uint16 x, rex_uint16 y, rex_color color);
+
+		// Draw a horizontal line
+		void DrawLineHorizontal(rex_uint16 x1, rex_uint16 x2, rex_uint16 y, rex_color color);
+
+		// Draw a vertical line
+		void DrawLineVertical(rex_uint16 x, rex_uint16 y1, rex_uint16 y2, rex_color color);
+
+		//
+		// Utility functions
+		//
+
+		// Return the color under the specified pixel
+		rex_color GetPixel(rex_uint16 x, rex_uint16 y);
+
+		// Send this surface to the video memory
+		void Flip();
+};
+
+// Add a new surface
+Surface *AddSurface(rex_uint16 width, rex_uint16 height, rex_uint16 bpp, void *buffer);
+
+// Free a surface and all associated memory
+void FreeSurface(Surface *surface);
+
+#ifdef OLD_SURFACE_CLASS
 
 //
 //
@@ -112,6 +159,8 @@ void SurfaceDrawPolygon(Surface *dst, int n, int *v, uint8_t color, bool filled)
 
 void SurfaceFloodFill(Surface *dst, int x, int y, uint8_t color);
 uint8_t SurfaceGetPixel(Surface *src, int x, int y);
+
+#endif
 
 } // namespace Rex
 

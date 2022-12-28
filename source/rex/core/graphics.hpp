@@ -67,7 +67,7 @@ VidInfo GetVidInfo();
 // Colormap
 //
 
-rex_color ColormapLookup(rex_color color, int light);
+rex_uint8 ColormapLookup(rex_color color, int light);
 void ColormapGenerate(rex_string palette_filename, rex_int32 num_fullbrights);
 void ColormapSave(rex_string filename);
 void ColormapLoad(rex_string filename);

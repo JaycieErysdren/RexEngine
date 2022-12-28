@@ -294,7 +294,7 @@ rex_int HTML_Render(Rex::Surface *dst, Rex::Surface *font, Tag tag, rex_int row,
 		case TAG_HR:
 		{
 			string ruler (80 - col - 4, 196);
-			Rex::ConsoleTextF(dst, font, 8 * font_size, col + 2, row, ruler.c_str());
+			//Rex::ConsoleTextF(dst, font, 8 * font_size, col + 2, row, ruler.c_str());
 
 			next_row = row + font_size;
 			next_col = col;
@@ -311,7 +311,7 @@ rex_int HTML_Render(Rex::Surface *dst, Rex::Surface *font, Tag tag, rex_int row,
 			// if the element has text content, render it
 			if (tag.content.empty() == false)
 			{
-				Rex::ConsoleTextF(dst, font, 8 * font_size, col, row, tag.content.c_str());
+				//Rex::ConsoleTextF(dst, font, 8 * font_size, col, row, tag.content.c_str());
 
 				rex_int num_lines = ceil(float(tag.content.length()) / 80);
 

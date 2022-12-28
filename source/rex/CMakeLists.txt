@@ -158,7 +158,7 @@ set(REX_CORE_SRC
 	core/glrend/test.cpp
 	core/bootstrap.cpp
 	core/clock.cpp
-	core/console.cpp
+	## core/console.cpp
 	core/graphics.cpp
 	core/keyboard.cpp
 	core/log.cpp

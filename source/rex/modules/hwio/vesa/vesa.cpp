@@ -380,23 +380,6 @@ void SetBank(rex_int32 bank_number)
 	#endif
 }
 
-// Place a pixel on the screen (SLOW!!)
-void PutPixel(rex_int32 x, rex_int32 y, rex_color color)
-{
-	#if (REX_COMPILER == COMPILER_DJGPP)
-
-		int address = y * 640 + x;
-		int bank_size = mib.WinGranularity * 1024;
-		int bank_number = address / bank_size;
-		int bank_offset = address % bank_size;
-
-		SetBank(bank_number);
-
-		_farpokeb(_dos_ds, 0xA0000 + bank_offset, color);
-
-	#endif
-}
-
 // Place a pixel buffer into the video memory
 void PlaceBuffer(rex_uint8 *buffer, rex_int32 buffer_size)
 {
