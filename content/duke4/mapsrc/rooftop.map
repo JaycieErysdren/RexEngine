@@ -1,4 +1,4 @@
-// Game: Quake
+// Game: QRex
 // Format: Standard
 // entity 0
 {
@@ -13,6 +13,7 @@
 "message" "Only as Good as My God"
 "sounds" "6"
 "worldtype" "1"
+"_tb_textures" "textures/skybox"
 // brush 0
 {
 ( 0 1792 0 ) ( 0 0 0 ) ( 0 0 -64 ) skip 0 0 0 1 1

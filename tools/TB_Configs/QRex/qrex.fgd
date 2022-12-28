@@ -1,0 +1,537 @@
+//
+// QReX game definition file (.fgd)
+// for Trenchbroom 2.0 and above
+//
+// Written by Jaycie Erysdren / jaycie.ewald@outlook.com
+// Email me with improvements or suggestions!
+// This is version 1.0
+//
+
+//
+// worldspawn
+//
+
+@BaseClass = WorldSpawnEngineFeatures [
+	_fog(string) : "Fog Command" :  : "Fog command for supporting engines. Format is 'Intensity Red Green Blue'. Example: '0.025 38 43 25' will make a very light purpleish fog."
+	_fog_color(color255) : "Fog Color" :  : "Fog color command for supporting engines. Format is 'Red Green Blue'. Example: '38 43 25' will make a purpleish fog."
+	_fog_density(float) : "Fog Density" :  : "Fog density command for supporting engines. Example: '0.025' will make a very light fog."
+	_sky(string) : "Skybox Name" :  : "Skybox command for supporting engines. Name here should reflect a skybox texture in the 'id1/gfx/env/' folder."
+	_skyfog(float) : "Sky Fog Intensity" : "0.0" : "Sky fog command for supporting engines. Defines how much the fog will be effect the sky."
+	_slimealpha(float) : "Slime Opacity Level" : "1.0" : "Slime opacity command for supporting engines. Defines how much you can see below the surface of the slime."
+	_telealpha(float) : "Teleporter Opacity Level" : "1.0" : "Teleporter opacity command for supporting engines. Defines how much you can see through the surface of a teleporter."
+	_wateralpha(float) : "Water Opacity Level" : "1.0" : "Water opacity command for supporting engines. Defines how much you can see below the surface of the water."
+	_lavaalpha(float) : "Lava Opacity Level" : "1.0" : "Lava opacity command for supporting engines. Defines how much you can see below the surface of the lava."
+]
+
+@BaseClass = WorldSpawnLightingFeatures [
+	_minlight(integer) : "Global Minimum Light Level" :  : "Set the minimum light level for everything in the world."
+	_minlight_color(color255) : "Global Minimum Light Level Color" :  : "Color value for _minlight to use. Only supported by modern sourceports. Color format is Red Green Blue. Example: 255 255 255"
+	_minlight_dirt(choices) : "Global Minimum Light Level Dirtmapping Behavior" : 0 =
+	[
+		-1 : "Disables dirtmapping for '_minlight'."
+		0 : "Inherit behavior from worldspawn's '_dirt' value."
+		1 : "Enables dirtmapping for '_minlight'."
+	]
+	_dist(float) : "Global Fade Distance Multiplier" : "1.0" : "Scales the fade distance of all lights in the map. Values below 1 will make the light fade away quicker, while values over 1 will make it take longer to fade (and thus reach further)."
+	_range(float) : "Global Fade Distance Multiplier" : "0.5" : "Scales the brightness range of all lights without affecting their fade discance. Values over 0.5 makes lights brighter and values under 0.5 makes lights dimmer."
+	_sunlight(integer) : "Sunlight Brightness" : 0 : "Brightness/intensity value for sunlight, which will emit from sky brushes. Negative values will subtract light."
+	_sunlight2(integer) : "Sunlight2 Brightness" : 0 : "Brightness/intensity value for a dome of lights arranged ABOVE the horizon, which will emit from sky brushes. Negative values will subtract light."
+	_sunlight3(integer) : "Sunlight3 Brightness" : 0 : "Brightness/intensity value for a dome of lights arranged BELOW the horizon, which will emit from sky brushes. Negative values will subtract light."
+	_sunlight_mangle(string) : "Sunlight Direction" : "0 -90 0" : "The direction that the sunlight will point. Uses 'Yaw Pitch Roll' format. Example: 0 -90 0 is straight down."
+	_sunlight_penumbra(integer) : "Sunlight Penumbra" : 0 : "Specifies the penumbra width, in degrees, of sunlight. Useful values are 3-4 for a gentle soft edge, or 10-20+ for more diffuse sunlight."
+	_sunlight_color(color255) : "Sunlight Color" :  : "The color of the light cast by '_sunlight'. Only supported by modern sourceports. Color format is Red Green Blue. Example: 255 255 255"
+	_sunlight_color2(color255) : "Sunlight2 Color" :  : "The color of the light cast by '_sunlight2'. Only supported by modern sourceports. Color format is Red Green Blue. Example: 255 255 255"
+	_sunlight_color3(color255) : "Sunlight3 Color" :  : "The color of the light cast by '_sunlight3'. Only supported by modern sourceports. Color format is Red Green Blue. Example: 255 255 255"
+	_sunlight_dirt(choices) : "Sunlight Dirtmapping Behavior" : 0 =
+	[
+		-1 : "Disables dirtmapping for '_sunlight'."
+		0 : "Inherit behavior from worldspawn's '_dirt' value."
+		1 : "Enables dirtmapping for '_sunlight'."
+	]
+	_sunlight_dirt2(choices) : "Sunlight2 & Sunlight3 Dirtmapping Behavior" : 0 =
+	[
+		-1 : "Disables dirtmapping for '_sunlight2' and '_sunlight3'."
+		0 : "Inherit behavior from worldspawn's '_dirt' value."
+		1 : "Enables dirtmapping for '_sunlight2' and '_sunlight3'."
+	]
+	_anglescale(float) : "Sunlight Angle Intensity Scale" : "0.5" : "Sets a scaling factor for how much influence the angle of incidence of sunlight on a surface has on the brightness of the surface. The value must be between 0.0 and 1.0. Smaller values mean less attenuation, with zero meaning that angle of incidence has no effect at all on the brightness."
+	_dirt(choices) : "Dirtmapping Behavior" : -1 =
+	[
+		-1 : "Disables dirtmapping for all lights."
+		1 : "Enables dirtmapping for all lights."
+	]
+	_dirtmode(choices) : "Dirtmapping Mode" : 0 =
+	[
+		0 : "Ordered dirtmapping."
+		1 : "Randomized dirtmapping."
+	]
+	_dirtdepth(integer) : "Dirtmapping Depth" : 128 : "Maximum depth of occlusion checking for dirtmapping."
+	_dirtgain(float) : "Dirtmapping Depth" : "1.0" : "Exponent used in dirtmapping calculations. Values below 1.0 make shadows darker stretch further from corners."
+	_dirtangle(integer) : "Dirtmapping Cone Angle" : 88 : "Cone angle in degrees for occlusion testing. Allowed range is 1 to 90. Lower values can avoid unwanted dirtmapping on arches, pipe interiors, etc."
+	_gamma(float) : "Gamma Scale" : "1.0" : "Scales the brightness of the final compiled lightmap. Values below 1.0 make the entire map darker."
+	_lightmap_scale(integer) : "Lightmap Scale" :  : "Forces all brushes and bmodels to use this lightmap scale. Removes 'LMSHIFT' field. Quake's default scale is 16."
+	_bounce(choices) : "Bounce Lighting Behavior" : 0 =
+	[
+		0 : "Disable bounce lighting."
+		1 : "Enable bounce lighting."
+	]
+	_bouncescale(float) : "Bounce Lighting Scale" : "1.0" : "Scale value for bounce lighting brightness."
+	_bouncecolorscale(float) : "Bounce Lighting Texture Color Scale" : "0.0" : "Scale value for how much bounce lighting should take texture colors into account. Only values between 0.0 and 1.0 are allowed."
+	_bouncestyled(choices) : "Bounce Lighting Style Behavior" : 0 =
+	[
+		0 : "Styled lights will not bounce."
+		1 : "Styled lights will bounce."
+	]
+	_spotlightautofalloff(choices) : "Global Spotlight Falloff Behavior" : 0 =
+	[
+		0 : "Spotlight falloff will use default behavior."
+		1 : "Spotlight falloff will be calculated by the distance to its target."
+	]
+	_phong(choices) : "Phong Shading Behavior" : 0 =
+	[
+		0 : "No phong shading."
+		1 : "Enables phong shading for worldspawn brushes."
+	]
+	_phong_angle(integer) : "Phong Shading Behavior With Custom Angle" :  : "Enables phong shading for worldspawn brushes with a custom angle. The default angle is 89. Adjacent faces with normals this many degrees apart (or less) will be smoothed."
+	_phong_angle_concave(integer) : "Phong Shading Behavior With Custom Angle (Concave Faces)" :  : "Optional value for when _phong_angle is used. A pair of faces will either use _phong_angle or _phong_angle_concave as the smoothing threshold, depending on whether the joint between the faces is concave or not."
+]
+
+@BaseClass base(WorldSpawnLightingFeatures, WorldSpawnEngineFeatures) = WorldSpawnAdvancedFeatures []
+
+@SolidClass base(WorldSpawnAdvancedFeatures) = worldspawn : "Every single brush in a map that isn't a brush entity is added to WorldSpawn. Controls various map settings." []
+
+//
+// generic base classes
+//
+
+@BaseClass = Angles [ angles(string) : "Angles" : "0 0 0" : "Direction that an entity will point, or move." ]
+@BaseClass = Alpha [ alpha(float) : "Opacity Level" : "1.0" : "Opacity level for this brush entity. Not supported by older engines. 1.0 is fully opaque, 0.0 is fully invisible." ]
+
+@BaseClass = TargetName [ targetname(target_source) : "Name" :  : "The name of the entity that other entities can refer to it by." ]
+@BaseClass = Target [
+	target01(string) : "Target 1" :  : "Tokenized trigger function separated by commas. Format is: name,func,invalue,delay"
+	target02(string) : "Target 2" :  : "Tokenized trigger function separated by commas. Format is: name,func,invalue,delay"
+	target03(string) : "Target 3" :  : "Tokenized trigger function separated by commas. Format is: name,func,invalue,delay"
+	target04(string) : "Target 4" :  : "Tokenized trigger function separated by commas. Format is: name,func,invalue,delay"
+]
+
+@BaseClass = Effects [
+	effects(choices) : "Render Effects" : : "Add a special engine-level render style to this entity" =
+	[
+		0 : "None (Default)"
+		1 : "EF_BRIGHTFIELD"
+		2 : "EF_BRIGHTLIGHT"
+		3 : "EF_DIMLIGHT"
+		4 : "EF_NODRAW"
+		5 : "EF_ADDITIVE"
+		6 : "EF_BLUE"
+		7 : "EF_RED"
+		8 : "EF_GREEN"
+		9 : "EF_FULLBRIGHT"
+		10 : "EF_NOSHADOW"
+		11 : "EF_NODEPTHTEST"
+	]
+]
+
+//
+// player classes
+//
+
+@BaseClass size(-16 -16 0, 16 16 72) color(0 255 0) = Player []
+
+@PointClass base(Player) = info_player_start : "Player 1 start point." []
+@PointClass base(Player) = info_player_start_dev : "Dev player start point." []
+
+@PointClass base(Player, TargetName) = info_teleport_destination : "trigger_teleport destination point." []
+
+//
+// light classes
+//
+
+@BaseClass = BasicLightStartOff [ spawnflags(flags) = [ 1 : "Start off" : 0 ] ]
+
+@BaseClass base(TargetName) color(255 255 40) = BasicLight [
+	light(integer) : "Brightness" : 300 : "Brightness/intensity value for the light. Negative values will subtract light from the surrounding area."
+	style(choices) : "Appearance" : 0 =
+	[
+		0 : "Normal"
+		10: "Fluorescent flicker"
+		2 : "Slow, strong pulse"
+		11: "Slow pulse, noblack"
+		5 : "Gentle pulse"
+		1 : "Flicker A"
+		6 : "Flicker B"
+		3 : "Candle A"
+		7 : "Candle B"
+		8 : "Candle C"
+		4 : "Fast strobe"
+		9 : "Slow strobe"
+	]
+]
+
+@BaseClass base(BasicLight) = EricWLight [
+	target(target_destination) : "Spotlight Target" :  : "Name of entity to use as a spotlight target. Light will automatically become a spotlight if this is specified."
+	mangle(string) : "Spotlight Direction" :  : "The direction that the spotlight will point. Light will automatically become a spotlight if this is specified. Uses 'Yaw Pitch Roll' format. Example: 0 -90 0 is straight down."
+	angle(integer) : "Spotlight Cone Angle" : 40 : "The angle, in degrees, for the spotlight cone. Light will automatically become a spotlight if this is specified."
+	_color(color255) : "Light Color" :  : "The color of the light. Only supported by modern sourceports. Color format is Red Green Blue. Example: 255 255 255"
+	_softangle(integer) : "Spotlight Cone Inner Angle" :  : "The angle, in degrees, for the inner spotlight cone. Creates a smoother transition from the center to the outside of the spotlight cone. Must be less than the 'angle' value. Light will automatically become a spotlight if this is specified."
+	_anglescale(float) : "Spotlight Angle Intensity Scale" : "0.5" : "Sets a scaling factor for how much influence the angle of incidence of light on a surface has on the brightness of the surface. The value must be between 0.0 and 1.0. Smaller values mean less attenuation, with zero meaning that angle of incidence has no effect at all on the brightness."
+	wait(float) : "Fade Distance Multiplier" : "1" : "Scales the fade distance of the light. Values below 1 will make the light fade away quicker, while values over 1 will make it take longer to fade (and thus reach further)."
+	_falloff(integer) : "Hard Fade Distance" :  : "Defines the distance that the light will fade to 0 brightness in map units. The 'wait' and 'delay' values are ignored and 'light' will only effect the brightness at the center, not the falloff distance."
+	delay(choices) : "Attenuation" : 0 =
+	[
+		0 : "Linear attenuation - Default."
+		1 : "1/x attenuation."
+		2 : "1/(x^2) attenuation."
+		3 : "No attenuation - Same brightness at any distance."
+		4 : "Local minlight - No attentuation and will not raise the lighting above it's light value. Only affects surfaces in line of sight to this entity."
+		5 : "1/(x^2) attenuation - Alternate version, slightly dimmer at the source and more attenuated."
+	]
+	_dirt(choices) : "Dirtmapping Behavior" : 0 =
+	[
+		-1 : "Disable dirtmapping on this light. It will illuminate dirtmap shadows."
+		0 : "Inherit behavior from worldspawn's '_dirt' value."
+		1 : "Enables dirtmapping for this light."
+	]
+	_dirtscale(float) : "Dirtmapping Intensity Scale" : "1" : "Overrides worldspawn's _dirtscale value for just this light."
+	_deviance(integer) : "Light Deviance Radius" : 0 : "Split this light up into a sphere of randomly placed lights, with the value referring to how far the lights can be spread from the origin point."
+	_samples(integer) : "Light Deviance Samples" : 16 : "Number of randomly placed lights to use when _deviance is defined."
+	_surface(string) : "Surface Light Texture Name" :  : "Makes all textures with this texture name emit light. Surface lights are spaced about 128 map units (though possibly closer due to bsp splitting) apart and positioned 2 map units above the surfaces."
+	_surface_offset(integer) : "Surface Light Offset" : 2 : "Controls how high the '_surface lights' will be placed above the faces in question. Measured in map units."
+	_surface_spotlight(choices) : "Surface Light Spotlight Behavior" : 0 =
+	[
+		0 : "'_surface' lights will not be spotlights."
+		1 : "'_surface' lights will be spotlights. Will point away from the face."
+	]
+	_project_texture(string) : "Texture Projection Texture Name" :  : "Specifices the texture name that this light should project. Must be used somewhere in the map."
+	_project_mangle(string) : "Texture Projection Angle" :  : "The angle that the projected texture should point. Overrides 'mangle'. Uses 'Yaw Pitch Roll' format. Example: 0 -90 0 is straight down."
+	_project_fov(integer) : "Texture Projection FOV" : 90 : "Specifices the field of view for the projected texture."
+	_bouncescale(float) : "Bounce Lighting Scale" : "1.0" : "Scales the amount of light that is contributed by bounces. 0.0 disables bounce lighting for this light."
+	_sun(choices) : "Sunlight Behavior" : 0 =
+	[
+		0 : "Light will NOT act as a sun."
+		1 : "Light will act as a sun and emit from sky brushes only."
+	]
+	_suntexture(string) : "Sunlight Texture Name" :  : "Specifices the sky texture name that this light (if a sun) should project from."
+]
+
+@PointClass base(EricWLight, BasicLightStartOff) model({"path": "textures/sprites/editor/lightbulb.png", "scale": 0.25}) = light : "Invisible lightsource. Can be used as a spherical light, spotlight, ambient light, or sunlight." []
+
+//
+// ericw brush entity classes
+//
+
+@BaseClass = EricWBrush [
+	_lmscale(integer) : "Lightmap Scale" :  : "Lightmap scale for this brush entity. Generates an LMSHIFT bspx lump for use by the lighting tool. Not all engines support this."
+	_mirrorinside(choices) : "Interior Mirroring Behavior" : 0 =
+	[
+		0 : "Won't mirror inside faces."
+		1 : "Mirror inside faces of this brush entity."
+	]
+]
+
+@BaseClass = EricWBrushLight [
+	_minlight(integer) : "Minimum Light Level" :  : "Set the minimum light level for every face of the brush model."
+	_minlight_exclude(string) : "Minimum Light Level - Exclude Texture" :  : "Faces on the given brush model with this texture name are ignored by _minlight."
+	_minlight_color(color255) : "Minimum Light Level Color" :  : "Color value for _minlight to use. Only supported by modern sourceports. Color format is Red Green Blue. Example: 255 255 255"
+	_shadow(choices) : "Shadow Behavior" : 0 =
+	[
+		-1 : "Won't cast shadows. (FUNC_DETAIL & FUNC_GROUP ONLY)."
+		0 : "Won't cast shadows on anything, not even itself."
+		1 : "Cast shadows on itself, the world, and other brush entities."
+	]
+	_shadowself(choices) : "Self Shadow Behavior" : 0 =
+	[
+		0 : "Won't cast shadows on itself. Overriden by _shadow."
+		1 : "Will cast shadows on itself. Overriden by _shadow."
+	]
+	_shadowworldonly(choices) : "World Shadow Behavior" : 0 =
+	[
+		0 : "Don't cast shadows on the world. Overriden by _shadow."
+		1 : "Cast shadows on the world only. Overriden by _shadow."
+	]
+	_dirt(choices) : "Dirtmapping Behavior" : 0 =
+	[
+		-1 : "Disable dirtmapping on this brush entity."
+		0 : "Inherit behavior from worldspawn's _dirt value."
+		1 : "Enables dirtmapping for this brush entity."
+	]
+	_phong(choices) : "Phong Shading Behavior" : 0 =
+	[
+		0 : "No phong shading."
+		1 : "Enables phong shading for this brush entity."
+	]
+	_phong_angle(integer) : "Phong Shading Behavior With Custom Angle" :  : "Enables phong shading for this brush entity with a custom angle. The default angle is 89. Adjacent faces with normals this many degrees apart (or less) will be smoothed."
+	_phong_angle_concave(integer) : "Phong Shading Behavior With Custom Angle (Concave Faces)" :  : "Optional value for when _phong_angle is used. A pair of faces will either use _phong_angle or _phong_angle_concave as the smoothing threshold, depending on whether the joint between the faces is concave or not."
+	_lightignore(choices) : "Ignore Lighting" : 0 =
+	[
+		0 : "Recieve all lighting, including sunlight and _minlight."
+		1 : "This brush entity will recieve ONLY a _minlight value, either from worldspawn or from itself. It will ignore all other lights, including sunlight."
+	]
+	_bounce(choices) : "Bounce Lighting Behavior" : 0 =
+	[
+		-1 : "Disable bounce lighting for this entity."
+		0 : "Inherit from worldspawn _bounce."
+	]
+]
+
+@SolidClass base(EricWBrush, EricWBrushLight) = func_detail : "Detail brush. Ignored by vis so can speed up compile times consideratbly. Also allows you to set new compiler lighting options on brushes. DOES NOT SEAL MAPS FROM VOID!" []
+@SolidClass base(EricWBrush, EricWBrushLight) = func_detail_illusionary : "func_detail variant with no collision (players / monsters / gunfire) and doesn't split world faces. Doesn't cast shadows unless enabled with _shadow 1. Useful for hanging vines. Still creates BSP leafs." []
+@SolidClass base(EricWBrush, EricWBrushLight) = func_detail_wall : "func_detail variant that doesn't split world faces. Useful for when you want a decoration touching a floor or wall to not split the floor - wall faces (you'll get some overdraw instead.) If it completely covers up a world face, that face will get clipped away, so it's not suitable for fence textures; see func_detail_fence instead." []
+@SolidClass base(EricWBrush, EricWBrushLight) = func_detail_fence : "Similar to func_detail_wall except it's suitable for fence textures, never clips away world faces. Useful for fences, grates, etc., that are solid and block gunfire." []
+@SolidClass base(EricWBrush, EricWBrushLight) = func_group : "Brush group. Is treated by qbsp as world brushes but allows you to add light shading settings. _dirt and _shadow currently only accept -1 as a valid setting for func_group. Also useful for grouping brushes in Trenchbroom with no effect in-game." []
+@SolidClass base(EricWBrush, EricWBrushLight) = func_illusionary_visblocker  : "Visibility blocking func_illusionary. Players can walk through it, but the inside will be rendered as CONTENTS_EMPTY." []
+
+//
+// static brush entity classes
+//
+
+@BaseClass base(Effects, TargetName, Alpha, EricWBrush, EricWBrushLight) = StaticBrush []
+
+@SolidClass base(StaticBrush) = func_brush : "Static, generic brush." [
+	spawnflags(Flags) =
+	[
+		1 : "Start invisible"
+		2 : "Start non-solid"
+		4 : "Start with alternate frames"
+		8 : "Toggle visibility on trigger"
+		16 : "Toggle solidity on trigger"
+		32 : "Toggle frames on trigger"
+		64 : "Toggleable with +use"
+	]
+]
+
+@SolidClass base(StaticBrush) = func_illusionary : "Static, generic brush that is non-solid." []
+
+//
+// moving brush entity classes
+//
+
+@BaseClass base(Angles, TargetName, Target, EricWBrush, EricWBrushLight, Alpha, Effects) = MovingBrush []
+
+@SolidClass base(MovingBrush) = func_rotate : "Rotating brush entity. Requires origin brush." [
+	spawnflags(Flags) =
+	[
+		1 : "Triggered by touch"
+		2 : "Triggered by +use"
+		4 : "Change frames"
+		8 : "Not solid"
+		16 : "Start open"
+		32 : "Continious Rotation"
+	]
+	speed(integer) : "Speed" : 50 : "Speed to travel when opening or closing, in units per second."
+	reset_time(float) : "Reset Time" : "1" : "Time, in seconds, before the brush will automatically reset. Set to -1 to never reset."
+	sound_start(string) : "Start Move Sound" : "" : "Sound to play when the brush starts moving."
+	sound_stop(string) : "Stop Move Sound" : "" : "Sound to play when the brush stops moving."
+]
+
+//
+// trigger classes
+//
+
+@BaseClass base(Target, TargetName) = Trigger []
+
+@BaseClass base(Trigger) = TriggerReset [
+	reset_time(float) : "Trigger Reset Time" :  : "Time, in seconds, before this trigger can be used again."
+]
+
+@SolidClass base(TargetName) = trigger_changelevel : "Trigger: Change level" [
+	nextmap(string) : "Next Map" :  : "Map to load when the player touches this."
+]
+
+@SolidClass base(Trigger) = trigger_once : "Trigger: Activates its targets and then never resets." []
+
+@SolidClass base(Trigger) = trigger_teleport : "Trigger: Teleporter that will transport the player to the info_teleport_destination entity defined in 'destination'." [
+	destination(target_destination) : "Teleporter Destination" :  : "Name of the entity where the player will be teleported. Must be info_teleport_destination."
+]
+
+//
+// point_entities
+//
+
+@PointClass base(TargetName) color(200 150 150) = point_changelevel : "Trigger: Changelevel, point version." [
+	nextmap(string) : "Next Map" :  : "Map to load when this is triggered."
+]
+
+@PointClass base(TargetName) color(200 150 150) = point_command : "Trigger: Console Command, point version." [
+	command_name(string) : "Command Name" :  : "Name of console command to run when this is triggered."
+]
+
+@PointClass base(TargetName) color(200 150 150) = point_cvarset : "Trigger: Cvar Set, point version." [
+	cvar_name(string) : "Cvar Name" :  : "Name of cvar to set when this is triggered."
+	cvar_value(string) : "Cvar Value" :  : "The value to set the cvar to when this is triggered."
+]
+
+@PointClass base(TargetName) color(200 150 150) = point_null : "Targeting entity, removed on level start. Mostly used for directing spotlights or the sun." []
+
+//
+// path entities
+//
+
+@PointClass base(TargetName) color(200 150 150) = path_node : "Pathing entity for brushes and entities that follow a predefined path." [
+	target1(target_destination) : "Path 1" :  : "The next path entity. Traditionally the forward direction."
+	target2(target_destination) : "Path 2" :  : "The next path entity. Traditionally the reverse direction."
+]
+
+//
+// decore entities
+//
+
+@PointClass size(16 16 16) color(160 192 224) model({ "path": model, "skin": skin, "frame": frame }) = prop_decore :  "Displays a non-solid model." [
+	model(string) : "Filename of model"
+	frame(integer) : "frame of model to display" : 0
+	scale(float) : "Scale factor for model to display" : 1.0
+	skin(integer) : "Skin of model to display" : 0
+]
+
+//
+// katabase 2 classes
+//
+
+@PointClass size(16 16 16) model({"path": "textures/sprites/editor/speaker.png", "scale": 0.25}) color(200 150 150) = ambient_generic : "Generic looping ambient sound." [
+	soundfile(string) : "Path to Sound File"
+	volume(float) : "Sound Volume" : 1.0
+	attenuation(choices) : "Sound Attenuation" : 0 =
+	[
+		0 : "ATTN_NONE"
+		1 : "ATTN_NORM"
+		2 : "ATTN_IDLE"
+		3 : "ATTN_STATIC"
+	]
+]
+
+@PointClass base(Target) size(32 32 32) color(200 150 150) = interact_generic : "Interaction Point: Generic" [
+	reset_delay(float) : "Reset Delay" : 0
+]
+
+@PointClass base(Target) size(32 32 32) color(200 150 150) = interact_item : "Interaction Point: Item" [
+	interact_item(string) : "Name Of Item"
+	reset_delay(float) : "Reset Delay" : 0
+	interact_type(choices) : "Item Interaction Type" : 0 =
+	[
+		0 : "Add Item To Inventory"
+		1 : "Remove Item From Inventory"
+		2 : "Show Item On Screen"
+		3 : "Hide Item From Screen"
+	]
+]
+
+@PointClass base(TargetName) size(16 16 16) model({"path": "textures/sprites/editor/speaker.png", "scale": 0.25}) color(200 150 150) = point_sound : "A basic sound that plays once." [
+	soundfile(string) : "Path to Sound File"
+	volume(float) : "Sound Volume" : 1.0
+	attenuation(choices) : "Sound Attenuation" : 0 =
+	[
+		0 : "ATTN_NONE"
+		1 : "ATTN_NORM"
+		2 : "ATTN_IDLE"
+		3 : "ATTN_STATIC"
+	]
+	channel(choices) : "Sound Channel" : 0 =
+	[
+		0 : "CHAN_AUTO"
+		1 : "CHAN_WEAPON"
+		2 : "CHAN_VOICE"
+		3 : "CHAN_ITEM"
+		4 : "CHAN_BODY"
+	]
+	spawnflags(Flags) =
+	[
+		1 : "Force loop"
+	]
+]
+
+@PointClass base(TargetName) size(16 16 16) model({"path": "textures/sprites/editor/speaker.png", "scale": 0.25}) color(200 150 150) = point_sound_random : "A basic sound picked from a list that plays once." [
+	soundfile1(string) : "Path to Sound 1 File"
+	soundfile2(string) : "Path to Sound 2 File"
+	soundfile3(string) : "Path to Sound 3 File"
+	soundfile4(string) : "Path to Sound 4 File"
+	soundfile5(string) : "Path to Sound 5 File"
+	soundfile6(string) : "Path to Sound 6 File"
+	soundfile7(string) : "Path to Sound 7 File"
+	soundfile8(string) : "Path to Sound 8 File"
+	volume(float) : "Sound Volume" : 1.0
+	attenuation(choices) : "Sound Attenuation" : 0 =
+	[
+		0 : "ATTN_NONE"
+		1 : "ATTN_NORM"
+		2 : "ATTN_IDLE"
+		3 : "ATTN_STATIC"
+	]
+	channel(choices) : "Sound Channel" : 0 =
+	[
+		0 : "CHAN_AUTO"
+		1 : "CHAN_WEAPON"
+		2 : "CHAN_VOICE"
+		3 : "CHAN_ITEM"
+		4 : "CHAN_BODY"
+	]
+]
+
+@PointClass size(16 16 16) model({"path": "textures/sprites/editor/relay.png", "scale": 0.25}) base(Target, TargetName) color(200 150 150) = point_relay : "A relay that can trigger 4 entities for the price of one." [
+	delay(float) : "Delay Before Activation" : 0
+]
+
+@PointClass size(16 16 16) model({"path": "textures/sprites/editor/counter.png", "scale": 0.25}) base(Target, TargetName) color(200 150 150) = math_counter : "A counter entity that fires its targets once the target number has been reached." [
+	val_start(integer) : "Starting Value" : 0
+	val_target(integer) : "Target Value" : 1
+	spawnflags(flags) =
+	[
+		1 : "Reset self when finished"
+		2 : "Remove self when finished"
+	]
+]
+
+@PointClass size(16 16 16) model({"path": "textures/sprites/editor/counter.png", "scale": 0.25}) base(Target, TargetName) color(200 150 150) = math_random : "A trigger entity that only fires its targets if the engine randomly selects the value you define." [
+	random_min(integer) : "Maximum Value" : 0
+	random_max(integer) : "Minimum Value" : 32
+	random_target(integer) : "Target Value" : 16
+]
+
+//
+// debug entities
+//
+
+@PointClass size(32 32 32) model({{
+		frame == 1 -> { "path": "textures/sprites/editor/trigger_01_special.png" },
+		frame == 2 -> { "path": "textures/sprites/editor/trigger_02_kill.png" },
+		frame == 3 -> { "path": "textures/sprites/editor/trigger_03_light.png" },
+		frame == 4 -> { "path": "textures/sprites/editor/trigger_04_look.png" },
+		frame == 5 -> { "path": "textures/sprites/editor/trigger_05_equals.png" },
+		frame == 6 -> { "path": "textures/sprites/editor/trigger_06_phone.png" },
+		frame == 7 -> { "path": "textures/sprites/editor/trigger_07_boom.png" },
+		frame == 8 -> { "path": "textures/sprites/editor/trigger_08_gremlin.png" },
+		frame == 9 -> { "path": "textures/sprites/editor/trigger_09_magnet.png" },
+		frame == 10 -> { "path": "textures/sprites/editor/trigger_10_puppet.png" },
+		frame == 11 -> { "path": "textures/sprites/editor/trigger_11_variable.png" },
+		frame == 12 -> { "path": "textures/sprites/editor/trigger_12_ranomvariable.png" },
+		frame == 13 -> { "path": "textures/sprites/editor/trigger_13_counter.png" },
+		frame == 14 -> { "path": "textures/sprites/editor/trigger_14_dispatch.png" },
+		frame == 15 -> { "path": "textures/sprites/editor/trigger_15_life.png" },
+		frame == 16 -> { "path": "textures/sprites/editor/trigger_16_attach.png" },
+		frame == 17 -> { "path": "textures/sprites/editor/trigger_17_random.png" },
+		frame == 18 -> { "path": "textures/sprites/editor/trigger_18_relay.png" },
+		"textures/sprites/editor/trigger_00_generic.png"
+	}}) base(Target) color(200 150 150) = debug_trigger : "A debug entity for triggering things. Only appears in developer mode." [
+	frame(choices) : "Trigger Frame" : 0 =
+	[
+		0 : "Generic"
+		1 : "Special"
+		2 : "Kill"
+		3 : "Light"
+		4 : "Look"
+		5 : "Equals"
+		6 : "Phone"
+		7 : "Boom"
+		8 : "Gremlin"
+		9 : "Magnet"
+		10 : "Puppet"
+		11 : "Variable"
+		12 : "Random Variable"
+		13 : "Counter"
+		14 : "Dispatch"
+		15 : "Life"
+		16 : "Attach"
+		17 : "Random"
+		18 : "Relay"
+	]
+]
