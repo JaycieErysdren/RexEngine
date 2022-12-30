@@ -38,3 +38,7 @@ dosbox-x.conf
 /build/**/*.lno
 /build/**/csqccore.txt
 /build/**/ssqccore.txt
+
+# build testing area
+/build/windows/
+/build/windows.bat
