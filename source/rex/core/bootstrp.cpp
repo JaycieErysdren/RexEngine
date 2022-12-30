@@ -33,7 +33,7 @@ namespace Rex
 //
 
 // Initialize basic functions of Rex Engine
-bool Initialize()
+bool Init()
 {
 	// Initialize Memory Pool
 	MemPool_Init();
@@ -46,19 +46,19 @@ bool Initialize()
 }
 
 // Shutdown basic functions of Rex Engine
-bool Shutdown()
+bool Quit()
 {
 	// Shutdown Memory Pool
-	MemPool_Shutdown();
+	MemPool_Quit();
 
 	// Shutdown VFS
-	VFS_Shutdown();
+	VFS_Quit();
 
 	// Shutdown logging
-	if (Log_Shutdown() == false) return false;
+	if (Log_Quit() == false) return false;
 
 	// Shutdown platform-specific handlers
-	return Platform_Shutdown();
+	return Platform_Quit();
 }
 
 } // namespace Rex

@@ -96,11 +96,11 @@ bool Platform_Init()
 
 	// Initialize mouse driver
 	regs.w.ax = 0x00;
-	int86(0x33, &regs, &regs);
+	int386(0x33, &regs, &regs);
 
 	// Hide DOS mouse cursor
 	regs.w.ax = 0x02;
-	int86(0x33, &regs, &regs);
+	int386(0x33, &regs, &regs);
 
 	//
 	// Keyboard
@@ -132,7 +132,7 @@ bool Platform_Init()
 }
 
 // Free all interrupts
-bool Platform_Shutdown()
+bool Platform_Quit()
 {
 	//
 	// Keyboard
@@ -165,11 +165,11 @@ bool Platform_ReadInputDevices()
 	// Mouse
 	//
 
-	regs.x.ax = 0x03;
-	int86(0x33, &regs, &regs);
-	mouse_b = regs.x.bx;
-	mouse_x = regs.x.cx;
-	mouse_y = regs.x.dx;
+	regs.w.ax = 0x03;
+	int386(0x33, &regs, &regs);
+	mouse_b = regs.w.bx;
+	mouse_x = regs.w.cx;
+	mouse_y = regs.w.dx;
 
 	return true;
 }
@@ -191,7 +191,7 @@ bool Platform_MouseSet(rex_int mx, rex_int my, rex_int mb)
 	regs.w.bx = (rex_int16)mb;
 	regs.w.cx = (rex_int16)mx;
 	regs.w.dx = (rex_int16)my;
-	int86(0x33, &regs, &regs);
+	int386(0x33, &regs, &regs);
 
 	return true;
 }

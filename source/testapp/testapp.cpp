@@ -23,7 +23,7 @@
 
 int main(int argc, char *argv[])
 {
-	if (Rex::Initialize() == false)
+	if (Rex::Init() == false)
 	{
 		cout << "Rex Engine initialization failed" << endl;
 		return EXIT_FAILURE;
@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
 	cout << "awaiting user input..." << endl;
 	cin.get();
 
-	if (Rex::Shutdown() == false)
+	if (Rex::Quit() == false)
 	{
 		cout << "Rex Engine shutdown failed" << endl;
 		return EXIT_FAILURE;

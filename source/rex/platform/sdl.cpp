@@ -58,7 +58,7 @@ bool Platform_Init()
 }
 
 // Free all interrupts
-bool Platform_Shutdown()
+bool Platform_Quit()
 {
 	// Quit SDL
 	SDL_Quit();

@@ -103,7 +103,7 @@ bool MemPool_Init()
 }
 
 // Free memory pools
-bool MemPool_Shutdown()
+bool MemPool_Quit()
 {
 	if (buffer_private) free(buffer_private);
 	if (buffer_actors) free(buffer_actors);

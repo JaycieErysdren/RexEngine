@@ -43,7 +43,7 @@ bool Platform_Init()
 }
 
 // Free all interrupts
-bool Platform_Shutdown()
+bool Platform_Quit()
 {
 	return false;
 }

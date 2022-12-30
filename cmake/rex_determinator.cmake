@@ -38,12 +38,12 @@ if(REX_TARGET STREQUAL "SDL")
 	if(REX_COMPILER STREQUAL "GCC")
 
 		add_compile_definitions("REX_COMPILER=1")
-		set(REX_EXECUTABLE_SUFFIX "g")
+		set(REX_EXECUTABLE_SUFFIX "sg")
 
 	elseif(REX_COMPILER STREQUAL "MINGW")
 
 		add_compile_definitions("REX_COMPILER=2")
-		set(REX_EXECUTABLE_SUFFIX "m")
+		set(REX_EXECUTABLE_SUFFIX "sm")
 
 	endif()
 
@@ -57,12 +57,12 @@ if(REX_TARGET STREQUAL "DOS")
 	if(REX_COMPILER STREQUAL "DJGPP")
 
 		add_compile_definitions("REX_COMPILER=3")
-		set(REX_EXECUTABLE_SUFFIX "d")
+		set(REX_EXECUTABLE_SUFFIX "dd")
 
 	elseif(REX_COMPILER STREQUAL "WATCOM")
 
 		add_compile_definitions("REX_COMPILER=4")
-		set(REX_EXECUTABLE_SUFFIX "w")
+		set(REX_EXECUTABLE_SUFFIX "dw")
 
 	endif()
 

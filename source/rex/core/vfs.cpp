@@ -55,7 +55,9 @@ bool VFS_Add(string filename, vfs_format format)
 	// check if there's already a handle for this file
 	for (i = 0; i < vfs_handles.size(); i++)
 	{
-		if (filename.compare(vfs_handles[i].filename) == 0)
+		//if (filename.compare(vfs_handles[i].filename) == 0)
+
+		if (strcmp(vfs_handles[i].filename.c_str(), filename.c_str()) == 0)
 		{
 			return false;
 		}
@@ -180,7 +182,9 @@ bool VFS_Remove(string filename)
 
 	for (i = 0; i < vfs_handles.size(); i++)
 	{
-		if (filename.compare(vfs_handles[i].filename) == 0)
+		//if (filename.compare(vfs_handles[i].filename) == 0)
+
+		if (strcmp(vfs_handles[i].filename.c_str(), filename.c_str()) == 0)
 		{
 			fclose(vfs_handles[i].file_handle);
 			vfs_handles.erase(vfs_handles.begin() + i);
@@ -193,7 +197,7 @@ bool VFS_Remove(string filename)
 }
 
 // Close all VFS handles
-void VFS_Shutdown()
+void VFS_Quit()
 {
 	rex_int i;
 
@@ -227,7 +231,9 @@ bool File::Open(string fname)
 	{
 		for (f = 0; f < vfs_handles[i].files.size(); f++)
 		{
-			if (filename.compare(vfs_handles[i].files[f].filename) == 0)
+			//if (filename.compare(vfs_handles[i].files[f].filename) == 0)
+
+			if (strcmp(vfs_handles[i].files[f].filename.c_str(), filename.c_str()) == 0)
 			{
 				filesize = vfs_handles[i].files[f].filesize;
 				file_handle = NULL;
@@ -289,7 +295,9 @@ bool File::Read(size_t size, size_t n, void *ptr)
 		{
 			for (f = 0; f < vfs_handles[i].files.size(); f++)
 			{
-				if (filename.compare(vfs_handles[i].files[f].filename) == 0)
+				//if (filename.compare(vfs_handles[i].files[f].filename) == 0)
+
+				if (strcmp(vfs_handles[i].files[f].filename.c_str(), filename.c_str()) == 0)
 				{
 					rex_int ofs = vfs_handles[i].files[f].fileofs;
 

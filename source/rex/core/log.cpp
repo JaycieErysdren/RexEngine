@@ -55,7 +55,7 @@ bool Log_Init()
 }
 
 // Close log file handle
-bool Log_Shutdown()
+bool Log_Quit()
 {
 	if (log_file)
 	{

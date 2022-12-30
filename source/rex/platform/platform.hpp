@@ -34,7 +34,7 @@ namespace Rex
 bool Platform_Init();
 
 // Shutdown platform-specific handlers
-bool Platform_Shutdown();
+bool Platform_Quit();
 
 //
 // Devices

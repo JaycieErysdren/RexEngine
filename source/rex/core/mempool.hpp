@@ -39,7 +39,7 @@ typedef enum
 bool MemPool_Init();
 
 // Shutdown memory pools
-bool MemPool_Shutdown();
+bool MemPool_Quit();
 
 // Allocate a number of bytes from the specified memory pool
 void *MemPool_Alloc(rex_mempool pool, size_t size);

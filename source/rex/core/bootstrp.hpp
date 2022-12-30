@@ -27,10 +27,10 @@ namespace Rex
 {
 
 // Initialize basic functions of Rex Engine
-bool Initialize();
+bool Init();
 
 // Shutdown basic functions of Rex Engine
-bool Shutdown();
+bool Quit();
 
 } // namespace Rex
 

@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex Engine base types
 //
-// LAST EDITED:		December 18th, 2022
+// LAST EDITED:		December 30th, 2022
 //
 // ========================================================
 
@@ -275,23 +275,10 @@ typedef struct
 
 // Lerp
 #define REX_LERP(a, b, c)				((rex_scalar)(REX_MUL((a), (c)) + REX_MUL((b), REX_SCALAR(1.0f) - (c))))
-
 #define REX_LERP_VEC2S(a, b, c)			((rex_vec2s){REX_LERP((a.x), (b.x), (c)), REX_LERP((a.y), (b.y), (c))})
 
 // Dot product
 #define REX_DOT_VEC2S(a, b)				(REX_MUL((a.x), (b.x)) + REX_MUL((a.y), (b.y)))
 #define REX_DOT_VEC3S(a, b)				(REX_MUL((a.x), (b.x)) + REX_MUL((a.y), (b.y)) + REX_MUL((a.z), (b.z)))
-
-//
-// Rect
-//
-
-typedef struct
-{
-	rex_int32 x1, y1;
-	rex_int32 x2, y2;
-} rex_rect;
-
-#define REX_RECT(x1, y1, x2, y2)		((rex_rect){(x1), (y1), (x2), (y2)})
 
 #endif // __REX_TYPES_H__

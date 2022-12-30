@@ -138,7 +138,7 @@ bool VFS_Add(string filename, vfs_format format);
 bool VFS_Remove(string filename);
 
 // Close all VFS handles
-void VFS_Shutdown();
+void VFS_Quit();
 
 } // namespace Rex
 

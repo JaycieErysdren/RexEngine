@@ -24,11 +24,13 @@ set(TESTAPP_SRC
 	testapp.cpp
 )
 
+set(TESTAPP test${REX_EXECUTABLE_SUFFIX})
+
 ## Executable
-add_executable(testapp ${TESTAPP_SRC})
-target_link_libraries(testapp rex)
-target_include_directories(testapp PUBLIC ${CMAKE_SOURCE_DIR}/source)
-set_target_properties(testapp
+add_executable(${TESTAPP} ${TESTAPP_SRC})
+target_link_libraries(${TESTAPP} rex)
+target_include_directories(${TESTAPP} PUBLIC ${CMAKE_SOURCE_DIR}/source)
+set_target_properties(${TESTAPP}
 	PROPERTIES
 	ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/build"
 	LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/build"
