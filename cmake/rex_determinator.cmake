@@ -10,15 +10,15 @@
 ##
 ## DESCRIPTION:		Rex Engine platform & compiler determinator
 ##
-## LAST EDITED:		December 21st, 2022
+## LAST EDITED:		December 30th, 2022
 ##
 ## ========================================================
 
 ##
-## Target & host Platforms:
-## 1: Linux
-## 2: Windows
-## 3: DOS
+## Platforms:
+## 0: Null
+## 1: SDL
+## 2: DOS
 ##
 
 ##
@@ -27,30 +27,20 @@
 ## 2: MINGW
 ## 3: DJGPP
 ## 4: WATCOM
+## 5: MSVC
 ##
 
-## Linux target
-if(REX_TARGET STREQUAL "LINUX")
+## SDL target
+if(REX_TARGET STREQUAL "SDL")
 
 	add_compile_definitions("REX_TARGET=1")
 
-	## GCC
 	if(REX_COMPILER STREQUAL "GCC")
 
 		add_compile_definitions("REX_COMPILER=1")
 		set(REX_EXECUTABLE_SUFFIX "g")
 
-	endif()
-
-endif()
-
-## Windows target
-if(REX_TARGET STREQUAL "WINDOWS")
-
-	add_compile_definitions("REX_TARGET=2")
-
-	## MINGW
-	if(REX_COMPILER STREQUAL "MINGW")
+	elseif(REX_COMPILER STREQUAL "MINGW")
 
 		add_compile_definitions("REX_COMPILER=2")
 		set(REX_EXECUTABLE_SUFFIX "m")
@@ -62,20 +52,14 @@ endif()
 ## DOS target
 if(REX_TARGET STREQUAL "DOS")
 
-	add_compile_definitions("REX_TARGET=3")
+	add_compile_definitions("REX_TARGET=2")
 
-	## DJGPP
 	if(REX_COMPILER STREQUAL "DJGPP")
 
 		add_compile_definitions("REX_COMPILER=3")
-		## really, i'm just tired of seeing those warnings when packing structs
-		add_compile_options("-Wno-attributes")
 		set(REX_EXECUTABLE_SUFFIX "d")
 
-	endif()
-
-	## Open Watcom
-	if(REX_COMPILER STREQUAL "WATCOM")
+	elseif(REX_COMPILER STREQUAL "WATCOM")
 
 		add_compile_definitions("REX_COMPILER=4")
 		set(REX_EXECUTABLE_SUFFIX "w")

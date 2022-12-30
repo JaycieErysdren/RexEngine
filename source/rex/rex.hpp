@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex Engine public header
 //
-// LAST EDITED:		December 25th, 2022
+// LAST EDITED:		December 30th, 2022
 //
 // ========================================================
 
@@ -23,16 +23,17 @@
 //
 //
 
-// Potential compilers (Sorry clang)
-#define COMPILER_GCC 1		// GCC
-#define COMPILER_MINGW 2	// MINGW
-#define COMPILER_DJGPP 3	// DJGPP
-#define COMPILER_WATCOM 4	// Open Watcom
+// Compilers
+#define COMPILER_GCC		1 // GCC
+#define COMPILER_MINGW		2 // MINGW
+#define COMPILER_DJGPP		3 // DJGPP
+#define COMPILER_WATCOM		4 // Open Watcom
+#define COMPILER_MSVC		5 // MSVC
 
-// Potential target & host platforms
-#define PLATFORM_NIX 1		// Linux
-#define PLATFORM_WIN 2		// Windows
-#define PLATFORM_DOS 3		// DOS
+// Platforms
+#define PLATFORM_NULL		0 // Null
+#define PLATFORM_SDL		1 // SDL
+#define PLATFORM_DOS		2 // DOS
 
 //
 // External headers
@@ -57,7 +58,7 @@
 #include <stdio.h>
 #include <time.h>
 
-// DOS-specific standard headers
+// DOS target headers
 #if (REX_TARGET == PLATFORM_DOS)
 
 	// Standard DOS headers
@@ -85,11 +86,11 @@
 
 #endif
 
-// Modern target headers
-#if (REX_TARGET == PLATFORM_NIX) || (REX_TARGET == PLATFORM_WIN)
+// SDL target headers
+#if (REX_TARGET == PLATFORM_SDL)
 
-// SDL2
-#include <SDL2/SDL.h>
+	// SDL2
+	#include <SDL2/SDL.h>
 
 #endif
 
@@ -113,91 +114,7 @@ using namespace std;
 // Types
 #include "core/types.hpp"
 
-// Integer Math
-#include "core/math_i.hpp"
-
-// Fixed Math
-#include "core/math_x.hpp"
-
-// Math Table
-#include "core/mathtabl.hpp"
-
-// Memory Pool
-#include "core/mempool.hpp"
-
 // Bootstrap
-#include "core/bootstrap.hpp"
-
-// Log
-#include "core/log.hpp"
-
-// Clock
-#include "core/clock.hpp"
-
-// Graphics
-#include "core/graphics.hpp"
-
-// Surface
-#include "core/surface.hpp"
-
-// Models
-#include "core/model/types.hpp"
-
-// Scene
-#include "core/scene.hpp"
-
-// Render
-#include "core/render.hpp"
-
-// Keyboard
-#include "core/keyboard.hpp"
-
-// Mouse
-#include "core/mouse.hpp"
-
-// Console
-#include "core/console.hpp"
-
-// Virtual File System
-#include "core/vfs.hpp"
-
-// Sound
-#include "core/sound.hpp"
-
-//
-// Software renderers
-//
-
-// SectorData
-#include "core/softrend/sector.hpp"
-
-// TileData
-#include "core/softrend/tile.hpp"
-
-//
-// GL renderers
-//
-
-// Test
-#include "core/glrend/test.hpp"
-
-//
-// Renderers
-//
-
-// Raycast
-#if RENDERER_RAYCAST
-#include "render/raycast/render.hpp"
-#endif
-
-// Sector
-#if RENDERER_SECTOR
-#include "render/sector/render.hpp"
-#endif
-
-// Voxel
-#if RENDERER_VOXEL
-#include "render/voxel/voxel.hpp"
-#endif
+#include "core/bootstrp.hpp"
 
 #endif // __REX_ENGINE_H__

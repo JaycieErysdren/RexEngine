@@ -10,7 +10,7 @@
 ##
 ## DESCRIPTION:		Rex Engine CMake project definition
 ##
-## LAST EDITED:		December 22nd, 2022
+## LAST EDITED:		December 30th, 2022
 ##
 ## ========================================================
 
@@ -31,24 +31,6 @@ set(CMAKE_BUILD_TYPE Release)
 ## Rex Engine
 ##
 
-## Set the modules we want to compile
-set(MODULE_DOS TRUE)
-set(MODULE_VESA TRUE)
-set(MODULE_VGA TRUE)
-set(MODULE_ADLIB TRUE)
-
-set(MODULE_PAK TRUE)
-set(MODULE_ZIP TRUE)
-set(MODULE_GRP TRUE)
-set(MODULE_WAD TRUE)
-set(MODULE_ART TRUE)
-set(MODULE_IMF TRUE)
-
-## Set the renderers we want to compile
-set(RENDERER_VOXEL TRUE)
-set(RENDERER_RAYCAST TRUE)
-set(RENDERER_SECTOR TRUE)
-
 ## Rex Engine platform & compiler determinator
 include(${CMAKE_SOURCE_DIR}/cmake/rex_determinator.cmake)
 add_subdirectory(${CMAKE_SOURCE_DIR}/source/rex)
@@ -57,8 +39,5 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/source/rex)
 ## Applications & games
 ##
 
-## VivaDukeNukem
-add_subdirectory(${CMAKE_SOURCE_DIR}/source/vivaduke)
-
-## RexTest
-add_subdirectory(${CMAKE_SOURCE_DIR}/source/rex_test)
+## TestApp
+add_subdirectory(${CMAKE_SOURCE_DIR}/source/testapp)

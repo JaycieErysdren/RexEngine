@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex Engine private header
 //
-// LAST EDITED:		December 11th, 2022
+// LAST EDITED:		December 30th, 2022
 //
 // ========================================================
 
@@ -27,22 +27,21 @@
 
 //
 //
-// Globals (ew)
-//
-//
-
-extern Rex::VidInfo vid_info;
-
-extern rex_uint64 frame_start_time;
-extern rex_uint64 frame_end_time;
-extern rex_uint32 frame_cycles;
-extern rex_uint32 frame_target_cycles;
-
-//
-//
 // Rex Engine private headers
 //
 //
+
+// Platform
+#include "platform/platform.hpp"
+
+// Logging
+#include "core/log.hpp"
+
+// Memory Pool
+#include "core/mempool.hpp"
+
+// Virtual File System
+#include "core/vfs.hpp"
 
 //
 // Hardware I/O modules

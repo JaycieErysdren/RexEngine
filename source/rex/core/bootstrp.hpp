@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/rex/modules/core/io/bootstrap.hpp
+// FILE:			/source/rex/core/bootstrp.hpp
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex namespace: Bootstrap header
 //
-// LAST EDITED:		December 11th, 2022
+// LAST EDITED:		December 30th, 2022
 //
 // ========================================================
 

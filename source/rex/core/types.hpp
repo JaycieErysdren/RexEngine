@@ -50,62 +50,16 @@ typedef bool rex_bool;								// Boolean
 
 typedef string rex_string;							// String
 
-typedef rex_uint32 rex_color;						// Packed color
-
 typedef rex_int32 rex_int;							// Basic signed integer
 typedef rex_uint32 rex_uint;						// Basic unsigned integer
 
 // Color union type
 typedef union
 {
-	rex_uint8 indexed;
-	rex_uint16 rgb565;
-	rex_uint32 rgb8888;
-} rex_color_u;
-
-// 8-bit color creation
-#define REX_COLOR_INDEXED(c)		((rex_uint8)(c))
-
-// 16-bit color creation
-#define REX_COLOR_RGB_565(r, g, b)				\
-	((rex_uint16)((((r) >> 3) & 0x1f) << 11) |	\
-	(rex_uint16)((((g) >> 2) & 0x3f) << 5) |	\
-	(rex_uint16)((((b) >> 3) & 0x1f)))
-
-// 32-bit color creation
-#define REX_COLOR_RGB_8888(r, g, b, a)			\
-	((((rex_uint8)(a)) << 24) |					\
-	(((rex_uint8)(r)) << 16) |					\
-	(((rex_uint8)(g)) << 8) |					\
-	((rex_uint8)(b)))
-
-// 32-bit color extraction
-#define REX_COLOR_RED_8888(c)		((rex_uint8)(((c) >> 16) & 0xFF))
-#define REX_COLOR_GREEN_8888(c)		((rex_uint8)(((c) >> 8) & 0xFF))
-#define REX_COLOR_BLUE_8888(c)		((rex_uint8)((c) & 0xFF))
-#define REX_COLOR_ALPHA_8888(c)		((rex_uint8)(((c) >> 24) & 0xFF))
-
-//
-//
-// Color
-//
-//
-
-#define REX_COLOR_RGB(r, g, b)				\
-		((((rex_uint8)(r)) << 16) |			\
-		(((rex_uint8)(g)) << 8) |			\
-		((rex_uint8)(b)))
-
-#define REX_COLOR_RGBA(r, g, b, a)			\
-		((((rex_uint8)(a)) << 24) |			\
-		(((rex_uint8)(r)) << 16) |			\
-		(((rex_uint8)(g)) << 8) |			\
-		((rex_uint8)(b)))
-
-#define REX_COLOR_ALPHA(c) (((c) >> 24) & 0xFF)
-#define REX_COLOR_RED(c) (((c) >> 16) & 0xFF)
-#define REX_COLOR_GRN(c) (((c) >> 8) & 0xFF)
-#define REX_COLOR_BLU(c) ((c) & 0xFF)
+	rex_uint8 u8;
+	rex_uint16 u16;
+	rex_uint32 u32;
+} rex_color;
 
 //
 //
@@ -122,16 +76,6 @@ typedef union
 #endif
 
 //
-// Math type (fixed or floating point)
-//
-
-// Default to fixed point if not defined
-#if !defined(MATH_FIXED) && !defined(MATH_FLOAT)
-#define MATH_FIXED 1
-#define MATH_FLOAT 0
-#endif
-
-//
 //
 // GCC attributes
 //
@@ -139,7 +83,7 @@ typedef union
 
 #if (REX_COMPILER == COMPILER_DJGPP)
 
-#define ATTR_PACKED					__attribute__ ((packed))
+#define ATTR_PACKED						__attribute__ ((packed))
 
 #else
 
@@ -153,24 +97,11 @@ typedef union
 //
 //
 
-#define MIN(a, b)					(((a) < (b)) ? (a) : (b))
-#define MAX(a, b)					(((a) > (b)) ? (a) : (b))
-#define CLAMP(a, min, max)			MIN(MAX(a, min), max)
-#define ABS(a)						(((a) < 0) ? -(a) : (a))
-#define SGN(a)						(((a) < 0) ? -1 : (((a) > 0) ? 1 : 0))
-
-//
-// Portal2D
-//
-
-// Fixed-point conversion macros
-#define f2i(a) ((a) >> 16)
-#define i2f(a) ((a) << 16)
-#define f2fl(a) (((float)(a)) / i2f(1))
-#define fl2f(a) ((int)((a) * i2f(1)))
-
-// Fixed-point ceiling macro
-#define fixceil(a) (((a) + 0xFFFF) >> 16)
+#define REX_MIN(a, b)					(((a) < (b)) ? (a) : (b))
+#define REX_MAX(a, b)					(((a) > (b)) ? (a) : (b))
+#define REX_CLAMP(a, min, max)			REX_MIN(REX_MAX(a, min), max)
+#define REX_ABS(a)						(((a) < 0) ? -(a) : (a))
+#define REX_SGN(a)						(((a) < 0) ? -1 : (((a) > 0) ? 1 : 0))
 
 //
 //
@@ -183,7 +114,7 @@ typedef rex_int32 rex_fixed_32s;		// 32 bit signed fixed				15.16
 typedef rex_int16 rex_fixed_32sf;		// 32 bit signed fixed fraction		0.15
 
 typedef rex_uint32 rex_fixed_32u;		// 32 bit unsigned fixed			16.16
-typedef rex_uint16 rex_fixed_32uf;	// 32 bit unsigned fixed fraction	0.16
+typedef rex_uint16 rex_fixed_32uf;		// 32 bit unsigned fixed fraction	0.16
 
 typedef rex_int16 rex_fixed_16s;		// 16 bit signed fixed				7.8
 typedef rex_int8 rex_fixed_16sf;		// 16 bit signed fixed fraction		0.7
@@ -201,108 +132,100 @@ typedef rex_fixed_32uf					rex_ufraction;
 #define REX_SCALAR_MIN					0x80000000
 
 // 1 in various fixed-point forms
-#define REX_ONE_32S					(1 << 16)
-#define REX_ONE_32SF				(1 << 15)
-#define REX_ONE_32U					(1 << 16)
-#define REX_ONE_32UF				(1 << 16)
+#define REX_ONE_32S						(1 << 16)
+#define REX_ONE_32SF					(1 << 15)
+#define REX_ONE_32U						(1 << 16)
+#define REX_ONE_32UF					(1 << 16)
 
-#define REX_ONE_16S					(1 << 8)
-#define REX_ONE_16SF				(1 << 7)
-#define REX_ONE_16U					(1 << 8)
-#define REX_ONE_16UF				(1 << 8) 
+#define REX_ONE_16S						(1 << 8)
+#define REX_ONE_16SF					(1 << 7)
+#define REX_ONE_16U						(1 << 8)
+#define REX_ONE_16UF					(1 << 8) 
 
-#define REX_MASK_32S				(0xFFFF << 16)
-#define REX_MASK_32SF				(0xFFFF >> 16)
-#define REX_MASK_32U				(0xFFFF << 16)
-#define REX_MASK_32UF				(0xFFFF >> 16)
+#define REX_MASK_32S					(0xFFFF << 16)
+#define REX_MASK_32SF					(0xFFFF >> 16)
+#define REX_MASK_32U					(0xFFFF << 16)
+#define REX_MASK_32UF					(0xFFFF >> 16)
 
-#define REX_MASK_16S				(0xFFFF << 8)
-#define REX_MASK_16SF				(0xFFFF >> 8)
-#define REX_MASK_16U				(0xFFFF << 8)
-#define REX_MASK_16UF				(0xFFFF >> 8)
+#define REX_MASK_16S					(0xFFFF << 8)
+#define REX_MASK_16SF					(0xFFFF >> 8)
+#define REX_MASK_16U					(0xFFFF << 8)
+#define REX_MASK_16UF					(0xFFFF >> 8)
 
 //
 // Macros for static initialization
 //
 
 // Initialize scalar
-#define REX_SCALAR(x)				((rex_scalar)(REX_ONE_32S * (x)))
+#define REX_SCALAR(x)					((rex_scalar)(REX_ONE_32S * (x)))
 
 // Initialize signed fraction
-#define REX_FRACTION(x)				((rex_fraction)((REX_ONE_32SF * (x)) >= REX_ONE_32SF ? REX_ONE_32SF - 1 : REX_ONE_32SF * (x)))
+#define REX_FRACTION(x)					((rex_fraction)((REX_ONE_32SF * (x)) >= REX_ONE_32SF ? REX_ONE_32SF - 1 : REX_ONE_32SF * (x)))
 
 // Initialize unsigned fraction
-#define REX_UFRACTION(x)			((rex_ufraction)((REX_ONE_32UF * (x)) >= REX_ONE_32UF ? REX_ONE_32UF - 1 : REX_ONE_32UF * (x)))
+#define REX_UFRACTION(x)				((rex_ufraction)((REX_ONE_32UF * (x)) >= REX_ONE_32UF ? REX_ONE_32UF - 1 : REX_ONE_32UF * (x)))
 
 //
 // Macros for type conversion
 //
 
 // Float to scalar
-#define RexFloatToScalar(f)			((rex_scalar)((f) * (rex_float)REX_ONE_32S))
+#define RexFloatToScalar(f)				((rex_scalar)((f) * (rex_float)REX_ONE_32S))
 
 // Scalar to float
-#define RexScalarToFloat(s)			((s) / (rex_float)REX_ONE_32S)
+#define RexScalarToFloat(s)				((s) / (rex_float)REX_ONE_32S)
 
 // Integer to scalar
-#define RexIntegerToScalar(i)		((rex_scalar)((i) * (rex_int32)REX_ONE_32S))
+#define RexIntegerToScalar(i)			((rex_scalar)((i) * (rex_int32)REX_ONE_32S))
 
 // Scalar to integer
-#define RexScalarToInteger(s)		((rex_int32)(s) / (rex_int32)REX_ONE_32S)
+#define RexScalarToInteger(s)			((rex_int32)(s) / (rex_int32)REX_ONE_32S)
 
 // Fixed to scalar
-#define RexFixedToScalar(f)			(f)
+#define RexFixedToScalar(f)				(f)
 
 // Scalar to fixed
-#define RexScalarToFixed(s)			(s)
+#define RexScalarToFixed(s)				(s)
 
 // Signed fraction to scalar
-#define RexFractionToScalar(f)		((rex_scalar)((f) * 2))
+#define RexFractionToScalar(f)			((rex_scalar)((f) * 2))
 
 // Scalar to signed fraction
-#define RexScalarToFraction(s)		((rex_fraction)((s) / 2))
+#define RexScalarToFraction(s)			((rex_fraction)((s) / 2))
 
 // Unsigned fraction to scalar
-#define RexUFractionToScalar(f)		((rex_scalar)(f))
+#define RexUFractionToScalar(f)			((rex_scalar)(f))
 
 // Scalar to unsigned fraction
-#define RexScalarToUFraction(s)		((rex_ufraction)(s))
+#define RexScalarToUFraction(s)			((rex_ufraction)(s))
 
 // Integer to fixed
-#define RexIntegerToFixed(i)		((i) << 16)
+#define RexIntegerToFixed(i)			((i) << 16)
 
 // Fixed to integer
-#define RexFixedToInteger(i)		((i) >> 16)
+#define RexFixedToInteger(i)			((i) >> 16)
 
 // Float to fixed
-#define RexFloatToFixed(f)			((rex_scalar)((f) * (rex_float)X_ONE_32S))
+#define RexFloatToFixed(f)				((rex_scalar)((f) * (rex_float)X_ONE_32S))
 
 // Fixed to float
-#define RexFixedToFloat(s)			((s) * (1.0 / (rex_float)X_ONE_32S))
+#define RexFixedToFloat(s)				((s) * (1.0 / (rex_float)X_ONE_32S))
 
 //
 // Various arithmetic operations
 //
 
-#define REX_MUL(a, b)				(((rex_int64)(a) * (b)) >> 16)
-#define REX_DIV(a, b)				(((rex_int64)(a) << 16) / (b))
-#define REX_MULDIV(a, b, c)			(REX_DIV(REX_MUL((a), (b)), (c)))
+#define REX_MUL(a, b)					(((rex_int64)(a) * (b)) >> 16)
+#define REX_DIV(a, b)					(((rex_int64)(a) << 16) / (b))
+#define REX_MULDIV(a, b, c)				(REX_DIV(REX_MUL((a), (b)), (c)))
 
-#define REX_SAFEDIV(a, b)			((((a) == 0) || (b) == 0) ? REX_SCALAR_MIN : REX_DIV((a), (b)))
-#define REX_SAFEMULDIV(a, b, c)		(REX_SAFEDIV(REX_MUL((a), (b)), (c)))
+#define REX_SAFEDIV(a, b)				((((a) == 0) || (b) == 0) ? REX_SCALAR_MIN : REX_DIV((a), (b)))
+#define REX_SAFEMULDIV(a, b, c)			(REX_SAFEDIV(REX_MUL((a), (b)), (c)))
 
-#define REX_FLOOR(a)				((a) & REX_MASK_32S)
-#define REX_CEIL(a)					(((a) & REX_MASK_32SF == 0) ? (a) : ((a) + REX_ONE_32S) & REX_MASK_32S)
+#define REX_FLOOR(a)					((a) & REX_MASK_32S)
+#define REX_CEIL(a)						(((a) & REX_MASK_32SF == 0) ? (a) : ((a) + REX_ONE_32S) & REX_MASK_32S)
 
-#if (REX_COMPILER == COMPILER_WATCOM)
-
-#define REX_SQRT(a)					(sqrt((double)(a)))
-
-#else
-
-#define REX_SQRT(a)					(sqrt(a))
-
-#endif
+#define REX_SQRT(a)						(sqrt((double)(a)))
 
 //
 // Vector types & macros

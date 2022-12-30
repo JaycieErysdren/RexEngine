@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex namespace: Memory Pool header
 //
-// LAST EDITED:		December 16th, 2022
+// LAST EDITED:		December 30th, 2022
 //
 // ========================================================
 
@@ -36,10 +36,10 @@ typedef enum
 } rex_mempool;
 
 // Initialize memory pools
-void MemPool_Init();
+bool MemPool_Init();
 
 // Shutdown memory pools
-void MemPool_Shutdown();
+bool MemPool_Shutdown();
 
 // Allocate a number of bytes from the specified memory pool
 void *MemPool_Alloc(rex_mempool pool, size_t size);

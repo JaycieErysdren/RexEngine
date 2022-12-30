@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex namespace: VFS header
 //
-// LAST EDITED:		December 21st, 2022
+// LAST EDITED:		December 30th, 2022
 //
 // ========================================================
 
@@ -132,13 +132,13 @@ class VFS_Handle
 //
 
 // Add a new VFS handle
-bool AddVFS(string filename, vfs_format format);
+bool VFS_Add(string filename, vfs_format format);
 
 // Close a VFS handle
-bool RemoveVFS(string filename);
+bool VFS_Remove(string filename);
 
 // Close all VFS handles
-void RemoveAllVFS();
+void VFS_Shutdown();
 
 } // namespace Rex
 

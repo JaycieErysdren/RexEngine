@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex namespace: Memory Pool implementation
 //
-// LAST EDITED:		December 18th, 2022
+// LAST EDITED:		December 30th, 2022
 //
 // ========================================================
 
@@ -72,36 +72,46 @@ rex_int buffer_application_size = 16384;
 //
 
 // Initialize memory pools
-void MemPool_Init()
+bool MemPool_Init()
 {
 	// Private data
 	buffer_private = (rex_int8 *)calloc(buffer_private_size, sizeof(rex_int8));
 	mplite_init(&mempool_private, buffer_private, buffer_private_size, buffer_private_min_alloc, NULL);
+	if (buffer_private == NULL) return false;
 
 	// Actor data
 	buffer_actors = (rex_int8 *)calloc(buffer_actors_size, sizeof(rex_int8));
 	mplite_init(&mempool_actors, buffer_actors, buffer_actors_size, buffer_actors_min_alloc, NULL);
+	if (buffer_actors == NULL) return false;
 
 	// Renderer data
 	buffer_renderer = (rex_int8 *)calloc(buffer_renderer_size, sizeof(rex_int8));
 	mplite_init(&mempool_renderer, buffer_renderer, buffer_renderer_size, buffer_renderer_min_alloc, NULL);
+	if (buffer_renderer == NULL) return false;
 
 	// Surface data
 	buffer_surfaces = (rex_int8 *)calloc(buffer_surfaces_size, sizeof(rex_int8));
 	mplite_init(&mempool_surfaces, buffer_surfaces, buffer_surfaces_size, buffer_surfaces_min_alloc, NULL);
+	if (buffer_surfaces == NULL) return false;
 
 	// Application data
 	buffer_application = (rex_int8 *)calloc(buffer_actors_size, sizeof(rex_int8));
 	mplite_init(&mempool_application, buffer_application, buffer_application_size, buffer_application_min_alloc, NULL);
+	if (buffer_application == NULL) return false;
+
+	return true;
 }
 
-void MemPool_Shutdown()
+// Free memory pools
+bool MemPool_Shutdown()
 {
 	if (buffer_private) free(buffer_private);
 	if (buffer_actors) free(buffer_actors);
 	if (buffer_renderer) free(buffer_renderer);
 	if (buffer_surfaces) free(buffer_surfaces);
 	if (buffer_application) free(buffer_application);
+
+	return true;
 }
 
 // Allocate a number of bytes from the specified memory pool
@@ -111,23 +121,18 @@ void *MemPool_Alloc(rex_mempool pool, size_t size)
 	{
 		case MEMORY_PRIVATE:
 			return mplite_malloc(&mempool_private, size);
-			break;
 
 		case MEMORY_ACTORS:
 			return mplite_malloc(&mempool_actors, size);
-			break;
 
 		case MEMORY_RENDERER:
 			return mplite_malloc(&mempool_renderer, size);
-			break;
 
 		case MEMORY_SURFACES:
 			return mplite_malloc(&mempool_surfaces, size);
-			break;
 
 		case MEMORY_APPLICATION:
 			return mplite_malloc(&mempool_application, size);
-			break;
 
 		default:
 			return NULL;

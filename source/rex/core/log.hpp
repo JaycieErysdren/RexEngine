@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex namespace: Log header
 //
-// LAST EDITED:		December 18th, 2022
+// LAST EDITED:		December 30th, 2022
 //
 // ========================================================
 
@@ -30,6 +30,20 @@ namespace Rex
 //
 // Functions
 //
+//
+
+//
+// Bootstrap
+//
+
+// Open log file handle
+bool Log_Init();
+
+// Close log file handle
+bool Log_Shutdown();
+
+//
+// Logging
 //
 
 // Log a non-critical message to the console and a log file. Pass an empty string as the filename to skip file logging.

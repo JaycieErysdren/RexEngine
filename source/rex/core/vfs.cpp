@@ -46,7 +46,7 @@ vector<VFS_Handle> vfs_handles;
 //
 
 // Add a new VFS handle
-bool AddVFS(string filename, vfs_format format)
+bool VFS_Add(string filename, vfs_format format)
 {
 	if (filename.empty()) return false;
 
@@ -109,6 +109,9 @@ bool AddVFS(string filename, vfs_format format)
 
 	switch (handle.format)
 	{
+
+		#ifdef WAIT_A_WHILE
+
 		// PAK
 		case VFS_FORMAT_PAK:
 		{
@@ -162,6 +165,8 @@ bool AddVFS(string filename, vfs_format format)
 			return true;
 		}
 
+		#endif
+
 		// failed
 		default:
 			return false;
@@ -169,7 +174,7 @@ bool AddVFS(string filename, vfs_format format)
 }
 
 // Close a VFS handle
-bool RemoveVFS(string filename)
+bool VFS_Remove(string filename)
 {
 	rex_int i;
 
@@ -188,7 +193,7 @@ bool RemoveVFS(string filename)
 }
 
 // Close all VFS handles
-void RemoveAllVFS()
+void VFS_Shutdown()
 {
 	rex_int i;
 

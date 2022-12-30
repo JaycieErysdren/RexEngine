@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex namespace: Log implementation
 //
-// LAST EDITED:		December 18th, 2022
+// LAST EDITED:		December 30th, 2022
 //
 // ========================================================
 
@@ -28,13 +28,52 @@ namespace Rex
 
 //
 //
+// Global Variables
+//
+//
+
+FILE *log_file;
+
+//
+//
 // Functions
 //
 //
 
-// Log a non-critical message to the console and a log file. Pass NULL as the filename to skip file logging.
-void Log(const char *filename, const char *fmt, ...)
+//
+// Bootstrap
+//
+
+// Open log file handle
+bool Log_Init()
 {
+	log_file = fopen("rex.log", "a");
+
+	if (log_file == NULL) return false;
+
+	return true;
+}
+
+// Close log file handle
+bool Log_Shutdown()
+{
+	if (log_file)
+	{
+		if (fclose(log_file) != 0) return false;
+	}
+
+	return true;
+}
+
+//
+// Logging
+//
+
+// Log a non-critical message to the console and a log file.
+void Log(const char *fmt, ...)
+{
+	if (log_file == NULL) return;
+
 	// Variables
 	va_list args;
 	char log_buffer[1024];
@@ -63,20 +102,8 @@ void Log(const char *filename, const char *fmt, ...)
 	// Add newline
 	strcpy(log_buffer + strlen(log_buffer), "\n");
 
-	// Log to a file if filename given
-	if (filename != NULL)
-	{
-		FILE *log_file = fopen(filename, "a");
-
-		if (log_file != NULL)
-		{
-			fwrite(log_buffer, sizeof(char), strlen(log_buffer), log_file);
-			fclose(log_file);
-		}
-	}
-
-	// Print the message to stdout
-	//printf("%s", log_buffer);
+	// Log to the file
+	fwrite(log_buffer, sizeof(char), strlen(log_buffer), log_file);
 }
 
 } // namespace Rex

@@ -10,7 +10,7 @@
 ##
 ## DESCRIPTION:		Bash compile script (DOS32, DJGPP)
 ##
-## LAST EDITED:		December 19th, 2022
+## LAST EDITED:		December 30th, 2022
 ##
 ## ========================================================
 
