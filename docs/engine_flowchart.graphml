@@ -213,7 +213,7 @@ to the memory pools<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:Labe
           <y:Geometry height="32.959999999999894" width="264.1120000000002" x="736.5095955216766" y="4206.475461125017"/>
           <y:Fill color="#99CCFF" color2="#99CCFF" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.96875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="242.166015625" x="10.97299218750004" xml:space="preserve" y="7.495625000000018">Application-specific shutdown functions<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.96875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="242.166015625" x="10.97299218750004" xml:space="preserve" y="7.495624999999563">Application-specific shutdown functions<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
         </y:GenericNode>
       </data>
     </node>
@@ -223,7 +223,7 @@ to the memory pools<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:Labe
           <y:Geometry height="45.65759999999989" width="184.73216000000002" x="596.4860799999999" y="565.8477994807484"/>
           <y:Fill color="#FF99CC" color2="#FF99CC" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="31.9375" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="176.359375" x="4.186392500000011" xml:space="preserve" y="6.860049999999944">Start counting ticks in global
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="31.9375" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="176.359375" x="4.186392500000011" xml:space="preserve" y="6.860049999999887">Start counting ticks in global
 engine timer<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
         </y:GenericNode>
       </data>
@@ -294,7 +294,7 @@ engine timer<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel>
           <y:Geometry height="45.65759999999989" width="198.65856000000008" x="589.5228799999999" y="664.4429994807482"/>
           <y:Fill color="#FF99CC" color2="#FF99CC" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="31.9375" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="184.146484375" x="7.25603781250004" xml:space="preserve" y="6.860050000000001">Return class with information
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="31.9375" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="184.146484375" x="7.25603781250004" xml:space="preserve" y="6.860049999999887">Return class with information
 about this Rex Engine session<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
         </y:GenericNode>
       </data>
@@ -326,7 +326,7 @@ about this RexGraphicsContext<y:LabelModel><y:SmartNodeLabelModel distance="4.0"
           <y:Geometry height="189.4280600220019" width="421.42823920792034" x="1091.0457599999995" y="531.9061394587463"/>
           <y:Fill color="#FF99CC" color2="#FF99CC" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="left" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="115.75" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="324.953125" x="48.23755710396017" xml:space="preserve" y="36.83903001100094">class RexContext
+          <y:NodeLabel alignment="left" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="115.75" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="324.953125" x="48.23755710396017" xml:space="preserve" y="36.83903001100089">class RexContext
 {
       int64 start_time;
 
@@ -661,7 +661,7 @@ serve as the writeable back buffer(?)<y:LabelModel><y:SmartNodeLabelModel distan
           <y:Geometry height="62.795280897689736" width="350.9381958125409" x="879.376087402891" y="2147.377547313071"/>
           <y:Fill color="#CC99FF" color2="#CC99FF" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="45.90625" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="336.37890625" x="7.279644781270463" xml:space="preserve" y="8.444515448845095">In Rex Engine, a "Cycle" represents a block of code
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="45.90625" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="336.37890625" x="7.279644781270463" xml:space="preserve" y="8.444515448844868">In Rex Engine, a "Cycle" represents a block of code
 that will execute a fixed number of times per second,
 instead of executing as fast as the processor will allow.<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
         </y:GenericNode>
@@ -710,7 +710,7 @@ instead of executing as fast as the processor will allow.<y:LabelModel><y:SmartN
           <y:Geometry height="45.65759999999989" width="241.7203622442246" x="567.9919788778876" y="996.110686174559"/>
           <y:Fill color="#FF99CC" color2="#FF99CC" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="31.9375" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="218.740234375" x="11.490063934612294" xml:space="preserve" y="6.860050000000001">Allocate memory from mempool for
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="31.9375" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="218.740234375" x="11.490063934612294" xml:space="preserve" y="6.860049999999887">Allocate memory from mempool for
 actor and associated data<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
         </y:GenericNode>
       </data>
@@ -721,7 +721,7 @@ actor and associated data<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></
           <y:Geometry height="45.65759999999989" width="241.7203622442246" x="567.9919788778876" y="1071.7682861745589"/>
           <y:Fill color="#FF99CC" color2="#FF99CC" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="31.9375" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="202.71484375" x="19.502759247112294" xml:space="preserve" y="6.860049999999887">If a parent is specified, add them
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="31.9375" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="202.71484375" x="19.502759247112294" xml:space="preserve" y="6.860050000000001">If a parent is specified, add them
 to actor hierarchy<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
         </y:GenericNode>
       </data>
@@ -1574,7 +1574,6 @@ through the actor's child hierarchy.<y:LabelModel><y:SmartNodeLabelModel distanc
       </data>
     </edge>
     <edge id="e68" source="n1" target="n71">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -1588,7 +1587,6 @@ through the actor's child hierarchy.<y:LabelModel><y:SmartNodeLabelModel distanc
       </data>
     </edge>
     <edge id="e69" source="n1" target="n72">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -1602,7 +1600,6 @@ through the actor's child hierarchy.<y:LabelModel><y:SmartNodeLabelModel distanc
       </data>
     </edge>
     <edge id="e70" source="n1" target="n4">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -1616,7 +1613,6 @@ through the actor's child hierarchy.<y:LabelModel><y:SmartNodeLabelModel distanc
       </data>
     </edge>
     <edge id="e71" source="n1" target="n3">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -1630,7 +1626,6 @@ through the actor's child hierarchy.<y:LabelModel><y:SmartNodeLabelModel distanc
       </data>
     </edge>
     <edge id="e72" source="n23" target="n26">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -1641,7 +1636,6 @@ through the actor's child hierarchy.<y:LabelModel><y:SmartNodeLabelModel distanc
       </data>
     </edge>
     <edge id="e73" source="n23" target="n73">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -1655,7 +1649,6 @@ through the actor's child hierarchy.<y:LabelModel><y:SmartNodeLabelModel distanc
       </data>
     </edge>
     <edge id="e74" source="n23" target="n25">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -1669,7 +1662,6 @@ through the actor's child hierarchy.<y:LabelModel><y:SmartNodeLabelModel distanc
       </data>
     </edge>
     <edge id="e75" source="n23" target="n24">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -1683,7 +1675,6 @@ through the actor's child hierarchy.<y:LabelModel><y:SmartNodeLabelModel distanc
       </data>
     </edge>
     <edge id="e76" source="n23" target="n74">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -1697,7 +1688,6 @@ through the actor's child hierarchy.<y:LabelModel><y:SmartNodeLabelModel distanc
       </data>
     </edge>
     <edge id="e77" source="n9" target="n12">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -1708,7 +1698,6 @@ through the actor's child hierarchy.<y:LabelModel><y:SmartNodeLabelModel distanc
       </data>
     </edge>
     <edge id="e78" source="n9" target="n75">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -1722,7 +1711,6 @@ through the actor's child hierarchy.<y:LabelModel><y:SmartNodeLabelModel distanc
       </data>
     </edge>
     <edge id="e79" source="n9" target="n11">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -1736,7 +1724,6 @@ through the actor's child hierarchy.<y:LabelModel><y:SmartNodeLabelModel distanc
       </data>
     </edge>
     <edge id="e80" source="n9" target="n76">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -1750,13 +1737,23 @@ through the actor's child hierarchy.<y:LabelModel><y:SmartNodeLabelModel distanc
       </data>
     </edge>
     <edge id="e81" source="n9" target="n10">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
             <y:Point x="1004.1610401027579" y="3723.334920348375"/>
             <y:Point x="1004.1610401027579" y="3641.5202003483755"/>
           </y:Path>
+          <y:LineStyle color="#000000" type="line" width="1.0"/>
+          <y:Arrows source="none" target="standard"/>
+          <y:BendStyle smoothed="false"/>
+        </y:PolyLineEdge>
+      </data>
+    </edge>
+    <edge id="e82" source="n69" target="n53">
+      <data key="d9"/>
+      <data key="d10">
+        <y:PolyLineEdge>
+          <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
           <y:BendStyle smoothed="false"/>
