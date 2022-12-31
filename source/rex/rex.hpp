@@ -99,7 +99,7 @@
 #endif
 
 // Win386 target headers
-#if (REX_TARGET == PLATFORM_WIN386)
+#if (REX_TARGET == PLATFORM_WIN32) || (REX_TARGET == PLATFORM_WIN386)
 
 	// Windows
 	#include <windows.h>

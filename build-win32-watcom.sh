@@ -22,5 +22,5 @@ then
 fi
 
 cd cmake-build-win32-watcom
-cmake -G "Watcom WMake" -D CMAKE_SYSTEM_NAME=Windows -D REX_TARGET=WIN386 -D REX_COMPILER=WATCOM ..
+cmake -G "Watcom WMake" -D CMAKE_SYSTEM_NAME=Windows -D REX_TARGET=WIN32 -D REX_COMPILER=WATCOM ..
 wmake

@@ -96,6 +96,10 @@ elseif(REX_TARGET STREQUAL "SDL")
 	target_include_directories(rex_platform PUBLIC ${SDL2_INCLUDE_DIRS})
 	target_link_libraries(rex_platform PUBLIC ${SDL2_LIBRARIES})
 
+elseif(REX_TARGET STREQUAL "WIN32")
+
+	add_library(rex_platform STATIC "platform/win32.cpp")
+
 elseif(REX_TARGET STREQUAL "WIN386")
 
 	add_library(rex_platform STATIC "platform/win386.cpp")
