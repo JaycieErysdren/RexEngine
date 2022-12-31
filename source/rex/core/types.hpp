@@ -10,20 +10,12 @@
 //
 // DESCRIPTION:		Rex Engine base types
 //
-// LAST EDITED:		December 30th, 2022
+// LAST EDITED:		December 31st, 2022
 //
 // ========================================================
 
 #ifndef __REX_TYPES_H__
 #define __REX_TYPES_H__
-
-//
-//
-// Engine limits
-//
-//
-
-#define REX_MAX_ACTOR 128
 
 //
 //

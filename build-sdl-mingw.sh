@@ -10,7 +10,7 @@
 ##
 ## DESCRIPTION:		Bash compile script (SDL, MINGW)
 ##
-## LAST EDITED:		December 30th, 2022
+## LAST EDITED:		December 31st, 2022
 ##
 ## ========================================================
 

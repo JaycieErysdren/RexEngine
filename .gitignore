@@ -8,14 +8,6 @@ local/
 # cmake
 cmake-build-*/
 
-# DJGPP
-CWSDPMI.SWP
-cwsdpmi.swp
-
-# engine
-*.LOG
-*.log
-
 # blender
 *.blend1
 
@@ -30,15 +22,6 @@ run_*.sh
 dosbox-x.conf
 /capture/
 
-# qrex
-/build/conhistory.txt
-/build/maptimes.txt
-/build/**/fte.cfg
-/build/**/*.sav
-/build/**/*.lno
-/build/**/csqccore.txt
-/build/**/ssqccore.txt
-
-# build testing area
-/build/windows/
-/build/windows.bat
+# build
+build/*
+!build/assets/
