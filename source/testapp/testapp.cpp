@@ -18,23 +18,40 @@
 #include "testapp.hpp"
 
 //
+// Message
+//
+
+void Message(const char *title, const char *message)
+{
+	#if (REX_PLATFORM == PLATFORM_WIN386)
+
+	MessageBox(NULL, title, message, MB_OK | MB_TASKMODAL);
+
+	#else
+
+	cout << title << endl;
+	cout << message << endl;
+
+	#endif
+}
+
+//
 // Main entry point
 //
 
-int main(int argc, char *argv[])
+int RexMain(int argc, char *argv[])
 {
 	if (Rex::Init() == false)
 	{
-		cout << "Rex Engine initialization failed" << endl;
+		Message("Error", "Rex Engine initialization failed");
 		return EXIT_FAILURE;
 	}
 
-	cout << "awaiting user input..." << endl;
-	cin.get();
+	Message("Message", "Awaiting user input...");
 
 	if (Rex::Quit() == false)
 	{
-		cout << "Rex Engine shutdown failed" << endl;
+		Message("Error", "Rex Engine shutdown failed");
 		return EXIT_FAILURE;
 	}
 

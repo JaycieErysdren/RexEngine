@@ -8,6 +8,9 @@ local/
 # cmake
 cmake-build-*/
 
+# make
+build-*/
+
 # blender
 *.blend1
 

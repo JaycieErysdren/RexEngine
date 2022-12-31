@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex Engine: DOS Platform implementation
 //
-// LAST EDITED:		December 30th, 2022
+// LAST EDITED:		December 31st, 2022
 //
 // ========================================================
 
@@ -219,3 +219,14 @@ rex_int64 Platform_GetTicks64()
 }
 
 } // namespace Rex
+
+//
+//
+// MAIN PLATFORM ENTRY POINT
+//
+//
+
+int main(int argc, char *argv[])
+{
+	return RexMain(argc, argv);
+}

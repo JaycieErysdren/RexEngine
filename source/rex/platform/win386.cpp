@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/rex/platform/sdl.cpp
+// FILE:			/source/rex/platform/win386.cpp
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -8,7 +8,7 @@
 //
 // LICENSE:			ACSL v1.4
 //
-// DESCRIPTION:		Rex Engine: SDL Platform implementation
+// DESCRIPTION:		Rex Engine: Win386 Platform implementation
 //
 // LAST EDITED:		December 31st, 2022
 //
@@ -19,24 +19,12 @@
 
 //
 //
-// Rex Engine: SDL Platform
+// Rex Engine: Win386 Platform
 //
 //
 
 namespace Rex
 {
-
-//
-//
-// Global Variables
-//
-//
-
-// Mouse
-rex_int32 mouse_x, mouse_y, mouse_b;
-
-// Keyboard
-bool keys[256];
 
 //
 //
@@ -51,18 +39,12 @@ bool keys[256];
 // Initialize all interrupts
 bool Platform_Init()
 {
-	// Initialize SDL
-	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) return false;
-
 	return true;
 }
 
 // Free all interrupts
 bool Platform_Quit()
 {
-	// Quit SDL
-	SDL_Quit();
-
 	return true;
 }
 
@@ -73,43 +55,13 @@ bool Platform_Quit()
 // Read data from all currently connected input devices (keyboards, mice, etc)
 bool Platform_ReadInputDevices()
 {
-	SDL_Event event;
-
-	// Pump events
-	SDL_PumpEvents();
-
-	// Get mouse info
-	mouse_b = SDL_GetMouseState(&mouse_x, &mouse_y);
-
-	// Poll events
-	while (SDL_PollEvent(&event))
-	{
-		switch (event.type)
-		{
-			case SDL_KEYDOWN:
-				keys[event.key.keysym.scancode] = true;
-				break;
-
-			case SDL_KEYUP:
-				keys[event.key.keysym.scancode] = false;
-				break;
-
-			default:
-				break;
-		}
-	}
-
 	return false;
 }
 
 // Get mouse data
 bool Platform_MouseGet(rex_int *mx, rex_int *my, rex_int *mb)
 {
-	if (mx) *mx = (rex_int)mouse_x;
-	if (my) *my = (rex_int)mouse_y;
-	if (mb) *mb = (rex_int)mouse_b;
-
-	return true;
+	return false;
 }
 
 // Set mouse data
@@ -121,7 +73,7 @@ bool Platform_MouseSet(rex_int mx, rex_int my, rex_int mb)
 // Returns true if the specified key is pressed
 bool Platform_KeyboardGet(rex_int scancode)
 {
-	return keys[scancode];
+	return false;
 }
 
 //
@@ -131,7 +83,7 @@ bool Platform_KeyboardGet(rex_int scancode)
 // Returns the number of ticks elapsed since program start
 rex_int64 Platform_GetTicks64()
 {
-	return (rex_int64)SDL_GetTicks64();
+	return -1;
 }
 
 } // namespace Rex
@@ -142,7 +94,7 @@ rex_int64 Platform_GetTicks64()
 //
 //
 
-int main(int argc, char *argv[])
+int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nCmdShow)
 {
-	return RexMain(argc, argv);
+	return RexMain(0, NULL);
 }

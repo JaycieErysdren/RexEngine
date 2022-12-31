@@ -27,13 +27,17 @@
 #define COMPILER_GCC		1 // GCC
 #define COMPILER_MINGW		2 // MINGW
 #define COMPILER_DJGPP		3 // DJGPP
-#define COMPILER_WATCOM		4 // Open Watcom
+#define COMPILER_WATCOM		4 // Watcom
 #define COMPILER_MSVC		5 // MSVC
 
 // Platforms
 #define PLATFORM_NULL		0 // Null
 #define PLATFORM_SDL		1 // SDL
 #define PLATFORM_DOS		2 // DOS
+#define PLATFORM_WIN32		3 // Win32
+#define PLATFORM_LINUX32	4 // Linux32
+#define PLATFORM_WIN386		5 // Win386
+#define PLATFORM_OS2		6 // OS/2
 
 //
 // External headers
@@ -76,7 +80,7 @@
 
 	#endif
 
-	// Open Watcom headers
+	// Watcom headers
 	#if (REX_COMPILER == COMPILER_WATCOM)
 
 		#include <i86.h>
@@ -93,6 +97,15 @@
 	#include <SDL2/SDL.h>
 
 #endif
+
+// Win386 target headers
+#if (REX_TARGET == PLATFORM_WIN386)
+
+	// Windows
+	#include <windows.h>
+
+#endif
+
 
 // Use standard namespace for convenience
 using namespace std;
@@ -116,5 +129,14 @@ using namespace std;
 
 // Bootstrap
 #include "core/bootstrp.hpp"
+
+//
+//
+// RexMain
+//
+//
+
+// The main program entry point. This needs to be defined by the end user.
+int RexMain(int argc, char *argv[]);
 
 #endif // __REX_ENGINE_H__

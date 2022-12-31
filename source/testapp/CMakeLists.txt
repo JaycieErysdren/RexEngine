@@ -24,7 +24,7 @@ set(TESTAPP_SRC
 	testapp.cpp
 )
 
-set(TESTAPP test${REX_EXECUTABLE_SUFFIX})
+set(TESTAPP test_${REX_EXECUTABLE_SUFFIX})
 
 ## Executable
 add_executable(${TESTAPP} ${TESTAPP_SRC})

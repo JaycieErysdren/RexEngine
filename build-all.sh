@@ -31,3 +31,11 @@ cd ..
 ## SDL, MINGW
 source ./build-sdl-mingw.sh
 cd ..
+
+## Win32, Watcom
+source ./build-win32-watcom.sh
+cd ..
+
+## Linux32, Watcom
+source ./build-linux32-watcom.sh
+cd ..
