@@ -23,7 +23,7 @@
 
 void Message(const char *title, const char *message)
 {
-	#if (REX_PLATFORM == PLATFORM_WIN386)
+	#if (REX_PLATFORM == PLATFORM_WIN32)
 
 	MessageBox(NULL, title, message, MB_OK | MB_TASKMODAL);
 

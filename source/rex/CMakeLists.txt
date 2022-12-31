@@ -44,16 +44,12 @@ include_directories(.)
 ##
 ##
 
-if(REX_USE_CJSON EQUAL TRUE)
+## cJSON
+set(CJSON_SRC
+	thrdprty/cjson/cJSON.c
+)
 
-	## cJSON
-	set(CJSON_SRC
-		thrdprty/cjson/cJSON.c
-	)
-
-	add_library(cjson STATIC ${CJSON_SRC})
-
-endif()
+add_library(cjson STATIC ${CJSON_SRC})
 
 ## mplite
 set(MPLITE_SRC
@@ -100,10 +96,6 @@ elseif(REX_TARGET STREQUAL "WIN32")
 
 	add_library(rex_platform STATIC "platform/win32.cpp")
 
-elseif(REX_TARGET STREQUAL "WIN386")
-
-	add_library(rex_platform STATIC "platform/win386.cpp")
-
 else()
 
 	add_library(rex_platform STATIC "platform/null.cpp")
@@ -123,11 +115,7 @@ target_link_libraries(rex INTERFACE rex_core)
 target_link_libraries(rex INTERFACE rex_platform)
 
 ## Add cjson
-if(REX_USE_CJSON EQUAL TRUE)
-
-	target_link_libraries(rex INTERFACE cjson)
-
-endif()
+target_link_libraries(rex INTERFACE cjson)
 
 ## Add mplite
 target_link_libraries(rex INTERFACE mplite)

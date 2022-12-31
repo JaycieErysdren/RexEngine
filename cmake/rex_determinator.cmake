@@ -34,7 +34,6 @@
 if(REX_TARGET STREQUAL "SDL")
 
 	add_compile_definitions("REX_TARGET=1")
-	set(REX_USE_CJSON TRUE)
 
 	if(REX_COMPILER STREQUAL "GCC")
 
@@ -54,7 +53,6 @@ endif()
 if(REX_TARGET STREQUAL "DOS")
 
 	add_compile_definitions("REX_TARGET=2")
-	set(REX_USE_CJSON TRUE)
 
 	if(REX_COMPILER STREQUAL "DJGPP")
 
@@ -74,7 +72,6 @@ endif()
 if(REX_TARGET STREQUAL "WIN32")
 
 	add_compile_definitions("REX_TARGET=3")
-	set(REX_USE_CJSON FALSE)
 
 	if(REX_COMPILER STREQUAL "WATCOM")
 
@@ -89,7 +86,6 @@ endif()
 if(REX_TARGET STREQUAL "LINUX32")
 
 	add_compile_definitions("REX_TARGET=4")
-	set(REX_USE_CJSON FALSE)
 
 	if(REX_COMPILER STREQUAL "WATCOM")
 
@@ -100,26 +96,10 @@ if(REX_TARGET STREQUAL "LINUX32")
 
 endif()
 
-## WIN386 target
-if(REX_TARGET STREQUAL "WIN386")
-
-	add_compile_definitions("REX_TARGET=5")
-	set(REX_USE_CJSON FALSE)
-
-	if(REX_COMPILER STREQUAL "WATCOM")
-
-		add_compile_definitions("REX_COMPILER=4")
-		set(REX_EXECUTABLE_SUFFIX "win386_watcom")
-
-	endif()
-
-endif()
-
 ## OS/2 target
 if(REX_TARGET STREQUAL "OS2")
 
-	add_compile_definitions("REX_TARGET=6")
-	set(REX_USE_CJSON FALSE)
+	add_compile_definitions("REX_TARGET=5")
 
 	if(REX_COMPILER STREQUAL "WATCOM")
 

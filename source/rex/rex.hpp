@@ -35,9 +35,8 @@
 #define PLATFORM_SDL		1 // SDL
 #define PLATFORM_DOS		2 // DOS
 #define PLATFORM_WIN32		3 // Win32
-#define PLATFORM_LINUX32	4 // Linux32
-#define PLATFORM_WIN386		5 // Win386
-#define PLATFORM_OS2		6 // OS/2
+#define PLATFORM_OS2		4 // OS/2
+#define PLATFORM_LINUX32	5 // Linux32
 
 //
 // External headers
@@ -98,8 +97,8 @@
 
 #endif
 
-// Win386 target headers
-#if (REX_TARGET == PLATFORM_WIN32) || (REX_TARGET == PLATFORM_WIN386)
+// Win32 target headers
+#if (REX_TARGET == PLATFORM_WIN32)
 
 	// Windows
 	#include <windows.h>
@@ -129,6 +128,9 @@ using namespace std;
 
 // Bootstrap
 #include "core/bootstrp.hpp"
+
+// Session
+#include "core/session.hpp"
 
 //
 //

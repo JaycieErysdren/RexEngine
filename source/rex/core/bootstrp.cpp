@@ -49,7 +49,7 @@ bool Init()
 bool Quit()
 {
 	// Shutdown Memory Pool
-	MemPool_Quit();
+	if (MemPool_Quit() == false) return false;
 
 	// Shutdown VFS
 	VFS_Quit();

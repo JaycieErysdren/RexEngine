@@ -40,10 +40,8 @@ typedef double rex_double;							// 64-bit Float
 
 typedef bool rex_bool;								// Boolean
 
-typedef string rex_string;							// String
-
-typedef rex_int32 rex_int;							// Basic signed integer
-typedef rex_uint32 rex_uint;						// Basic unsigned integer
+typedef signed int rex_int;							// Generic signed integer
+typedef unsigned int rex_uint;						// Generic unsigned integer
 
 // Color union type
 typedef union

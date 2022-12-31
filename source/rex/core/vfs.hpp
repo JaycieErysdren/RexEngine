@@ -61,7 +61,7 @@ class File
 		//
 
 		// File name
-		rex_string filename;
+		string filename;
 
 		// File size (bytes)
 		rex_int32 filesize;
@@ -107,7 +107,7 @@ class VFS_File
 		// Variables
 		//
 
-		rex_string filename;
+		string filename;
 		rex_int32 filesize;
 		rex_int32 fileofs;
 };
@@ -121,7 +121,7 @@ class VFS_Handle
 		// Variables
 		//
 
-		rex_string filename;
+		string filename;
 		vfs_format format;
 		vector<VFS_File> files;
 		FILE *file_handle;
