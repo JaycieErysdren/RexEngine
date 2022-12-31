@@ -39,13 +39,13 @@ namespace Rex
 // Initialize all interrupts
 bool Platform_Init()
 {
-	return false;
+	return true;
 }
 
 // Free all interrupts
 bool Platform_Quit()
 {
-	return false;
+	return true;
 }
 
 //
@@ -84,6 +84,19 @@ bool Platform_KeyboardGet(rex_int scancode)
 rex_int64 Platform_GetTicks64()
 {
 	return -1;
+}
+
+//
+// Graphics
+//
+
+// Show a simple message box
+bool Platform_MessageBox(const char *title, const char *message)
+{
+	cout << title << endl;
+	cout << message << endl;
+
+	return true;
 }
 
 } // namespace Rex

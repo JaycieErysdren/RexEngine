@@ -59,6 +59,13 @@ bool Platform_KeyboardGet(rex_int scancode);
 // Returns the number of ticks elapsed since program start
 rex_int64 Platform_GetTicks64();
 
+//
+// Graphics
+//
+
+// Show a simple message box
+bool Platform_MessageBox(const char *title, const char *message);
+
 } // namespace Rex
 
 #endif // __REX_PLATFORM_H__

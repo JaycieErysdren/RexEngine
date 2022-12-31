@@ -28,14 +28,18 @@ cd ..
 source ./build-sdl-gcc.sh
 cd ..
 
+##
+## commenting out these targets because they're a bit of a pain
+##
+
 ## SDL, MINGW
-source ./build-sdl-mingw.sh
-cd ..
+## source ./build-sdl-mingw.sh
+## cd ..
 
 ## Win32, Watcom
-source ./build-win32-watcom.sh
-cd ..
+## source ./build-win32-watcom.sh
+## cd ..
 
 ## Linux32, Watcom
-source ./build-linux32-watcom.sh
-cd ..
+## source ./build-linux32-watcom.sh
+## cd ..

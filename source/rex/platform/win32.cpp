@@ -86,6 +86,18 @@ rex_int64 Platform_GetTicks64()
 	return -1;
 }
 
+//
+// Graphics
+//
+
+// Show a simple message box
+bool Platform_MessageBox(const char *title, const char *message)
+{
+	MessageBox(NULL, title, message, MB_OK | MB_TASKMODAL);
+
+	return true;
+}
+
 } // namespace Rex
 
 //

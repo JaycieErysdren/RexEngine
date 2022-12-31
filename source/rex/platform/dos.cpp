@@ -218,6 +218,19 @@ rex_int64 Platform_GetTicks64()
 	#endif
 }
 
+//
+// Graphics
+//
+
+// Show a simple message box
+bool Platform_MessageBox(const char *title, const char *message)
+{
+	cout << title << endl;
+	cout << message << endl;
+
+	return true;
+}
+
 } // namespace Rex
 
 //

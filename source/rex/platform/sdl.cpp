@@ -134,6 +134,19 @@ rex_int64 Platform_GetTicks64()
 	return (rex_int64)SDL_GetTicks64();
 }
 
+//
+// Graphics
+//
+
+// Show a simple message box
+bool Platform_MessageBox(const char *title, const char *message)
+{
+	if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, title, message, NULL) != 0)
+		return false;
+
+	return true;
+}
+
 } // namespace Rex
 
 //
