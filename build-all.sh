@@ -29,3 +29,5 @@ source ./build-sdl-gcc.sh
 cd ..
 
 ## SDL, MINGW
+source ./build-sdl-mingw.sh
+cd ..
