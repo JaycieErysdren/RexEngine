@@ -1,0 +1,13 @@
+https://github.com/SerenityOS/serenity
+https://www.haiku-os.org/
+linux arm
+freeBSD
+templeOS
+linux i386
+linux x86_64
+win64
+win32 9x
+win32 3x
+OS/2
+MS-DOS
+https://play.date/dev/

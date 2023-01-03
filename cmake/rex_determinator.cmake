@@ -30,9 +30,9 @@
 ## 5: MSVC
 ##
 
-## SDL target
 if(REX_TARGET STREQUAL "SDL")
 
+	## SDL target
 	add_compile_definitions("REX_TARGET=1")
 
 	if(REX_COMPILER STREQUAL "GCC")
@@ -47,11 +47,9 @@ if(REX_TARGET STREQUAL "SDL")
 
 	endif()
 
-endif()
+elseif(REX_TARGET STREQUAL "DOS")
 
-## DOS target
-if(REX_TARGET STREQUAL "DOS")
-
+	## DOS target
 	add_compile_definitions("REX_TARGET=2")
 
 	if(REX_COMPILER STREQUAL "DJGPP")
@@ -66,11 +64,9 @@ if(REX_TARGET STREQUAL "DOS")
 
 	endif()
 
-endif()
+elseif(REX_TARGET STREQUAL "WIN32")
 
-## WIN32 target
-if(REX_TARGET STREQUAL "WIN32")
-
+	## WIN32 target
 	add_compile_definitions("REX_TARGET=3")
 
 	if(REX_COMPILER STREQUAL "WATCOM")
@@ -80,11 +76,9 @@ if(REX_TARGET STREQUAL "WIN32")
 
 	endif()
 
-endif()
+elseif(REX_TARGET STREQUAL "LINUX32")
 
-## LINUX32 target
-if(REX_TARGET STREQUAL "LINUX32")
-
+	## LINUX32 target
 	add_compile_definitions("REX_TARGET=4")
 
 	if(REX_COMPILER STREQUAL "WATCOM")
@@ -94,11 +88,9 @@ if(REX_TARGET STREQUAL "LINUX32")
 
 	endif()
 
-endif()
+elseif(REX_TARGET STREQUAL "OS2")
 
-## OS/2 target
-if(REX_TARGET STREQUAL "OS2")
-
+	## OS/2 target
 	add_compile_definitions("REX_TARGET=5")
 
 	if(REX_COMPILER STREQUAL "WATCOM")
@@ -107,6 +99,12 @@ if(REX_TARGET STREQUAL "OS2")
 		set(REX_EXECUTABLE_SUFFIX "os2_watcom")
 
 	endif()
+
+else()
+
+	## Null target
+	add_compile_definitions("REX_TARGET=0")
+	set(REX_EXECUTABLE_SUFFIX "null")
 
 endif()
 

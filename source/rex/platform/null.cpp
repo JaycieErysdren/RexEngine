@@ -93,8 +93,16 @@ rex_int64 Platform_GetTicks64()
 // Show a simple message box
 bool Platform_MessageBox(const char *title, const char *message)
 {
-	cout << title << endl;
-	cout << message << endl;
+	cout << "\n";
+	cout << "+--------------------------------------+" << "\n";
+	cout << "| " << title << "\n";
+	cout << "| " << "\n";
+	cout << "| " << message << "\n";
+	cout << "| " << "\n";
+	cout << "| " << "Press enter to continue." << "\n";
+	cout << "+--------------------------------------+" << "\n";
+	cout << endl;
+	while (getchar() != '\n');
 
 	return true;
 }

@@ -68,7 +68,10 @@ set(REX_CORE_SRC
 	core/log.cpp
 	core/mempool.cpp
 	core/vfs.cpp
+	core/args.cpp
 	core/bootstrp.cpp
+	core/session.cpp
+	core/string.cpp
 )
 
 add_library(rex_core STATIC ${REX_CORE_SRC})
@@ -81,29 +84,24 @@ add_library(rex_core STATIC ${REX_CORE_SRC})
 
 if(REX_TARGET STREQUAL "DOS")
 	
-	add_library(rex_platform STATIC "platform/dos.cpp")
+	include(../../cmake/platform_dos.cmake)
 
 elseif(REX_TARGET STREQUAL "SDL")
 
-	find_package(SDL2 REQUIRED)
+	include(../../cmake/platform_sdl.cmake)
 
-	add_library(rex_platform STATIC "platform/sdl.cpp")
+elseif(REX_TARGET STREQUAL "WIN32" OR REX_TARGET STREQUAL "WIN386")
 
-	target_include_directories(rex_platform PUBLIC ${SDL2_INCLUDE_DIRS})
-	target_link_libraries(rex_platform PUBLIC ${SDL2_LIBRARIES})
-
-elseif(REX_TARGET STREQUAL "WIN32")
-
-	add_library(rex_platform STATIC "platform/win32.cpp")
+	include(../../cmake/platform_win32.cmake)
 
 else()
 
-	add_library(rex_platform STATIC "platform/null.cpp")
+	include(../../cmake/platform_null.cmake)
 
 endif()
 
 ##
-## Rex Engine Library
+## Rex Engine Library Interface
 ##
 
 add_library(rex INTERFACE)

@@ -10,11 +10,15 @@
 ##
 ## DESCRIPTION:		Bash compile script (All targets)
 ##
-## LAST EDITED:		December 31st, 2022
+## LAST EDITED:		January 2nd, 2023
 ##
 ## ========================================================
 
 #!/bin/bash
+
+## Null
+source ./build-null.sh
+cd ..
 
 ## DOS, DJGPP
 source ./build-dos32-djgpp.sh
@@ -33,13 +37,13 @@ cd ..
 ##
 
 ## SDL, MINGW
-## source ./build-sdl-mingw.sh
-## cd ..
+source ./build-sdl-mingw.sh
+cd ..
 
 ## Win32, Watcom
-## source ./build-win32-watcom.sh
-## cd ..
+source ./build-win32-watcom.sh
+cd ..
 
 ## Linux32, Watcom
-## source ./build-linux32-watcom.sh
-## cd ..
+source ./build-linux32-watcom.sh
+cd ..

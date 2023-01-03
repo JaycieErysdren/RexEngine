@@ -1,6 +1,6 @@
 // ========================================================
 //
-// FILE:			/source/rex/core/session.cpp
+// FILE:			/source/rex/core/args.cpp
 //
 // AUTHORS:			Jaycie Ewald
 //
@@ -8,9 +8,9 @@
 //
 // LICENSE:			ACSL v1.4
 //
-// DESCRIPTION:		Rex namespace: Session implementation
+// DESCRIPTION:		Rex namespace: Args implementation
 //
-// LAST EDITED:		December 31st, 2022
+// LAST EDITED:		January 2nd, 2023
 //
 // ========================================================
 
@@ -19,23 +19,13 @@
 
 //
 //
-// Rex namespace: Session
+// Rex namespace: Args
 //
 //
 
 namespace Rex
 {
 
-//
-//
-// Functions
-//
-//
 
-// Show a simple message box
-bool MessageBox(const char *title, const char *message)
-{
-	return Platform_MessageBox(title, message);
-}
 
 } // namespace Rex

@@ -8,6 +8,9 @@ local/
 # cmake
 cmake-build-*/
 
+# meson
+meson-build-*/
+
 # make
 build-*/
 

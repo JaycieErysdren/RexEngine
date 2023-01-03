@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex Engine public header
 //
-// LAST EDITED:		December 30th, 2022
+// LAST EDITED:		January 2nd, 2023
 //
 // ========================================================
 
@@ -125,6 +125,9 @@ using namespace std;
 
 // Types
 #include "core/types.hpp"
+
+// String
+#include "core/string.hpp"
 
 // Bootstrap
 #include "core/bootstrp.hpp"

@@ -36,7 +36,7 @@ namespace Rex
 bool Init()
 {
 	// Initialize Memory Pool
-	MemPool_Init();
+	if (MemPool_Init() == false) return false;
 
 	// Initialize logging
 	if (Log_Init() == false) return false;
