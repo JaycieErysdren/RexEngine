@@ -29,7 +29,7 @@ namespace Rex
 // Generic constructor
 rex_string::rex_string()
 {
-	
+	this->len = 0;
 }
 
 // Constructor with const char pointer
@@ -46,16 +46,26 @@ rex_string::~rex_string()
 	if (this->buf) free(this->buf);
 }
 
-rex_string rex_string::operator=(const rex_string &in)
+// Set string equal to string
+void rex_string::operator=(const rex_string &in)
 {
-	rex_string string;
+	if (this->buf) free(this->buf);
 
-	string.len = in.len;
-	string.buf = in.buf;
-
-	return string;
+	this->buf = in.buf;
+	this->len = in.len;
 }
 
+// Set string equal to char sequence
+void rex_string::operator=(const char *in)
+{
+	if (this->buf) free(this->buf);
+
+	this->buf = (char *)calloc(strlen(in), sizeof(char));
+	this->len = strlen(in);
+	memcpy(this->buf, in, this->len);
+}
+
+// Concat string with string
 void rex_string::operator+=(const rex_string &in)
 {
 	char *outbuf;
@@ -64,14 +74,90 @@ void rex_string::operator+=(const rex_string &in)
 	outlen = this->len + in.len;
 	outbuf = (char *)calloc(outlen + 1, sizeof(char));
 
-	memcpy(outbuf, this->buf, this->len);
-	memcpy(outbuf + this->len, in.buf, in.len);
-
-	if (this->buf) free(this->buf);
+	if (this->buf)
+	{
+		memcpy(outbuf, this->buf, this->len);
+		memcpy(outbuf + this->len, in.buf, in.len);
+		free(this->buf);
+	}
+	else
+	{
+		memcpy(outbuf, in.buf, in.len);
+	}
 
 	this->buf = outbuf;
 	this->len = outlen;
 }
 
+// Concat string with char sequence
+void rex_string::operator+=(const char *in)
+{
+	char *outbuf;
+	rex_int outlen;
+
+	outlen = this->len + strlen(in);
+	outbuf = (char *)calloc(outlen + 1, sizeof(char));
+
+	if (this->buf)
+	{
+		memcpy(outbuf, this->buf, this->len);
+		memcpy(outbuf + this->len, in, strlen(in));
+		free(this->buf);
+	}
+	else
+	{
+		memcpy(outbuf, in, strlen(in));
+	}
+
+	this->buf = outbuf;
+	this->len = outlen;
+}
+
+// Pad the string with N blank chars
+void rex_string::operator+=(const rex_int &len)
+{
+	char *outbuf;
+	rex_int outlen;
+
+	outlen = this->len + len;
+	outbuf = (char *)calloc(outlen + 1, sizeof(char));
+
+	if (this->buf)
+	{
+		memcpy(outbuf, this->buf, this->len);
+		free(this->buf);
+	}
+
+	this->buf = outbuf;
+	this->len = outlen;
+}
+
+// Remove N chars from the end of the string
+void rex_string::operator-=(const rex_int &len)
+{
+	char *outbuf;
+	rex_int outlen;
+
+	if (this->buf && this->len != 0)
+	{
+		outlen = this->len - len;
+
+		if (outlen < 1)
+		{
+			this->len = 0;
+			free(this->buf);
+		}
+		else
+		{
+			outbuf = (char *)calloc(outlen + 1, sizeof(char));
+			memcpy(outbuf, this->buf, outlen);
+			free(this->buf);
+
+			this->buf = outbuf;
+			this->len = outlen;
+		}
+	}
+
+}
 
 } // namespace Rex

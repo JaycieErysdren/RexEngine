@@ -42,8 +42,12 @@ class rex_string
 		~rex_string();
 
 		// Operators
-		rex_string operator = (const rex_string &in);
-		void operator += (const rex_string &in);
+		void operator=(const rex_string &in);
+		void operator=(const char *in);
+		void operator+=(const rex_string &in);
+		void operator+=(const char *in);
+		void operator+=(const rex_int &len);
+		void operator-=(const rex_int &len);
 };
 
 } // namespace Rex
