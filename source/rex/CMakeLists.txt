@@ -72,6 +72,7 @@ set(REX_CORE_SRC
 	core/bootstrp.cpp
 	core/session.cpp
 	core/string.cpp
+	core/graphics.cpp
 )
 
 add_library(rex_core STATIC ${REX_CORE_SRC})

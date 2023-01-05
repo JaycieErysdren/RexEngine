@@ -135,6 +135,9 @@ using namespace std;
 // Session
 #include "core/session.hpp"
 
+// Graphics
+#include "core/graphics.hpp"
+
 //
 //
 // RexMain

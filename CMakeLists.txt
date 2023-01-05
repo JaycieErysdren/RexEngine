@@ -27,6 +27,9 @@ project(RexEngine LANGUAGES C CXX)
 ## Build type
 set(CMAKE_BUILD_TYPE Release)
 
+## Custom CMake files
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+
 ##
 ## Rex Engine
 ##
