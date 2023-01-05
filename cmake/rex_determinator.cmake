@@ -56,6 +56,7 @@ elseif(REX_TARGET STREQUAL "DOS")
 
 		add_compile_definitions("REX_COMPILER=3")
 		set(REX_EXECUTABLE_SUFFIX "dos32_djgpp")
+		add_compile_options("-Wno-attributes")
 
 	elseif(REX_COMPILER STREQUAL "WATCOM")
 

@@ -94,6 +94,11 @@
 
 	// SDL2
 	#include <SDL2/SDL.h>
+	#include <SDL2/SDL_image.h>
+
+	// OpenGL
+	#include <GLFW/glfw3.h>
+	#include <GL/glut.h>
 
 #endif
 

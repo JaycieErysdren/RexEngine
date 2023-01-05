@@ -138,6 +138,37 @@ rex_int64 Platform_GetTicks64()
 // Graphics
 //
 
+// Initialize a platform-specific graphics context
+void *Platform_Init_Graphics(rex_int width, rex_int height, rex_int bpp, const char *title)
+{
+	// Init GLFW
+	if (!glfwInit()) return NULL;
+
+	// Default window hints
+	glfwDefaultWindowHints();
+
+	// Create window object
+	GLFWwindow *window = glfwCreateWindow(width, height, title, NULL, NULL);
+	if (window == NULL) return NULL;
+
+	// Set context to be current
+	glfwMakeContextCurrent(window);
+	glfwShowWindow(window);
+
+	// Return pointer
+	return (void *)window;
+}
+
+// Shutdown a platform-specific graphics context
+void Platform_Quit_Graphics(void *context)
+{
+	// Destroy window
+	if (context) glfwDestroyWindow((GLFWwindow *)context);
+
+	// Terminate GLFW
+	glfwTerminate();
+}
+
 // Show a simple message box
 bool Platform_MessageBox(const char *title, const char *message)
 {

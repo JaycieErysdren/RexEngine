@@ -32,10 +32,6 @@ namespace Rex
 //
 //
 
-// Show a simple message box
-bool MessageBox(const char *title, const char *message)
-{
-	return Platform_MessageBox(title, message);
-}
+
 
 } // namespace Rex

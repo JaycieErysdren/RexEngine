@@ -90,6 +90,18 @@ rex_int64 Platform_GetTicks64()
 // Graphics
 //
 
+// Initialize a platform-specific graphics context
+void *Platform_Init_Graphics(rex_int width, rex_int height, rex_int bpp, const char *title)
+{
+	return NULL;
+}
+
+// Shutdown a platform-specific graphics context
+void Platform_Quit_Graphics(void *context)
+{
+	return;
+}
+
 // Show a simple message box
 bool Platform_MessageBox(const char *title, const char *message)
 {

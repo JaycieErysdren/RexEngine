@@ -26,7 +26,16 @@
 namespace Rex
 {
 
+// Initialize a platform-specific graphics context.
+// On a multitasking OS, this will be a window.
+// On other operating systems, this will be a fullscreen graphics context.
+bool Init_Graphics(rex_int width, rex_int height, rex_int bpp, const char *title);
 
+// Quit graphics context
+bool Quit_Graphics();
+
+// Show a simple message box
+bool MessageBox(const char *title, const char *message);
 
 } // namespace Rex
 
