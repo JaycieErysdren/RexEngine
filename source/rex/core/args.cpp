@@ -37,30 +37,11 @@ bool ParseCmdArgs(int argc, char **argv)
 {
 	if (argc < 1) return false;
 
-	Arg arg;
-	char buffer[256];
 	rex_int i;
 
 	for (i = 0; i < argc; i++)
 	{
-		// clear string buffer
-		memset(buffer, 0, 256);
-
-		// arg type
-		if (argv[i][0] == '-' && argv[i][1] == '-')
-		{
-			memcpy(buffer, argv[i] + 2, strlen(argv[i]) - 2);
-		}
-		else if (argv[i][0] == '-')
-		{
-			memcpy(buffer, argv[i] + 1, strlen(argv[i]) - 1);
-		}
-		else
-		{
-			memcpy(buffer, argv[i], strlen(argv[i]));
-		}
-
-		cout << buffer << endl;
+		cout << argv[i] << endl;
 	}
 
 	return true;

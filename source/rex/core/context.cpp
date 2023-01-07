@@ -53,9 +53,6 @@ EngineContext::EngineContext()
 
 	// Set default message handler
 	this->MessageHandler = Platform_MessageHandler;
-
-	// Create commandline arguments block
-	this->args = new Args;
 }
 
 // Destructor
@@ -63,9 +60,6 @@ EngineContext::~EngineContext()
 {
 	// Set end time
 	this->time_end = time(NULL);
-
-	// Delete commandline args
-	if (this->args) delete this->args;
 }
 
 } // namespace Rex

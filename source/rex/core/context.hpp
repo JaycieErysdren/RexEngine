@@ -44,8 +44,8 @@ class EngineContext
 		// Start time
 		time_t time_start;
 
-		// Command line arguments
-		Args *args;
+		// End time
+		time_t time_end;
 
 		//
 		// Function pointers
@@ -60,11 +60,6 @@ class EngineContext
 		// Constructor & Destructor
 		EngineContext();
 		~EngineContext();
-	
-	private:
-
-		// End time
-		time_t time_end;
 };
 
 // Engine context
