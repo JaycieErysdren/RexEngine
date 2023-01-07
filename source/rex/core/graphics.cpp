@@ -41,7 +41,11 @@ struct
 bool Init_Graphics(rex_int width, rex_int height, rex_int bpp, const char *title)
 {
 	// If there's already a context, return false
-	if (GraphicsContext.platform != NULL) return false;
+	if (GraphicsContext.platform)
+	{
+		Message("Init_Graphics()", "Cannot initialize graphics, there is already one initialzied!", WARNING);
+		return false;
+	}
 
 	// Set variables
 	GraphicsContext.width = width;
@@ -51,7 +55,11 @@ bool Init_Graphics(rex_int width, rex_int height, rex_int bpp, const char *title
 
 	GraphicsContext.platform = Platform_Init_Graphics(width, height, bpp, title);
 
-	if (GraphicsContext.platform == NULL) return false;
+	if (GraphicsContext.platform == NULL)
+	{
+		Message("Init_Graphics()", "Failued to initialzie platform graphics context!", FAILURE);
+		return false;
+	}
 
 	return true;
 }
@@ -63,12 +71,6 @@ bool Quit_Graphics()
 	Platform_Quit_Graphics(GraphicsContext.platform);
 
 	return true;
-}
-
-// Show a simple message box
-bool MessageBox(const char *title, const char *message)
-{
-	return Platform_MessageBox(title, message);
 }
 
 } // namespace Rex

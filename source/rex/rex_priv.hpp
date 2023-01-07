@@ -34,7 +34,7 @@
 // Platform
 #include "platform/platform.hpp"
 
-// Commandline Args
+// Command line Args
 #include "core/args.hpp"
 
 // Logging

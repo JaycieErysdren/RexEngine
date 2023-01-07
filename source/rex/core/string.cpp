@@ -26,10 +26,21 @@
 namespace Rex
 {
 
+//
+//
+// rex_string class
+//
+//
+
+//
+// Constructors & destructors
+//
+
 // Generic constructor
 rex_string::rex_string()
 {
 	this->len = 0;
+	this->buf = nullptr;
 }
 
 // Constructor with const char pointer
@@ -46,6 +57,20 @@ rex_string::~rex_string()
 	if (this->buf) free(this->buf);
 }
 
+//
+// Functions
+//
+
+void rex_string::clear()
+{
+	if (this->buf != nullptr) free(this->buf);
+	this->len = 0;
+}
+
+//
+// Operators
+//
+
 // Set string equal to string
 void rex_string::operator=(const rex_string &in)
 {
@@ -58,11 +83,26 @@ void rex_string::operator=(const rex_string &in)
 // Set string equal to char sequence
 void rex_string::operator=(const char *in)
 {
-	if (this->buf) free(this->buf);
+	if (this->buf == NULL) free(this->buf);
 
-	this->buf = (char *)calloc(strlen(in), sizeof(char));
+	this->buf = (char *)calloc(strlen(in) + 1, sizeof(char));
 	this->len = strlen(in);
 	memcpy(this->buf, in, this->len);
+}
+
+// Set string equal to length
+void rex_string::operator=(const rex_int &len)
+{
+	char *outbuf;
+	rex_int outlen;
+
+	outlen = len;
+	outbuf = (char *)calloc(outlen + 1, sizeof(char));
+
+	if (this->buf) free(this->buf);
+
+	this->buf = outbuf;
+	this->len = outlen;
 }
 
 // Concat string with string
@@ -157,7 +197,24 @@ void rex_string::operator-=(const rex_int &len)
 			this->len = outlen;
 		}
 	}
+}
 
+// Compare string to string
+bool rex_string::operator==(const rex_string &in)
+{
+	if (strcmp(this->buf, in.buf) == 0)
+		return true;
+
+	return false;
+}
+
+// Compare string to char sequence
+bool rex_string::operator==(const char *in)
+{
+	if (strcmp(this->buf, in) == 0)
+		return true;
+
+	return false;
 }
 
 } // namespace Rex

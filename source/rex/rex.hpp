@@ -87,6 +87,9 @@
 
 	#endif
 
+	// Keyboard scancodes
+	#include "platform/dos_keys.hpp"
+
 #endif
 
 // SDL target headers
@@ -100,6 +103,9 @@
 	#include <GLFW/glfw3.h>
 	#include <GL/glut.h>
 
+	// Keyboard scancodes
+	#include "platform/sdl_keys.hpp"
+
 #endif
 
 // Win32 target headers
@@ -107,6 +113,14 @@
 
 	// Windows
 	#include <windows.h>
+
+#endif
+
+// Null target headers
+#if (REX_TARGET == PLATFORM_NULL)
+
+	// Keyboard scancodes
+	#include "platform/null_keys.hpp"
 
 #endif
 
@@ -137,11 +151,23 @@ using namespace std;
 // Bootstrap
 #include "core/bootstrp.hpp"
 
-// Session
-#include "core/session.hpp"
-
 // Graphics
 #include "core/graphics.hpp"
+
+// Error
+#include "core/error.hpp"
+
+// Utils
+#include "core/utils.hpp"
+
+// I/O
+#include "core/io.hpp"
+
+// Command line Args
+#include "core/args.hpp"
+
+// Context
+#include "core/context.hpp"
 
 //
 //
@@ -150,6 +176,6 @@ using namespace std;
 //
 
 // The main program entry point. This needs to be defined by the end user.
-int RexMain(int argc, char *argv[]);
+int RexMain(int argc, char **argv);
 
 #endif // __REX_ENGINE_H__

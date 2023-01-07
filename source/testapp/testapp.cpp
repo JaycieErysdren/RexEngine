@@ -77,37 +77,22 @@ void Blit_Surface(SDL_Surface *srf, SDL_Rect *src, SDL_Rect *dst)
 // Main entry point
 //
 
-int RexMain(int argc, char *argv[])
+int RexMain(int argc, char **argv)
 {
 	// Initialize Rex Engine
-	if (Rex::Init() == false)
-	{
-		Rex::MessageBox("Error!", "Rex Engine initialization failed!");
-		return EXIT_FAILURE;
-	}
+	Rex::Init();
 
 	// Initialize Rex Engine Graphics
-	if (Rex::Init_Graphics(640, 480, 32, "TestApp") == false)
-	{
-		Rex::MessageBox("Error!", "Rex Engine graphics initialization failed!");
-		return EXIT_FAILURE;
-	}
+	Rex::Init_Graphics(640, 480, 8, "TestApp");
 
-	sleep(1);
+	// Test message
+	Rex::Message("Test", "Lorem ipsum dolor sit amet, consectetur adipiscing elit.");
 
 	// Quit Rex Engine Graphics
-	if (Rex::Quit_Graphics() == false)
-	{
-		Rex::MessageBox("Error!", "Rex Engine graphics shutdown failed!");
-		return EXIT_FAILURE;
-	}
+	Rex::Quit_Graphics();
 
 	// Quit Rex Engine
-	if (Rex::Quit() == false)
-	{
-		Rex::MessageBox("Error!", "Rex Engine shutdown failed!");
-		return EXIT_FAILURE;
-	}
+	Rex::Quit();
 
 	// Exit gracefully
 	return EXIT_SUCCESS;

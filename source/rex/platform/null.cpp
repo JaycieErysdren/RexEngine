@@ -102,11 +102,27 @@ void Platform_Quit_Graphics(void *context)
 	return;
 }
 
-// Show a simple message box
-bool Platform_MessageBox(const char *title, const char *message)
+//
+// Message Handling
+//
+
+// Handle messages to the user
+bool Platform_MessageHandler(const char *title, const char *message, message_type type, time_t time)
 {
+	rex_string type_str;
+
+	switch (type)
+	{
+		case MESSAGE: type_str = "Message: "; break;
+		case WARNING: type_str = "Warning: "; break;
+		case FAILURE: type_str=  "Failure: "; break;
+		default: return false;
+	}
+
 	cout << "\n";
 	cout << "+--------------------------------------+" << "\n";
+	cout << "| " << type_str.buf << "\n";
+	cout << "| " << "\n";
 	cout << "| " << title << "\n";
 	cout << "| " << "\n";
 	cout << "| " << message << "\n";
@@ -115,6 +131,13 @@ bool Platform_MessageBox(const char *title, const char *message)
 	cout << "+--------------------------------------+" << "\n";
 	cout << endl;
 	while (getchar() != '\n');
+
+	// If it's a critical failure, quit the engine and exit the program
+	if (type == FAILURE)
+	{
+		Quit();
+		exit(EXIT_FAILURE);
+	}
 
 	return true;
 }
@@ -127,7 +150,7 @@ bool Platform_MessageBox(const char *title, const char *message)
 //
 //
 
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
 	return RexMain(argc, argv);
 }

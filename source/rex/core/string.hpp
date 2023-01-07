@@ -41,13 +41,22 @@ class rex_string
 		// Destructor
 		~rex_string();
 
+		// Functions
+		void clear();
+
 		// Operators
 		void operator=(const rex_string &in);
 		void operator=(const char *in);
+		void operator=(const rex_int &len);
+
 		void operator+=(const rex_string &in);
 		void operator+=(const char *in);
 		void operator+=(const rex_int &len);
+
 		void operator-=(const rex_int &len);
+
+		bool operator==(const rex_string &in);
+		bool operator==(const char *in);
 };
 
 } // namespace Rex

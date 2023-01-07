@@ -10,7 +10,7 @@
 //
 // DESCRIPTION:		Rex namespace: Bootstrap header
 //
-// LAST EDITED:		December 30th, 2022
+// LAST EDITED:		January 6th, 2023
 //
 // ========================================================
 
@@ -30,7 +30,7 @@ namespace Rex
 bool Init();
 
 // Shutdown basic functions of Rex Engine
-bool Quit();
+void Quit();
 
 } // namespace Rex
 

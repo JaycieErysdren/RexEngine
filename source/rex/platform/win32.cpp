@@ -102,10 +102,39 @@ void Platform_Quit_Graphics(void *context)
 	return;
 }
 
-// Show a simple message box
-bool Platform_MessageBox(const char *title, const char *message)
+//
+// Message Handling
+//
+
+// Handle messages to the user
+bool Platform_MessageHandler(const char *title, const char *message, message_type type, time_t time)
 {
-	MessageBox(NULL, title, message, MB_OK | MB_TASKMODAL);
+	// Type string
+	rex_string type_str;
+
+	switch (type)
+	{
+		case MESSAGE: type_str = "Message"; break;
+		case WARNING: type_str = "Warning"; break;
+		case FAILURE: type_str=  "Failure"; break;
+		default: return false;
+	}
+
+	// Concat the strings
+	rex_string message_str;
+	message_str = title;
+	message_str += "\n\n";
+	message_str += message;
+
+	// Show Win32 message box
+	MessageBox(NULL, type_str.buf, message_str.buf, MB_OK);
+
+	// If it's a critical failure, quit the engine and exit the program
+	if (type == FAILURE)
+	{
+		Quit();
+		exit(EXIT_FAILURE);
+	}
 
 	return true;
 }
@@ -120,5 +149,5 @@ bool Platform_MessageBox(const char *title, const char *message)
 
 int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nCmdShow)
 {
-	return RexMain(0, NULL);
+	return RexMain(0, lpCmdLine);
 }

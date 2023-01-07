@@ -69,8 +69,12 @@ void *Platform_Init_Graphics(rex_int width, rex_int height, rex_int bpp, const c
 // Shutdown a platform-specific graphics context
 void Platform_Quit_Graphics(void *context);
 
-// Show a simple message box
-bool Platform_MessageBox(const char *title, const char *message);
+//
+// Message Handling
+//
+
+// Handle messages to the user
+bool Platform_MessageHandler(const char *title, const char *message, message_type type, time_t time);
 
 } // namespace Rex
 

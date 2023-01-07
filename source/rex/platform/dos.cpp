@@ -265,7 +265,7 @@ bool Platform_MouseSet(rex_int mx, rex_int my, rex_int mb)
 // Returns true if the specified key is pressed
 bool Platform_KeyboardGet(rex_int scancode)
 {
-	return keys[scancode] ? true : false;
+	return keys[scancode] > 0 ? true : false;
 }
 
 //
@@ -473,11 +473,27 @@ void Platform_Quit_Graphics(void *context)
 	int386(0x10, &regs, &regs);
 }
 
-// Show a simple message box
-bool Platform_MessageBox(const char *title, const char *message)
+//
+// Message Handling
+//
+
+// Handle messages to the user
+bool Platform_MessageHandler(const char *title, const char *message, message_type type, time_t time)
 {
+	rex_string type_str;
+
+	switch (type)
+	{
+		case MESSAGE: type_str = "Message: "; break;
+		case WARNING: type_str = "Warning: "; break;
+		case FAILURE: type_str = "Failure: "; break;
+		default: return false;
+	}
+
 	cout << "\n";
 	cout << "+--------------------------------------+" << "\n";
+	cout << "| " << type_str.buf << "\n";
+	cout << "| " << "\n";
 	cout << "| " << title << "\n";
 	cout << "| " << "\n";
 	cout << "| " << message << "\n";
@@ -485,7 +501,23 @@ bool Platform_MessageBox(const char *title, const char *message)
 	cout << "| " << "Press enter to continue." << "\n";
 	cout << "+--------------------------------------+" << "\n";
 	cout << endl;
-	while (getchar() != '\n');
+
+	while (Platform_KeyboardGet(REX_SC_ENTER) == false)
+	{
+		// this is the shittiest hack ever
+		// djgpp INSISTS that something needs to be happening here
+		// it also doesn't work with other actions, only cout seems
+		// to work
+		cout << "\0";
+	}
+
+	// If it's a critical failure, quit the engine and exit the program
+	if (type == FAILURE)
+	{
+		Quit_Graphics();
+		Quit();
+		exit(EXIT_FAILURE);
+	}
 
 	return true;
 }
@@ -498,7 +530,7 @@ bool Platform_MessageBox(const char *title, const char *message)
 //
 //
 
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
 	return RexMain(argc, argv);
 }

@@ -26,7 +26,39 @@
 namespace Rex
 {
 
+//
+//
+// Classes
+//
+//
 
+// Command line argument class
+class Arg
+{
+	public:
+		rex_string cmd;
+		rex_string var;
+};
+
+// Command line argument array class
+class Args
+{
+	public:
+		void AddArg(Arg arg);
+		Arg *GetArg(rex_string cmd);
+
+	private:
+		vector<Arg> args;
+};
+
+//
+//
+// Functions
+//
+//
+
+// Parse arguments given on the command line
+bool ParseCmdArgs(int argc, char **argv);
 
 } // namespace Rex
 

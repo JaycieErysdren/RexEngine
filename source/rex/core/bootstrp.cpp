@@ -35,30 +35,57 @@ namespace Rex
 // Initialize basic functions of Rex Engine
 bool Init()
 {
-	// Initialize Memory Pool
-	if (MemPool_Init() == false) return false;
+	// Check if engine has already been initialized
+	if (engine_context)
+	{
+		Message("Init()", "Cannot initialize engine, it appears to have already been initialized!", WARNING);
+		return false;
+	}
+
+	// Create new engine context
+	engine_context = new EngineContext;
+
+	// Initialize memory pool
+	if (MemPool_Init() == false)
+	{
+		Message("Init()", "Couldn't initialize memory pools!", FAILURE);
+		return false;
+	}
 
 	// Initialize logging
-	if (Log_Init() == false) return false;
+	if (Log_Init() == false)
+	{
+		Message("Init()", "Couldn't initialize logging!", FAILURE);
+		return false;
+	}
 
 	// Initialize platform-specific handlers
-	return Platform_Init();
+	if (Platform_Init() == false)
+	{
+		Message("Init()", "Couldn't initialize platform handlers!", FAILURE);
+		return false;
+	}
+
+	return true;
 }
 
 // Shutdown basic functions of Rex Engine
-bool Quit()
+void Quit()
 {
-	// Shutdown Memory Pool
-	if (MemPool_Quit() == false) return false;
+	// Shutdown engine context
+	if (engine_context) delete engine_context;
+
+	// Shutdown memory pool
+	MemPool_Quit();
 
 	// Shutdown VFS
 	VFS_Quit();
 
 	// Shutdown logging
-	if (Log_Quit() == false) return false;
+	Log_Quit();
 
 	// Shutdown platform-specific handlers
-	return Platform_Quit();
+	Platform_Quit();
 }
 
 } // namespace Rex

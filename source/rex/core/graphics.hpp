@@ -34,9 +34,6 @@ bool Init_Graphics(rex_int width, rex_int height, rex_int bpp, const char *title
 // Quit graphics context
 bool Quit_Graphics();
 
-// Show a simple message box
-bool MessageBox(const char *title, const char *message);
-
 } // namespace Rex
 
 #endif // __REX_GRAPHICS_H__

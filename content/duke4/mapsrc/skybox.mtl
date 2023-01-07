@@ -1,0 +1,15 @@
+newmtl dev/ref_10
+map_Kd textures/dev/ref_10.bmp
+
+newmtl dev/ref_20
+map_Kd textures/dev/ref_20.bmp
+
+newmtl dev/ref_40
+map_Kd textures/dev/ref_40.bmp
+
+newmtl dev/ref_grid00a
+map_Kd textures/dev/ref_grid00a.png
+
+newmtl tools/nodraw
+map_Kd textures/tools/nodraw.bmp
+

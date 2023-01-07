@@ -169,11 +169,33 @@ void Platform_Quit_Graphics(void *context)
 	glfwTerminate();
 }
 
-// Show a simple message box
-bool Platform_MessageBox(const char *title, const char *message)
+
+//
+// Message Handling
+//
+
+// Handle messages to the user
+bool Platform_MessageHandler(const char *title, const char *message, message_type type, time_t time)
 {
-	if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, title, message, NULL) != 0)
-		return false;
+	rex_int type_for_sdl;
+
+	switch (type)
+	{
+		case MESSAGE: type_for_sdl = SDL_MESSAGEBOX_INFORMATION; break;
+		case WARNING: type_for_sdl = SDL_MESSAGEBOX_WARNING; break;
+		case FAILURE: type_for_sdl=  SDL_MESSAGEBOX_ERROR; break;
+		default: return false;
+	}
+
+	// Show SDL message box
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, title, message, NULL);
+
+	// If it's a critical failure, quit the engine and exit the program
+	if (type == FAILURE)
+	{
+		Quit();
+		exit(EXIT_FAILURE);
+	}
 
 	return true;
 }
@@ -186,7 +208,7 @@ bool Platform_MessageBox(const char *title, const char *message)
 //
 //
 
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
 	return RexMain(argc, argv);
 }

@@ -10,7 +10,7 @@
 ##
 ## DESCRIPTION:		Rex Engine CMake project definition
 ##
-## LAST EDITED:		December 27th, 2022
+## LAST EDITED:		January 6th, 2023
 ##
 ## ========================================================
 
@@ -70,9 +70,12 @@ set(REX_CORE_SRC
 	core/vfs.cpp
 	core/args.cpp
 	core/bootstrp.cpp
-	core/session.cpp
+	core/context.cpp
 	core/string.cpp
 	core/graphics.cpp
+	core/utils.cpp
+	core/error.cpp
+	core/io.cpp
 )
 
 add_library(rex_core STATIC ${REX_CORE_SRC})
