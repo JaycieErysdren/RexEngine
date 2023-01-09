@@ -165,6 +165,9 @@ using namespace std;
 // Command line Args
 #include "core/args.hpp"
 
+// Logging
+#include "core/log.hpp"
+
 // Surface
 #include "core/surface.hpp"
 

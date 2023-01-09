@@ -106,6 +106,13 @@ void Platform_Quit_Graphics(void *context)
 // Message Handling
 //
 
+// Handle printing to the user
+bool Platform_PrintHandler(const char *message, message_type type)
+{
+	cout << message << endl;
+	return true;
+}
+
 // Handle messages to the user
 bool Platform_MessageHandler(const char *title, const char *message, message_type type, time_t time)
 {

@@ -28,14 +28,6 @@ namespace Rex
 
 //
 //
-// Global Variables
-//
-//
-
-FILE *log_file;
-
-//
-//
 // Functions
 //
 //
@@ -44,66 +36,103 @@ FILE *log_file;
 // Bootstrap
 //
 
-// Open log file handle
-bool Log_Init()
+// Enable logging
+bool EnableLogging()
 {
-	log_file = fopen("rex.log", "a");
-
-	if (log_file == NULL) return false;
-
-	return true;
+	return EnableLogging();
 }
 
-// Close log file handle
-bool Log_Quit()
+// Enable logging with specified filename
+bool EnableLogging(const char *filename)
 {
-	if (log_file)
-	{
-		if (fclose(log_file) != 0) return false;
-	}
+	if (engine_context)
+		return engine_context->EnableLogging(filename);
 
-	return true;
+	return false;
+}
+
+// Disable logging
+bool DisableLogging()
+{
+	if (engine_context)
+		return engine_context->DisableLogging();
+
+	return false;
 }
 
 //
 // Logging
 //
 
-// Log a non-critical message to the console and a log file.
-void Log(const char *fmt, ...)
+// Print the formatted string input to the console
+bool Print(const char *fmt, ...)
 {
-	if (log_file == NULL) return;
-
 	// Variables
 	va_list args;
-	char log_buffer[1024];
-	char time_buffer[22];
-
-	// Get current time
-	time_t time_raw = time(NULL);
-	struct tm *time_info = localtime(&time_raw);
-	sprintf(time_buffer, "%04d-%02d-%02d %02d-%02d-%02d: ",
-		time_info->tm_year + 1900,
-		time_info->tm_mon,
-		time_info->tm_mday,
-		time_info->tm_hour,
-		time_info->tm_min,
-		time_info->tm_sec
-	);
-
-	// Copy time into buffer
-	strncpy(log_buffer, time_buffer, sizeof(time_buffer));
+	char buf[1024];
 
 	// Print args into string
 	va_start(args, fmt);
-	vsprintf(log_buffer + (sizeof(time_buffer) - 1), fmt, args);
+	vsprintf(buf, fmt, args);
 	va_end(args);
 
-	// Add newline
-	strcpy(log_buffer + strlen(log_buffer), "\n");
+	// there must be a better way to do this
+	if (*engine_context->PrintHandler)
+	{
+		// Send to engine context
+		return (*engine_context->PrintHandler)(buf, MESSAGE);
+	}
+	else
+	{
+		cout << buf << endl;
+		return false;
+	}
+}
 
-	// Log to the file
-	fwrite(log_buffer, sizeof(char), strlen(log_buffer), log_file);
+// Print the formatted string input to the console, with warning level
+bool Print(message_type type, const char *fmt, ...)
+{
+	// Variables
+	va_list args;
+	char buf[1024];
+
+	// Print args into string
+	va_start(args, fmt);
+	vsprintf(buf, fmt, args);
+	va_end(args);
+
+	// there must be a better way to do this
+	if (*engine_context->PrintHandler)
+	{
+		// Send to engine context
+		return (*engine_context->PrintHandler)(buf, type);
+	}
+	else
+	{
+		cout << buf << endl;
+		return false;
+	}
+}
+
+// Log a non-critical message to the console and a log file.
+bool Log(const char *fmt, ...)
+{
+	// there must be a better way to do this
+	if (engine_context)
+	{
+		// Variables
+		va_list args;
+		char buf[1024];
+
+		// Print args into string
+		va_start(args, fmt);
+		vsprintf(buf, fmt, args);
+		va_end(args);
+
+		return engine_context->Log(buf);
+	}
+
+	return false;
 }
 
 } // namespace Rex

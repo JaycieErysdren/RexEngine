@@ -44,6 +44,9 @@ class EngineGraphicsContext
 
 		// Constructor
 		EngineGraphicsContext();
+
+		// Destructor
+		~EngineGraphicsContext();
 };
 
 // The main engine context class
@@ -72,6 +75,7 @@ class EngineContext
 
 		// MessageHandler function pointer
 		bool (*MessageHandler)(const char *, const char *, message_type, time_t);
+		bool (*PrintHandler)(const char *, message_type);
 
 		//
 		// Functions
@@ -84,8 +88,8 @@ class EngineContext
 		// Dump information about current session
 		bool DumpSession();
 
-		// Log the input formatted string to this session's logfile
-		bool Log(const char *fmt, ...);
+		// Log the formatted string input to this session's logfile
+		bool Log(const char *str);
 
 		// Enable logging
 		bool EnableLogging();

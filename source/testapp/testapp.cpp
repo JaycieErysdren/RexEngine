@@ -85,6 +85,25 @@ int RexMain(int argc, char **argv)
 	// Initialize Rex Engine Graphics
 	Rex::Init_Graphics(640, 480, 8, "TestApp");
 
+	Rex::Print(Rex::MESSAGE, "This is a standard message.");
+	Rex::Print(Rex::WARNING, "This is a warning message.");
+	Rex::Print(Rex::FAILURE, "This is a failure message.");
+
+	// color
+	//Rex::Color *color = new Rex::Color(255, 255, 255);
+	//cout << "depth: " << (rex_uint)color->Depth() << endl;
+	//cout << "r: " << (rex_uint)color->R() << endl;
+	//cout << "g: " << (rex_uint)color->G() << endl;
+	//cout << "b: " << (rex_uint)color->B() << endl;
+	//cout << "a: " << (rex_uint)color->A() << endl;
+
+	// surface
+	//Rex::Surface *surf = new Rex::Surface(32, 32, 16);
+	//surf->Clear(color);
+	//surf->Save("test.bmp", Rex::BMP);
+	//delete surf;
+	//delete color;
+
 	// Test message
 	Rex::Message("Test", "Lorem ipsum dolor sit amet, consectetur adipiscing elit.");
 

@@ -64,6 +64,14 @@ EngineGraphicsContext::EngineGraphicsContext()
 	this->platform = nullptr;
 }
 
+// Destructor
+EngineGraphicsContext::~EngineGraphicsContext()
+{
+	// clear platform-specific handle
+	if (this->platform != nullptr)
+		Platform_Quit_Graphics(this->platform);
+}
+
 //
 // EngineContext class
 //
@@ -76,6 +84,7 @@ EngineContext::EngineContext()
 
 	// Set default message handler
 	this->MessageHandler = Platform_MessageHandler;
+	this->PrintHandler = Platform_PrintHandler;
 
 	// null these out for checking later
 	this->graphics_context = nullptr;
@@ -87,14 +96,7 @@ EngineContext::~EngineContext()
 {
 	// Quit graphics if it was started
 	if (this->graphics_context != nullptr)
-	{
-		// clear platform-specific context
-		if (engine_context->graphics_context->platform != nullptr)
-			Platform_Quit_Graphics(engine_context->graphics_context->platform);
-
-		// free memory from graphics context
 		delete this->graphics_context;
-	}
 
 	// Set end time
 	this->time_end = time(NULL);
@@ -119,7 +121,8 @@ bool EngineContext::DumpSession()
 
 	// open file handle
 	FILE *dumpfile = fopen(filename.buf, "w");
-	if (dumpfile == NULL) return false;
+	if (dumpfile == NULL)
+		return false;
 
 	// set information strings
 	rex_string dump01 = "Rex Engine Session Info:";
@@ -186,22 +189,17 @@ bool EngineContext::DumpSession()
 }
 
 // Log a message to the console and a log file.
-bool EngineContext::Log(const char *fmt, ...)
+bool EngineContext::Log(const char *str)
 {
 	if (this->log_file_handle == NULL)
 		return false;
 
-	// Variables
-	va_list args;
-	char buf[1024];
-
-	// Print args into string
-	va_start(args, fmt);
-	vsprintf(buf, fmt, args);
-	va_end(args);
+	rex_string tm = ConvertTime(time(NULL));
 
 	// Log to the file
-	fwrite(buf, sizeof(char), strlen(buf), this->log_file_handle);
+	fwrite(tm.buf, sizeof(char), tm.len, this->log_file_handle);
+	fwrite(": ", sizeof(char), 2, this->log_file_handle);
+	fwrite(str, sizeof(char), strlen(str), this->log_file_handle);
 	fwrite("\n", sizeof(char), 1, this->log_file_handle);
 
 	return true;
@@ -210,13 +208,13 @@ bool EngineContext::Log(const char *fmt, ...)
 // Enable logging
 bool EngineContext::EnableLogging()
 {
-	this->EnableLogging("rex.log");
+	return this->EnableLogging("rex.log");
 }
 
 // Enable logging with custom filename
 bool EngineContext::EnableLogging(const char *filename)
 {
-	if (this->log_file_handle)
+	if (this->log_file_handle != NULL)
 		return false;
 
 	this->log_file_handle = fopen(filename, "a");
@@ -236,7 +234,7 @@ bool EngineContext::DisableLogging()
 		return true;
 	}
 
-	return true;
+	return false;
 }
 
 } // namespace Rex

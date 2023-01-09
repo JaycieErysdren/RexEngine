@@ -198,4 +198,46 @@ void MemPool_PrintStatus(rex_mempool pool)
 	}
 }
 
+// our own little memset()
+void *MemSet(void *dst, void *src, size_t size, size_t n)
+{
+	// safety
+	if (dst == NULL || dst == nullptr)
+		return NULL;
+
+	rex_uint8 *buf = (rex_uint8 *)dst;
+
+	while (n--)
+	{
+		memcpy(buf, src, size);
+		buf += size;
+	}
+
+	return dst;
+}
+
+// 8-bit integer
+void *MemSet8(void *dst, rex_uint8 src, size_t n)
+{
+	return MemSet(dst, &src, sizeof(rex_uint8), n);
+}
+
+// 16-bit integer
+void *MemSet16(void *dst, rex_uint16 src, size_t n)
+{
+	return MemSet(dst, &src, sizeof(rex_uint16), n);
+}
+
+// 32-bit integer
+void *MemSet32(void *dst, rex_uint32 src, size_t n)
+{
+	return MemSet(dst, &src, sizeof(rex_uint32), n);
+}
+
+// 64-bit integer
+void *MemSet64(void *dst, rex_uint64 src, size_t n)
+{
+	return MemSet(dst, &src, sizeof(rex_uint64), n);
+}
+
 } // namespace Rex

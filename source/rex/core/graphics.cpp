@@ -63,12 +63,9 @@ bool Quit_Graphics()
 {
 	if (engine_context->graphics_context != nullptr)
 	{
-		// clear platform-specific context
-		if (engine_context->graphics_context->platform != nullptr)
-			Platform_Quit_Graphics(engine_context->graphics_context->platform);
-
 		// free memory from graphics context
 		delete engine_context->graphics_context;
+		engine_context->graphics_context = nullptr;
 
 		return true;
 	}

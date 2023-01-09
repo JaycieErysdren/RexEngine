@@ -52,13 +52,6 @@ bool Init()
 		return false;
 	}
 
-	// Initialize logging
-	if (Log_Init() == false)
-	{
-		Message("Init()", "Couldn't initialize logging!", FAILURE);
-		return false;
-	}
-
 	// Initialize platform-specific handlers
 	if (Platform_Init() == false)
 	{
@@ -73,16 +66,17 @@ bool Init()
 void Quit()
 {
 	// Shutdown engine context
-	if (engine_context) delete engine_context;
+	if (engine_context)
+	{
+		engine_context->DisableLogging();
+		delete engine_context;
+	}
 
 	// Shutdown memory pool
 	MemPool_Quit();
 
 	// Shutdown VFS
 	VFS_Quit();
-
-	// Shutdown logging
-	Log_Quit();
 
 	// Shutdown platform-specific handlers
 	Platform_Quit();

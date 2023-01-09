@@ -36,18 +36,27 @@ namespace Rex
 // Bootstrap
 //
 
-// Open log file handle
-bool Log_Init();
+// Enable logging
+bool EnableLogging();
 
-// Close log file handle
-bool Log_Quit();
+// Enable logging with specified filename
+bool EnableLogging(const char *filename);
+
+// Disable logging
+bool DisableLogging();
 
 //
 // Logging
 //
 
-// Log a non-critical message to the console and a log file. Pass an empty string as the filename to skip file logging.
-void Log(const char *filename, const char *fmt, ...);
+// Print the formatted string input to the console
+bool Print(const char *fmt, ...);
+
+// Print the formatted string input to the console, with warning level
+bool Print(message_type type, const char *fmt, ...);
+
+// Log a non-critical message to the console and a log file.
+bool Log(const char *fmt, ...);
 
 } // namespace Rex
 

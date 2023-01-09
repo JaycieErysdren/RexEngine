@@ -45,9 +45,6 @@
 // Command line Args
 #include "core/args.hpp"
 
-// Logging
-#include "core/log.hpp"
-
 // Memory Pool
 #include "core/mempool.hpp"
 

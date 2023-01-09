@@ -169,10 +169,31 @@ void Platform_Quit_Graphics(void *context)
 	glfwTerminate();
 }
 
-
 //
 // Message Handling
 //
+
+// Handle printing to the user
+bool Platform_PrintHandler(const char *message, message_type type)
+{
+	switch (type)
+	{
+		case MESSAGE:
+			cout << message << endl;
+			return true;
+
+		case WARNING:
+			cout << "\033[33m" << message << "\033[0m" << endl;
+			return true;
+
+		case FAILURE:
+			cout << "\033[31m" << message << "\033[0m" << endl;
+			return true;
+
+		default:
+			return false;
+	}
+}
 
 // Handle messages to the user
 bool Platform_MessageHandler(const char *title, const char *message, message_type type, time_t time)
