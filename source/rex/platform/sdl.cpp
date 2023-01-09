@@ -142,14 +142,14 @@ rex_int64 Platform_GetTicks64()
 void *Platform_Init_Graphics(rex_int width, rex_int height, rex_int bpp, const char *title)
 {
 	// Init GLFW
-	if (!glfwInit()) return NULL;
+	if (!glfwInit()) return nullptr;
 
 	// Default window hints
 	glfwDefaultWindowHints();
 
 	// Create window object
 	GLFWwindow *window = glfwCreateWindow(width, height, title, NULL, NULL);
-	if (window == NULL) return NULL;
+	if (window == NULL) return nullptr;
 
 	// Set context to be current
 	glfwMakeContextCurrent(window);

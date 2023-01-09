@@ -37,12 +37,14 @@ class rex_string
 		// Constructors
 		rex_string();
 		rex_string(const char *str);
+		rex_string(const rex_int len);
 
 		// Destructor
 		~rex_string();
 
 		// Functions
 		void clear();
+		void replace(char find, char replace);
 
 		// Operators
 		void operator=(const rex_string &in);

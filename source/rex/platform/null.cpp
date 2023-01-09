@@ -93,7 +93,7 @@ rex_int64 Platform_GetTicks64()
 // Initialize a platform-specific graphics context
 void *Platform_Init_Graphics(rex_int width, rex_int height, rex_int bpp, const char *title)
 {
-	return NULL;
+	return nullptr;
 }
 
 // Shutdown a platform-specific graphics context

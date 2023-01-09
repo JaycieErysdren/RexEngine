@@ -27,6 +27,14 @@
 
 //
 //
+// Rex Engine private thirdparty libraries
+//
+//
+
+#include "thrdprty/stb/stb.h"
+
+//
+//
 // Rex Engine private headers
 //
 //

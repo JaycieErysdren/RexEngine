@@ -28,9 +28,23 @@ namespace Rex
 
 //
 //
-// Functions
+// Classes
 //
 //
+
+// The main engine graphics context class
+class EngineGraphicsContext
+{
+	public:
+		rex_int width;
+		rex_int height;
+		rex_int bpp;
+		rex_string title;
+		void *platform;
+
+		// Constructor
+		EngineGraphicsContext();
+};
 
 // The main engine context class
 class EngineContext
@@ -38,19 +52,25 @@ class EngineContext
 	public:
 
 		//
-		// Basic information
+		// Variables
 		//
 
-		// Start time
+		// Start time (epoch)
 		time_t time_start;
 
-		// End time
+		// End time (epoch)
 		time_t time_end;
 
-		//
-		// Function pointers
-		//
+		// Graphics context
+		EngineGraphicsContext *graphics_context;
 
+		// Log file handle
+		FILE *log_file_handle;
+
+		// Multi-purpose string buffer
+		rex_string string_buffer;
+
+		// MessageHandler function pointer
 		bool (*MessageHandler)(const char *, const char *, message_type, time_t);
 
 		//
@@ -60,10 +80,39 @@ class EngineContext
 		// Constructor & Destructor
 		EngineContext();
 		~EngineContext();
+
+		// Dump information about current session
+		bool DumpSession();
+
+		// Log the input formatted string to this session's logfile
+		bool Log(const char *fmt, ...);
+
+		// Enable logging
+		bool EnableLogging();
+
+		// Enable logging with custom filename
+		bool EnableLogging(const char *filename);
+
+		// Disable logging
+		bool DisableLogging();
 };
+
+//
+//
+// Globals
+//
+//
 
 // Engine context
 extern EngineContext *engine_context;
+
+//
+//
+// Functions
+//
+//
+
+bool DumpEngineContext();
 
 } // namespace Rex
 

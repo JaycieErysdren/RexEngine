@@ -26,36 +26,30 @@
 namespace Rex
 {
 
-struct
-{
-	rex_int width;
-	rex_int height;
-	rex_int bpp;
-	rex_string title;
-	void *platform;
-} GraphicsContext;
-
 // Initialize a platform-specific graphics context.
 // On a multitasking OS, this will be a window.
 // On other operating systems, this will be a fullscreen graphics context.
 bool Init_Graphics(rex_int width, rex_int height, rex_int bpp, const char *title)
 {
 	// If there's already a context, return false
-	if (GraphicsContext.platform)
+	if (engine_context->graphics_context != nullptr)
 	{
 		Message("Init_Graphics()", "Cannot initialize graphics, there is already one initialzied!", WARNING);
 		return false;
 	}
 
+	// create new context
+	engine_context->graphics_context = new EngineGraphicsContext;
+
 	// Set variables
-	GraphicsContext.width = width;
-	GraphicsContext.height = height;
-	GraphicsContext.bpp = bpp;
-	GraphicsContext.title = title;
+	engine_context->graphics_context->width = width;
+	engine_context->graphics_context->height = height;
+	engine_context->graphics_context->bpp = bpp;
+	engine_context->graphics_context->title = title;
 
-	GraphicsContext.platform = Platform_Init_Graphics(width, height, bpp, title);
+	engine_context->graphics_context->platform = Platform_Init_Graphics(width, height, bpp, title);
 
-	if (GraphicsContext.platform == NULL)
+	if (engine_context->graphics_context->platform == nullptr)
 	{
 		Message("Init_Graphics()", "Failued to initialzie platform graphics context!", FAILURE);
 		return false;
@@ -67,10 +61,19 @@ bool Init_Graphics(rex_int width, rex_int height, rex_int bpp, const char *title
 // Quit graphics context
 bool Quit_Graphics()
 {
-	// Clear platform-specific context
-	Platform_Quit_Graphics(GraphicsContext.platform);
+	if (engine_context->graphics_context != nullptr)
+	{
+		// clear platform-specific context
+		if (engine_context->graphics_context->platform != nullptr)
+			Platform_Quit_Graphics(engine_context->graphics_context->platform);
 
-	return true;
+		// free memory from graphics context
+		delete engine_context->graphics_context;
+
+		return true;
+	}
+
+	return false;
 }
 
 } // namespace Rex

@@ -43,7 +43,7 @@ rex_string::rex_string()
 	this->buf = nullptr;
 }
 
-// Constructor with const char pointer
+// Constructor with char sequence
 rex_string::rex_string(const char *str)
 {
 	this->buf = (char *)calloc(strlen(str), sizeof(char));
@@ -51,20 +51,43 @@ rex_string::rex_string(const char *str)
 	memcpy(this->buf, str, this->len);
 }
 
+// Constructor with length
+rex_string::rex_string(const rex_int len)
+{
+	this->len = len;
+	this->buf = (char *)calloc(this->len + 1, sizeof(char));
+}
+
 // Destructor
 rex_string::~rex_string()
 {
-	if (this->buf) free(this->buf);
+	if (this->buf != nullptr) free(this->buf);
 }
 
 //
 // Functions
 //
 
+// Clear string
 void rex_string::clear()
 {
 	if (this->buf != nullptr) free(this->buf);
 	this->len = 0;
+}
+
+// Replace character in string
+void rex_string::replace(char find, char replace)
+{
+	if (this->buf != nullptr)
+	{
+		for (rex_int i = 0; i < this->len; i++)
+		{
+			if (this->buf[i] == find)
+			{
+				this->buf[i] = replace;
+			}
+		}
+	}
 }
 
 //
@@ -74,7 +97,7 @@ void rex_string::clear()
 // Set string equal to string
 void rex_string::operator=(const rex_string &in)
 {
-	if (this->buf) free(this->buf);
+	if (this->buf != nullptr) free(this->buf);
 
 	this->buf = in.buf;
 	this->len = in.len;
@@ -83,7 +106,7 @@ void rex_string::operator=(const rex_string &in)
 // Set string equal to char sequence
 void rex_string::operator=(const char *in)
 {
-	if (this->buf == NULL) free(this->buf);
+	if (this->buf != nullptr) free(this->buf);
 
 	this->buf = (char *)calloc(strlen(in) + 1, sizeof(char));
 	this->len = strlen(in);
@@ -99,7 +122,7 @@ void rex_string::operator=(const rex_int &len)
 	outlen = len;
 	outbuf = (char *)calloc(outlen + 1, sizeof(char));
 
-	if (this->buf) free(this->buf);
+	if (this->buf != nullptr) free(this->buf);
 
 	this->buf = outbuf;
 	this->len = outlen;
@@ -114,7 +137,7 @@ void rex_string::operator+=(const rex_string &in)
 	outlen = this->len + in.len;
 	outbuf = (char *)calloc(outlen + 1, sizeof(char));
 
-	if (this->buf)
+	if (this->buf != nullptr)
 	{
 		memcpy(outbuf, this->buf, this->len);
 		memcpy(outbuf + this->len, in.buf, in.len);
@@ -138,7 +161,7 @@ void rex_string::operator+=(const char *in)
 	outlen = this->len + strlen(in);
 	outbuf = (char *)calloc(outlen + 1, sizeof(char));
 
-	if (this->buf)
+	if (this->buf != nullptr)
 	{
 		memcpy(outbuf, this->buf, this->len);
 		memcpy(outbuf + this->len, in, strlen(in));
@@ -162,7 +185,7 @@ void rex_string::operator+=(const rex_int &len)
 	outlen = this->len + len;
 	outbuf = (char *)calloc(outlen + 1, sizeof(char));
 
-	if (this->buf)
+	if (this->buf != nullptr)
 	{
 		memcpy(outbuf, this->buf, this->len);
 		free(this->buf);

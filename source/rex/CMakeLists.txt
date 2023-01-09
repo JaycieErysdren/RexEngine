@@ -58,6 +58,17 @@ set(MPLITE_SRC
 
 add_library(mplite STATIC ${MPLITE_SRC})
 
+## stb
+set(STB_SRC
+	thrdprty/stb/stb_image.c
+	thrdprty/stb/stb_image_resize.c
+	thrdprty/stb/stb_image_write.c
+	## thrdprty/stb/stb_leakcheck.c
+	thrdprty/stb/stb_truetype.c
+)
+
+add_library(stb STATIC ${STB_SRC})
+
 ##
 ##
 ## Rex Engine Core
@@ -76,6 +87,7 @@ set(REX_CORE_SRC
 	core/utils.cpp
 	core/error.cpp
 	core/io.cpp
+	core/surface.cpp
 )
 
 add_library(rex_core STATIC ${REX_CORE_SRC})
@@ -121,3 +133,6 @@ target_link_libraries(rex INTERFACE cjson)
 
 ## Add mplite
 target_link_libraries(rex INTERFACE mplite)
+
+## Add stb
+target_link_libraries(rex INTERFACE stb)

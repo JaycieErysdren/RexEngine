@@ -97,7 +97,6 @@
 
 	// SDL2
 	#include <SDL2/SDL.h>
-	#include <SDL2/SDL_image.h>
 
 	// OpenGL
 	#include <GLFW/glfw3.h>
@@ -165,6 +164,9 @@ using namespace std;
 
 // Command line Args
 #include "core/args.hpp"
+
+// Surface
+#include "core/surface.hpp"
 
 // Context
 #include "core/context.hpp"

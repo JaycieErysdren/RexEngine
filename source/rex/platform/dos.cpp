@@ -448,7 +448,7 @@ void *Platform_Init_Graphics(rex_int width, rex_int height, rex_int bpp, const c
 	vesa->info = (vesa_info_t *)calloc(1, sizeof(vesa_info_t));
 
 	// Init VESA
-	if (VESA_SetMode(width, height, bpp) == false) return NULL;
+	if (VESA_SetMode(width, height, bpp) == false) return nullptr;
 
 	return (void *)vesa;
 }

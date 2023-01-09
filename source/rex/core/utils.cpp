@@ -47,7 +47,7 @@ rex_string &ConvertTime(time_t time)
 	struct tm *info = localtime(&time);
 	sprintf(time_string.buf, "%04d-%02d-%02d %02d-%02d-%02d",
 		info->tm_year + 1900,
-		info->tm_mon,
+		info->tm_mon + 1,
 		info->tm_mday,
 		info->tm_hour,
 		info->tm_min,
