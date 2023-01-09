@@ -82,4 +82,16 @@ void Quit()
 	Platform_Quit();
 }
 
+// Returns true if the main loop should be looping
+bool DoMainLoop()
+{
+	if (engine_context != nullptr)
+	{
+		return Platform_DoMainLoop(engine_context->graphics_context->platform);
+	}
+
+	return false;
+}
+
+
 } // namespace Rex

@@ -48,6 +48,12 @@ bool Platform_Quit()
 	return true;
 }
 
+// Returns true if the main loop should continue
+bool Platform_DoMainLoop(void *context)
+{
+	return true;
+}
+
 //
 // Devices
 //
@@ -89,6 +95,12 @@ rex_int64 Platform_GetTicks64()
 //
 // Graphics
 //
+
+// Display a pixel buffer on the screen
+bool Platform_Display_PixelBuffer(void *context, rex_int width, rex_int height, rex_int bpp, void *pixels)
+{
+	return false;
+}
 
 // Initialize a platform-specific graphics context
 void *Platform_Init_Graphics(rex_int width, rex_int height, rex_int bpp, const char *title)

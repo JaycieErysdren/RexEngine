@@ -48,6 +48,12 @@ bool Platform_Quit()
 	return true;
 }
 
+// Returns true if the main loop should continue
+bool Platform_DoMainLoop(void *context)
+{
+	return true;
+}
+
 //
 // Devices
 //
@@ -105,6 +111,12 @@ void Platform_Quit_Graphics(void *context)
 //
 // Message Handling
 //
+
+// Display a pixel buffer on the screen
+bool Platform_Display_PixelBuffer(void *context, rex_int width, rex_int height, rex_int bpp, void *pixels)
+{
+	return false;
+}
 
 // Handle printing to the user
 bool Platform_PrintHandler(const char *message, message_type type)

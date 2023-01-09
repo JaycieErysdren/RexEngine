@@ -66,6 +66,17 @@ bool Platform_Quit()
 	return true;
 }
 
+// Returns true if the main loop should continue
+bool Platform_DoMainLoop(void *context)
+{
+	if (context == NULL || context == nullptr)
+		return false;
+
+	Platform_ReadInputDevices();
+
+	return glfwWindowShouldClose((GLFWwindow *)context) > 0 ? false : true;
+}
+
 //
 // Devices
 //
@@ -74,6 +85,9 @@ bool Platform_Quit()
 bool Platform_ReadInputDevices()
 {
 	SDL_Event event;
+
+	// Poll GLFW events
+	glfwPollEvents();
 
 	// Pump events
 	SDL_PumpEvents();
@@ -99,7 +113,7 @@ bool Platform_ReadInputDevices()
 		}
 	}
 
-	return false;
+	return true;
 }
 
 // Get mouse data
@@ -138,6 +152,61 @@ rex_int64 Platform_GetTicks64()
 // Graphics
 //
 
+// Display a pixel buffer on the screen
+bool Platform_Display_PixelBuffer(void *context, rex_int width, rex_int height, rex_int bpp, void *pixels)
+{
+	if (bpp != 32) return false;
+
+	GLuint texture;
+
+	// clear screen
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+
+	gluOrtho2D(0, width, height, 0);
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+
+	glBegin(GL_QUADS);
+		glTexCoord2f(0, 0); glVertex2i(0, 0);
+		glTexCoord2f(1, 0); glVertex2i(0 + width, 0);
+		glTexCoord2f(1, 1); glVertex2i(0 + width, 0 + height);
+		glTexCoord2f(0, 1); glVertex2i(0, 0 + height);
+	glEnd();
+
+	glDisable(GL_BLEND);
+	glDisable(GL_TEXTURE_2D);
+	glEnable(GL_DEPTH_TEST);
+
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+
+	// Swap buffers
+	glfwSwapBuffers((GLFWwindow *)context);
+
+	return true;
+}
+
 // Initialize a platform-specific graphics context
 void *Platform_Init_Graphics(rex_int width, rex_int height, rex_int bpp, const char *title)
 {
@@ -146,6 +215,7 @@ void *Platform_Init_Graphics(rex_int width, rex_int height, rex_int bpp, const c
 
 	// Default window hints
 	glfwDefaultWindowHints();
+	glfwWindowHint(GLFW_RESIZABLE, 0);
 
 	// Create window object
 	GLFWwindow *window = glfwCreateWindow(width, height, title, NULL, NULL);

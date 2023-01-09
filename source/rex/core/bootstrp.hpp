@@ -32,6 +32,9 @@ bool Init();
 // Shutdown basic functions of Rex Engine
 void Quit();
 
+// Returns true if the main loop should be looping
+bool DoMainLoop();
+
 } // namespace Rex
 
 #endif // __REX_BOOTSTRAP_H__

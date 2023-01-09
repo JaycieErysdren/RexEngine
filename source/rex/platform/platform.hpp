@@ -36,6 +36,9 @@ bool Platform_Init();
 // Shutdown platform-specific handlers
 bool Platform_Quit();
 
+// Returns true if the main loop should continue
+bool Platform_DoMainLoop(void *context);
+
 //
 // Devices
 //
@@ -68,6 +71,9 @@ void *Platform_Init_Graphics(rex_int width, rex_int height, rex_int bpp, const c
 
 // Shutdown a platform-specific graphics context
 void Platform_Quit_Graphics(void *context);
+
+// Display a pixel buffer on the screen
+bool Platform_Display_PixelBuffer(void *context, rex_int width, rex_int height, rex_int bpp, void *pixels);
 
 //
 // Message Handling

@@ -17,58 +17,133 @@
 // Header
 #include "testapp.hpp"
 
-int w_width = 640;
-int w_height = 480;
+rex_int width = 640;
+rex_int height = 480;
+rex_int bpp = 32;
 
-#ifdef AGAHDSD
+#ifdef USB_TEST
 
-// Blit an SDL surface onto an OpenGL window
-void Blit_Surface(SDL_Surface *srf, SDL_Rect *src, SDL_Rect *dst)
+// LibUSB
+#include <libusb-1.0/libusb.h>
+
+static void USB_PrintDevice(libusb_device *dev, libusb_device_handle *handle)
 {
-	// Sanity check
-	if (srf == NULL) return;
-	if (src == NULL) return;
-	if (dst == NULL) return;
+	struct libusb_device_descriptor desc;
+	unsigned char string[256];
+	const char *speed;
+	int ret;
+	uint8_t i;
 
-	GLuint texture;
+	switch (libusb_get_device_speed(dev))
+	{
+		case LIBUSB_SPEED_LOW:
+			speed = "1.5M";
+			break;
 
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
+		case LIBUSB_SPEED_FULL:
+			speed = "12M";
+			break;
 
-	gluOrtho2D(0, w_width, w_height, 0);
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
+		case LIBUSB_SPEED_HIGH:
+			speed = "480M";
+			break;
 
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
+		case LIBUSB_SPEED_SUPER:
+			speed = "5G";
+			break;
 
-	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		case LIBUSB_SPEED_SUPER_PLUS:
+			speed = "10G";
+			break;
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, srf->w, srf->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, srf->pixels);
+		default:
+			speed = "Unknown";
+	}
 
-	glBegin(GL_QUADS);
-		glTexCoord2f((GLfloat)src->x / srf->w, (GLfloat)src->y / srf->h); glVertex2i(dst->x, dst->y);
-		glTexCoord2f((GLfloat)(src->x + src->w) / srf->w, (GLfloat)src->y / srf->h); glVertex2i(dst->x + dst->w, dst->y);
-		glTexCoord2f((GLfloat)(src->x + src->w) / srf->w, (GLfloat)(src->y + src->h) / srf->h); glVertex2i(dst->x + dst->w, dst->y + dst->h);
-		glTexCoord2f((GLfloat)src->x / srf->w, (GLfloat)(src->y + src->h) / srf->h); glVertex2i(dst->x, dst->y + dst->h);
-	glEnd();
+	ret = libusb_get_device_descriptor(dev, &desc);
 
-	glDisable(GL_BLEND);
-	glDisable(GL_TEXTURE_2D);
-	glEnable(GL_DEPTH_TEST);
+	if (ret < 0)
+	{
+		fprintf(stderr, "failed to get device descriptor");
+		return;
+	}
 
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
+	printf("Dev (bus %u, device %u): %04X - %04X speed: %s\n",
+	       libusb_get_bus_number(dev), libusb_get_device_address(dev),
+	       desc.idVendor, desc.idProduct, speed);
 
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
+	if (!handle)
+		libusb_open(dev, &handle);
+
+	if (handle)
+	{
+		if (desc.iManufacturer)
+		{
+			ret = libusb_get_string_descriptor_ascii(handle, desc.iManufacturer, string, sizeof(string));
+			if (ret > 0)
+				printf("  Manufacturer:              %s\n", (char *)string);
+		}
+
+		if (desc.iProduct)
+		{
+			ret = libusb_get_string_descriptor_ascii(handle, desc.iProduct, string, sizeof(string));
+			if (ret > 0)
+				printf("  Product:                   %s\n", (char *)string);
+		}
+
+		// test for gv-usb2
+		if (memcmp(string, "I-O DATA GV-USB2", 16) == 0)
+			printf("\nFound GV-USB2!\n\n");
+
+		if (desc.iSerialNumber)
+		{
+			ret = libusb_get_string_descriptor_ascii(handle, desc.iSerialNumber, string, sizeof(string));
+
+			if (ret > 0)
+				printf("  Serial Number:             %s\n", (char *)string);
+		}
+	}
+
+	printf("\n");
+
+	if (handle)
+		libusb_close(handle);
+}
+
+static void USB_PrintDevices(libusb_device **devs)
+{
+	libusb_device *dev;
+	rex_int i;
+
+	while ((dev = devs[i++]) != NULL)
+	{
+		USB_PrintDevice(dev, NULL);
+	}
+}
+
+rex_int USB_Test()
+{
+	libusb_device **devs;
+	int r;
+	ssize_t cnt;
+
+	r = libusb_init(NULL);
+	if (r < 0)
+		return r;
+
+	cnt = libusb_get_device_list(NULL, &devs);
+
+	if (cnt < 0)
+	{
+		libusb_exit(NULL);
+		return (rex_int)cnt;
+	}
+
+	USB_PrintDevices(devs);
+	libusb_free_device_list(devs, 1);
+
+	libusb_exit(NULL);
+	return 0;
 }
 
 #endif
@@ -83,29 +158,23 @@ int RexMain(int argc, char **argv)
 	Rex::Init();
 
 	// Initialize Rex Engine Graphics
-	Rex::Init_Graphics(640, 480, 8, "TestApp");
+	Rex::Init_Graphics(width, height, bpp, "TestApp");
 
-	Rex::Print(Rex::MESSAGE, "This is a standard message.");
-	Rex::Print(Rex::WARNING, "This is a warning message.");
-	Rex::Print(Rex::FAILURE, "This is a failure message.");
+	// surface & color
+	Rex::Color *color = new Rex::Color(255, 0, 255, 255);
+	Rex::Surface *surf = new Rex::Surface(width, height, bpp);
+	surf->Clear(color);
 
-	// color
-	//Rex::Color *color = new Rex::Color(255, 255, 255);
-	//cout << "depth: " << (rex_uint)color->Depth() << endl;
-	//cout << "r: " << (rex_uint)color->R() << endl;
-	//cout << "g: " << (rex_uint)color->G() << endl;
-	//cout << "b: " << (rex_uint)color->B() << endl;
-	//cout << "a: " << (rex_uint)color->A() << endl;
+	// main loop
+	while (Rex::DoMainLoop())
+	{
+		surf->Flip();
 
-	// surface
-	//Rex::Surface *surf = new Rex::Surface(32, 32, 16);
-	//surf->Clear(color);
-	//surf->Save("test.bmp", Rex::BMP);
-	//delete surf;
-	//delete color;
+		if (Rex::KeyboardGet(REX_SC_ESCAPE) == true) break;
+	}
 
-	// Test message
-	Rex::Message("Test", "Lorem ipsum dolor sit amet, consectetur adipiscing elit.");
+	delete surf;
+	delete color;
 
 	// Quit Rex Engine Graphics
 	Rex::Quit_Graphics();

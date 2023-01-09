@@ -27,6 +27,9 @@ target_link_libraries(rex_platform PUBLIC SDL2::SDL2)
 
 ## OpenGL
 target_link_libraries(rex_platform PUBLIC OpenGL::GL)
+target_link_libraries(rex_platform PUBLIC OpenGL::GLU)
+
+target_link_libraries(rex_platform PUBLIC usb-1.0)
 
 ## GLFW
 target_link_libraries(rex_platform PUBLIC glfw)

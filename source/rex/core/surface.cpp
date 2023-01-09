@@ -567,6 +567,20 @@ bool Surface::Save(const char *filename, surface_save_format format)
 }
 
 //
+// Display
+//
+
+// Display this surface on screen
+bool Surface::Flip()
+{
+	// flip it using platform functions
+	if (engine_context->graphics_context != nullptr && engine_context->graphics_context->platform != nullptr)
+		return Platform_Display_PixelBuffer(engine_context->graphics_context->platform, this->width, this->height, this->bpp, this->pixels);
+
+	return false;
+}
+
+//
 // Clearing functions
 //
 

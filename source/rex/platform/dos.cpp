@@ -220,6 +220,12 @@ bool Platform_Quit()
 	return true;
 }
 
+// Returns true if the main loop should continue
+bool Platform_DoMainLoop(void *context)
+{
+	return true;
+}
+
 //
 // Devices
 //
@@ -439,6 +445,16 @@ bool VESA_SetMode(rex_int32 w, rex_int32 h, rex_int32 bpp)
 	return true;
 }
 
+// Set the bank that the pixel functions are currently writing to
+void VESA_SetBank(rex_int16 bank_number)
+{
+	regs.w.ax = 0x4F05;
+	regs.w.bx = 0;
+	regs.w.dx = bank_number;
+
+	int386(0x10, &regs, &regs);
+}
+
 // Initialize a platform-specific graphics context
 void *Platform_Init_Graphics(rex_int width, rex_int height, rex_int bpp, const char *title)
 {
@@ -471,6 +487,40 @@ void Platform_Quit_Graphics(void *context)
 	// Set mode 0x03 (text mode)
 	regs.w.ax = 0x03;
 	int386(0x10, &regs, &regs);
+}
+
+// Display a pixel buffer on the screen
+bool Platform_Display_PixelBuffer(void *context, rex_int width, rex_int height, rex_int bpp, void *pixels)
+{
+	rex_int bank_size = ((vesa_t *)context)->mode_info->WinSize * 1024;
+	rex_int bank_granularity =  ((vesa_t *)context)->mode_info->WinGranularity * 1024;
+	rex_int bank_number = 0;
+	rex_int todo = width * height * (bpp / 8);
+	rex_int copy_size = 0;
+	rex_int buffer_pos = 0;
+	rex_uint8 *buffer = (rex_uint8 *)pixels;
+
+	while (todo > 0)
+	{
+		// select the appropriate bank
+		VESA_SetBank(bank_number);
+
+		// how much can we copy in one go?
+		if (todo > bank_size)
+			copy_size = bank_size;
+		else
+			copy_size = todo;
+
+		// copy a bank of data to the screen
+		dosmemput(buffer, copy_size, 0xA0000);
+
+		// move on to the next bank of data
+		todo -= copy_size;
+		buffer += copy_size;
+		bank_number += bank_size / bank_granularity;
+	}
+
+	return true;
 }
 
 //

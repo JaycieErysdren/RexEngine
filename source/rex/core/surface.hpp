@@ -191,6 +191,13 @@ class Surface
 		bool Save(const char *filename, surface_save_format format);
 
 		//
+		// Display
+		//
+
+		// Display this surface on screen
+		bool Flip();
+
+		//
 		// Clearing functions
 		//
 
