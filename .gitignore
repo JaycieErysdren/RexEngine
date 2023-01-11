@@ -31,3 +31,18 @@ dosbox-x.conf
 # build
 build/*
 !build/assets/
+
+# quake
+/**/mapsrc/**/*.bat
+/**/mapsrc/**/*.sh
+/**/mapsrc/**/*.bsp
+/**/mapsrc/**/*.compile.map
+/**/mapsrc/**/*.lit
+/**/mapsrc/**/*.log
+/**/mapsrc/**/*.prt
+/**/mapsrc/**/*.pts
+/**/mapsrc/**/*.texinfo
+/**/mapsrc/**/*.texinfo.json
+/**/mapsrc/**/*.json
+/**/mapsrc/**/*.vis
+/**/mapsrc/**/autosave/
